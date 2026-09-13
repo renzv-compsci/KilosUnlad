@@ -1,0 +1,77 @@
+{
+  "contract_name": "ml-atm-telemetry",
+  "version": "1.0.0",
+  "endpoint": "/api/v1/score-atm-stream",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "request": {
+    "terminal_id": "ATM-LBP-CAL-03",
+    "terminal_metadata": {
+      "bank_network": "LANDBANK",
+      "location_name": "LBP Calamba Branch - Outside Lobby",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": [121.1578, 14.2110]
+    },
+    "window_start_time": "2026-09-05T02:00:00Z",
+    "window_end_time": "2026-09-05T02:20:00Z",
+    "transactions": [
+      {
+        "transaction_id": "TXN-LBP-990182",
+        "card_masked_pan": "5044-xxxx-xxxx-1201",
+        "household_id": "4PS-04A-2026-00129",
+        "timestamp": "2026-09-05T02:14:10Z",
+        "amount_php": 4000.00
+      },
+      {
+        "transaction_id": "TXN-LBP-990183",
+        "card_masked_pan": "5044-xxxx-xxxx-8842",
+        "household_id": "4PS-04A-2026-00441",
+        "timestamp": "2026-09-05T02:14:52Z",
+        "amount_php": 3500.00
+      },
+      {
+        "transaction_id": "TXN-LBP-990184",
+        "card_masked_pan": "5044-xxxx-xxxx-7129",
+        "household_id": "4PS-04A-2026-00918",
+        "timestamp": "2026-09-05T02:15:35Z",
+        "amount_php": 5000.00
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "data": {
+      "terminal_id": "ATM-LBP-CAL-03",
+      "window_evaluation": {
+        "is_anomalous_batch": true,
+        "sangla_atm_risk_score": 85.0,
+        "cluster_metrics": {
+          "total_transactions_in_window": 12,
+          "avg_interval_seconds": 38.5,
+          "nocturnal_window_flag": true,
+          "spatial_displacement_flag": false,
+          "historical_cluster_overlap_rate": 0.83
+        },
+        "identified_cluster_id": "CLUSTER-20260905-03",
+        "flagged_household_ids": [
+          "4PS-04A-2026-00129",
+          "4PS-04A-2026-00441",
+          "4PS-04A-2026-00918"
+        ]
+      },
+      "evaluated_at": "2026-09-10T14:36:00Z"
+    }
+  },
+  "error_responses": [
+    {
+      "status": 400,
+      "error": {
+        "code": "INSUFFICIENT_TRANSACTION_SAMPLE",
+        "message": "Sliding window requires at least 3 transactions to calculate velocity metrics."
+      }
+    }
+  ]
+}

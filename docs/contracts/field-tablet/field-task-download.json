@@ -1,0 +1,57 @@
+{
+  "contract_name": "field-task-download",
+  "version": "1.0.0",
+  "endpoint": "/api/v1/tasks/assigned",
+  "method": "GET",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>"
+  },
+  "request": null,
+  "response": {
+    "status": 200,
+    "data": {
+      "worker_id": "60c72b2f9b1e8a001c8a1101",
+      "sync_timestamp": "2026-09-10T08:00:00Z",
+      "assigned_tasks_count": 1,
+      "tasks": [
+        {
+          "task_id": "TSK-2026-00001",
+          "household_id": "4PS-04A-2026-00129",
+          "head_of_household": {
+            "first_name": "Rodrigo",
+            "last_name": "Mendoza",
+            "national_id": "PH-NID-99218273",
+            "contact_phone": "+639181234567"
+          },
+          "address": {
+            "street": "Purok 3",
+            "barangay": "Palingon",
+            "municipality": "Calamba",
+            "province": "Laguna",
+            "target_coordinates": [121.1652, 14.2144]
+          },
+          "current_swdi_level": 1,
+          "risk_assessment": {
+            "composite_risk_score": 84.0,
+            "flag_reasons": [
+              "Power consumption exceeds Lifeline Limit (265 kWh)",
+              "LTO cross-match detected Yamaha NMAX 155cc",
+              "AI predicts Level 3 Self-Sufficiency"
+            ]
+          },
+          "dispatch_instructions": "Verify if motorcycle is used for delivery livelihood or personal luxury; verify physical custody of LandBank cash card.",
+          "due_date": "2026-09-24T23:59:59Z"
+        }
+      ]
+    }
+  },
+  "error_responses": [
+    {
+      "status": 401,
+      "error": {
+        "code": "TOKEN_EXPIRED",
+        "message": "Session has expired. Reconnect to network to log in."
+      }
+    }
+  ]
+}

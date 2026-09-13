@@ -1,0 +1,48 @@
+{
+  "contract_name": "admin-task-dispatch",
+  "version": "1.0.0",
+  "endpoint": "/api/v1/tasks/dispatch",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>",
+    "Content-Type": "application/json"
+  },
+  "request": {
+    "household_id": "4PS-04A-2026-00129",
+    "assigned_worker_id": "60c72b2f9b1e8a001c8a1101",
+    "assignment_notes": "Verify if motorcycle is used for delivery livelihood or personal luxury; verify physical custody of LandBank cash card.",
+    "priority": "HIGH",
+    "due_date": "2026-09-24T23:59:59Z"
+  },
+  "response": {
+    "status": 201,
+    "data": {
+      "task_id": "TSK-2026-00001",
+      "household_id": "4PS-04A-2026-00129",
+      "assigned_worker_id": "60c72b2f9b1e8a001c8a1101",
+      "task_status": "PENDING_DISPATCH",
+      "household_status": "UNDER_INVESTIGATION",
+      "dispatched_at": "2026-09-10T08:30:00Z",
+      "audit_receipt": {
+        "sequence_index": 10450,
+        "entry_hash": "2f41c9b8a7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0"
+      }
+    }
+  },
+  "error_responses": [
+    {
+      "status": 404,
+      "error": {
+        "code": "HOUSEHOLD_NOT_FOUND",
+        "message": "Specified household ID does not exist."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "ACTIVE_TASK_EXISTS",
+        "message": "Household already has an open investigation task in progress."
+      }
+    }
+  ]
+}

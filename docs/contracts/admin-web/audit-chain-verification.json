@@ -1,0 +1,43 @@
+{
+  "contract_name": "audit-chain-verification",
+  "version": "1.0.0",
+  "endpoint": "/api/v1/audit/verify-chain?start_sequence=1&end_sequence=1000",
+  "method": "GET",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>"
+  },
+  "request": null,
+  "response": {
+    "status": 200,
+    "data": {
+      "is_chain_valid": true,
+      "total_blocks_verified": 1000,
+      "verification_timestamp": "2026-09-10T17:00:00Z",
+      "genesis_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "head_hash": "3d9a1f2e4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e",
+      "broken_blocks": []
+    }
+  },
+  "error_responses": [
+    {
+      "status": 200,
+      "data": {
+        "is_chain_valid": false,
+        "total_blocks_verified": 1000,
+        "verification_timestamp": "2026-09-10T17:00:00Z",
+        "genesis_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "head_hash": "INVALID_HASH_AT_SEQUENCE_451",
+        "broken_blocks": [
+          {
+            "sequence_index": 451,
+            "recorded_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "calculated_hash": "f4c8996fb92427ae41e4649b934ca495e3b0c44298fc1c149afb91b7852b855a",
+            "target_entity": "beneficiaries",
+            "entity_id": "4PS-04A-2026-00088",
+            "tamper_detected_at": "2026-09-10T17:00:00Z"
+          }
+        ]
+      }
+    }
+  ]
+}

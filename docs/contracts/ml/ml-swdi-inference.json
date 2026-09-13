@@ -1,0 +1,56 @@
+{
+  "contract_name": "ml-swdi-inference",
+  "version": "1.0.0",
+  "endpoint": "/api/v1/predict-swdi",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "request": {
+    "household_id": "4PS-04A-2026-00129",
+    "demographics": {
+      "household_size": 6,
+      "dependents_ratio": 2.0,
+      "head_education_level": 1,
+      "wall_score": 1,
+      "roof_score": 2,
+      "water_access_level": 1
+    }
+  },
+  "response": {
+    "status": 200,
+    "data": {
+      "household_id": "4PS-04A-2026-00129",
+      "ml_evaluation": {
+        "predicted_swdi_level": 3,
+        "class_probabilities": {
+          "level_1_survival": 0.04,
+          "level_2_subsistence": 0.08,
+          "level_3_self_sufficiency": 0.88
+        },
+        "shap_explainability": [
+          {
+            "indicator": "head_education_level",
+            "contribution_weight": 0.42,
+            "description": "Educational attainment strongly correlates with Level 3 transition."
+          },
+          {
+            "indicator": "dependents_ratio",
+            "contribution_weight": -0.25,
+            "description": "High dependency ratio reduces economic sufficiency score."
+          }
+        ]
+      },
+      "evaluated_at": "2026-09-10T14:35:00Z"
+    }
+  },
+  "error_responses": [
+    {
+      "status": 422,
+      "error": {
+        "code": "INVALID_FEATURE_VECTOR",
+        "message": "One or more demographic features are missing or outside valid bounds."
+      }
+    }
+  ]
+}
