@@ -1,0 +1,8 @@
+const ROLES = Object.freeze({
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  REGIONAL_DIRECTOR: 'REGIONAL_DIRECTOR',
+  CASE_WORKER: 'CASE_WORKER',
+  COA_AUDITOR: 'COA_AUDITOR'
+});
+
+module.exports = ROLES;
