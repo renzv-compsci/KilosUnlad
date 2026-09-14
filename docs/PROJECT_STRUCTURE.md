@@ -8,31 +8,43 @@
 
 ```text
 kilos-unlad/
-├── .github/                            # CI/CD Workflows & PR Templates
-│   └── workflows/
-│       ├── lint-and-test.yml           # Automated linting & unit tests
-│       └── docker-build.yml            # Container build verification
-│
-├── docs/                               # System Documentation & Specifications
-│   ├── PROJECT_OVERVIEW.md             # Project vision, problems, and legal basis
-│   ├── ARCHITECTURE.md                 # System architecture and technical breakdown
-│   ├── PROJECT_STRUCTURE.md            # File-by-file directory explanation
-│   └── contracts/                      # Frozen API schemas & data contracts
-│       ├── backend-to-ml.json          # Express to FastAPI inference contract
-│       └── field-task-submission.json  # Tablet PWA to Express submission schema
+├── docs/                               # System Documentation, Specs & Contracts
+│   ├── contracts/                      # The 8 Frozen Interface Contracts
+│   │   ├── admin-web/                  # Desktop Admin & Auditor Contracts
+│   │   │   ├── admin-task-dispatch.json
+│   │   │   ├── admin-triage-feed.json
+│   │   │   └── audit-chain-verification.json
+│   │   ├── auth/                       # Authentication & Session Contracts
+│   │   │   └── auth-session.json
+│   │   ├── field-tablet/               # Offline Tablet PWA Contracts
+│   │   │   ├── field-task-download.json
+│   │   │   └── field-task-submission.json
+│   │   └── ml/                         # Machine Learning & Telemetry Contracts
+│   │       ├── ml-atm-telemetry.json
+│   │       └── ml-swdi-inference.json
+│   ├── tasks/                          # Individual Team Member Roadmaps
+│   │   ├── CHARLES_ML.md               # Charles's ML & FastAPI tasks
+│   │   ├── DUSTIN_DATABASE.md          # Dustin's MongoDB & Mongoose tasks
+│   │   ├── MAE_BACKEND.md              # Mae's Express & Security tasks
+│   │   ├── MARKIE_FRONTEND.md          # Markie's React & Tablet PWA tasks
+│   │   └── RENZ_DATA.md                # Renz's PM, Data Pipeline & Floater tasks
+│   ├── ARCHITECTURE.md                 # Technical boundaries & domain specifications
+│   ├── ONBOARDING.md                   # Quickstart guide & developer workflows
+│   ├── PROJECT_OVERVIEW.md             # Project background, problems, and legal basis
+│   └── PROJECT_STRUCTURE.md            # Deep component & directory breakdown
 │
 ├── docker/                             # Infrastructure & Container Configurations
-│   ├── nginx/
-│   │   ├── default.conf                # Nginx proxy, SSL, and rate-limiting rules
+│   ├── nginx/                          # Reverse Proxy & Gateway
+│   │   ├── default.conf                # Routing, SSL, and rate-limiting rules
 │   │   └── Dockerfile                  # Gateway container build
-│   └── mongo/
-│       └── init-mongo.js               # MongoDB bootstrap script (indexes & users)
+│   └── mongo/                          # Database Initialization
+│       └── init-mongo.js               # User provisioning & index bootstrap
 │
 ├── client/                             # FRONTEND: Desktop Web & Tablet PWA (Owner: Markie)
-│   ├── public/
+│   ├── public/                         # Static assets & PWA configuration
 │   │   ├── favicon.ico
-│   │   ├── manifest.json               # PWA configuration for tablet install
-│   │   └── service-worker.js           # PWA offline asset caching script
+│   │   ├── manifest.json               # Tablet home-screen install manifest
+│   │   └── service-worker.js           # PWA offline asset caching worker
 │   ├── src/
 │   │   ├── assets/                     # Logos, DSWD branding, icons
 │   │   ├── components/                 # Reusable UI primitives
@@ -43,23 +55,23 @@ kilos-unlad/
 │   │   │   ├── auth/                   # Login screen & session handling
 │   │   │   ├── dashboard/              # Regional heatmaps & metric cards
 │   │   │   ├── triage/                 # High-risk anomaly review table
-│   │   │   ├── verification/           # Offline-first field checklist & photo capture
-│   │   │   ├── due-process/             # 15-day appeal tracking & docket views
-│   │   │   └── audit-ledger/            # COA cryptographic chain inspector
+│   │   │   ├── verification/           # Offline field checklist & photo capture
+│   │   │   ├── due-process/            # 15-day appeal tracking & docket views
+│   │   │   └── audit-ledger/           # COA cryptographic chain inspector
 │   │   ├── hooks/                      # Custom React hooks
 │   │   │   ├── useGeolocation.js       # HTML5 device coordinates extractor
 │   │   │   ├── useOfflineSync.js       # Detects network status & triggers sync
 │   │   │   └── useAuth.js              # Session & role validation hook
 │   │   ├── services/                   # Data access layer
 │   │   │   ├── api.js                  # Axios HTTP client with JWT interceptors
-│   │   │   └── indexedDB.js            # Offline task storage manager (Dexie.js / idb)
+│   │   │   └── indexedDB.js            # Offline task storage manager (Dexie.js)
 │   │   ├── utils/                      # Helper utilities
-│   │   │   ├── formatters.js            # Currency (PHP), dates, SWDI tier labels
-│   │   │   └── photoHasher.js           # Client-side SHA-256 calculation
+│   │   │   ├── formatters.js           # Currency (PHP), dates, SWDI tier labels
+│   │   │   └── photoHasher.js          # Client-side SHA-256 calculation
 │   │   ├── App.jsx                     # Route definitions & protected routes
 │   │   ├── main.jsx                    # React entry point
 │   │   └── index.css                   # TailwindCSS directives & styles
-│   ├── package.json
+│   ├── package.json                    # Frontend dependencies & scripts
 │   ├── vite.config.js                  # Vite configuration + PWA plugins
 │   └── Dockerfile                      # Multi-stage frontend container build
 │
@@ -71,7 +83,7 @@ kilos-unlad/
 │   │   ├── constants/                  # Enums & statutory constants
 │   │   │   ├── roles.js                # SUPER_ADMIN, REGIONAL_DIRECTOR, etc.
 │   │   │   ├── statuses.js             # State machine enum definitions
-│   │   │   └── thresholds.js            # Lifeline limits (200 kWh, 25 cu.m)
+│   │   │   └── thresholds.js           # Lifeline limits (200 kWh, 25 cu.m)
 │   │   ├── controllers/                # HTTP request handlers
 │   │   │   ├── auth.controller.js
 │   │   │   ├── beneficiary.controller.js
@@ -112,7 +124,7 @@ kilos-unlad/
 │   │   │   └── geoFence.js             # Haversine distance calculator (< 250m)
 │   │   └── app.js                      # Express app setup & middleware mounting
 │   ├── server.js                       # Server entry point (starts HTTP listener)
-│   ├── package.json
+│   ├── package.json                    # Backend dependencies & scripts
 │   └── Dockerfile                      # Node.js alpine container build
 │
 ├── ml-service/                         # AI & ANALYTICS MICROSERVICE (Owner: Charles)
@@ -140,22 +152,27 @@ kilos-unlad/
 │   ├── requirements.txt                # Python dependencies (FastAPI, LightGBM)
 │   └── Dockerfile                      # Python slim container build
 │
-├── data-pipeline/                      # DATA GENERATION & SEEDING (Owner: Renz)
-│   ├── generator/                      # Econometric Synthetic Data Generator
-│   │   ├── distributions.py            # PSA FIES Poisson & LogNormal formulas
-│   │   ├── latent_wealth.py            # W_i mathematical formula
-│   │   └── generator.py                # Main generation script producing seeds
-│   ├── seeds/                          # Generated Seed Files (JSON)
+├── data-pipeline/                      # DATA PIPELINE & SEED GENERATION (Owner: Renz)
+│   ├── notebooks/                      # Real PSA FIES Exploration & Engineering
+│   │   ├── 01_fies_cleaning_and_eda.ipynb   # Cleaning 41k PSA survey records & EDA
+│   │   └── 02_swdi_feature_engineering.ipynb # Engineering SWDI tiers & features
+│   ├── generator/                      # 4Ps Synthetic Augmentation Generator
+│   │   ├── distributions.py            # PSA FIES Poisson & LogNormal distributions
+│   │   ├── latent_wealth.py            # Latent Wealth Index (W_i) mathematical formula
+│   │   └── generator.py                # Main script producing the 4 audit cohorts
+│   ├── seeds/                          # Output Datasets & Database Seeds
+│   │   ├── features_swdi_clean.parquet # Clean training matrix for Charles (ML)
 │   │   ├── seed_beneficiaries.json     # 5,000 synthetic household profiles
 │   │   └── seed_external_records.json  # Mock Meralco, LTO, Maynilad data
-│   ├── scripts/                        # Database population scripts
-│   │   └── seed_db.py                  # Ingests JSON seed files into MongoDB
-│   └── requirements.txt                # Generator dependencies (Faker, NumPy)
+│   ├── scripts/                        # Database Management & Seeding Scripts
+│   │   ├── seed_db.py                  # Ingests JSON seed files into MongoDB
+│   │   └── reset_demo.sh               # One-click database reset for live defense
+│   └── requirements.txt                # Data pipeline dependencies (Faker, PyArrow)
 │
-├── .env.example                        # Template for environment variables
-├── .gitignore                          # Git exclusion rules
-├── docker-compose.yml                  # Root container orchestrator
-└── README.md                           # Quickstart guide
+├── .env.example                        # Template for all environment variables
+├── .gitignore                          # Git exclusion rules (with uploads/ ignored)
+├── docker-compose.yml                  # Root multi-container orchestrator
+└── README.md                           # Quickstart guide & repository entry point
 ```
 
 ---

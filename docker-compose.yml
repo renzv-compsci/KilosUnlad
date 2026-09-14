@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. GATEWAY (Nginx) - The Single Entry Point
+  # ----------------------------------------------------------------------------
+  gateway:
+    build:
+      context: ./docker/nginx
+    container_name: kilosunlad-gateway
+    restart: unless-stopped
+    ports:
+      - "80:80"        # Public port exposed to browser
+    depends_on:
+      - server
+      - client
+    networks:
+      - kilosunlad-network
+
+  # ----------------------------------------------------------------------------
+  # 2. CLIENT (React + Vite) - The User Interfaces
+  # ----------------------------------------------------------------------------
+  client:
+    build:
+      context: ./client
+    container_name: kilosunlad-client
+    restart: unless-stopped
+    expose:
+      - "3000"         # Internal port inside Docker network
+    environment:
+      - VITE_API_URL=http://localhost:5000/api/v1
+    networks:
+      - kilosunlad-network
+
+  # ----------------------------------------------------------------------------
+  # 3. SERVER (Node.js & Express) - The Business Engine
+  # ----------------------------------------------------------------------------
+  server:
+    build:
+      context: ./server
+    container_name: kilosunlad-server
+    restart: unless-stopped
+    expose:
+      - "5000"
+    ports:
+      - "5000:5000"    # Exposed so Mae can test APIs directly with Postman
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGO_URI=mongodb://app_user:AppUserPassword2026!@db:27017/kilosunlad?authSource=kilosunlad
+      - ML_SERVICE_URL=http://ml-service:8000
+      - UPLOAD_DIR=/app/uploads
+      - CORS_ORIGIN=http://localhost:3000,http://localhost
+      - APPEAL_WINDOW_DAYS=15
+    volumes:
+      - upload-data:/app/uploads   # Keeps uploaded photos safe on disk
+    depends_on:
+      - db
+      - ml-service
+    networks:
+      - kilosunlad-network
+
+  # ----------------------------------------------------------------------------
+  # 4. ML SERVICE (Python & FastAPI) - The AI Engine
+  # ----------------------------------------------------------------------------
+  ml-service:
+    build:
+      context: ./ml-service
+    container_name: kilosunlad-ml
+    restart: unless-stopped
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"    # Exposed so Charles can view Swagger docs (localhost:8000/docs)
+    environment:
+      - ML_ENV=development
+      - MODEL_ARTIFACT_PATH=/app/artifacts/lightgbm_swdi_v1.joblib
+    networks:
+      - kilosunlad-network
+
+  # ----------------------------------------------------------------------------
+  # 5. DATABASE (MongoDB 6.0) - The Persistence Store
+  # ----------------------------------------------------------------------------
+  db:
+    image: mongo:6.0
+    container_name: kilosunlad-db
+    restart: unless-stopped
+    ports:
+      - "27017:27017"  # Exposed so Dustin can inspect database with MongoDB Compass
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin_user
+      - MONGO_INITDB_ROOT_PASSWORD=RootAdminSecret2026!
+      - MONGO_INITDB_DATABASE=kilosunlad
+    volumes:
+      - mongo-data:/data/db                                             # Persists data on disk
+      - ./docker/mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro # Runs bootstrap script
+    networks:
+      - kilosunlad-network
+
+# ------------------------------------------------------------------------------
+# SHARED NETWORKS & PERSISTENT VOLUMES
+# ------------------------------------------------------------------------------
+networks:
+  kilosunlad-network:
+    driver: bridge
+
+volumes:
+  mongo-data:     # Preserves database records if container is stopped
+  upload-data:    # Preserves evidence photos if container is stopped

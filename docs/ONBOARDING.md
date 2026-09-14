@@ -1,86 +1,181 @@
-# KilosUnlad: Team Onboarding & Contribution Guide
-
-**Target Audience:** Development Team (Renz, Charles, Mae, Dustin, Markie)
-
----
-
-# Welcome to the KilosUnlad Engineering Team
-
-Welcome to the team. KilosUnlad is an evidence-driven, Human-in-the-Loop (HITL) Management Information System (MIS) designed for the Department of Social Welfare and Development (DSWD). It audits and verifies the socioeconomic trajectory of beneficiaries under the Pantawid Pamilyang Pilipino Program (4Ps).
-
-This guide is designed to get you from cloning the repository to making your first commit without guessing what to read or what to build.
+# KilosUnlad: Team Onboarding & Engineering Execution Guide
+**Project Repository:** `https://github.com/renzv-compsci/KilosUnlad.git`  
+**Target Audience:** Development Team (Dustin, Mae, Charles, Markie, Renz)  
+**Last Updated:** Phase 1 Initialization  
 
 ---
 
-## 1. Quickstart: Setting Up Your Local Environment
+> # ⚠️ CRITICAL NOTICE: READ THIS ONBOARDING GUIDE FIRST!
+> **DO NOT WRITE A SINGLE LINE OF CODE OR CREATE BRANCHES UNTIL YOU HAVE READ THIS DOCUMENT IN ITS ENTIRETY.**
+>
+> In past student projects, developers jump straight into coding without understanding the architecture, resulting in broken endpoints, conflicting variable names, and hours wasted on rework. 
+> 
+> Everything in this repository—from folder structures to variable names—has been pre-engineered and frozen. Follow this guide step-by-step to get your environment running smoothly.
 
-Before diving into your specific domain, ensure your local development machine has the following prerequisites installed:
+---
 
-- Docker & Docker Compose (Docker Desktop or Docker Engine v24+)
-- Node.js (v18 LTS or v20 LTS) & npm
-- Python (v3.10 or v3.11) & pip
-- Git
+## 1. The Gist of KilosUnlad: What We Are Building
 
-### First-Time Boot
+The **Pantawid Pamilyang Pilipino Program (4Ps)** is the Philippine government's conditional cash transfer program under **Republic Act No. 11310**. It provides cash grants to indigent families to keep children in school and healthy.
 
+Families are supported for up to **7 years** while transitioning across three well-being levels:
+1. **Level 1: Survival** (Extremely poor, daily subsistence needs unmet)
+2. **Level 2: Subsistence** (Transitional phase, economically vulnerable)
+3. **Level 3: Self-Sufficiency** (Financially stable, ready for *"Pugay-Tagumpay"* graduation)
+
+### The Real-World Problems We Solve:
+* **Graduation Lag:** Self-sufficient families remain on the cash list because DSWD relies on slow, manual paper spot-checks, depriving poorer waitlisted families of assistance.
+* **Loan Sharks (*Sangla-ATM*):** Predatory lenders illegally confiscate 4Ps LandBank ATM cards from beneficiaries as loan collateral, seizing government grants on payout day.
+* **Political Tampering (*Palakasan*):** Paper records can be altered to shield allies or unfairly delist qualified households.
+
+### Our Solution:
+**KilosUnlad** is an evidence-driven, Human-in-the-Loop (HITL) Decision-Support System.
+1. **It cross-references public records:** Checks electricity (RA 11552 Lifeline limits), water consumption, and LTO vehicle registrations.
+2. **AI advises, humans decide:** A LightGBM model estimates socioeconomic well-being tiers, but **the system NEVER automatically delists anyone**. Flags only dispatch human social workers to verify living conditions in person.
+3. **The Digital Seal:** Every database change is sealed into a SHA-256 cryptographic hash chain, making tampering impossible.
+4. **Statutory Due Process:** Recommended graduations trigger a mandatory **15-day appeal countdown window** before benefits are modified.
+
+---
+
+## 2. The 5-Step Developer Onboarding Flow
+
+To contribute effectively, follow this sequence:
+
+```text
+[ STEP 1: Read This Guide ] 
+  Understand the vision, system boundaries, and setup instructions.
+         │
+         ▼
+[ STEP 2: Read The Core Architecture Docs ]
+  • /docs/PROJECT_OVERVIEW.md     ──► Deep domain, legal, and operational context.
+  • /docs/ARCHITECTURE.md         ──► System boundaries (Frontend, Backend, DB, ML).
+  • /docs/PROJECT_STRUCTURE.md    ──► File-by-file directory explanation.
+  • /docs/CONNECTIVITY_TESTING.md ──► Service health verification procedures.
+         │
+         ▼
+[ STEP 3: Pair The AI Prompts with Your LLM ]
+  Combine the Master System Prompt with your Role-Specific Prompt in ChatGPT/Claude.
+         │
+         ▼
+[ STEP 4: Run The Mandatory Connectivity Smoke Test ]
+  Execute your assigned test in /docs/CONNECTIVITY_TESTING.md.
+         │
+         ▼
+[ STEP 5: Open Your Task Roadmap, Branch & Code ]
+  Follow your phased checklist in /docs/tasks/<YOUR_NAME>.md.
+```
+
+---
+
+## 3. How to Use the AI Prompts (AI-Assisted Workflow)
+
+To ensure any code generated with an AI assistant (ChatGPT, Claude, GitHub Copilot) matches our architecture and doesn't hallucinate non-existent files or break contracts, use our **Two-Prompt System**:
+
+### The Formula:
+```text
+[ SYSTEM_OVERVIEW_PROMPT.md ]  +  [ <YOUR_ROLE>_PROMPT.md ]  +  "Your Specific Question"
+```
+
+1. Open **`/docs/prompts/SYSTEM_OVERVIEW_PROMPT.md`** and copy the entire text. (This gives the AI full global context of 4Ps, laws, and MERN + FastAPI architecture).
+2. Open your specific role prompt in **`/docs/prompts/`**:
+   * Dustin $\to$ `DUSTIN_DATABASE.md`
+   * Mae $\to$ `MAE_BACKEND_PROMPT.md`
+   * Charles $\to$ `CHARLES_ML.md`
+   * Markie $\to$ `MARKIE_FRONTEND_PROMPT.md`
+   * Renz $\to$ `RENZ_DATA_PROMPT.md`
+3. Paste **both prompts together** into your AI session.
+4. Ask your AI to implement a specific task from your roadmap (e.g., *"Implement Task 1.2 from my task list using Mongoose"*). The AI will generate code that perfectly matches our file paths and data contracts!
+
+---
+
+## 4. Local Environment Setup & Terminal Commands
+
+### Prerequisites to Install on Your Laptop:
+* **Docker Desktop** (Make sure it is running in your system tray)
+* **Node.js** (v18 LTS or v20 LTS) & **npm**
+* **Python** (v3.10 or v3.11) & **pip**
+* **Git**
+
+---
+
+### Step-by-Step Terminal Initialization:
+
+#### 1. Clone the `KilosUnlad` Repository
 ```bash
-# 1. Clone the monorepo
-git clone https://github.com/your-org/kilos-unlad.git
-cd kilos-unlad
+git clone https://github.com/renzv-compsci/KilosUnlad.git
+cd KilosUnlad
+```
 
-# 2. Copy the global environment variables
+#### 2. Configure Your Environment Variables
+Copy the master `.env.example` template into your active `.env` file:
+```bash
+# Windows Command Prompt:
+copy .env.example .env
+
+# Windows PowerShell or Mac/Linux Terminal:
 cp .env.example .env
+```
+*(You do not need to edit anything inside `.env` to get started. It is pre-configured for local Docker Compose networking).*
 
-# 3. Boot all 5 core containers (Gateway, Frontend, Backend, ML, MongoDB)
+#### 3. Package & Dependency Management
+Each subsystem has its own package manifest that you must follow:
+* **Client (Frontend):** Configured via `/client/package.json` (React 18, Vite, Tailwind, Dexie).
+* **Server (Backend):** Configured via `/server/package.json` (Express, Mongoose, JWT, Axios, Fast-JSON-Stable-Stringify).
+* **ML Microservice:** Configured via `/ml-service/requirements.txt` (FastAPI, LightGBM, SHAP, Pydantic).
+* **Data Pipeline:** Configured via `/data-pipeline/requirements.txt` (NumPy, Pandas, Faker, PyArrow).
+
+#### 4. Boot the Full System with Docker
+Run this from the root directory to build and boot all 5 services simultaneously:
+```bash
 docker-compose up --build
-````
+```
 
-Once booted:
-
-* **Desktop Web Client & PWA:** `http://localhost:3000` (or `http://localhost`)
-* **Express Backend API:** `http://localhost:5000/api/v1`
-* **Python FastAPI ML Docs:** `http://localhost:8000/docs` (Swagger UI)
-* **MongoDB Database:** `mongodb://localhost:27017/kilosunlad`
-
----
-
-## 2. Universal Reading: Mandatory for All 5 Members
-
-Before touching any code or discussing features, every team member must read these three files in `/docs`:
-
-### 1. `/docs/PROJECT_OVERVIEW.md`
-
-**Why:** Understand the real-world problem, the legal framework (RA 11310, RA 11552), DSWD's 3-tier well-being scale (Survival, Subsistence, Self-Sufficiency), and why our system never terminates beneficiaries automatically.
-
-### 2. `/docs/ARCHITECTURE.md`
-
-**Why:** Understand how your service talks to other services, what happens when network connectivity drops, and why we decoupled the Node.js application from the Python ML service.
-
-### 3. `/docs/PROJECT_STRUCTURE.md`
-
-**Why:** Understand the layout of the monorepo, where files live, and which directory boundaries you own.
+#### 5. Mandatory First-Time Task: Run Your Connectivity Smoke Test!
+Before writing any code, open **`/docs/CONNECTIVITY_TESTING.md`** and run your assigned verification test:
+* **Dustin:** Execute **Test 1** (Verify MongoDB Compass connection & collections).
+* **Charles:** Execute **Test 2** (Verify FastAPI Swagger docs at `localhost:8000/docs`).
+* **Mae:** Execute **Test 3** (Verify Express health check & database connection log).
+* **Markie:** Execute **Test 4** (Verify React UI on `localhost:3000` with zero console errors).
+* **Renz:** Execute **Test 5** (Verify Gateway reverse proxy routing on `localhost:80`).
 
 ---
 
-## 3. Role-Based Onboarding Paths: What to Read & What to Build
+## 5. Universal Reading List (Mandatory for Everyone)
 
-Find your name below. This is your personal roadmap for Day 1 through Day 5.
+Before starting on your specific domain, read these five foundational documents in `/docs`:
+
+1. **`/docs/PROJECT_OVERVIEW.md`**  
+   *Understand:* The 4Ps lifecycle, real-world fraud scenarios, legal references (**RA 11310, RA 11552, RA 10173**), and why our system is Human-in-the-Loop.
+2. **`/docs/ARCHITECTURE.md`**  
+   *Understand:* The decoupled 6-layer architecture, domain boundaries, and failure resilience strategies.
+3. **`/docs/PROJECT_STRUCTURE.md`**  
+   *Understand:* The complete directory tree and the purpose of every folder and file.
+4. **`/docs/CONNECTIVITY_TESTING.md`**  
+   *Understand:* How to test and verify health across all service boundaries.
+5. **`/docs/contracts/`**  
+   *Understand:* The single source of truth for all API communication. Never write endpoints or fetch requests without checking your contract folder!
 
 ---
 
-# Dustin Martinez — Database Architecture Lead
+## 6. Role-Based Roadmaps: What to Read & What to Build
 
-* **Primary Domain:** `/server/src/models/` and `/docker/mongo/`
-* **Your Mission:** Ensure data integrity, strict schema validation, spatial query performance, and tamper-proof database permission locks.
+Find your name below. Follow this roadmap to know your files, tasks, and deliverables.
 
-### 1. Your Reading List
+---
 
-* [ ] `/docs/ARCHITECTURE.md` → Read Layer 5 (Database Layer).
-* [ ] `/docs/PROJECT_STRUCTURE.md` → Read PART C: Database Layer.
-* [ ] `/docs/contracts/backend-to-ml.json` and `/docs/contracts/field-task-submission.json` → Check required field types.
+### Dustin Martinez — Database Architecture Lead
+* **Primary Domain:** `/server/src/models/`, `/docker/mongo/`, `/data-pipeline/scripts/`
+* **Your Mission:** Enforce schema validation, configure spatial indexing, secure audit log immutability, and manage database seeding tools.
 
-### 2. Your File Ownership
+#### Your Reading & Prompt List:
+* [ ] Read `/docs/ARCHITECTURE.md` $\to$ Layer 5 (Database Layer).
+* [ ] Read `/docs/PROJECT_STRUCTURE.md` $\to$ PART C: Database Layer.
+* [ ] Read `/docs/CONNECTIVITY_TESTING.md` $\to$ **Test 1**.
+* [ ] Your Master AI Prompt: `/docs/prompts/DUSTIN_DATABASE.md`.
+* [ ] Your Task Roadmap: `/docs/tasks/DUSTIN_DATABASE.md`.
+* [ ] Contracts to Check: `/docs/contracts/admin-web/` and `/docs/contracts/field-tablet/`.
 
+#### Your Exact File Ownership:
 * `/server/src/models/User.js`
 * `/server/src/models/Beneficiary.js`
 * `/server/src/models/ExternalRecord.js`
@@ -88,153 +183,137 @@ Find your name below. This is your personal roadmap for Day 1 through Day 5.
 * `/server/src/models/AuditLog.js`
 * `/server/src/models/SystemConfig.js`
 * `/docker/mongo/init-mongo.js`
+* `/data-pipeline/scripts/seed_db.py` & `reset_demo.sh`
 
-### 3. Your First Deliverables (Sprint 1)
-
-1. **Bootstrap MongoDB:** Write `/docker/mongo/init-mongo.js` to create the database users, provision initial collections, and register indexes upon container startup.
-2. **Code Mongoose Schemas:** Build the 6 schema files in `/server/src/models/`. Enforce `{ strict: true }` and add the `2dsphere` spatial index on `beneficiaries.address.coordinates`.
-3. **Database Security Lock:** Configure database credentials so that the backend application user has insert and find privileges only on `audit_logs` (preventing updates and deletes).
+#### Your Phase 1 Goal (Days 1–3):
+1. Complete **Test 1** in `/docs/CONNECTIVITY_TESTING.md` (Verify MongoDB Compass connection).
+2. Implement the 6 Mongoose models in `/server/src/models/` with `{ strict: true }` and `{ "address.coordinates": "2dsphere" }`.
+3. Standup Deliverable: *"MongoDB boots on Port 27017; all 6 Mongoose models compiled with strict validation and unique indexes."*
 
 ---
 
-# Mae Santos — Backend Engineering Lead
+### Mae Santos — Backend Engineering Lead
+* **Primary Domain:** `/server/` (Excluding `/server/src/models/`)
+* **Your Mission:** Build the Express REST API, JWT/RBAC middleware, workflow state machine, 15-day appeal countdown, Canonical JSON SHA-256 hash chaining, and tablet batch sync consumer.
 
-* **Primary Domain:** `/server/`
-* **Your Mission:** Build the business logic engine, API routing, JWT authentication, task dispatcher, 15-day appeal countdown, and the cryptographic hash chain.
+#### Your Reading & Prompt List:
+* [ ] Read `/docs/ARCHITECTURE.md` $\to$ Layer 3 (Core Application Service Layer).
+* [ ] Read `/docs/PROJECT_STRUCTURE.md` $\to$ PART B: Backend (`/server`).
+* [ ] Read `/docs/CONNECTIVITY_TESTING.md` $\to$ **Test 3**.
+* [ ] Your Master AI Prompt: `/docs/prompts/MAE_BACKEND_PROMPT.md`.
+* [ ] Your Task Roadmap: `/docs/tasks/MAE_BACKEND.md`.
+* [ ] Contracts to Check: **All contracts in `/docs/contracts/`**.
 
-### 1. Your Reading List
-
-* [ ] `/docs/ARCHITECTURE.md` → Read Layer 3 (Core Application Service Layer).
-* [ ] `/docs/PROJECT_STRUCTURE.md` → Read PART B: Backend (`/server`).
-* [ ] `/docs/contracts/backend-to-ml.json` → Interface contract for communicating with Charles’s Python service.
-* [ ] `/docs/contracts/field-task-submission.json` → Interface contract for receiving Markie’s tablet submissions.
-
-### 2. Your File Ownership
-
+#### Your Exact File Ownership:
+* `/server/src/controllers/*` (`appeal`, `audit`, `auth`, `beneficiary`, `calamity`, `task`)
+* `/server/src/middleware/*` (`audit`, `auth`, `error`, `rbac`, `validation`)
+* `/server/src/routes/v1/*` (All route declarations & `index.js`)
+* `/server/src/services/*` (`appealLifecycle`, `hashChain`, `mlClient`, `sync`, `taskDispatcher`)
+* `/server/src/utils/*` (`canonicalJson.js`, `cryptoHelper.js`, `geoFence.js`)
 * `/server/src/app.js` and `/server/server.js`
-* `/server/src/controllers/*`
-* `/server/src/middleware/*`
-* `/server/src/routes/v1/*`
-* `/server/src/services/*`
-* `/server/src/utils/*`
 
-### 3. Your First Deliverables (Sprint 1)
-
-1. **Build the Forensic Hash Utility:** Implement `/server/src/utils/canonicalJson.js` (using `fast-json-stable-stringify`) and `/server/src/services/hashChain.service.js` to calculate SHA-256 blocks for the audit trail.
-2. **Scaffold Express & Auth:** Set up the Express router in `/server/src/routes/v1/`, configure JWT authentication in `/server/src/middleware/auth.middleware.js`, and build role checks in `rbac.middleware.js`.
-3. **Integrate Internal ML Client:** Create `/server/src/services/mlClient.service.js` using Axios to send demographic vectors to Charles’s FastAPI endpoint and handle timeouts gracefully.
+#### Your Phase 1 Goal (Days 1–3):
+1. Complete **Test 3** in `/docs/CONNECTIVITY_TESTING.md` (Verify Express `/health` and DB log).
+2. Build `/server/src/utils/canonicalJson.js` (using `fast-json-stable-stringify`) and `/server/src/utils/cryptoHelper.js`.
+3. Create mock route handlers returning static JSON from `/docs/contracts/` to **unblock Markie immediately**.
+4. Standup Deliverable: *"Express server running on Port 5000; Canonical JSON hasher verified; mock routes unblock Markie."*
 
 ---
 
-# Charles Cabatian — Machine Learning Modeling Lead
-
+### Charles Cabatian — Machine Learning Modeling Lead
 * **Primary Domain:** `/ml-service/`
-* **Your Mission:** Build the Python FastAPI service, train and serialize the LightGBM poverty classifier, integrate SHAP explainability, and implement the ATM anomaly detection algorithm.
+* **Your Mission:** Build the Python FastAPI microservice, train the LightGBM classifier on real PSA FIES data, integrate SHAP explainability, and implement the Sangla-ATM anomaly detection algorithm.
 
-### 1. Your Reading List
+#### Your Reading & Prompt List:
+* [ ] Read `/docs/ARCHITECTURE.md` $\to$ Layer 4 (AI & Analytics Service).
+* [ ] Read `/docs/PROJECT_STRUCTURE.md` $\to$ PART D: Machine Learning Microservice.
+* [ ] Read `/docs/CONNECTIVITY_TESTING.md` $\to$ **Test 2**.
+* [ ] Your Master AI Prompt: `/docs/prompts/CHARLES_ML.md`.
+* [ ] Your Task Roadmap: `/docs/tasks/CHARLES_ML.md`.
+* [ ] Contracts to Check: `/docs/contracts/ml/` (`ml-swdi-inference.json`, `ml-atm-telemetry.json`).
 
-* [ ] `/docs/ARCHITECTURE.md` → Read Layer 4 (AI & Analytics Service).
-* [ ] `/docs/PROJECT_STRUCTURE.md` → Read PART D: Machine Learning Microservice.
-* [ ] `/docs/contracts/backend-to-ml.json` → Your contract with Mae’s backend.
-
-### 2. Your File Ownership
-
+#### Your Exact File Ownership:
 * `/ml-service/app/main.py`
-* `/ml-service/app/api/v1/*`
-* `/ml-service/app/schemas/*`
-* `/ml-service/app/services/*`
-* `/ml-service/artifacts/*`
-* `/ml-service/requirements.txt` and Dockerfile
+* `/ml-service/app/api/v1/*` (`health.py`, `predict.py`, `telemetry.py`) & `app/api/router.py`
+* `/ml-service/app/core/config.py`
+* `/ml-service/app/schemas/*` (`inference.py`, `telemetry.py`)
+* `/ml-service/app/services/*` (`anomaly.py`, `classifier.py`, `explainer.py`)
+* `/ml-service/artifacts/*` (`model_metadata.json`, `lightgbm_swdi_v1.joblib`)
 
-### 3. Your First Deliverables (Sprint 1)
-
-1. **Scaffold FastAPI Microservice:** Create `/ml-service/app/main.py` and set up Pydantic validation models in `/ml-service/app/schemas/inference.py` matching the frozen contract.
-2. **Train & Serialize LightGBM Model:** Once Renz provides the synthetic seed dataset, train the multi-class classifier (Levels 1, 2, 3), serialize the weights to `/ml-service/artifacts/lightgbm_swdi_v1.joblib`, and build `/ml-service/app/services/classifier.py`.
-3. **Build ATM Sliding-Window Scorer:** Implement the Sangla-ATM anomaly algorithm in `/ml-service/app/services/anomaly.py` to flag clusters of rapid-fire, nocturnal ATM withdrawals.
+#### Your Phase 1 Goal (Days 1–3):
+1. Complete **Test 2** in `/docs/CONNECTIVITY_TESTING.md` (Verify FastAPI Swagger docs at `localhost:8000/docs`).
+2. Ensure dummy prediction endpoints return valid JSON matching `/docs/contracts/ml/` to **unblock Mae**.
+3. Standup Deliverable: *"FastAPI microservice running on Port 8000 with Swagger docs; Pydantic schemas validated against frozen contracts."*
 
 ---
 
-# Markie Angelo — Frontend Engineering Lead
-
+### Markie Angelo — Frontend Engineering Lead
 * **Primary Domain:** `/client/`
-* **Your Mission:** Build the desktop web portal for supervisors and auditors, and create the offline-first tablet interface for social workers in the field.
+* **Your Mission:** Build the desktop web portal for supervisors and auditors, and build the offline-first tablet interface for social workers in the field.
 
-### 1. Your Reading List
+#### Your Reading & Prompt List:
+* [ ] Read `/docs/ARCHITECTURE.md` $\to$ Layer 1 (Presentation Layer).
+* [ ] Read `/docs/PROJECT_STRUCTURE.md` $\to$ PART A: Frontend (`/client`).
+* [ ] Read `/docs/CONNECTIVITY_TESTING.md` $\to$ **Test 4**.
+* [ ] Your Master AI Prompt: `/docs/prompts/MARKIE_FRONTEND_PROMPT.md`.
+* [ ] Your Task Roadmap: `/docs/tasks/MARKIE_FRONTEND.md`.
+* [ ] Contracts to Check: `/docs/contracts/auth/`, `/docs/contracts/admin-web/`, and `/docs/contracts/field-tablet/`.
 
-* [ ] `/docs/ARCHITECTURE.md` → Read Layer 1 (Presentation Layer).
-* [ ] `/docs/PROJECT_STRUCTURE.md` → Read PART A: Frontend (`/client`).
-* [ ] `/docs/contracts/field-task-submission.json` → Your contract with Mae’s backend.
+#### Your Exact File Ownership:
+* `/client/public/*` (`manifest.json`, `service-worker.js`, `favicon.ico`)
+* `/client/src/components/*` (`common/`, `feedback/`, `layout/`)
+* `/client/src/features/*` (`audit-ledger/`, `auth/`, `dashboard/`, `due-process/`, `triage/`, `verification/`)
+* `/client/src/hooks/*` (`useAuth.js`, `useGeolocation.js`, `useOfflineSync.js`)
+* `/client/src/services/*` (`api.js`, `indexedDB.js`)
+* `/client/src/utils/*` (`formatters.js`, `photoHasher.js`)
+* `/client/src/App.jsx`, `index.css`, `main.jsx`
 
-### 2. Your File Ownership
-
-* `/client/public/manifest.json` and `/client/public/service-worker.js`
-* `/client/src/components/*`
-* `/client/src/features/*`
-* `/client/src/hooks/*`
-* `/client/src/services/*`
-* `/client/vite.config.js` and `package.json`
-
-### 3. Your First Deliverables (Sprint 1)
-
-1. **Initialize Vite React & Tailwind:** Set up the frontend shell, navigation bars, and responsive layouts in `/client/src/components/layout/`.
-2. **Implement Offline Storage (Dexie.js / IndexedDB):** Build `/client/src/services/indexedDB.js` to cache assigned tasks on the tablet and manage local offline form state.
-3. **Build the Field Checklist View:** Build `/client/src/features/verification/` with mobile camera integration and HTML5 geolocation capture (`/client/src/hooks/useGeolocation.js`).
-
----
-
-# Renz Viloria — Project Manager & Data Pipeline Lead
-
-* **Primary Domain:** `/data-pipeline/`, UI Wireframes, and Cross-Team Integration
-* **Your Mission:** Coordinate team execution, build the synthetic data generator grounded in PSA statistics, seed the database, and align UI designs with Markie.
-
-### 1. Your Reading List
-
-* [ ] Review all documents in `/docs/` for end-to-end consistency.
-* [ ] Review `/docs/PROJECT_STRUCTURE.md` → PART E: Data Generation Pipeline.
-
-### 2. Your File Ownership
-
-* `/data-pipeline/generator/*`
-* `/data-pipeline/seeds/*`
-* `/data-pipeline/scripts/seed_db.py`
-* `/docker-compose.yml`, `.env.example`, `.gitignore`, `README.md`
-
-### 3. Your First Deliverables (Sprint 1)
-
-1. **Build the Synthetic Generator:** Code `/data-pipeline/generator/latent_wealth.py` and `generator.py` based on PSA FIES poverty distributions to produce 5,000 realistic synthetic records.
-2. **Deliver Seed Datasets:** Output `seed_beneficiaries.json` and `seed_external_records.json` so Dustin can seed MongoDB and Charles can train the ML model.
-3. **Wireframe Field & Admin Views:** Deliver layout wireframes to Markie for the Triage Queue and the Mobile Field Checklist.
+#### Your Phase 1 Goal (Days 1–3):
+1. Complete **Test 4** in `/docs/CONNECTIVITY_TESTING.md` (Verify React UI on `localhost:3000` with zero console errors).
+2. Build reusable UI buttons, inputs, and risk badges in `/client/src/components/common/`.
+3. Import `/docs/contracts/admin-web/admin-triage-feed.json` as static mock data to render the Triage Queue table **without waiting for the backend**.
+4. Standup Deliverable: *"React AppShell running on Port 3000 with role-based navigation; Triage Queue rendering mock contract data."*
 
 ---
 
-## 4. Git Workflow & Team Collaboration Rules
+### Renz Viloria — Project Manager, Data Lead & Technical Floater
+* **Primary Domain:** Project Management, `/data-pipeline/`, Architecture Governance & UI Wireframing
+* **Your Mission:** Clean real PSA FIES data, generate 5,000 augmented synthetic records, deliver seed files, facilitate daily standups, and assist teammates across domains.
 
-To keep our monorepo clean and prevent code conflicts, we follow these guidelines.
+#### Your Reading & Prompt List:
+* [ ] Verify overall consistency across all documents in `/docs/`.
+* [ ] Read `/docs/CONNECTIVITY_TESTING.md` $\to$ **Test 5**.
+* [ ] Your Master AI Prompt: `/docs/prompts/RENZ_DATA_PROMPT.md`.
+* [ ] Your Task Roadmap: `/docs/tasks/RENZ_DATA.md`.
+* [ ] Contracts to Check: Ensure `/docs/contracts/` remain strictly frozen.
 
-### Branch Naming Conventions
+#### Your Exact File Ownership:
+* `/data-pipeline/notebooks/*` (`01_fies_cleaning_and_eda.ipynb`, `02_swdi_feature_engineering.ipynb`)
+* `/data-pipeline/generator/*` (`distributions.py`, `latent_wealth.py`, `generator.py`)
+* `/data-pipeline/seeds/*` (`features_swdi_clean.parquet`, `seed_beneficiaries.json`, `seed_external_records.json`)
+* `/data-pipeline/scripts/*` (`seed_db.py`, `reset_demo.sh`)
+* Root project governance (`docker-compose.yml`, `.env.example`, `.gitignore`, `README.md`)
 
-* `feat/<feature-name>`
-  Example: `feat/hash-chain-service`, `feat/offline-indexeddb`
+#### Your Phase 1 Goal (Days 1–3):
+1. Complete **Test 5** in `/docs/CONNECTIVITY_TESTING.md` (Verify Gateway reverse-proxy on `http://localhost`).
+2. Deliver UI wireframes for the Triage Queue and Mobile Field Checklist to Markie.
+3. Ingest raw PSA FIES survey data (41,544 rows) and begin data cleaning in Jupyter Notebook.
+4. Standup Deliverable: *"Repository infrastructure and contracts locked in; Gateway routing verified; UI wireframes delivered to Markie; raw PSA FIES dataset loaded for cleaning."*
 
-* `fix/<bug-name>`
-  Example: `fix/jwt-expiration-handler`
+---
 
-* `docs/<doc-name>`
-  Example: `docs/update-api-contracts`
+## 7. Git Workflow & Repository Rules
 
-### The Three Golden Rules of the Repository
+### Branch Naming Convention:
+* `feat/<feature-name>` (e.g., `feat/jwt-auth`, `feat/offline-indexeddb`, `feat/lightgbm-model`)
+* `fix/<bug-name>` (e.g., `fix/geofence-variance-calc`)
+* `docs/<doc-name>` (e.g., `docs/update-onboarding`)
 
-#### 1. Never Break Contracts
-
-You cannot change JSON payload structures in `/docs/contracts/` without notifying the entire team. A backend change breaks the frontend; an ML change breaks the backend.
-
-#### 2. Keep Commits Scoped
-
-Do not mix database schema updates with UI styling changes in the same commit. Keep pull requests focused on your specific domain.
-
-#### 3. All PRs Must Build
-
-Before submitting a Pull Request, run:
-
-```bash
-docker-compose up --build
+### The 3 Golden Rules:
+1. **Never Break Contracts:** You cannot change property names or structures in `/docs/contracts/` without team consensus. A backend change breaks the frontend; an ML change breaks the backend.
+2. **Keep Commits Scoped (Atomic Commits):** Do not mix database schemas with UI components in the same commit. Keep PRs focused strictly on your assigned domain.
+3. **All PRs Must Build:** Before submitting a Pull Request, run:
+   ```bash
+   docker-compose up --build
+   ```
+   If any container fails to build or exit cleanly, fix the error before requesting a review from Renz.
