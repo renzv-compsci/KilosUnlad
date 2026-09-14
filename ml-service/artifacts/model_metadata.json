@@ -1,0 +1,19 @@
+{
+  "model_name": "LightGBM_SWDI_Classifier",
+  "version": "1.0.0",
+  "trained_dataset": "PSA_FIES_2015_2018_Microdata",
+  "target_classes": [
+    "1: Survival",
+    "2: Subsistence",
+    "3: Self-Sufficiency"
+  ],
+  "feature_order": [
+    "household_size",
+    "dependents_ratio",
+    "head_education_level",
+    "wall_score",
+    "roof_score",
+    "water_access_level"
+  ],
+  "status": "baseline_uninitialized"
+}
