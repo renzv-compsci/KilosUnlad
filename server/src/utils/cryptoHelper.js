@@ -24,8 +24,9 @@ const computeEntryHash = ({
   action,
   stateDelta
 }) => {
-  const normalizedDelta = canonicalStringify(stateDelta || {});
-  const payloadString = `${sequenceIndex}:${previousEntryHash}:${timestamp}:${actorId}:${action}:${normalizedDelta}`;
+  const normalizedDelta = canonicalStringify(stateDelta === undefined ? {} : stateDelta);
+  const normalizedTimestamp = new Date(timestamp).toISOString();
+  const payloadString = `${sequenceIndex}:${previousEntryHash}:${normalizedTimestamp}:${actorId}:${action}:${normalizedDelta}`;
   
   return sha256(payloadString);
 };

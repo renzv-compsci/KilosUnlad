@@ -1,0 +1,23 @@
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MGM3MmIyZjliMWU4YTAwMWM4YTEwOTkiLCJyb2xlIjoiUkVHSU9OQUxfRElSRUNUT1IiLCJqdXJpc2RpY3Rpb24iOnsicmVnaW9uIjoiUmVnaW9uIElWLUEiLCJtdW5pY2lwYWxpdHkiOiJDYWxhbWJhIn0sImlhdCI6MTc4OTA4ODAwMCwiZXhwIjoxNzg5MDg4OTAwfQ.example_signature",
+  "token_type": "Bearer",
+  "expires_in_seconds": 900,
+  "user": {
+    "user_id": "60c72b2f9b1e8a001c8a1099",
+    "username": "mreyes_dir",
+    "full_name": "Manuel Reyes",
+    "email": "mreyes@dswd.gov.ph",
+    "role": "REGIONAL_DIRECTOR",
+    "jurisdiction": {
+      "region": "Region IV-A",
+      "province": "Laguna",
+      "municipality": "Calamba",
+      "assigned_barangays": [
+        "Barangay 1",
+        "Palingon",
+        "Lecheria"
+      ]
+    },
+    "last_login_at": "2026-09-10T08:15:00Z"
+  }
+}

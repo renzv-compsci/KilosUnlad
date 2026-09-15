@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const environment = require('./config/environment');
+const v1Routes = require('./routes/v1');
 
 const app = express();
 
@@ -28,7 +29,12 @@ app.get('/health', (req, res) => {
   });
 });
 
-// 4. Placeholder API Base Route (Mae will mount her routes here)
+// 4. Phase 1 contract fixtures (authentication and live queries arrive in Phase 2).
+if (environment.NODE_ENV !== 'production') {
+  app.use('/api/v1', v1Routes);
+}
+
+// API discovery route.
 app.get('/api/v1', (req, res) => {
   res.status(200).json({
     message: 'Welcome to KilosUnlad 4Ps Auditing API v1. All services operational.'
