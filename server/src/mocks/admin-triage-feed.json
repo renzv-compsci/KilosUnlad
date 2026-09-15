@@ -1,0 +1,53 @@
+{
+  "pagination": {
+    "total_records": 48,
+    "current_page": 1,
+    "total_pages": 5,
+    "limit": 10
+  },
+  "summary_metrics": {
+    "high_risk_count": 32,
+    "under_investigation_count": 12,
+    "notice_of_ineligibility_count": 4
+  },
+  "items": [
+    {
+      "household_id": "4PS-04A-2026-00129",
+      "head_of_household": {
+        "full_name": "Rodrigo Mendoza",
+        "national_id": "PH-NID-99218273"
+      },
+      "address": {
+        "barangay": "Palingon",
+        "municipality": "Calamba",
+        "province": "Laguna",
+        "coordinates": [
+          121.1652,
+          14.2144
+        ]
+      },
+      "enrolled_swdi_level": 1,
+      "predicted_swdi_level": 3,
+      "composite_risk_score": 84.0,
+      "trigger_badges": [
+        {
+          "code": "POWER_LIFELINE_BREACH",
+          "label": "Meralco > 200 kWh",
+          "severity": "HIGH"
+        },
+        {
+          "code": "LTO_VEHICLE_MATCH",
+          "label": "Registered Motorcycle",
+          "severity": "MEDIUM"
+        },
+        {
+          "code": "TIER_INVERSION",
+          "label": "AI Predicted Level 3",
+          "severity": "CRITICAL"
+        }
+      ],
+      "program_status": "FLAGGED_FOR_REVIEW",
+      "flagged_at": "2026-09-10T06:00:00Z"
+    }
+  ]
+}

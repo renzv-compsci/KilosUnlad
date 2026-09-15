@@ -7,7 +7,6 @@ const stringify = require('fast-json-stable-stringify');
  * @returns {string} - Canonically sorted JSON string
  */
 const canonicalStringify = (data) => {
-  if (!data) return '';
   return stringify(data);
 };
 

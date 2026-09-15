@@ -32,7 +32,7 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
   - Connect database lifecycle via `/server/src/config/database.js`.
   - *Definition of Done (DoD):* Server starts on Port 5000 and responds `200 OK` on `GET /health`.
 
-- [ ] **Task 1.2: Build Canonical JSON & SHA-256 Hashing Engine**
+- [x] **Task 1.2: Build Canonical JSON & SHA-256 Hashing Engine**
   - Paths: `/server/src/utils/canonicalJson.js`, `/server/src/utils/cryptoHelper.js`
   - Implement deterministic serialization using `fast-json-stable-stringify`.
   - Implement `computeEntryHash({ sequenceIndex, previousEntryHash, timestamp, actorId, action, stateDelta })`.
@@ -48,6 +48,17 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 
 *Daily Standup Deliverable (Phase 1):*  
 > "Express server running on Port 5000 with security middleware; Canonical JSON hasher verified; mock routes unblock Markie."
+
+### Implementation status (2026-09-15)
+
+- Existing Express bootstrap, security middleware, and database connection configuration reviewed.
+- Canonical JSON and SHA-256 helpers corrected for falsy JSON values and normalized timestamps; hashing tests pass.
+- All three mock routes implemented with server-local copies of contract response data. HTTP tests verify exact contract matching, CORS, and security headers. Mock routes are disabled in production.
+- Verification: 11 tests passed using a temporary Node.js 20.20.0 runtime. Dependencies installed and `server/package-lock.json` generated.
+- Direct Express smoke check on port 5000 returned `200 OK` from `/health` using the normal default listening address; the temporary listener was then closed. This check did not connect to MongoDB.
+- Task 1.1 remains unchecked until the normal entrypoint is verified with a live MongoDB connection. MongoDB and Docker are unavailable in this environment.
+- Task 1.3 remains unchecked until Markie's React client is verified against the running backend; backend HTTP contract tests already pass.
+- Run instructions and mock behavior are documented in `server/README.md`.
 
 ---
 
