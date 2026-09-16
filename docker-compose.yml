@@ -86,7 +86,7 @@ services:
     container_name: kilosunlad-db
     restart: unless-stopped
     ports:
-      - "27017:27017"  # Exposed so Dustin can inspect database with MongoDB Compass
+      - "${MONGO_EXTERNAL_PORT:-27017}:27017" # def to 27017 but allows .env to override 11
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin_user
       - MONGO_INITDB_ROOT_PASSWORD=RootAdminSecret2026!
