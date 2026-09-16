@@ -6,17 +6,18 @@
 ---
 
 > # ⚠️ CRITICAL NOTICE: READ THIS ONBOARDING GUIDE FIRST!
-> **DO NOT WRITE A SINGLE LINE OF CODE OR CREATE BRANCHES UNTIL YOU HAVE READ THIS DOCUMENT IN ITS ENTIRETY.**
+> **1. DO NOT WRITE CODE OR START WORKING UNTIL YOU READ THIS DOCUMENT.**  
+> **2. STRICT RULE: DO NOT PUSH DIRECTLY TO THE `main` BRANCH!**  
 >
-> In past student projects, developers jump straight into coding without understanding the architecture, resulting in broken endpoints, conflicting variable names, and hours wasted on rework. 
+> All developers MUST create and work inside their assigned **Role Branch** (e.g., `backend-mae`, `database-dustin`, `frontend-markie`, `ml-charles`). 
 > 
-> Everything in this repository—from folder structures to variable names—has been pre-engineered and frozen. Follow this guide step-by-step to get your environment running smoothly.
+> Direct pushes to `main` are strictly forbidden. You must push to your role branch, open a Pull Request (PR), and **wait for Renz (PM) to review and merge it**. Renz will notify you via GitHub comments and our team group chat once your code is merged into `main`.
 
 ---
 
 ## 1. The Gist of KilosUnlad: What We Are Building
 
-The **Pantawid Pamilyang Pilipino Program (4Ps)** is the Philippine government's conditional cash transfer program under **Republic Act No. 11310**. It provides cash grants to indigent families to keep children in school and healthy.
+The **Pantawid Pamilyang Pilipino Program (4Ps)** is the Philippine government's conditional cash transfer program under **Republic Act No. 11310** [1]. It provides cash grants to indigent families to keep children in school and healthy.
 
 Families are supported for up to **7 years** while transitioning across three well-being levels:
 1. **Level 1: Survival** (Extremely poor, daily subsistence needs unmet)
@@ -30,7 +31,7 @@ Families are supported for up to **7 years** while transitioning across three we
 
 ### Our Solution:
 **KilosUnlad** is an evidence-driven, Human-in-the-Loop (HITL) Decision-Support System.
-1. **It cross-references public records:** Checks electricity (RA 11552 Lifeline limits), water consumption, and LTO vehicle registrations.
+1. **It cross-references public records:** Checks electricity (RA 11552 Lifeline limits) [2], water consumption, and LTO vehicle registrations.
 2. **AI advises, humans decide:** A LightGBM model estimates socioeconomic well-being tiers, but **the system NEVER automatically delists anyone**. Flags only dispatch human social workers to verify living conditions in person.
 3. **The Digital Seal:** Every database change is sealed into a SHA-256 cryptographic hash chain, making tampering impossible.
 4. **Statutory Due Process:** Recommended graduations trigger a mandatory **15-day appeal countdown window** before benefits are modified.
@@ -61,8 +62,8 @@ To contribute effectively, follow this sequence:
   Execute your assigned test in /docs/CONNECTIVITY_TESTING.md.
          │
          ▼
-[ STEP 5: Open Your Task Roadmap, Branch & Code ]
-  Follow your phased checklist in /docs/tasks/<YOUR_NAME>.md.
+[ STEP 5: Create Your Role Branch & Start Phase 1 ]
+  Checkout your assigned role branch, code your tasks, and open a PR.
 ```
 
 ---
@@ -124,13 +125,33 @@ Each subsystem has its own package manifest that you must follow:
 * **ML Microservice:** Configured via `/ml-service/requirements.txt` (FastAPI, LightGBM, SHAP, Pydantic).
 * **Data Pipeline:** Configured via `/data-pipeline/requirements.txt` (NumPy, Pandas, Faker, PyArrow).
 
-#### 4. Boot the Full System with Docker
+#### 4. CREATE YOUR ASSIGNED ROLE BRANCH (MANDATORY BEFORE CODING!)
+**Do not code on `main`.** Open your terminal and create your designated role branch immediately:
+
+```bash
+# For Dustin (Database):
+git checkout -b database-dustin
+
+# For Mae (Backend):
+git checkout -b backend-mae
+
+# For Charles (Machine Learning):
+git checkout -b ml-charles
+
+# For Markie (Frontend):
+git checkout -b frontend-markie
+
+# For Renz (Data Pipeline / PM):
+git checkout -b data-renz
+```
+
+#### 5. Boot the Full System with Docker
 Run this from the root directory to build and boot all 5 services simultaneously:
 ```bash
 docker-compose up --build
 ```
 
-#### 5. Mandatory First-Time Task: Run Your Connectivity Smoke Test!
+#### 6. Run Your Connectivity Smoke Test
 Before writing any code, open **`/docs/CONNECTIVITY_TESTING.md`** and run your assigned verification test:
 * **Dustin:** Execute **Test 1** (Verify MongoDB Compass connection & collections).
 * **Charles:** Execute **Test 2** (Verify FastAPI Swagger docs at `localhost:8000/docs`).
@@ -165,6 +186,7 @@ Find your name below. Follow this roadmap to know your files, tasks, and deliver
 
 ### Dustin Martinez — Database Architecture Lead
 * **Primary Domain:** `/server/src/models/`, `/docker/mongo/`, `/data-pipeline/scripts/`
+* **Your Assigned Branch:** `database-dustin`
 * **Your Mission:** Enforce schema validation, configure spatial indexing, secure audit log immutability, and manage database seeding tools.
 
 #### Your Reading & Prompt List:
@@ -194,6 +216,7 @@ Find your name below. Follow this roadmap to know your files, tasks, and deliver
 
 ### Mae Santos — Backend Engineering Lead
 * **Primary Domain:** `/server/` (Excluding `/server/src/models/`)
+* **Your Assigned Branch:** `backend-mae`
 * **Your Mission:** Build the Express REST API, JWT/RBAC middleware, workflow state machine, 15-day appeal countdown, Canonical JSON SHA-256 hash chaining, and tablet batch sync consumer.
 
 #### Your Reading & Prompt List:
@@ -222,6 +245,7 @@ Find your name below. Follow this roadmap to know your files, tasks, and deliver
 
 ### Charles Cabatian — Machine Learning Modeling Lead
 * **Primary Domain:** `/ml-service/`
+* **Your Assigned Branch:** `ml-charles`
 * **Your Mission:** Build the Python FastAPI microservice, train the LightGBM classifier on real PSA FIES data, integrate SHAP explainability, and implement the Sangla-ATM anomaly detection algorithm.
 
 #### Your Reading & Prompt List:
@@ -249,6 +273,7 @@ Find your name below. Follow this roadmap to know your files, tasks, and deliver
 
 ### Markie Angelo — Frontend Engineering Lead
 * **Primary Domain:** `/client/`
+* **Your Assigned Branch:** `frontend-markie`
 * **Your Mission:** Build the desktop web portal for supervisors and auditors, and build the offline-first tablet interface for social workers in the field.
 
 #### Your Reading & Prompt List:
@@ -278,6 +303,7 @@ Find your name below. Follow this roadmap to know your files, tasks, and deliver
 
 ### Renz Viloria — Project Manager, Data Lead & Technical Floater
 * **Primary Domain:** Project Management, `/data-pipeline/`, Architecture Governance & UI Wireframing
+* **Your Assigned Branch:** `data-renz`
 * **Your Mission:** Clean real PSA FIES data, generate 5,000 augmented synthetic records, deliver seed files, facilitate daily standups, and assist teammates across domains.
 
 #### Your Reading & Prompt List:
@@ -302,18 +328,66 @@ Find your name below. Follow this roadmap to know your files, tasks, and deliver
 
 ---
 
-## 7. Git Workflow & Repository Rules
+## 7. Git Workflow & The Pull Request (PR) Protocol
 
-### Branch Naming Convention:
-* `feat/<feature-name>` (e.g., `feat/jwt-auth`, `feat/offline-indexeddb`, `feat/lightgbm-model`)
-* `fix/<bug-name>` (e.g., `fix/geofence-variance-calc`)
-* `docs/<doc-name>` (e.g., `docs/update-onboarding`)
+### The Strict Role-Based Branching Rule:
+You must commit and push **only to your assigned branch**:
+* Dustin $\to$ `database-dustin`
+* Mae $\to$ `backend-mae`
+* Charles $\to$ `ml-charles`
+* Markie $\to$ `frontend-markie`
+* Renz $\to$ `data-renz`
+
+---
+
+### Step-by-Step Workflow (How to Commit & Submit Code):
+
+#### 1. Stage and Commit Your Changes
+```bash
+# Check modified files in your domain
+git status
+
+# Stage your files
+git add <path-to-your-folder>
+
+# Commit with a clean message
+git commit -m "feat(backend): implement jwt authentication middleware"
+```
+
+#### 2. Push to Your Assigned Role Branch
+```bash
+# Example for Mae pushing to her branch:
+git push origin backend-mae
+```
+
+#### 3. Open a Pull Request on GitHub
+* Go to `https://github.com/renzv-compsci/KilosUnlad`.
+* Click **"Compare & pull request"**.
+* Set **Base: `main`** $\leftarrow$ **Compare: `<your-role-branch>`**.
+* Add a brief summary of what tasks you completed.
+
+#### 4. WAIT FOR RENZ (PM) TO REVIEW & MERGE
+* **Do NOT merge your own PR.**
+* Renz will review your code, test the build, and merge it into `main`.
+* Renz will post a confirmation comment on GitHub and notify the group chat:  
+  > *"@team, Mae's backend PR has been merged into `main`. Please run `git pull origin main` to sync your local branches."*
+
+#### 5. Sync Your Local Branch After Merge
+Once Renz confirms the merge in the group chat, update your local machine:
+```bash
+git checkout main
+git pull origin main
+git checkout <your-role-branch>
+git merge main
+```
+
+---
 
 ### The 3 Golden Rules:
 1. **Never Break Contracts:** You cannot change property names or structures in `/docs/contracts/` without team consensus. A backend change breaks the frontend; an ML change breaks the backend.
-2. **Keep Commits Scoped (Atomic Commits):** Do not mix database schemas with UI components in the same commit. Keep PRs focused strictly on your assigned domain.
+2. **Keep Commits Scoped:** Do not mix database schemas with UI components in the same commit. Keep PRs focused strictly on your assigned domain.
 3. **All PRs Must Build:** Before submitting a Pull Request, run:
    ```bash
    docker-compose up --build
    ```
-   If any container fails to build or exit cleanly, fix the error before requesting a review from Renz.
+   If any container fails to build or exit cleanly, fix the error before opening your PR.
