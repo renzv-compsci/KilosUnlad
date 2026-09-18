@@ -26,7 +26,7 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 ## Phase 1: Environment Verification & Mock API Scaffolding (Days 1–3)
 *Goal: Stand up Express, mount core security middleware, and serve mock responses matching contracts to unblock Markie immediately.*
 
-- [ ] **Task 1.1: Express Server Bootstrap & Health Check**
+- [x] **Task 1.1: Express Server Bootstrap & Health Check**
   - Paths: `/server/server.js`, `/server/src/app.js`
   - Mount essential middleware: `cors()`, `helmet()`, `express.json({ limit: '30mb' })`, and `morgan('dev')`.
   - Connect database lifecycle via `/server/src/config/database.js`.
@@ -56,9 +56,17 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 - All three mock routes implemented with server-local copies of contract response data. HTTP tests verify exact contract matching, CORS, and security headers. Mock routes are disabled in production.
 - Verification: 11 tests passed using a temporary Node.js 20.20.0 runtime. Dependencies installed and `server/package-lock.json` generated.
 - Direct Express smoke check on port 5000 returned `200 OK` from `/health` using the normal default listening address; the temporary listener was then closed. This check did not connect to MongoDB.
-- Task 1.1 remains unchecked until the normal entrypoint is verified with a live MongoDB connection. MongoDB and Docker are unavailable in this environment.
+- At that time, Task 1.1 was pending live MongoDB verification because MongoDB and Docker were unavailable; see the verification update below.
 - Task 1.3 remains unchecked until Markie's React client is verified against the running backend; backend HTTP contract tests already pass.
 - Run instructions and mock behavior are documented in `server/README.md`.
+
+### Verification update (2026-09-17)
+
+- Backend Docker image uses Node.js 20 (verified runtime: v20.20.2), matching the documented stack. `npm ci` installs the locked dependencies without the previous engine compatibility warning; `.dockerignore` prevents local `node_modules` from overwriting container dependencies.
+- All 11 backend tests passed inside the Node 20 container, including the three Phase 1 response contracts, CORS/security headers, production mock exclusion, and hashing tests. Contract files are unchanged.
+- Task 1.1 verified: the normal `server.js` entrypoint authenticated to MongoDB over the Docker network (`Connected successfully: db/kilosunlad`) and listened on container port 5000. Live `/health` and `/api/v1` requests returned HTTP 200.
+- Test container `kilosunlad-mae-phase1` maps host port 5001 to container port 5000; Docker MongoDB uses host port 27018 to avoid existing local services. Shared Compose port defaults were not changed.
+- Task 1.3 remains unchecked: backend contract tests pass, but integration with Markie's React client is not yet verified. These checks cover the backend and database, not the full five-service stack or completion of Phase 5 container optimization.
 
 ---
 

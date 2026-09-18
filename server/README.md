@@ -2,7 +2,7 @@
 
 ## Run
 
-With Node.js 18/20 and npm available, run from `server/`:
+With Node.js 20 (matching the Docker image) and npm available, run from `server/`:
 
 ```powershell
 npm install
