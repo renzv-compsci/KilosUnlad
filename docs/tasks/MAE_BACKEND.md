@@ -80,6 +80,14 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
   - Restrict regional directors and case workers to their assigned municipality/barangays.
   - *DoD:* Requests with invalid/expired tokens return `401 Unauthorized`; out-of-jurisdiction queries return `403 Forbidden`.
 
+### Task 2.1 implementation update (2026-09-18)
+
+- Implemented HS256 Bearer JWT verification with required identity, recognized role, and expiration claims. Invalid/expired tokens return 401; missing signing-secret configuration fails closed with 503.
+- Implemented explicit route role allowlists, read-only auditor protection, jurisdiction query filters, and authorization against server-loaded record addresses. Directors and case workers are restricted to their signed province, municipality, and assigned barangays; incomplete scope or out-of-area access returns 403.
+- All 21 backend tests passed under Node 20: 11 existing Phase 1 checks plus 10 middleware tests covering forged/expired tokens, role restrictions, scope bypass attempts, and request-body spoofing.
+- Task remains in progress: middleware is tested on isolated HTTP routes but is not yet mounted on the Phase 1 mock endpoints. Database-backed login/token issuance, active-account checks, and actual controller/model integration remain pending. The placeholder login token is not a valid access token for the new middleware.
+- Existing API contracts, mock responses, database models, frontend, and ML files are unchanged. Middleware integration guidance is in `server/README.md`.
+
 - [ ] **Task 2.2: Implement Beneficiary State Machine Engine**
   - Paths: `/server/src/services/workflow.service.js`, `/server/src/controllers/beneficiary.controller.js`
   - Enforce legal state transitions:
