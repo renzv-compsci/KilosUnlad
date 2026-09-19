@@ -1,12 +1,42 @@
 const mongoose = require('mongoose');
 
+// --- Sub-schema: jurisdiction ---
+const jurisdictionSchema = new mongoose.Schema(
+  {
+    region: { type: String, trim: true },
+    province: { type: String, trim: true },
+    municipality: { type: String, trim: true },
+    assigned_barangays: {
+      type: [String],
+      default: [],
+    },
+  },
+  { _id: false, strict: true }
+);
+
+// --- Main schema: User ---
 const userSchema = new mongoose.Schema(
   {
-    username: { type: String },
-    email: { type: String },
-    password_hash: { type: String },
+    full_name: { type: String, required: true, trim: true },
+    username: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+    },
+    password_hash: {
+      type: String,
+      required: true,
+    },
     role: {
       type: String,
+      required: true,
       enum: [
         'SUPER_ADMIN',
         'REGIONAL_DIRECTOR',
@@ -15,18 +45,25 @@ const userSchema = new mongoose.Schema(
       ],
     },
     jurisdiction: {
-      region: { type: String },
-      province: { type: String },
-      municipality: { type: String },
-      assigned_barangays: { type: [String] },
+      type: jurisdictionSchema,
+      default: () => ({}),
     },
-    is_active: { type: Boolean },
+    is_active: {
+      type: Boolean,
+      default: true,
+    },
   },
-  { strict: true }
+  {
+    strict: true,
+    timestamps: true,
+    collection: 'users',
+  }
 );
 
+// --- Indexes ---
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ username: 1 }, { unique: true });
 userSchema.index({ role: 1, 'jurisdiction.municipality': 1 });
 
+// --- Export ---
 module.exports = mongoose.model('User', userSchema);
