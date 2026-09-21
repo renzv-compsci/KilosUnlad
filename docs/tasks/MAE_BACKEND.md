@@ -26,7 +26,7 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 ## Phase 1: Environment Verification & Mock API Scaffolding (Days 1–3)
 *Goal: Stand up Express, mount core security middleware, and serve mock responses matching contracts to unblock Markie immediately.*
 
-- [ ] **Task 1.1: Express Server Bootstrap & Health Check**
+- [x] **Task 1.1: Express Server Bootstrap & Health Check**
   - Paths: `/server/server.js`, `/server/src/app.js`
   - Mount essential middleware: `cors()`, `helmet()`, `express.json({ limit: '30mb' })`, and `morgan('dev')`.
   - Connect database lifecycle via `/server/src/config/database.js`.
@@ -56,21 +56,46 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 - All three mock routes implemented with server-local copies of contract response data. HTTP tests verify exact contract matching, CORS, and security headers. Mock routes are disabled in production.
 - Verification: 11 tests passed using a temporary Node.js 20.20.0 runtime. Dependencies installed and `server/package-lock.json` generated.
 - Direct Express smoke check on port 5000 returned `200 OK` from `/health` using the normal default listening address; the temporary listener was then closed. This check did not connect to MongoDB.
-- Task 1.1 remains unchecked until the normal entrypoint is verified with a live MongoDB connection. MongoDB and Docker are unavailable in this environment.
+- At that time, Task 1.1 was pending live MongoDB verification because MongoDB and Docker were unavailable; see the verification update below.
 - Task 1.3 remains unchecked until Markie's React client is verified against the running backend; backend HTTP contract tests already pass.
 - Run instructions and mock behavior are documented in `server/README.md`.
+
+### Verification update (2026-09-17)
+
+- Backend Docker image uses Node.js 20 (verified runtime: v20.20.2), matching the documented stack. `npm ci` installs the locked dependencies without the previous engine compatibility warning; `.dockerignore` prevents local `node_modules` from overwriting container dependencies.
+- All 11 backend tests passed inside the Node 20 container, including the three Phase 1 response contracts, CORS/security headers, production mock exclusion, and hashing tests. Contract files are unchanged.
+- Task 1.1 verified: the normal `server.js` entrypoint authenticated to MongoDB over the Docker network (`Connected successfully: db/kilosunlad`) and listened on container port 5000. Live `/health` and `/api/v1` requests returned HTTP 200.
+- Test container `kilosunlad-mae-phase1` maps host port 5001 to container port 5000; Docker MongoDB uses host port 27018 to avoid existing local services. Shared Compose port defaults were not changed.
+- Task 1.3 remains unchecked: backend contract tests pass, but integration with Markie's React client is not yet verified. These checks cover the backend and database, not the full five-service stack or completion of Phase 5 container optimization.
 
 ---
 
 ## Phase 2: Security, RBAC & Core Workflow Engines (Days 4–8)
 *Goal: Replace mock auth with real JWTs, implement the state machine, and build task dispatching.*
 
-- [ ] **Task 2.1: Implement JWT Authentication & Jurisdictional RBAC**
+- [x] **Task 2.1: Implement JWT Authentication & Jurisdictional RBAC**
   - Paths: `/server/src/middleware/auth.middleware.js`, `/server/src/middleware/rbac.middleware.js`
   - Implement token verification: extract Bearer token, verify against `JWT_SECRET`, attach `req.user`.
   - Enforce role permissions (`SUPER_ADMIN`, `REGIONAL_DIRECTOR`, `CASE_WORKER`, `COA_AUDITOR`).
   - Restrict regional directors and case workers to their assigned municipality/barangays.
   - *DoD:* Requests with invalid/expired tokens return `401 Unauthorized`; out-of-jurisdiction queries return `403 Forbidden`.
+
+### Task 2.1 implementation update (2026-09-18)
+
+- Implemented HS256 Bearer JWT verification with required identity, recognized role, and expiration claims. Invalid/expired tokens return 401; missing signing-secret configuration fails closed with 503.
+- Implemented explicit route role allowlists, read-only auditor protection, jurisdiction query filters, and authorization against server-loaded record addresses. Directors and case workers are restricted to their signed province, municipality, and assigned barangays; incomplete scope or out-of-area access returns 403.
+- All 21 backend tests passed under Node 20: 11 existing Phase 1 checks plus 10 middleware tests covering forged/expired tokens, role restrictions, scope bypass attempts, and request-body spoofing.
+- At this stage the task was in progress with isolated middleware tests; see the integration update below. The placeholder login token is not a valid access token for the new middleware.
+- Existing API contracts, mock responses, database models, frontend, and ML files are unchanged. Middleware integration guidance is in `server/README.md`.
+
+### Task 2.1 integration verification (2026-09-21)
+
+- Implemented login using Dustin's merged User model, bcrypt credential checks, active-account validation, safe session serialization, and real 900-second HS256 JWTs matching the auth contract fields. Requires a configured signing secret of at least 32 characters; no default/sample accounts are created.
+- Mounted current-user authentication, explicit role permissions, and jurisdiction filtering on the existing triage/assigned-task endpoints. Every protected request checks MongoDB for deleted/deactivated accounts and current permissions. Expired-token and jurisdiction-denial responses match the frozen contracts.
+- All 32 backend tests passed. The 11 login/integration tests also passed against real local MongoDB in a unique temporary database, removed after the test. No application database records were modified.
+- Scope of completion: authentication/RBAC DoD verified. Business data on the protected development endpoints remains marked mock data; production returns `ENDPOINT_NOT_READY` after authorization until live data controllers are built. Legacy unauthenticated Phase 1 behavior now requires explicit `PHASE1_MOCK_MODE=true` and is forbidden in production.
+- Session `last_login_at` is returned, not persisted; model support for login history is undecided. Refresh/logout and password-change token revocation are not implemented by this task.
+- Drafted Decision 002 for dispatch metadata persistence and the missing SystemConfig audit action. Status is PROPOSED; no model or contract changes were made.
 
 - [ ] **Task 2.2: Implement Beneficiary State Machine Engine**
   - Paths: `/server/src/services/workflow.service.js`, `/server/src/controllers/beneficiary.controller.js`

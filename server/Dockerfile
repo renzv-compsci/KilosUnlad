@@ -1,5 +1,5 @@
-# 1. Use lightweight, secure Alpine Linux with Node 18 (~150MB)
-FROM node:18-alpine
+# 1. Use the documented Node 20 runtime, satisfying dependency engine requirements.
+FROM node:20-alpine
 
 # 2. Set the working directory inside the container
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # 4. Install dependencies inside container
-RUN npm install
+RUN npm ci
 
 # 5. Copy the rest of the backend source code
 COPY . .

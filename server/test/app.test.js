@@ -4,7 +4,8 @@ const http = require('node:http');
 
 process.env.NODE_ENV = 'test';
 process.env.CORS_ORIGIN = 'http://localhost:3000';
-const app = require('../src/app');
+const { createApp } = require('../src/app');
+const app = createApp({ mockMode: true, production: false });
 let server;
 
 before(async () => {
@@ -68,23 +69,6 @@ test('browser login preflight allows JSON and authorization headers', async () =
   assert.match(response.headers['access-control-allow-headers'], /authorization/);
 });
 
-test('mock routes are not mounted in production', async () => {
-  const environment = require('../src/config/environment');
-  const previous = environment.NODE_ENV;
-  environment.NODE_ENV = 'production';
-  delete require.cache[require.resolve('../src/app')];
-  const productionApp = require('../src/app');
-  environment.NODE_ENV = previous;
-  const original = server;
-  server = await new Promise(resolve => {
-    const listener = productionApp.listen(0, '127.0.0.1', () => resolve(listener));
-  });
-  try {
-    for (const path of ['/api/v1/auth/login', '/api/v1/beneficiaries/triage-queue', '/api/v1/tasks/assigned']) {
-      assert.equal((await request(path, { method: path.endsWith('login') ? 'POST' : 'GET' })).status, 404);
-    }
-  } finally {
-    await new Promise(resolve => server.close(resolve));
-    server = original;
-  }
+test('legacy unauthenticated mock mode is rejected in production', () => {
+  assert.throws(() => createApp({ mockMode: true, production: true }), /forbidden/);
 });
