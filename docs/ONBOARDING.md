@@ -52,6 +52,7 @@ To contribute effectively, follow this sequence:
   • /docs/ARCHITECTURE.md         ──► System boundaries (Frontend, Backend, DB, ML).
   • /docs/PROJECT_STRUCTURE.md    ──► File-by-file directory explanation.
   • /docs/CONNECTIVITY_TESTING.md ──► Service health verification procedures.
+  • /docs/decisions/              ──► Official team architectural decisions & changes.
          │
          ▼
 [ STEP 3: Pair The AI Prompts with Your LLM ]
@@ -163,7 +164,7 @@ Before writing any code, open **`/docs/CONNECTIVITY_TESTING.md`** and run your a
 
 ## 5. Universal Reading List (Mandatory for Everyone)
 
-Before starting on your specific domain, read these five foundational documents in `/docs`:
+Before starting on your specific domain, read these foundational documents in `/docs`:
 
 1. **`/docs/PROJECT_OVERVIEW.md`**  
    *Understand:* The 4Ps lifecycle, real-world fraud scenarios, legal references (**RA 11310, RA 11552, RA 10173**), and why our system is Human-in-the-Loop.
@@ -173,7 +174,9 @@ Before starting on your specific domain, read these five foundational documents 
    *Understand:* The complete directory tree and the purpose of every folder and file.
 4. **`/docs/CONNECTIVITY_TESTING.md`**  
    *Understand:* How to test and verify health across all service boundaries.
-5. **`/docs/contracts/`**  
+5. **`/docs/decisions/` (Architectural Decision Records)**  
+   *Understand:* Review all agreed-upon system resolutions (e.g., `001-database-schema-hardening.md`) before changing schemas or logic.
+6. **`/docs/contracts/`**  
    *Understand:* The single source of truth for all API communication. Never write endpoints or fetch requests without checking your contract folder!
 
 ---
@@ -193,6 +196,7 @@ Find your name below. Follow this roadmap to know your files, tasks, and deliver
 * [ ] Read `/docs/ARCHITECTURE.md` $\to$ Layer 5 (Database Layer).
 * [ ] Read `/docs/PROJECT_STRUCTURE.md` $\to$ PART C: Database Layer.
 * [ ] Read `/docs/CONNECTIVITY_TESTING.md` $\to$ **Test 1**.
+* [ ] Read `/docs/decisions/001-database-schema-hardening.md`.
 * [ ] Your Master AI Prompt: `/docs/prompts/DUSTIN_DATABASE.md`.
 * [ ] Your Task Roadmap: `/docs/tasks/DUSTIN_DATABASE.md`.
 * [ ] Contracts to Check: `/docs/contracts/admin-web/` and `/docs/contracts/field-tablet/`.
@@ -223,6 +227,7 @@ Find your name below. Follow this roadmap to know your files, tasks, and deliver
 * [ ] Read `/docs/ARCHITECTURE.md` $\to$ Layer 3 (Core Application Service Layer).
 * [ ] Read `/docs/PROJECT_STRUCTURE.md` $\to$ PART B: Backend (`/server`).
 * [ ] Read `/docs/CONNECTIVITY_TESTING.md` $\to$ **Test 3**.
+* [ ] Read `/docs/decisions/001-database-schema-hardening.md`.
 * [ ] Your Master AI Prompt: `/docs/prompts/MAE_BACKEND_PROMPT.md`.
 * [ ] Your Task Roadmap: `/docs/tasks/MAE_BACKEND.md`.
 * [ ] Contracts to Check: **All contracts in `/docs/contracts/`**.
@@ -380,6 +385,22 @@ git pull origin main
 git checkout <your-role-branch>
 git merge main
 ```
+
+---
+
+## 8. Technical Decision & Issue Protocol (No More Messenger PDFs!)
+
+To keep our repository organized and avoid losing technical discussions in Messenger chats, **do not send PDFs or long issue descriptions in the group chat.**
+
+Instead, use our **`/docs/decisions/`** folder:
+
+### How to Raise a Technical Issue or Proposal:
+1. Open **`/docs/decisions/TEMPLATE.md`** and copy it to a new file (e.g., `/docs/decisions/002-field-task-upload-format.md`).
+2. Fill in the **Problem Statement** and your **Proposed Options**.
+3. Commit and push it to your role branch.
+4. **Messenger Group Chat Rule:** The group chat is strictly for quick pings! Just send a short message:  
+   > *"@Renz, I added Decision 002 in `/docs/decisions/` regarding task upload formats. Kindly review and resolve!"*
+5. Renz will review the issue, document the official resolution, and merge it into `main`.
 
 ---
 
