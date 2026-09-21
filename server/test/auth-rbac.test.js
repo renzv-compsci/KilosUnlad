@@ -46,7 +46,7 @@ test('missing, malformed, expired, future, forged, unsigned and wrong-algorithm 
     token({ ...claims, role: 'UNKNOWN' }), token({ ...claims, userId: '' })];
   for (const value of bad) {
     const r = await request('/identity', value); assert.equal(r.status, 401);
-    assert.equal((await r.json()).error.code, 'UNAUTHORIZED');
+    assert.ok(['UNAUTHORIZED', 'TOKEN_EXPIRED'].includes((await r.json()).error.code));
   }
   assert.equal((await request('/identity', token(), { headers: { Authorization: 'Basic abc' } })).status, 401);
 });

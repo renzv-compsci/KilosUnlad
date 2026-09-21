@@ -5,6 +5,10 @@ const deny = (res, status = 403) => res.status(status).json({ error: {
   code: status === 401 ? 'UNAUTHORIZED' : 'FORBIDDEN',
   message: status === 401 ? 'Authentication is required.' : 'Access is not permitted.'
 } });
+const outside = res => res.status(403).json({ error: {
+  code: 'OUT_OF_JURISDICTION',
+  message: 'User is not authorized to view records outside their assigned region.'
+} });
 
 function allowRoles(...roles) {
   if (!roles.length || roles.some(role => !Object.values(ROLES).includes(role))) {
@@ -33,13 +37,13 @@ function scopeJurisdiction(req, res, next) {
   if (!scopedRoles.includes(role) || !j ||
       !['region', 'province', 'municipality'].every(key => text(j[key])) ||
       !Array.isArray(j.assigned_barangays) || !j.assigned_barangays.length ||
-      !j.assigned_barangays.every(text)) return deny(res);
+      !j.assigned_barangays.every(text)) return outside(res);
   // Explicit out-of-scope filters return 403, rather than silently broadening access.
   for (const key of ['province', 'municipality', 'barangay']) {
     const requested = req.query[key];
     if (requested !== undefined && (!text(requested) ||
         (key === 'barangay' ? !j.assigned_barangays.includes(requested) : requested !== j[key]))) {
-      return deny(res);
+      return outside(res);
     }
   }
   req.jurisdictionFilter = {
@@ -60,7 +64,7 @@ function requireJurisdiction(getAddress) {
     try { address = getAddress(req); } catch (error) { return next(error); }
     const j = req.user.jurisdiction;
     if (!address || address.province !== j.province || address.municipality !== j.municipality ||
-        !j.assigned_barangays.includes(address.barangay)) return deny(res);
+        !j.assigned_barangays.includes(address.barangay)) return outside(res);
     return next();
   });
 }

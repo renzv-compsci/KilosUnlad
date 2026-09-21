@@ -73,7 +73,7 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 ## Phase 2: Security, RBAC & Core Workflow Engines (Days 4–8)
 *Goal: Replace mock auth with real JWTs, implement the state machine, and build task dispatching.*
 
-- [ ] **Task 2.1: Implement JWT Authentication & Jurisdictional RBAC**
+- [x] **Task 2.1: Implement JWT Authentication & Jurisdictional RBAC**
   - Paths: `/server/src/middleware/auth.middleware.js`, `/server/src/middleware/rbac.middleware.js`
   - Implement token verification: extract Bearer token, verify against `JWT_SECRET`, attach `req.user`.
   - Enforce role permissions (`SUPER_ADMIN`, `REGIONAL_DIRECTOR`, `CASE_WORKER`, `COA_AUDITOR`).
@@ -85,8 +85,17 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 - Implemented HS256 Bearer JWT verification with required identity, recognized role, and expiration claims. Invalid/expired tokens return 401; missing signing-secret configuration fails closed with 503.
 - Implemented explicit route role allowlists, read-only auditor protection, jurisdiction query filters, and authorization against server-loaded record addresses. Directors and case workers are restricted to their signed province, municipality, and assigned barangays; incomplete scope or out-of-area access returns 403.
 - All 21 backend tests passed under Node 20: 11 existing Phase 1 checks plus 10 middleware tests covering forged/expired tokens, role restrictions, scope bypass attempts, and request-body spoofing.
-- Task remains in progress: middleware is tested on isolated HTTP routes but is not yet mounted on the Phase 1 mock endpoints. Database-backed login/token issuance, active-account checks, and actual controller/model integration remain pending. The placeholder login token is not a valid access token for the new middleware.
+- At this stage the task was in progress with isolated middleware tests; see the integration update below. The placeholder login token is not a valid access token for the new middleware.
 - Existing API contracts, mock responses, database models, frontend, and ML files are unchanged. Middleware integration guidance is in `server/README.md`.
+
+### Task 2.1 integration verification (2026-09-21)
+
+- Implemented login using Dustin's merged User model, bcrypt credential checks, active-account validation, safe session serialization, and real 900-second HS256 JWTs matching the auth contract fields. Requires a configured signing secret of at least 32 characters; no default/sample accounts are created.
+- Mounted current-user authentication, explicit role permissions, and jurisdiction filtering on the existing triage/assigned-task endpoints. Every protected request checks MongoDB for deleted/deactivated accounts and current permissions. Expired-token and jurisdiction-denial responses match the frozen contracts.
+- All 32 backend tests passed. The 11 login/integration tests also passed against real local MongoDB in a unique temporary database, removed after the test. No application database records were modified.
+- Scope of completion: authentication/RBAC DoD verified. Business data on the protected development endpoints remains marked mock data; production returns `ENDPOINT_NOT_READY` after authorization until live data controllers are built. Legacy unauthenticated Phase 1 behavior now requires explicit `PHASE1_MOCK_MODE=true` and is forbidden in production.
+- Session `last_login_at` is returned, not persisted; model support for login history is undecided. Refresh/logout and password-change token revocation are not implemented by this task.
+- Drafted Decision 002 for dispatch metadata persistence and the missing SystemConfig audit action. Status is PROPOSED; no model or contract changes were made.
 
 - [ ] **Task 2.2: Implement Beneficiary State Machine Engine**
   - Paths: `/server/src/services/workflow.service.js`, `/server/src/controllers/beneficiary.controller.js`
