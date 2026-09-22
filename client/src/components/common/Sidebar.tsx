@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScreenId } from './WireframeToolbar';
+import type { ScreenId } from '../../types/navigation';
 import { 
   LayoutDashboard, 
   AlertTriangle, 

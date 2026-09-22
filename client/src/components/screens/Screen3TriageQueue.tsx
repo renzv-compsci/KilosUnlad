@@ -19,14 +19,12 @@ interface Screen3TriageQueueProps {
   onDispatchTask: (item: BeneficiaryTriageItem) => void;
   showSpecAnnotations?: boolean;
   items?: BeneficiaryTriageItem[];
-  dataSourceLabel?: string;
 }
 
 export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
   onDispatchTask,
   showSpecAnnotations = false,
   items = MOCK_TRIAGE_ITEMS,
-  dataSourceLabel = 'Static mock contract',
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [municipalityFilter, setMunicipalityFilter] = useState('ALL');
@@ -97,9 +95,6 @@ export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
             </h2>
             <p className="text-xs text-stone-500 mt-1">
               Cross-match discrepancies: Meralco Lifeline Consumption (&gt; 200 kWh), LTO Vehicle Records, and SWDI Tier Shifts.
-            </p>
-            <p className="mt-1 text-[11px] font-mono text-emerald-700">
-              Data source: {dataSourceLabel}
             </p>
           </div>
 

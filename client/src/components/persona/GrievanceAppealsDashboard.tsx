@@ -13,7 +13,7 @@ import {
   Search,
   ExternalLink
 } from 'lucide-react';
-import { ScreenId } from '../common/WireframeToolbar';
+import type { ScreenId } from '../../types/navigation';
 import { MOCK_DUE_PROCESS_NOTICES } from '../../data/mockContracts';
 import { DueProcessNoticeItem } from '../../types/contracts';
 

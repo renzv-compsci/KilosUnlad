@@ -22,7 +22,6 @@ interface Screen7FieldTasksListProps {
   onOpenSyncDrawer: () => void;
   showSpecAnnotations?: boolean;
   tasks?: FieldTaskItem[];
-  dataSourceLabel?: string;
 }
 
 export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
@@ -32,7 +31,6 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
   onOpenSyncDrawer,
   showSpecAnnotations = false,
   tasks = MOCK_FIELD_TASKS,
-  dataSourceLabel = 'Static mock contract',
 }) => {
   const getPriorityStyle = (priority: string) => {
     switch (priority) {
@@ -81,19 +79,15 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
             <div className="text-[11px] font-normal text-slate-500 mt-0.5">
               {isOffline ? '3 Tasks cached locally in IndexedDB' : 'Synchronized with Regional Office IV-A'}
             </div>
-            <div className="text-[10px] font-mono text-slate-500 mt-0.5">
-              Data source: {dataSourceLabel}
-            </div>
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
-          {/* Quick toggle simulator */}
           <button
             onClick={onToggleOffline}
             className="px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-200/80 rounded-md text-[11px] font-medium text-slate-700 transition cursor-pointer shadow-xs"
           >
-            {isOffline ? 'Go Online' : 'Simulate Offline'}
+            {isOffline ? 'Go Online' : 'Work Offline'}
           </button>
           
           <button

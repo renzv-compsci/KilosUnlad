@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserSession } from '../../types/contracts';
-import { ShieldCheck, UserCheck, MapPin, Building2, LogOut, ChevronDown, Users, Scale, Laptop } from 'lucide-react';
+import { MapPin, LogOut, ChevronDown } from 'lucide-react';
 
 interface HeaderProps {
   session: UserSession;
@@ -12,7 +12,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   session,
   onLogout,
-  onSwitchUser,
+  onSwitchUser: _onSwitchUser,
   showSpecAnnotations = false,
 }) => {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
@@ -137,73 +137,10 @@ export const Header: React.FC<HeaderProps> = ({
               <h1 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight font-display flex items-center gap-1.5">
                 <span>KilosUnlad</span>
                 <span className="text-xs font-normal text-stone-400 hidden xl:inline">
-                  — Dedicated Caseworker Personas
+                  Welfare Auditing MIS
                 </span>
               </h1>
             </div>
-          </div>
-
-          {/* Center: Quick Persona Role Switcher Segmented Control */}
-          <div className="hidden lg:flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200/90 shadow-2xs">
-            <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider px-2 font-mono">
-              Persona:
-            </span>
-            
-            {/* Director Button */}
-            <button
-              id="quick-switch-director-btn"
-              onClick={() => onSwitchUser('director')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 ${
-                session.user.role === 'DSWD_DIRECTOR'
-                  ? 'bg-white text-[#132e4f] shadow-2xs border border-stone-200/90'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              <span>Director (Admin)</span>
-            </button>
-
-            {/* Municipal Link Button */}
-            <button
-              id="quick-switch-municipal-btn"
-              onClick={() => onSwitchUser('municipal_link')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 ${
-                session.user.role === 'MUNICIPAL_LINK'
-                  ? 'bg-white text-emerald-800 shadow-2xs border border-stone-200/90'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>Municipal Link</span>
-            </button>
-
-            {/* Grievance Officer Button */}
-            <button
-              id="quick-switch-grievance-btn"
-              onClick={() => onSwitchUser('grievance_officer')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 ${
-                session.user.role === 'GRIEVANCE_OFFICER'
-                  ? 'bg-white text-amber-950 shadow-2xs border border-stone-200/90'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              <Scale className="w-3.5 h-3.5" />
-              <span>Grievance Officer</span>
-            </button>
-
-            {/* COA Auditor Button */}
-            <button
-              id="quick-switch-coa-btn"
-              onClick={() => onSwitchUser('coa_auditor')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center space-x-1.5 ${
-                session.user.role === 'COA_AUDITOR'
-                  ? 'bg-white text-stone-900 shadow-2xs border border-stone-200/90'
-                  : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              <span>COA Auditor</span>
-            </button>
           </div>
 
           {/* User Profile & Jurisdiction Bar */}
@@ -246,68 +183,6 @@ export const Header: React.FC<HeaderProps> = ({
                       <MapPin className="w-3 h-3 mr-1 text-stone-400" />
                       {session.user.jurisdiction.municipality} ({session.user.jurisdiction.region})
                     </p>
-                  </div>
-
-                  <div className="p-1.5">
-                    <p className="px-2.5 py-1 text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                      Switch Role Persona:
-                    </p>
-                    <button
-                      id="switch-director-btn"
-                      onClick={() => {
-                        onSwitchUser('director');
-                        setDropdownOpen(false);
-                      }}
-                      className="w-full text-left px-2.5 py-1.5 text-xs hover:bg-stone-50 rounded-lg flex items-center justify-between transition cursor-pointer"
-                    >
-                      <div>
-                        <div className="font-semibold text-stone-800">Regional Director</div>
-                        <div className="text-[10px] text-stone-500">Atty. Carmelita Mendoza</div>
-                      </div>
-                      <span className="text-[10px] bg-blue-50 text-blue-800 px-1.5 py-0.5 rounded font-medium border border-blue-200/60">Admin</span>
-                    </button>
-                    <button
-                      id="switch-municipal-link-btn"
-                      onClick={() => {
-                        onSwitchUser('municipal_link');
-                        setDropdownOpen(false);
-                      }}
-                      className="w-full text-left px-2.5 py-1.5 text-xs hover:bg-stone-50 rounded-lg flex items-center justify-between transition cursor-pointer"
-                    >
-                      <div>
-                        <div className="font-semibold text-stone-800">Municipal Link</div>
-                        <div className="text-[10px] text-stone-500">Marvin Bautista, RSW</div>
-                      </div>
-                      <span className="text-[10px] bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded font-medium border border-emerald-200/60">Field</span>
-                    </button>
-                    <button
-                      id="switch-grievance-btn"
-                      onClick={() => {
-                        onSwitchUser('grievance_officer');
-                        setDropdownOpen(false);
-                      }}
-                      className="w-full text-left px-2.5 py-1.5 text-xs hover:bg-stone-50 rounded-lg flex items-center justify-between transition cursor-pointer"
-                    >
-                      <div>
-                        <div className="font-semibold text-stone-800">Grievance Officer</div>
-                        <div className="text-[10px] text-stone-500">Rochelle Castillo, MSSW</div>
-                      </div>
-                      <span className="text-[10px] bg-amber-50 text-amber-950 px-1.5 py-0.5 rounded font-medium border border-amber-200/60">Appeals</span>
-                    </button>
-                    <button
-                      id="switch-coa-auditor-btn"
-                      onClick={() => {
-                        onSwitchUser('coa_auditor');
-                        setDropdownOpen(false);
-                      }}
-                      className="w-full text-left px-2.5 py-1.5 text-xs hover:bg-stone-50 rounded-lg flex items-center justify-between transition cursor-pointer"
-                    >
-                      <div>
-                        <div className="font-semibold text-stone-800">COA State Auditor</div>
-                        <div className="text-[10px] text-stone-500">Engr. Roberto Santos, CPA</div>
-                      </div>
-                      <span className="text-[10px] bg-amber-50 text-amber-900 px-1.5 py-0.5 rounded font-medium border border-amber-200/60">Audit</span>
-                    </button>
                   </div>
 
                   <div className="border-t border-stone-100 pt-1 px-1.5">

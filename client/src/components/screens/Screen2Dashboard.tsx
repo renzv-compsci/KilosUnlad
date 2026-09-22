@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScreenId } from '../common/WireframeToolbar';
+import type { ScreenId } from '../../types/navigation';
 import { 
   Users, 
   AlertOctagon, 

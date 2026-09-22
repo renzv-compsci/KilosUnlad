@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { UserSession } from '../../types/contracts';
 import { MOCK_USERS } from '../../data/mockContracts';
 import { login } from '../../services/api';
-import { Eye, EyeOff, Lock, Mail, AlertCircle, CheckCircle2, Shield, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react';
 
 interface Screen1LoginProps {
   onLoginSuccess: (session: UserSession) => void;
@@ -29,10 +29,10 @@ export const Screen1Login: React.FC<Screen1LoginProps> = ({
       setIsLoading(false);
       onLoginSuccess(session);
     } catch {
-      // Backend login is local-only for now, so demo persona fallback keeps the wireframe usable.
+      // Backend login may be local-only during review, so keep a quiet fallback for seeded users.
       setTimeout(() => {
         setIsLoading(false);
-      // Check demo credentials
+      // Keep invalid credential handling aligned with the backend contract.
       if (username === 'invalid@dswd.gov.ph' || password === 'wrong') {
         setErrorMessage('401 Unauthorized: Invalid government credentials or expired DSWD enterprise token.');
         return;
@@ -47,19 +47,6 @@ export const Screen1Login: React.FC<Screen1LoginProps> = ({
       }
       }, 600);
     }
-  };
-
-  const loadRoleDemo = (roleKey: 'director' | 'municipal_link' | 'coa_auditor') => {
-    const user = MOCK_USERS[roleKey];
-    setUsername(user.user.username);
-    setPassword('gov-secure-pass-2026');
-    setErrorMessage(null);
-  };
-
-  const triggerErrorDemo = () => {
-    setUsername('invalid@dswd.gov.ph');
-    setPassword('wrong');
-    setErrorMessage('401 Unauthorized: Invalid government credentials or unverified PhilSys clearance.');
   };
 
   return (
@@ -225,54 +212,6 @@ export const Screen1Login: React.FC<Screen1LoginProps> = ({
           </div>
 
         </form>
-
-        {/* Quick Role Tester Bar for Demonstration */}
-        <div className="bg-stone-50 p-4 border-t border-stone-200/90">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-semibold text-stone-600 uppercase tracking-wider">
-              Caseworker Persona:
-            </span>
-            <span className="text-[10px] text-[#132e4f] font-medium">Multi-Role Testing</span>
-          </div>
-
-          <div className="grid grid-cols-3 gap-1.5 text-[11px]">
-            <button
-              type="button"
-              id="demo-role-director"
-              onClick={() => loadRoleDemo('director')}
-              className="px-2 py-1.5 bg-white hover:bg-stone-100 border border-stone-200 rounded-md text-stone-700 hover:text-stone-900 font-medium text-center truncate shadow-2xs cursor-pointer"
-            >
-              DSWD Director
-            </button>
-            <button
-              type="button"
-              id="demo-role-link"
-              onClick={() => loadRoleDemo('municipal_link')}
-              className="px-2 py-1.5 bg-white hover:bg-stone-100 border border-stone-200 rounded-md text-stone-700 hover:text-stone-900 font-medium text-center truncate shadow-2xs cursor-pointer"
-            >
-              Municipal Link
-            </button>
-            <button
-              type="button"
-              id="demo-role-coa"
-              onClick={() => loadRoleDemo('coa_auditor')}
-              className="px-2 py-1.5 bg-white hover:bg-stone-100 border border-stone-200 rounded-md text-stone-700 hover:text-stone-900 font-medium text-center truncate shadow-2xs cursor-pointer"
-            >
-              COA Auditor
-            </button>
-          </div>
-
-          <div className="mt-2 text-center">
-            <button
-              type="button"
-              id="demo-trigger-error-btn"
-              onClick={triggerErrorDemo}
-              className="text-[10px] text-red-600 hover:underline font-mono"
-            >
-              ⚡ Test 401 Error State Toast
-            </button>
-          </div>
-        </div>
 
       </div>
 
