@@ -111,6 +111,85 @@ The token-only factory remains available for isolated unit tests; application
 routes always provide the current-user lookup. Password-change/session-specific
 revocation and refresh/logout flows are not implemented. Model schemas are unchanged.
 
+## Phase 2 workflow guard (in progress)
+
+`src/services/workflow.service.js` exports `assertTransition(currentStatus, requestedStatus)`.
+It permits only consecutive steps in the documented lifecycle from
+`ACTIVE_COMPLIANT` through `GRADUATED`. Other transitions throw a typed
+`INVALID_STATUS_TRANSITION` error, serialized as HTTP 400. Run `npm test`.
+
+This internal guard is not mounted on a live mutation endpoint. Future controllers
+must use the database's current status, enforce RBAC and jurisdiction, check due
+process, and atomically persist status and audit entries with stale-write protection.
+The guard alone does not authorize graduation. Calamity/resumption and retention
+rules remain undefined. Appeal storage/contracts and dispatch metadata are pending;
+Tasks 2.2 through 2.4 remain unchecked.
+
+### Internal database workflow service
+
+`createWorkflowPersistence` in `src/services/workflowPersistence.service.js` adds
+transactional persistence using the existing User, Beneficiary, and AuditLog models.
+It reloads the actor and household, applies the existing role/jurisdiction guards,
+checks the expected stored status, and saves the status and audit entry together.
+Stale or concurrent changes return `WORKFLOW_CONFLICT` (409); denied operations
+make no changes. Existing unique audit sequence indexes prevent parallel chain
+forks. Missing indexes fail closed. Audit records use the accepted hash formula.
+
+This is internal infrastructure, not a dispatch or graduation implementation.
+Construct it only in trusted backend code with an explicit policy:
+`{ from, to, roles, action, perform }`. No default policy is installed and no API
+route is added. Never accept policy, actor identity, or an authorization decision
+from a request body; use the authenticated actor ID. `perform({ record, actor,
+session })` must check the workflow's prerequisites, make associated writes with
+the supplied session, and return exactly `true`. It may run again on transaction
+retry, so it must not send notifications or perform external side effects.
+Appropriate action semantics and complete audit deltas for additional entities
+remain the responsibility of each workflow. The test-only dispatch policy does
+not implement task creation and must not be used as a production policy.
+
+MongoDB transactions require a replica set or sharded cluster. The service has
+no nontransactional fallback. Shared Docker/database configuration is unchanged;
+deployment readiness must be coordinated with the database owner before mounting
+live write routes. Appeal storage and workflow-specific policy decisions remain
+pending, so Task 2.2 remains in progress.
+
+Run the integration checks on an automatically created, disposable localhost
+replica set (requires an installed `mongod`; does not use the application database):
+
+```powershell
+$env:RUN_WORKFLOW_MONGO_TESTS = '1'
+$env:MONGOD_PATH = 'C:/Program Files/MongoDB/Server/8.3/bin/mongod.exe'
+npm test
+Remove-Item Env:RUN_WORKFLOW_MONGO_TESTS, Env:MONGOD_PATH
+```
+
+The test stops its MongoDB process and removes only its generated temporary data
+directory. Without the opt-in variable, the replica-set integration suite is skipped.
+
+## Phase 2 appeal timing helpers (in progress)
+
+`src/services/appealLifecycle.service.js` exports:
+
+- `calculateAppealDeadline(noticeAt)`: accepts a valid `Date` and returns a new
+  `Date` exactly 15 elapsed days later without changing its input.
+- `assertAppealWindowElapsed({ programStatus, noticeAt, appealDeadline, hasAppeal,
+  isPaused, now })`: requires notice status, a deadline at least 15 days after
+  notice, explicit `false` for both hold flags, and `now >= appealDeadline`.
+  `now` defaults to the server clock. All supplied times must be valid `Date`
+  objects. Invalid or unknown data fails closed with an `AppealLifecycleError`.
+
+These are internal timing prerequisites, not a public API or authorization to
+graduate. Their parameter names do not define new schema fields or a new frozen
+contract. Callers must eventually obtain these values from approved persistent
+storage, inside the authorized transaction. They must not trust client-supplied
+hold flags or timestamps. No production workflow invokes these helpers yet.
+
+The calculation implements the roadmap's `now + 15 days` as 15 times 24 hours;
+it does not apply business-day, midnight, or notice-service rules. An existing
+appeal or pause always blocks this helper; resolution and timer resumption are
+pending decisions. Task 2.3 remains incomplete until storage, docket API, and live
+workflow integration are agreed and tested. The full opt-in test run passes 51 tests.
+
 ## Hash format
 
 `computeEntryHash` preserves the existing colon-separated field format:
