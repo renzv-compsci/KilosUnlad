@@ -1,0 +1,714 @@
+import React, { useState } from 'react';
+import { FieldTaskItem, FieldTaskSubmission } from '../../types/contracts';
+import { 
+  Camera, 
+  MapPin, 
+  Hash, 
+  CheckCircle2, 
+  AlertTriangle, 
+  ShieldCheck, 
+  CreditCard, 
+  Bike, 
+  Home, 
+  FileText, 
+  Save, 
+  ChevronLeft, 
+  ChevronRight,
+  UploadCloud,
+  Check,
+  RefreshCw
+} from 'lucide-react';
+
+interface Screen8FieldAssessmentFormProps {
+  task: FieldTaskItem;
+  onBackToTasks: () => void;
+  onSubmitVerification: (submission: FieldTaskSubmission) => void;
+  showSpecAnnotations?: boolean;
+}
+
+export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProps> = ({
+  task,
+  onBackToTasks,
+  onSubmitVerification,
+  showSpecAnnotations = false,
+}) => {
+  const [currentStep, setCurrentStep] = useState(1);
+
+  // Section 1: Living Conditions
+  const [wallConstruction, setWallConstruction] = useState<1 | 2 | 3>(2); // Mixed (2)
+  const [roofConstruction, setRoofConstruction] = useState<1 | 2 | 3>(3); // Galvanized Iron (3)
+  const [waterAccess, setWaterAccess] = useState<1 | 2 | 3>(2); // Communal (2)
+
+  // Section 2: Livelihood Asset Verification (The Motorcycle Check)
+  const [isMotorcyclePresent, setIsMotorcyclePresent] = useState(true);
+  const [isProductiveAsset, setIsProductiveAsset] = useState(true);
+  const [proofType, setProofType] = useState<
+    'MOVEIT' | 'ANGKAS' | 'TRICYCLE_MTOP' | 'DELIVERY_LOGISTICS' | 'PERSONAL_ONLY'
+  >('MOVEIT');
+  const [franchiseNumber, setFranchiseNumber] = useState('MV-CAL-2026-99120');
+
+  // Section 3: Anti-Loan Shark Check (Sangla-ATM)
+  const [physicalCardPresented, setPhysicalCardPresented] = useState(true);
+  const [cardMatchesBeneficiary, setCardMatchesBeneficiary] = useState(true);
+  const [pawningSuspected, setPawningSuspected] = useState(false);
+
+  // Section 4: Geotagged Camera Capture
+  const [photoCaptured, setPhotoCaptured] = useState(true);
+  const [gpsData] = useState({
+    latitude: 14.2145,
+    longitude: 121.1651,
+    accuracy_m: 4.2
+  });
+  const [clientSideHash, setClientSideHash] = useState('SHA-256: a4f5d810e922c019a8412b201');
+
+  // Section 5: Final Recommendation & Narrative
+  const [workerRecommendation, setWorkerRecommendation] = useState<
+    'RETAIN' | 'RECOMMEND_GRADUATION' | 'INVESTIGATE_FRAUD'
+  >('RETAIN');
+  const [narrativeReport, setNarrativeReport] = useState(
+    'Field visit confirmed family operates active MoveIt delivery service with validated operator ID MV-CAL-2026-99120. Asset directly generates household daily sustenance. Beneficiary physically produced LandBank card without pawning indicators. Recommending RETAIN under working asset exemption.'
+  );
+
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleCapturePhoto = () => {
+    setPhotoCaptured(true);
+    const randomHex = Math.random().toString(16).substring(2, 10);
+    setClientSideHash(`SHA-256: ${randomHex}...b201`);
+  };
+
+  const handleFinalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+
+    const submission: FieldTaskSubmission = {
+      task_id: task.task_id,
+      household_id: task.household_id,
+      timestamp: new Date().toISOString(),
+      wall_construction: wallConstruction,
+      roof_construction: roofConstruction,
+      water_access: waterAccess,
+      is_motorcycle_present: isMotorcyclePresent,
+      is_productive_asset: isProductiveAsset,
+      proof_type: isMotorcyclePresent ? proofType : undefined,
+      franchise_number: isMotorcyclePresent ? franchiseNumber : undefined,
+      physical_card_presented: physicalCardPresented,
+      card_matches_beneficiary: cardMatchesBeneficiary,
+      pawning_suspected: pawningSuspected,
+      evidence_attachments: photoCaptured
+        ? [
+            {
+              photo_url: 'blob://simulated_evidence_photo.jpg',
+              captured_at: new Date().toISOString(),
+              gps_readout: gpsData,
+              client_side_hash: clientSideHash
+            }
+          ]
+        : [],
+      worker_recommendation: workerRecommendation,
+      narrative_report: narrativeReport,
+      sync_status: 'PENDING_SYNC'
+    };
+
+    setTimeout(() => {
+      setIsSaving(false);
+      onSubmitVerification(submission);
+    }, 800);
+  };
+
+  const steps = [
+    { num: 1, title: 'Living Conditions', icon: Home },
+    { num: 2, title: 'Asset Check', icon: Bike },
+    { num: 3, title: 'Anti-Loan Shark', icon: CreditCard },
+    { num: 4, title: 'Geotagged Camera', icon: Camera },
+    { num: 5, title: 'Recommendation', icon: FileText }
+  ];
+
+  return (
+    <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-5">
+      
+      {/* Back button & Screen Spec */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={onBackToTasks}
+          className="min-h-[38px] px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 rounded-lg flex items-center space-x-1.5 shadow-xs cursor-pointer"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span>Back to Field Tasks</span>
+        </button>
+
+        <div className="text-right">
+          <span className="text-[10px] font-mono text-slate-400 block">
+            Target: {task.household_id}
+          </span>
+          <span className="text-xs font-bold text-slate-800">
+            {task.head_of_household.first_name} {task.head_of_household.last_name}
+          </span>
+        </div>
+      </div>
+
+      {showSpecAnnotations && (
+        <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-[10px] font-mono text-slate-600">
+          <div>SCREEN 8: Step-by-Step Field Assessment Form</div>
+          <div>POST /api/v1/tasks/:id/submit | IndexedDB Offline Fallback</div>
+        </div>
+      )}
+
+      {/* 5-Step Visual Stepper Bar */}
+      <div className="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/80 shadow-xs">
+        <div className="flex items-center justify-between">
+          {steps.map((s, idx) => {
+            const Icon = s.icon;
+            const isCompleted = currentStep > s.num;
+            const isCurrent = currentStep === s.num;
+
+            return (
+              <button
+                key={s.num}
+                onClick={() => setCurrentStep(s.num)}
+                className="flex-1 flex flex-col items-center group py-1 cursor-pointer"
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition ${
+                  isCurrent
+                    ? 'bg-blue-700 text-white shadow-xs'
+                    : isCompleted
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                }`}>
+                  {isCompleted ? <Check className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
+                </div>
+                <span className={`text-[10px] mt-1 text-center font-medium hidden sm:inline ${
+                  isCurrent ? 'text-blue-900 font-semibold' : 'text-slate-500'
+                }`}>
+                  {s.title}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Form Content Card */}
+      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
+        
+        {/* SECTION 1: Living Conditions (SWDI Physical Scoring) */}
+        {currentStep === 1 && (
+          <div className="space-y-5">
+            <div>
+              <div className="flex items-center space-x-2 text-blue-900">
+                <Home className="w-4 h-4 text-blue-700" />
+                <h3 className="text-base font-bold text-slate-900">
+                  Section 1: Living Conditions (SWDI Scoring)
+                </h3>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Standardized DSWD Social Welfare and Development Indicator physical criteria.
+              </p>
+            </div>
+
+            {/* Wall Construction */}
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wide">
+                Wall Construction Material
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { val: 1, label: 'Light (1)', sub: 'Bamboo / Sawali' },
+                  { val: 2, label: 'Mixed (2)', sub: 'Wood & Half-Concrete' },
+                  { val: 3, label: 'Concrete (3)', sub: 'Solid Masonry' }
+                ].map((opt) => (
+                  <button
+                    key={opt.val}
+                    type="button"
+                    onClick={() => setWallConstruction(opt.val as 1 | 2 | 3)}
+                    className={`min-h-[46px] p-2 rounded-lg border text-center transition cursor-pointer ${
+                      wallConstruction === opt.val
+                        ? 'bg-blue-50 text-blue-900 border-blue-400 font-semibold shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="text-xs font-bold">{opt.label}</div>
+                    <div className="text-[10px] opacity-75">{opt.sub}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Roof Construction */}
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wide">
+                Roof Construction Material
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { val: 1, label: 'Makeshift (1)', sub: 'Tarpaulin / Scrap' },
+                  { val: 2, label: 'Mixed (2)', sub: 'Reused Corrugated' },
+                  { val: 3, label: 'Galvanized (3)', sub: 'Standard G.I. Sheet' }
+                ].map((opt) => (
+                  <button
+                    key={opt.val}
+                    type="button"
+                    onClick={() => setRoofConstruction(opt.val as 1 | 2 | 3)}
+                    className={`min-h-[46px] p-2 rounded-lg border text-center transition cursor-pointer ${
+                      roofConstruction === opt.val
+                        ? 'bg-blue-50 text-blue-900 border-blue-400 font-semibold shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="text-xs font-bold">{opt.label}</div>
+                    <div className="text-[10px] opacity-75">{opt.sub}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Water Access */}
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wide">
+                Water Access Type
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { val: 1, label: 'Point Source (1)', sub: 'Deep Well / Spring' },
+                  { val: 2, label: 'Communal (2)', sub: 'Barangay Faucet' },
+                  { val: 3, label: 'Metered (3)', sub: 'Piped Direct Utility' }
+                ].map((opt) => (
+                  <button
+                    key={opt.val}
+                    type="button"
+                    onClick={() => setWaterAccess(opt.val as 1 | 2 | 3)}
+                    className={`min-h-[46px] p-2 rounded-lg border text-center transition cursor-pointer ${
+                      waterAccess === opt.val
+                        ? 'bg-blue-50 text-blue-900 border-blue-400 font-semibold shadow-xs'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="text-xs font-bold">{opt.label}</div>
+                    <div className="text-[10px] opacity-75">{opt.sub}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SECTION 2: Livelihood Asset Verification (The Motorcycle Check) */}
+        {currentStep === 2 && (
+          <div className="space-y-5">
+            <div>
+              <div className="flex items-center space-x-2 text-blue-900">
+                <Bike className="w-4 h-4 text-blue-700" />
+                <h3 className="text-base font-bold text-slate-900">
+                  Section 2: Livelihood Asset Verification
+                </h3>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Distinguishes between luxury consumer assets vs. active livelihood tools.
+              </p>
+            </div>
+
+            {/* Toggle: is_motorcycle_present (Yes/No) */}
+            <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80 space-y-2">
+              <label className="block text-xs font-semibold text-slate-800">
+                Is a motorcycle physically present at the residence?
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsMotorcyclePresent(true)}
+                  className={`min-h-[44px] rounded-lg font-semibold text-xs border transition cursor-pointer ${
+                    isMotorcyclePresent
+                      ? 'bg-amber-50 text-amber-900 border-amber-300 shadow-xs'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  Yes, Present
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsMotorcyclePresent(false)}
+                  className={`min-h-[44px] rounded-lg font-semibold text-xs border transition cursor-pointer ${
+                    !isMotorcyclePresent
+                      ? 'bg-blue-50 text-blue-900 border-blue-300 shadow-xs'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  No, None Found
+                </button>
+              </div>
+            </div>
+
+            {/* If Yes -> Conditional Inputs */}
+            {isMotorcyclePresent && (
+              <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-200/80 space-y-4">
+                
+                {/* Toggle: is_productive_asset */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+                    Is the vehicle used as a productive asset for daily livelihood?
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsProductiveAsset(true)}
+                      className={`min-h-[42px] rounded-lg font-semibold text-xs border transition cursor-pointer ${
+                        isProductiveAsset
+                          ? 'bg-emerald-50 text-emerald-900 border-emerald-300 shadow-xs'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      Yes (Productive Livelihood)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsProductiveAsset(false)}
+                      className={`min-h-[42px] rounded-lg font-semibold text-xs border transition cursor-pointer ${
+                        !isProductiveAsset
+                          ? 'bg-red-50 text-red-900 border-red-300 shadow-xs'
+                          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      No (Personal Use Only)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Dropdown proof_type */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Livelihood Platform / Verification Proof
+                  </label>
+                  <select
+                    value={proofType}
+                    onChange={(e) => setProofType(e.target.value as any)}
+                    className="w-full min-h-[40px] px-3 border border-slate-200 rounded-lg text-xs font-medium bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-700"
+                  >
+                    <option value="MOVEIT">MOVEIT (Ride-Hailing / Delivery)</option>
+                    <option value="ANGKAS">ANGKAS (Ride-Hailing / Delivery)</option>
+                    <option value="TRICYCLE_MTOP">TRICYCLE_MTOP (Local Municipal Franchise)</option>
+                    <option value="DELIVERY_LOGISTICS">DELIVERY_LOGISTICS (Lalamove / Shopee / Lazada)</option>
+                    <option value="PERSONAL_ONLY">PERSONAL_ONLY (No commercial income generated)</option>
+                  </select>
+                </div>
+
+                {/* Input: franchise_number */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Franchise Number / Rider Accreditation ID
+                  </label>
+                  <input
+                    type="text"
+                    value={franchiseNumber}
+                    onChange={(e) => setFranchiseNumber(e.target.value)}
+                    placeholder="e.g. MV-2024-88190 or MTOP-CAL-110"
+                    className="w-full min-h-[40px] px-3 border border-slate-200 rounded-lg text-xs font-mono bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-700"
+                  />
+                </div>
+
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* SECTION 3: Anti-Loan Shark Check (Sangla-ATM) */}
+        {currentStep === 3 && (
+          <div className="space-y-5">
+            <div>
+              <div className="flex items-center space-x-2 text-blue-900">
+                <CreditCard className="w-4 h-4 text-blue-700" />
+                <h3 className="text-base font-bold text-slate-900">
+                  Section 3: Anti-Loan Shark Check (Sangla-ATM)
+                </h3>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Investigates illegal collateralization of LandBank 4Ps cash cards to predatory loan sharks.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              
+              {/* Checklist 1: physical_card_presented */}
+              <label 
+                id="checklist-card-presented"
+                className="flex items-start space-x-3 p-3.5 bg-slate-50/70 hover:bg-slate-50 rounded-xl border border-slate-200/80 cursor-pointer transition"
+              >
+                <input
+                  type="checkbox"
+                  checked={physicalCardPresented}
+                  onChange={(e) => setPhysicalCardPresented(e.target.checked)}
+                  className="w-4 h-4 mt-0.5 text-blue-700 rounded focus:ring-blue-500 cursor-pointer"
+                />
+                <div>
+                  <div className="text-xs font-semibold text-slate-900">
+                    Did the beneficiary physically produce their LandBank 4Ps Cash Card?
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">
+                    Evaluator must inspect physical custody on site to ensure card is not in possession of informal lenders.
+                  </div>
+                </div>
+              </label>
+
+              {/* Checklist 2: card_matches_beneficiary */}
+              <label 
+                id="checklist-card-match"
+                className="flex items-start space-x-3 p-3.5 bg-slate-50/70 hover:bg-slate-50 rounded-xl border border-slate-200/80 cursor-pointer transition"
+              >
+                <input
+                  type="checkbox"
+                  checked={cardMatchesBeneficiary}
+                  onChange={(e) => setCardMatchesBeneficiary(e.target.checked)}
+                  className="w-4 h-4 mt-0.5 text-blue-700 rounded focus:ring-blue-500 cursor-pointer"
+                />
+                <div>
+                  <div className="text-xs font-semibold text-slate-900">
+                    Does name on card match the PhilSys National ID?
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">
+                    Validates identity match with household head registration details.
+                  </div>
+                </div>
+              </label>
+
+              {/* Alert Box: Checkbox pawning_suspected */}
+              <div 
+                id="alert-box-pawning"
+                className={`p-3.5 rounded-xl border transition ${
+                  pawningSuspected
+                    ? 'bg-red-50/70 border-red-200 text-red-950'
+                    : 'bg-amber-50/50 border-amber-200/80 text-amber-950'
+                }`}
+              >
+                <label className="flex items-start space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={pawningSuspected}
+                    onChange={(e) => setPawningSuspected(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 text-red-600 rounded focus:ring-red-500 cursor-pointer"
+                  />
+                  <div>
+                    <div className="text-xs font-semibold flex items-center gap-1.5 text-red-900">
+                      <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                      <span>FLAG: Pawning Suspected (Sangla-ATM Active)</span>
+                    </div>
+                    <div className="text-[11px] mt-0.5 text-slate-600 leading-relaxed">
+                      Beneficiary surrendered card to local lenders. Flagging triggers referral for social counseling and assistance.
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* SECTION 4: Geotagged Camera Capture (The Hardware Hook) */}
+        {currentStep === 4 && (
+          <div className="space-y-5">
+            <div>
+              <div className="flex items-center space-x-2 text-blue-900">
+                <Camera className="w-4 h-4 text-blue-700" />
+                <h3 className="text-base font-bold text-slate-900">
+                  Section 4: Geotagged Camera Capture
+                </h3>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Tamper-proof coordinates and SHA-256 client verification hash.
+              </p>
+            </div>
+
+            {/* In-App Camera Viewport / Photo Preview */}
+            <div className="relative bg-slate-900 rounded-xl overflow-hidden border border-slate-700 aspect-video flex items-center justify-center text-white">
+              {photoCaptured ? (
+                <div className="relative w-full h-full bg-slate-800 flex items-center justify-center p-4">
+                  {/* Simulated capture image background */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent flex flex-col justify-end p-4">
+                    <span className="text-[10px] font-mono text-emerald-400 font-semibold uppercase">
+                      ✓ Evidence Captured & Geotagged
+                    </span>
+                    <span className="text-xs font-medium text-white">
+                      Residence & Productive Vehicle Verification (Yamaha NMAX)
+                    </span>
+                  </div>
+
+                  <div className="text-center">
+                    <Camera className="w-10 h-10 text-slate-400 mx-auto mb-2 opacity-40" />
+                    <span className="text-xs text-slate-400 font-mono">
+                      Image cached in IndexedDB
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center p-6">
+                  <Camera className="w-10 h-10 text-slate-500 mx-auto mb-2" />
+                  <p className="text-xs text-slate-400">
+                    Camera viewfinder ready. Tap Capture Evidence below.
+                  </p>
+                </div>
+              )}
+
+              {/* Viewfinder crosshairs */}
+              <div className="absolute inset-4 border border-white/20 rounded pointer-events-none"></div>
+            </div>
+
+            {/* Live Badges: GPS Readout & Client-Side Hash */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              
+              {/* Live GPS Readout Badge */}
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80">
+                <div className="flex items-center space-x-1.5 text-xs font-semibold text-slate-700 mb-0.5">
+                  <MapPin className="w-3.5 h-3.5 text-red-600" />
+                  <span>GPS Coordinates</span>
+                </div>
+                <div className="font-mono text-xs font-semibold text-slate-900">
+                  Lat: {gpsData.latitude}, Lon: {gpsData.longitude}
+                </div>
+                <div className="text-[10px] text-emerald-700 mt-0.5">
+                  Accuracy: ±{gpsData.accuracy_m}m (Laguna Sector Verified)
+                </div>
+              </div>
+
+              {/* Client-Side Hash Badge */}
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80">
+                <div className="flex items-center space-x-1.5 text-xs font-semibold text-blue-900 mb-0.5">
+                  <Hash className="w-3.5 h-3.5 text-blue-700" />
+                  <span>SHA-256 Checksum</span>
+                </div>
+                <div className="font-mono text-xs font-medium text-blue-950 truncate">
+                  {clientSideHash}
+                </div>
+                <div className="text-[10px] text-slate-400 mt-0.5">
+                  Calculated automatically upon photo capture
+                </div>
+              </div>
+
+            </div>
+
+            {/* Capture button */}
+            <div>
+              <button
+                type="button"
+                id="capture-photo-btn"
+                onClick={handleCapturePhoto}
+                className="w-full min-h-[42px] py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg text-xs flex items-center justify-center space-x-2 transition cursor-pointer"
+              >
+                <Camera className="w-4 h-4 text-amber-300" />
+                <span>{photoCaptured ? 'Retake Photo Evidence' : 'Capture & Calculate Hash'}</span>
+              </button>
+            </div>
+
+          </div>
+        )}
+
+        {/* SECTION 5: Final Recommendation & Narrative */}
+        {currentStep === 5 && (
+          <form onSubmit={handleFinalSubmit} className="space-y-5">
+            <div>
+              <div className="flex items-center space-x-2 text-blue-900">
+                <FileText className="w-4 h-4 text-blue-700" />
+                <h3 className="text-base font-bold text-slate-900">
+                  Section 5: Recommendation & Narrative
+                </h3>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Official endorsement to be queued for regional synchronization.
+              </p>
+            </div>
+
+            {/* Select: worker_recommendation */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+                Evaluator Statutory Recommendation
+              </label>
+              <select
+                id="worker-recommendation-select"
+                value={workerRecommendation}
+                onChange={(e) => setWorkerRecommendation(e.target.value as any)}
+                className="w-full min-h-[42px] px-3 border border-slate-200 rounded-lg text-xs font-medium bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-700"
+              >
+                <option value="RETAIN">
+                  RETAIN — Beneficiary remains compliant (Asset used for livelihood)
+                </option>
+                <option value="RECOMMEND_GRADUATION">
+                  RECOMMEND_GRADUATION — Beneficiary has achieved SWDI Level 3 Self-Sufficiency
+                </option>
+                <option value="INVESTIGATE_FRAUD">
+                  INVESTIGATE_FRAUD — Material misrepresentation or Sangla-ATM confirmation
+                </option>
+              </select>
+            </div>
+
+            {/* Textarea: narrative_report */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-800 mb-1.5">
+                Official Narrative Report
+              </label>
+              <textarea
+                id="narrative-report-textarea"
+                rows={4}
+                required
+                value={narrativeReport}
+                onChange={(e) => setNarrativeReport(e.target.value)}
+                placeholder="State qualitative findings from the physical home visit..."
+                className="w-full p-3 border border-slate-200 rounded-lg text-xs leading-relaxed focus:outline-hidden focus:ring-1 focus:ring-blue-700 font-sans"
+              />
+            </div>
+
+            {/* Offline Save Notice */}
+            <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-600">
+              <span className="font-semibold text-slate-800">IndexedDB Offline Storage:</span> This evaluation will be saved immediately to local storage. It queues in the sync drawer until connection is restored.
+            </div>
+
+            {/* Primary Action Button: Save & Queue for Sync */}
+            <div>
+              <button
+                id="save-and-queue-sync-btn"
+                type="submit"
+                disabled={isSaving}
+                className="w-full min-h-[44px] py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs rounded-lg shadow-xs transition flex items-center justify-center space-x-2 cursor-pointer active:scale-98"
+              >
+                {isSaving ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Saving to Queue...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Save & Queue for Sync (Offline Ready)</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+          </form>
+        )}
+
+        {/* Stepper Navigation Buttons (Next / Prev) */}
+        <div className="pt-4 mt-6 border-t border-slate-100 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setCurrentStep((prev) => Math.max(1, prev - 1))}
+            disabled={currentStep === 1}
+            className="min-h-[38px] px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 disabled:opacity-40 transition flex items-center space-x-1 cursor-pointer"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>Previous</span>
+          </button>
+
+          {currentStep < 5 && (
+            <button
+              type="button"
+              onClick={() => setCurrentStep((prev) => Math.min(5, prev + 1))}
+              className="min-h-[38px] px-4 py-1.5 text-xs font-semibold bg-blue-700 hover:bg-blue-800 text-white rounded-lg transition flex items-center space-x-1 cursor-pointer"
+            >
+              <span>Next: {steps[currentStep].title}</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+      </div>
+
+    </div>
+  );
+};
