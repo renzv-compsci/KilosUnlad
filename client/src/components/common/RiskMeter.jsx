@@ -1,9 +1,10 @@
 import { getRiskLevel, formatPercent } from '../../utils/formatters.js';
 
 const riskStyles = {
-  low: 'bg-emerald-500',
-  medium: 'bg-amber-500',
-  high: 'bg-dswd-red',
+  low: 'bg-emerald-600',
+  medium: 'bg-blue-600',
+  high: 'bg-amber-600',
+  critical: 'bg-rose-700',
 };
 
 export default function RiskMeter({ score }) {

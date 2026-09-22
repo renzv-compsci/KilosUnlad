@@ -16,9 +16,18 @@ export function formatPercent(value) {
 }
 
 export function getRiskLevel(score) {
+  if (score >= 85) return 'critical';
   if (score >= 70) return 'high';
-  if (score >= 40) return 'medium';
+  if (score >= 50) return 'medium';
   return 'low';
+}
+
+export function maskIdentifier(value) {
+  if (!value) return 'N/A';
+
+  const raw = String(value);
+  const last = raw.slice(-4);
+  return `${raw.slice(0, Math.min(6, raw.length))}-****-****-${last}`;
 }
 
 export function titleCase(value) {

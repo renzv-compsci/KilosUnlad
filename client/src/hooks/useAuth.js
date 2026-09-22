@@ -12,21 +12,25 @@ const roleProfiles = {
     name: 'Markie Angelo',
     label: 'Super Admin',
     jurisdiction: 'National',
+    authority: 'Full System View',
   },
   [ROLES.REGIONAL_DIRECTOR]: {
-    name: 'Regional Director',
+    name: 'Atty. Carmelita Mendoza',
     label: 'Regional Director',
     jurisdiction: 'Region IV-A',
+    authority: 'Executive Administration',
   },
   [ROLES.CASE_WORKER]: {
-    name: 'Municipal Link',
+    name: 'Marvin Bautista, RSW',
     label: 'Case Worker',
     jurisdiction: 'Calamba, Laguna',
+    authority: 'Field PWA',
   },
   [ROLES.COA_AUDITOR]: {
-    name: 'COA Inspector',
+    name: 'Engr. Roberto Santos',
     label: 'COA Auditor',
     jurisdiction: 'Audit View',
+    authority: 'COA Oversight',
   },
 };
 
