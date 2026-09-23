@@ -4,6 +4,7 @@
 **Date:** 2026-09-19
 **Status:** COMPLETE — All 6 models implemented, verified, and PM-approved
 **Reference:** DECISION-001 (Database Models Hardening, Schema Review & Alignment)
+**Extended by:** DECISION-002 (Mae Santos) and DECISION-003 (Dustin Martinez) — see Section 8
 
 ---
 
@@ -40,6 +41,9 @@ Every model compiles with `strict: true`, uses explicit sub-schemas, and passes 
 - `role + jurisdiction.municipality` (compound)
 
 **Timestamps:** enabled
+
+**Extended by DECISION-002/003:**
+- `last_login_at` — Date (default: `Date.now`)
 
 ---
 
@@ -103,6 +107,11 @@ Every model compiles with `strict: true`, uses explicit sub-schemas, and passes 
 - `task_id` (unique)
 - `assigned_worker_id + task_status` (compound)
 
+**Extended by DECISION-002/003:**
+- `assignment_notes` — String (trim, alias `dispatch_instructions`)
+- `priority` — String, enum `['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']`, default `'HIGH'`
+- `due_date` — Date (required)
+
 ---
 
 ### 2.5 `AuditLog.js` — Task 1.6a
@@ -123,6 +132,9 @@ Every model compiles with `strict: true`, uses explicit sub-schemas, and passes 
 - `target_entity.entity_id`
 
 **Hash format:** SHA-256 per PM §4.5 — implemented by Mae's service layer.
+
+**Extended by DECISION-002/003:**
+- Added `SYSTEM_CONFIG_UPDATED` to the `AUDIT_ACTIONS` enum (now 7 values)
 
 ---
 
@@ -199,6 +211,78 @@ Zero unapproved deviations. All additions were proposed, reviewed, and approved 
 - 0 blockers remaining
 
 **Ready for Phase 2.**
+
+---
+
+## 8. Post-Phase-1 Schema Extensions (DECISION-002 & DECISION-003)
+
+After Phase 1 completion, integration review with Mae surfaced three schema extensions. All were resolved via DECISION-002 (Mae Santos) and DECISION-003 (Dustin Martinez), both approved by Renz.
+
+### 8.1 Summary of Extensions
+
+- `User.js` — added `last_login_at`
+- `VerificationTask.js` — added 3 dispatch fields
+- `AuditLog.js` — added 1 enum value
+
+### 8.2 `User.js` Extension
+
+**Added field:**
+- `last_login_at` — Date (default: `Date.now`)
+
+**Source:** DECISION-002 §4.3 — login contract (`auth-session.json`) returns `last_login_at`, but User did not persist it.
+
+**Behavior:** Mae updates this timestamp on each successful login in `auth.controller.js`. The `default: Date.now` covers document creation time until the first login overwrites it.
+
+**Status:** Implemented and verified.
+
+### 8.3 `VerificationTask.js` Extension
+
+**Added fields:**
+- `assignment_notes` — String (trim, alias `dispatch_instructions`)
+- `priority` — String, enum `['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']`, default `'HIGH'`
+- `due_date` — Date (required)
+
+**Source:** `admin-task-dispatch.json` (dispatch contract) and `field-task-download.json` (download contract) both use these fields. Neither was in Phase 1 scope.
+
+**Alias rationale:** The download contract returns `dispatch_instructions`, while the dispatch contract accepts `assignment_notes`. The alias makes both names work on the same underlying field.
+
+**Status:** Implemented and verified.
+
+### 8.4 `AuditLog.js` Extension
+
+**Added enum value:**
+- `SYSTEM_CONFIG_UPDATED`
+
+**Source:** DECISION-001 §4.6 requires an audit entry per `SystemConfig` modification, but §4.5's frozen enum had no matching action. DECISION-003 resolved this by extending the enum.
+
+**Options considered:**
+- **Option A (accepted):** Add single enum value — preserves strict DB-level validation.
+- **Option B (rejected):** Categorized free-form action codes — more flexible but rejected in favor of simplicity.
+
+**Status:** Implemented and verified. `AUDIT_ACTIONS` now has 7 values.
+
+### 8.5 Verification Results After Extensions
+
+- `User.js` — `last_login_at` present in paths — PASS
+- `VerificationTask.js` — `assignment_notes`, `priority`, `due_date` present; `dispatch_instructions` virtual present — PASS
+- `AuditLog.js` — 7 actions in enum including `SYSTEM_CONFIG_UPDATED` — PASS
+
+### 8.6 Contracts & Hash Chain
+
+- **API Contracts:** 0% changes. All contracts remain frozen.
+- **Hash byte sequence:** Unchanged. No historical audit entries exist, so no migration required.
+
+### 8.7 Source Documents
+
+- `DECISION-002: Task Dispatch Persistence and Configuration Audit Actions` — Mae Santos, APPROVED 2026-09-23
+- `DECISION-003: VerificationTask Dispatch Fields & AuditLog Action Extension` — Dustin Martinez, APPROVED 2026-09-23
+
+### 8.8 Downstream Impact
+
+- **Mae:** Update `task.controller.js` (read/write 3 new dispatch fields) and `auth.controller.js` (update `last_login_at` on login).
+- **Charles:** No action.
+- **Markie:** No action — contracts unchanged.
+- **Renz:** No action — all decisions recorded.
 
 ---
 

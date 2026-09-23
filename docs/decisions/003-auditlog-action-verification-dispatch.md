@@ -1,4 +1,4 @@
-# DECISION-002: VerificationTask Dispatch Fields & AuditLog Action Extension
+# DECISION-003: VerificationTask Dispatch Fields & AuditLog Action Extension
 **Author:** Dustin Martinez (Database Architecture Lead)
 **Status:** PROPOSED
 **Date Created:** 2026-09-21
