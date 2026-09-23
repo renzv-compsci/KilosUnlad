@@ -121,16 +121,19 @@ No action required from me.
 
 ## 7. Official PM / Tech Lead Resolution (Filled by Renz)
 
-- [ ] Concern A Decision: [ACCEPTED / REJECTED / MODIFIED]
-  - [ ] Confirm `priority` type
-  - [ ] Confirm `priority` allowed values if enum
+* **Concern A Decision:** **ACCEPTED**
+  - `priority` Type: String (Enum)
+  - Allowed Values: `['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']` (Default: `'HIGH'`)
+  - `assignment_notes`: String (trim: true, alias: `'dispatch_instructions'`)
+  - `due_date`: Date (required)
 
-- [ ] Concern B Decision: [ACCEPTED / REJECTED / MODIFIED]
-  - [ ] Option chosen: [A / B]
-  - [ ] If A: confirm enum value name
-  - [ ] If B: confirm category enum values
+* **Concern B Decision:** **OPTION A ACCEPTED (Option B Rejected)**
+  - Action Enum Value: Add `'SYSTEM_CONFIG_UPDATED'` to `AUDIT_ACTIONS` in `AuditLog.js`.
+  - Reason: Preserves strict DB-level enum validation and avoids unnecessary schema complexity for Mae.
 
-- [ ] Action Items:
-  - [ ] Update `VerificationTask.js`
-  - [ ] Update `AuditLog.js`
-  - [ ] Create `/docs/contracts/audit-actions.md` if Option B or just confirm it via 003.....md
+* **Additional Alignment:**
+  - Add `last_login_at: { type: Date, default: Date.now }` to `User.js`.
+
+* **Action Items:**
+  - [ ] Dustin: Update `VerificationTask.js`, `AuditLog.js`, and `User.js` on `database-dustin`.
+  - [ ] Mae: Update `task.controller.js` and `auth.controller.js` on `backend-mae`.
