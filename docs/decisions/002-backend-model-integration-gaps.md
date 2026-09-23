@@ -1,8 +1,8 @@
 # DECISION-002: Task Dispatch Persistence and Configuration Audit Actions
 **Author:** Mae Santos (Backend Engineering Lead)  
-**Status:** PROPOSED  
+**Status:** APPROVED
 **Date Created:** 2026-09-21  
-**Date Resolved:** Pending
+**Date Resolved:** 2026-09-23
 
 ## 1. Context & Problem Statement
 
@@ -48,10 +48,9 @@ ordinary configuration edits as calamity declarations merely to satisfy validati
 
 ## 4. Official PM / Tech Lead Resolution (Filled by Renz)
 
-- [ ] Decision: ACCEPTED / REJECTED / MODIFIED
-- [ ] Confirm task metadata fields, priority enum, and validation/defaults.
-- [ ] Confirm configuration audit action and required event fields.
-- [ ] Confirm successful-login timestamp persistence semantics.
-- [ ] Assign model changes to Dustin and controller integration to Mae.
+* **Decision:** **ACCEPTED & RESOLVED (Unified with DECISION-003)**
 
-This document proposes decisions only; it does not authorize model or contract edits.
+1. **VerificationTask Metadata:** Approved. Dustin will add `priority`, `due_date`, and `assignment_notes` (with alias `dispatch_instructions`) to `VerificationTask.js`.
+2. **Audit Action:** Approved. Adding `'SYSTEM_CONFIG_UPDATED'` to the `AUDIT_ACTIONS` enum in `AuditLog.js`.
+3. **Login Timestamp:** Approved. Dustin will add `last_login_at` to `User.js`. Mae will update this timestamp in `auth.controller.js`.
+4. **Contracts & Hashes:** 0% changes. All 8 contracts and the SHA-256 hash sequence remain frozen.
