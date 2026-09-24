@@ -48,7 +48,7 @@ The backend now observes database disconnect, reconnect, and error events once
 per connection. Runtime reconnection is handled by the driver; an initial
 connection failure still stops startup before the HTTP listener opens.
 `/health` remains a liveness check, not database readiness. See
-[DATABASE_RECOVERY_REVIEW.md](DATABASE_RECOVERY_REVIEW.md) for isolated Docker
+[database recovery review](../docs/reports/DATABASE_RECOVERY_REVIEW.md) for isolated Docker
 verification, rerun instructions, and the outstanding audit-role compatibility check.
 
 ## Endpoints and modes
@@ -259,3 +259,9 @@ Timestamps normalize to UTC ISO strings with milliseconds. Delta object keys are
 sorted recursively with `fast-json-stable-stringify`; array ordering and JSON
 scalar values are preserved. Missing deltas default to `{}`. All future writers
 and verifiers must use this same helper and format.
+
+## Backend reviews and handoff
+
+- [Frontend authentication handoff](../docs/handoffs/FRONTEND_AUTH_HANDOFF.md)
+- [Database recovery review](../docs/reports/DATABASE_RECOVERY_REVIEW.md)
+- [Phase 2 gap review](../docs/reports/PHASE2_GAP_REVIEW.md)

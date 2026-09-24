@@ -6,7 +6,7 @@ Backend baseline: `backend-mae` at `5051624`. Authentication/RBAC also exists on
 
 ## Setup and ownership
 
-- Follow [README.md](README.md) for Node 20, `npm ci`, MongoDB connection, a random
+- Follow [backend README](../../server/README.md) for Node 20, `npm ci`, MongoDB connection, a random
   JWT secret of at least 32 characters, and `npm start` from `server/`.
 - Use `NODE_ENV=development` and `PHASE1_MOCK_MODE=false`. Disable frontend login
   fallback and mock role switching. Failed authentication must not open a mock session.

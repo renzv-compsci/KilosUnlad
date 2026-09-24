@@ -61,6 +61,3 @@ Do not broaden audit update/delete permissions to fix metadata access.
 Transaction-capable deployment is a separate requirement. Run this check with
 `RUN_AUDIT_ROLE_TESTS=1` and the same optional DOCKER_PATH, using
 `node --test test/auditRoleCompatibility.test.js`.
-
-No model, shared database initialization, frontend, contract, or teammate branch
-was changed for this review.
