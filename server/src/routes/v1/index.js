@@ -6,6 +6,8 @@ const { allowRoles, scopeJurisdiction } = require('../../middleware/rbac.middlew
 const R = require('../../constants/roles');
 const triage = require('../../mocks/admin-triage-feed.json');
 const tasks = require('../../mocks/field-task-download.json');
+const { createTaskDispatcher } = require('../../services/taskDispatcher.service');
+const { createDispatch } = require('../../controllers/task.controller');
 
 function within(address, user) {
   if ([R.SUPER_ADMIN, R.COA_AUDITOR].includes(user.role)) return true;
@@ -14,7 +16,8 @@ function within(address, user) {
     j.assigned_barangays.includes(address.barangay);
 }
 
-module.exports = function createRouter({ mockMode, production, authService = createAuthService() }) {
+module.exports = function createRouter({ mockMode, production, authService = createAuthService(),
+  taskDispatcher = createTaskDispatcher() }) {
   const router = Router();
   if (mockMode) {
     if (production) throw new Error('Phase 1 mock mode is forbidden in production.');
@@ -28,6 +31,8 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   // Until live data controllers are implemented, expose clearly marked fixtures
   // only outside production. Authentication and per-user filtering are real.
   const authenticate = createAuthenticate({ secret: authService.secret, findCurrentUser: authService.findCurrentUser });
+  router.post('/tasks/dispatch', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
+    scopeJurisdiction, createDispatch(taskDispatcher));
   const fixture = (req, res, next) => {
     if (production) return res.status(503).json({ error: {
       code: 'ENDPOINT_NOT_READY', message: 'The database-backed data endpoint is not implemented yet.'

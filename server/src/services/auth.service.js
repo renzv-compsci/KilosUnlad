@@ -41,11 +41,16 @@ function createAuthService({ users = User, secret = environment.JWT_SECRET } = {
       // The frozen auth-session contract specifies a 900-second access session.
       const access_token = jwt.sign({ userId, role: user.role, jurisdiction }, secret,
         { algorithm: 'HS256', expiresIn: 900 });
+      const loginAt = new Date();
+      // Save only after credential validation; reject concurrent credential or
+      // active-state changes. Never overwrite a later successful login time.
+      const saved = await users.updateOne({ _id: user._id, is_active: true,
+        password_hash: user.password_hash }, { $max: { last_login_at: loginAt } });
+      if (saved.matchedCount !== 1) throw invalid();
       return { access_token, token_type: 'Bearer', expires_in_seconds: 900,
         user: { user_id: userId, username: user.username, full_name: user.full_name,
           email: user.email, role: user.role, jurisdiction,
-          // User has no persisted last_login_at field; this is this session's login time.
-          last_login_at: new Date().toISOString() } };
+          last_login_at: loginAt.toISOString() } };
     },
     async findCurrentUser(userId) {
       if (!/^[a-f\d]{24}$/i.test(userId)) return null;

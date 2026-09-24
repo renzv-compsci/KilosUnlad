@@ -138,7 +138,15 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
   - Shifts household status to `UNDER_INVESTIGATION`, creates `VerificationTask` document, and commits an audit log block.
   - *DoD:* Successfully assigns a task to a Municipal Link and returns HTTP `201 Created`.
 
-*Daily Standup Deliverable (Phase 2):*  
+### Phase 2 integration update (2026-09-24)
+
+- Login now persists approved `last_login_at` after credential validation, without advancing it for failed login attempts. The auth controller delegates the database write to the auth service.
+- Implemented authenticated `POST /api/v1/tasks/dispatch` using Dustin's merged models: active worker/jurisdiction validation, open-task rejection, stored metadata, state transition, and sealed audit delta in one transaction. Contract-shaped 201 and exact 404/409 errors verified.
+- Replica-set tests verify concurrent duplicate prevention and rollback of task/status on audit failure. Full run: 60 passed, one independent Docker recovery suite skipped. Existing local ML tests were included but ML code was not changed by this work.
+- Separate authenticated MongoDB test confirmed a compatibility blocker: the proposed audit role's find/insert permissions deny `listIndexes`, used by the workflow guard. Coordinate metadata permissions and model initialization with Dustin; no role or schema changes were made here.
+- Tasks 2.2/2.4 remain unchecked pending transaction-capable deployment and restricted-role verification. Task 2.3 still needs approved appeal storage/contracts. Triage/assigned GET routes still return fixtures, so dispatch is not full frontend end-to-end integration.
+
+*Daily Standup Deliverable (Phase 2):*
 > "JWT authentication and RBAC active; state machine constraints enforced; 15-day appeal countdown and task dispatching operational."
 
 ---

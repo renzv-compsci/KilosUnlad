@@ -102,7 +102,7 @@ development data responses even though authentication is real. Login should not
 carry it. Empty authorized lists are valid results.
 
 In production, protected business endpoints return 503 ENDPOINT_NOT_READY after
-authorization; live household/task controllers are not implemented. This plan
+authorization on the two data GET routes; their live database reads remain pending. This plan
 does not verify dispatch, appeal submission, refresh/logout, offline sync, or live
 business-data persistence. A health response or rendered dashboard alone does
 not prove authentication passed. Clear prior sessions between account tests.

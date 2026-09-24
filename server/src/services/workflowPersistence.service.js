@@ -33,7 +33,7 @@ function createWorkflowPersistence({ policy, beneficiaries = Beneficiary, users 
   }
   const authorize = allowRoles(...policy.roles);
   assertTransition(policy.from, policy.to);
-  const { from, to, action, perform } = policy;
+  const { from, to, action, perform, precheck, auditDelta } = policy;
   if (!audits.schema.path('action').enumValues.includes(action)) {
     throw new TypeError('An approved audit action is required.');
   }
@@ -69,6 +69,7 @@ function createWorkflowPersistence({ policy, beneficiaries = Beneficiary, users 
             const record = await beneficiaries.findOne({ household_id: householdId }).session(session).lean();
             if (!record) throw new WorkflowError(404, 'HOUSEHOLD_NOT_FOUND', 'Specified household ID does not exist.');
             runGuard(requireJurisdiction(() => record.address), req);
+            if (precheck) await precheck({ record, actor, session });
             if (record.program_status !== from) {
               throw new WorkflowError(409, 'WORKFLOW_CONFLICT', 'Household status changed; reload before retrying.');
             }
@@ -94,6 +95,12 @@ function createWorkflowPersistence({ policy, beneficiaries = Beneficiary, users 
               before: { household_id: householdId, program_status: from },
               after: { household_id: householdId, program_status: to }
             };
+            // Seal workflow-associated writes alongside the household status.
+            if (auditDelta) {
+              const related = await auditDelta();
+              stateDelta.before.related = related.before;
+              stateDelta.after.related = related.after;
+            }
             const entryHash = computeEntryHash({ sequenceIndex, previousEntryHash,
               timestamp, actorId, action, stateDelta });
             await audits.create([{
@@ -116,4 +123,4 @@ function createWorkflowPersistence({ policy, beneficiaries = Beneficiary, users 
   };
 }
 
-module.exports = { createWorkflowPersistence, WorkflowError };
+module.exports = { createWorkflowPersistence, WorkflowError, runGuard };
