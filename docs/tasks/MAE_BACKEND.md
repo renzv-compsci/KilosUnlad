@@ -104,11 +104,33 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
   - Reject invalid status jumps (e.g., `ACTIVE` straight to `GRADUATED`) with `400 Bad Request`.
   - *DoD:* State machine prevents unauthorized status bypasses.
 
+### Task 2.2 progress (2026-09-22)
+
+- Added `workflow.service.js`: validates the four consecutive lifecycle steps and rejects skipped, reversed, repeated, unknown, and unspecified calamity transitions.
+- Added sanitized HTTP 400 handling for `INVALID_STATUS_TRANSITION`. All 35 backend tests pass under Node 20, including all 36 status pairs and a test-only HTTP endpoint.
+- Task remains unchecked: no live mutation controller integration yet. The guard validates order only; callers still need current database state, RBAC, due-process checks, and atomic status/audit persistence with stale-write protection. No public generic status-update endpoint was added.
+- Task 2.3 needs an approved appeal storage design and API contract: merged models have no deadline or docket storage. Pause/resume rules also need clarification. Task 2.4 retains the dispatch metadata dependency in Decision 002.
+
+### Task 2.2 database integration progress (2026-09-22)
+
+- Added internal `workflowPersistence.service.js`, importing existing models without changing schemas. It reloads current user/household records, reuses role and jurisdiction checks, rejects stale statuses, and commits status plus audit together in a MongoDB transaction.
+- Requires an explicit trusted workflow policy and prerequisite callback; no public mutation route or production dispatch/graduation policy is installed. Existing schema actions and hash format remain unchanged.
+- Disposable replica-set tests verify authorization, rollback on failed prerequisites/audit insertion, conflicting household updates, and contiguous audit chaining across concurrent households. No application database records are used.
+- Verification: all 46 tests passed with the replica-set integration suite enabled, including stale-status and missing-index rejection. The temporary MongoDB process and its data directory were removed after testing.
+- Deployment requires transaction-capable MongoDB and the existing unique audit sequence index. Shared infrastructure files were not changed. Task remains unchecked until workflow-specific prerequisites, complete associated audit records, and live controller integration are implemented.
+
 - [ ] **Task 2.3: Implement Due Process Manager (15-Day Appeal Countdown)**
   - Paths: `/server/src/services/appealLifecycle.service.js`, `/server/src/controllers/appeal.controller.js`
   - When graduation is approved, set `status: "NOTICE_OF_INELIGIBILITY"` and calculate `appeal_deadline = now + 15 days`.
   - Implement route `POST /api/v1/appeals/docket` to register formal appeals and pause the timer.
   - *DoD:* Beneficiary record accurately reflects the 15-day statutory countdown deadline.
+
+### Task 2.3 internal logic progress (2026-09-22)
+
+- Implemented pure `calculateAppealDeadline` and `assertAppealWindowElapsed` helpers in `appealLifecycle.service.js`. The roadmap's `now + 15 days` is interpreted as 15 elapsed 24-hour days, preserving the notice instant; not business days or local midnight.
+- The timing check rejects premature graduation, wrong status, shortened/missing/invalid dates, and any appeal, pause, or unknown hold state. Exact deadline equality satisfies timing only; it does not authorize graduation.
+- All 51 backend tests passed with the disposable MongoDB integration suite enabled. Five new appeal tests cover date rollover, boundary milliseconds, invalid input, and hold enforcement.
+- Task remains unchecked: no deadline is persisted, no docket route is mounted, and no automatic graduation occurs. Database fields, the docket contract, and resolution/pause/resume semantics still need agreement. These helpers must consume trusted stored state when live integration is implemented; models and shared contracts are unchanged.
 
 - [ ] **Task 2.4: Implement Task Dispatcher Engine**
   - Paths: `/server/src/services/taskDispatcher.service.js`, `/server/src/controllers/task.controller.js`
