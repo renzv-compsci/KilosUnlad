@@ -146,6 +146,19 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 - Separate authenticated MongoDB test confirmed a compatibility blocker: the proposed audit role's find/insert permissions deny `listIndexes`, used by the workflow guard. Coordinate metadata permissions and model initialization with Dustin; no role or schema changes were made here.
 - Tasks 2.2/2.4 remain unchecked pending transaction-capable deployment and restricted-role verification. Task 2.3 still needs approved appeal storage/contracts. Triage/assigned GET routes still return fixtures, so dispatch is not full frontend end-to-end integration.
 
+### Live read feed update (2026-09-24, local)
+
+- Normal-mode triage and assigned-task GET routes now read existing MongoDB models,
+  including in production. Explicit legacy mock mode is unchanged.
+- Added explicit contract-field mapping, pagination, scoped summary counts and
+  authenticated worker filtering. No schema, shared contract or frontend edits.
+- Live MongoDB tests cover response data, invalid queries, role/jurisdiction
+  isolation, another worker's tasks, closed/orphaned tasks and empty results.
+- Working-tree regression run: 61 passed, 2 optional Docker suites skipped;
+  includes the pre-existing local ML tests. Temporary test databases removed.
+- README documents summary/filter and optional-field behavior for team review.
+  This does not complete appeal/lifecycle work or frontend end-to-end acceptance.
+
 *Daily Standup Deliverable (Phase 2):*
 > "JWT authentication and RBAC active; state machine constraints enforced; 15-day appeal countdown and task dispatching operational."
 

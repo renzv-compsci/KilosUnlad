@@ -30,16 +30,14 @@ For director and worker accounts, use complete jurisdiction information:
 `region: "Region IV-A"`, `province: "Laguna"`, `municipality: "Calamba"`, and
 `assigned_barangays` containing `"Palingon"`. Missing or empty scope is denied.
 
-The current assigned-task fixture belongs to worker ID
-`60c72b2f9b1e8a001c8a1101`. For a nonempty fixture test, use that ID only for an
-agreed synthetic worker in an isolated test database; never replace an existing
-user. Another worker ID legitimately receives 200 with an empty task list.
+Use an agreed synthetic worker with pending/cached tasks assigned to its actual
+MongoDB user ID. No hard-coded fixture identity is needed. Empty lists are valid.
 
 | Role | GET `/beneficiaries/triage-queue` | GET `/tasks/assigned` |
 | --- | --- | --- |
 | SUPER_ADMIN | 200 | 403 FORBIDDEN |
 | REGIONAL_DIRECTOR | 200, scoped | 403 FORBIDDEN |
-| CASE_WORKER | 403 FORBIDDEN | 200, own scoped fixtures |
+| CASE_WORKER | 403 FORBIDDEN | 200, own scoped tasks |
 | COA_AUDITOR | 200 | 403 FORBIDDEN |
 
 Use these exact role strings. Frontend aliases such as `DSWD_DIRECTOR` and
@@ -96,16 +94,12 @@ If a test account is unavailable, record the case as blocked rather than passed.
 
 ## What passing means
 
-Login/JWT/RBAC uses MongoDB users. Triage and assigned-task business data remain
-fixtures and carry `X-KilosUnlad-Mock: true`. That header is expected on those
-development data responses even though authentication is real. Login should not
-carry it. Empty authorized lists are valid results.
-
-In production, protected business endpoints return 503 ENDPOINT_NOT_READY after
-authorization on the two data GET routes; their live database reads remain pending. This plan
-does not verify dispatch, appeal submission, refresh/logout, offline sync, or live
-business-data persistence. A health response or rendered dashboard alone does
-not prove authentication passed. Clear prior sessions between account tests.
+Login and the two GET feeds now read MongoDB in normal mode, including production.
+No X-KilosUnlad-Mock header is expected. Empty authorized lists are valid. Confirm
+seeded row values and scope, with frontend fallback disabled. Query worker_id
+overrides are rejected. This auth/feed plan does not verify appeal submission,
+refresh/logout or offline sync. A health response alone is not an auth test.
+See README for pagination, summary and missing-value behavior.
 
 ## Result template
 

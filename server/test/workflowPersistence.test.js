@@ -171,7 +171,7 @@ test('transactional workflow against a disposable MongoDB replica set', {
     assert.equal((await beneficiaries.findOne({ household_id: 'wrong-status' })).program_status, 'ACTIVE_COMPLIANT');
     assert.equal(await audits.countDocuments(), count);
   });
-  await t.test('dispatch HTTP contract, authorization, metadata and atomic rollback', async () => {
+  await t.test('dispatch HTTP contract, authorization, metadata and atomic rollback', async t => {
     const { createTaskDispatcher } = require('../src/services/taskDispatcher.service');
     const { createAuthService } = require('../src/services/auth.service');
     const { createApp } = require('../src/app');
@@ -179,7 +179,8 @@ test('transactional workflow against a disposable MongoDB replica set', {
     const secret = require('node:crypto').randomBytes(32).toString('hex');
     const authService = createAuthService({ users, secret });
     const dispatcher = createTaskDispatcher({ ...models, tasks });
-    const app = createApp({ mockMode: false, production: false, authService, taskDispatcher: dispatcher });
+    const readFeeds = require('../src/services/readFeeds.service').createReadFeeds({ beneficiaries, tasks });
+    const app = createApp({ mockMode: false, production: true, authService, taskDispatcher: dispatcher, readFeeds });
     const server = await new Promise(resolve => { const s = app.listen(0, '127.0.0.1', () => resolve(s)); });
     try {
       const base = `http://127.0.0.1:${server.address().port}/api/v1`;
@@ -225,6 +226,39 @@ test('transactional workflow against a disposable MongoDB replica set', {
       assert.equal(log.entry_hash, computeEntryHash({ sequenceIndex: log.sequence_index,
         previousEntryHash: log.previous_entry_hash, timestamp: log.timestamp,
         actorId, action: 'TASK_DISPATCHED', stateDelta: log.state_delta }));
+      await t.test('dispatched task appears in live feeds with current-user isolation', async () => {
+        const get = (path, token) => fetch(base + path, { headers: { Authorization: 'Bearer ' + token } });
+        const assigned = await get('/tasks/assigned', workerToken);
+        assert.equal(assigned.status, 200);
+        assert.equal(assigned.headers.get('x-kilosunlad-mock'), null);
+        const feed = await assigned.json();
+        assert.equal(feed.worker_id, String(worker._id));
+        assert.equal(feed.assigned_tasks_count, 1);
+        assert.equal(feed.tasks[0].task_id, result.task_id);
+        assert.equal(feed.tasks[0].household_id, request.household_id);
+        assert.equal(feed.tasks[0].dispatch_instructions, request.assignment_notes);
+        const triage = await get('/beneficiaries/triage-queue?status=UNDER_INVESTIGATION&limit=100', session.access_token);
+        assert.equal(triage.status, 200);
+        const data = await triage.json();
+        assert.equal(data.items.find(b => b.household_id === request.household_id).program_status, 'UNDER_INVESTIGATION');
+        const other = await users.create({ username: 'other-feed-worker', full_name: 'Other Worker',
+          email: 'other-feed@example.test', password_hash: actor.password_hash,
+          role: 'CASE_WORKER', jurisdiction, is_active: true });
+        const otherToken = jwt.sign({ userId: String(other._id), role: 'CASE_WORKER' }, secret, { expiresIn: 900 });
+        assert.deepEqual((await (await get('/tasks/assigned', otherToken)).json()).tasks, []);
+        await users.updateOne({ _id: worker._id }, { $set: { 'jurisdiction.assigned_barangays': ['Other'] } });
+        await users.updateOne({ _id: actor._id }, { $set: { 'jurisdiction.assigned_barangays': ['Other'] } });
+        try {
+          assert.deepEqual((await (await get('/tasks/assigned', workerToken)).json()).tasks, []);
+          const outside = await (await get('/beneficiaries/triage-queue', session.access_token)).json();
+          assert.deepEqual(outside.items, []);
+          assert.equal(outside.summary_metrics.under_investigation_count, 0);
+          assert.equal((await get('/beneficiaries/triage-queue?barangay=Palingon', session.access_token)).status, 403);
+        } finally {
+          await users.updateOne({ _id: worker._id }, { $set: { jurisdiction } });
+          await users.updateOne({ _id: actor._id }, { $set: { jurisdiction } });
+        }
+      });
       const duplicate = await post(request);
       assert.equal(duplicate.status, 409);
       assert.deepEqual(await duplicate.json(), { error: contract.error_responses[1].error });

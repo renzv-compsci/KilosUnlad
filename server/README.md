@@ -68,14 +68,24 @@ delegates this write to the auth service. Password hashes are never
 included in session responses. The access lifetime is fixed to the contract's
 900 seconds; `JWT_EXPIRES_IN` is not used by this login implementation.
 
-The two data endpoints require real authentication. Their data is still fixture
-data, marked `X-KilosUnlad-Mock: true`, and available only outside production.
-Triage allows SUPER_ADMIN, REGIONAL_DIRECTOR, and COA_AUDITOR, filters by current
-jurisdiction, and recomputes visible counts. Assigned tasks allow CASE_WORKER and
-return only that worker's matching fixture tasks within current jurisdiction.
-These are not database-backed beneficiary/task queries. Production authenticates
-and authorizes these requests, then returns 503 `ENDPOINT_NOT_READY` until live
-controllers are implemented; it never substitutes mock records.
+The two data endpoints read MongoDB in normal mode, including production. Triage
+allows SUPER_ADMIN, REGIONAL_DIRECTOR and COA_AUDITOR; records and summary counts
+are jurisdiction-scoped. Assigned tasks allow CASE_WORKER and return only their
+PENDING_DISPATCH/CACHED_OFFLINE tasks whose households remain in scope. Missing
+households are excluded. Both responses use Cache-Control: no-store, with no
+mock header or fallback. Database failures return sanitized 503 responses.
+
+Triage accepts province, municipality, barangay, status, page and limit (default
+1/10; maximum limit 100). Rows sort by evaluated_at descending then household ID.
+Summary cards cover the authorized geographic filters across statuses; status
+filters only the paginated table. High risk means composite score >= 70.
+Assigned tasks accept no query parameters; worker identity comes from the session.
+Tasks sort by due date then task ID. Optional missing phone/street/instructions
+map to empty strings; absent prediction/evaluation time map to null rather than
+fabricated values. These missing-value and card semantics are backend choices
+where the example contracts do not specify behavior; confirm with frontend/PM.
+Run live feed tests with TEST_MONGO_URI pointing to a development MongoDB: the
+suite creates and removes its own uniquely named database.
 
 For the legacy unauthenticated Phase 1 frontend demo only, explicitly set
 `PHASE1_MOCK_MODE=true` before starting the server. This mode returns the original
@@ -181,8 +191,8 @@ directory. Without the opt-in variable, the replica-set integration suite is ski
 `POST /api/v1/tasks/dispatch` is mounted in normal authenticated mode for
 SUPER_ADMIN and REGIONAL_DIRECTOR. It is not available in legacy Phase 1 mock
 mode. It consumes `admin-task-dispatch.json` fields and returns its data shape
-with HTTP 201. Triage/assigned GET endpoints still serve development fixtures;
-newly dispatched records will not appear in those GET responses yet.
+with HTTP 201. Live GET feeds can return newly dispatched records within the
+authenticated user's scope.
 
 The service reloads the actor, household and worker inside the transaction. Both
 director and assigned active CASE_WORKER must cover the household jurisdiction.
