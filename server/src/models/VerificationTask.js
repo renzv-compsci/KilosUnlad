@@ -30,6 +30,13 @@ const ADMIN_DECISIONS = [
   'REINVESTIGATION_ORDERED',
 ];
 
+const PRIORITY_LEVELS = [
+  'LOW',
+  'MEDIUM',
+  'HIGH',
+  'CRITICAL',
+];
+
 // --- Sub-schema: livelihood_asset_verification ---
 const livelihoodAssetVerificationSchema = new mongoose.Schema(
   {
@@ -142,6 +149,20 @@ const verificationTaskSchema = new mongoose.Schema(
     task_status: {
       type: String,
       enum: TASK_STATUSES,
+    },
+    assignment_notes: {
+      type: String,
+      trim: true,
+      alias: 'dispatch_instructions',
+    },
+    priority: {
+      type: String,
+      enum: PRIORITY_LEVELS,
+      default: 'HIGH',
+    },
+    due_date: {
+      type: Date,
+      required: true,
     },
     field_findings: { type: fieldFindingsSchema },
     admin_resolution: { type: adminResolutionSchema },
