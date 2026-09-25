@@ -53,19 +53,19 @@ approval or appeal contract.
    and Dustin. Keep both tasks unchecked until their full behavior is verified.
 2. Renz/team: settle the due-process API and business rules, including the notice
    audit action and pause/resume semantics, through the decision process.
-3. Dustin: implement the agreed storage/schema/index changes; coordinate
-   audit_logs listIndexes access and transaction-capable MongoDB deployment.
-   Audit update/delete restrictions must remain intact.
+3. Renz: resolve deployment ownership and index readiness through Decision 006.
+   Dustin reviews/implements schema changes only when agreed and assigned; no
+   broader role permissions or replica-set work are automatically assigned to him.
+   Audit update/delete restrictions remain intact.
 4. Mae: consume those approved models/contracts, implement transactional notice,
    docket and graduation policies, then test rollback, stale writes, duplicate
    submissions, role/scope restrictions and deadline/hold boundaries.
 5. Markie: verify frontend integration against the agreed live endpoints with
    fallback disabled once the backend is ready.
 
-At the time of this gap review, triage and assigned-task GET controllers still
-serve development fixtures. Their frozen contracts and existing models can be
-reviewed for live mapping next, as identified in Decision 003 section 4. This is
-useful backend work but does not complete Tasks 2.2 or 2.3 by itself.
+Live triage and assigned-task feeds are implemented and tested, including
+dispatch-to-feed visibility and worker/jurisdiction isolation. This does not
+complete the remaining notice/graduation and appeal workflows.
 
 ## Evidence and scope
 
@@ -76,6 +76,6 @@ workflowPersistence and appealLifecycle services; mounted v1 routes and appeal
 tests. No new runtime behavior or shared schema/contract changes are made by
 this review. Existing Phase 3 local edits are outside this review.
 
-Follow-up: live GET feeds have now been implemented locally and tested against
-MongoDB (61 working-tree tests passed; 2 Docker suites skipped). See README for
-filter/mapping semantics requiring frontend confirmation. Appeal gaps remain.
+Current verification: see [backend verification status](BACKEND_VERIFICATION_STATUS.md).
+The earlier 61-pass/2-skip run is historical; its Docker suites were opt-in, not
+failing. Filter/mapping choices still require frontend confirmation. Appeal gaps remain.

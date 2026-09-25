@@ -1,8 +1,7 @@
 # Backend authentication handoff for Markie
 
 Prepared 2026-09-24. This is a test plan, not a record of completed frontend tests.
-Backend baseline: `backend-mae` at `5051624`. Authentication/RBAC also exists on
-`main` through PR #3. Record the exact frontend/backend commits used when testing.
+Backend baseline: `backend-mae`, reviewed at `d8c7b9b` (PR #7, ready for review). Record the exact frontend/backend commits used when testing.
 
 ## Setup and ownership
 
@@ -85,7 +84,7 @@ Authorization: Bearer <case_worker_access_token>
 | Director triage with `?municipality=OutsideTestScope` | 403 OUT_OF_JURISDICTION | Show scope denial |
 | Worker assigned GET with `?barangay=OutsideTestScope` | 403 OUT_OF_JURISDICTION | Show scope denial |
 | Director triage with no geography query | 200 filtered to current stored jurisdiction | No out-of-scope records/counts |
-| Assigned GET with `?worker_id=<another_id>` | Still current worker's data, never another worker's | Do not infer selection from that query |
+| Assigned GET with `?worker_id=<another_id>` | 400 INVALID_QUERY; worker override is rejected | Do not infer selection from that query |
 
 For expiry, retain a real token, wait beyond its 900-second expiry, then send it
 again. Do not edit its payload: that tests a forged signature, not token expiry.
@@ -99,7 +98,7 @@ No X-KilosUnlad-Mock header is expected. Empty authorized lists are valid. Confi
 seeded row values and scope, with frontend fallback disabled. Query worker_id
 overrides are rejected. This auth/feed plan does not verify appeal submission,
 refresh/logout or offline sync. A health response alone is not an auth test.
-See README for pagination, summary and missing-value behavior.
+See [backend README](../../server/README.md) for pagination, summary and missing-value behavior.
 
 ## Result template
 

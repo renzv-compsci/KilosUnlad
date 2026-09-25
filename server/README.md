@@ -1,4 +1,4 @@
-# Mae's backend: authentication and Phase 1 fixtures
+# Mae's backend: authentication, dispatch and live feeds
 
 ## Run
 
@@ -50,6 +50,11 @@ connection failure still stops startup before the HTTP listener opens.
 `/health` remains a liveness check, not database readiness. See
 [database recovery review](../docs/reports/DATABASE_RECOVERY_REVIEW.md) for isolated Docker
 verification, rerun instructions, and the outstanding audit-role compatibility check.
+
+## Current verification
+
+See [backend verification status](../docs/reports/BACKEND_VERIFICATION_STATUS.md) for current test counts, optional-suite flags, build evidence and pending acceptance.
+Older dated counts below are historical, not the current suite total.
 
 ## Endpoints and modes
 
@@ -169,7 +174,7 @@ not implement task creation and must not be used as a production policy.
 
 MongoDB transactions require a replica set or sharded cluster. The service has
 no nontransactional fallback. Shared Docker/database configuration is unchanged;
-deployment readiness must be coordinated with the database owner before using
+deployment readiness and ownership await Renz through Decision 006 before using
 live write routes. Appeal storage and other workflow-specific policy decisions remain
 pending, so Task 2.2 remains in progress.
 

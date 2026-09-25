@@ -6,6 +6,25 @@
 
 ---
 
+## Current status (2026-09-25)
+
+See [backend verification status](../reports/BACKEND_VERIFICATION_STATUS.md) for
+current test evidence and skipped-suite explanations. Dated updates below are
+historical snapshots; this section takes precedence for current status.
+
+- Tasks 1.1, 1.2 and 2.1 remain complete within their documented backend scope.
+- Task 1.3 awaits Markie's actual frontend acceptance; backend mock tests pass.
+- Live triage/assigned feeds and dispatch are implemented; backend integration
+  verifies dispatch-to-feed visibility, isolation, concurrency and rollback.
+- Tasks 2.2/2.3 remain incomplete: notice/graduation policies and approved appeal
+  storage/contracts are outstanding. Task 2.4 awaits shared deployment acceptance.
+- Login timestamp persistence is implemented. Decisions 002/003 are resolved;
+  Decision 006 remains proposed for deployment/index readiness and ownership.
+- All Compose images built and five services started in an isolated clean-commit
+  smoke check. PR #7 is ready for review, not merged or a Phase 2 completion claim.
+- Accounts, sample records and live frontend acceptance remain pending. Local
+  Phase 3 ML client work is uncommitted and excluded from PR #7.
+
 ## 1. Context & Architecture Summary for Mae
 
 You are building the **Core Application Engine & Security Authority** for **KilosUnlad**, a decision-support and forensic auditing system for the DSWD 4Ps welfare program.
@@ -146,7 +165,7 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 - Separate authenticated MongoDB test confirmed a compatibility blocker: the proposed audit role's find/insert permissions deny `listIndexes`, used by the workflow guard. Coordinate metadata permissions and model initialization with Dustin; no role or schema changes were made here.
 - Tasks 2.2/2.4 remain unchecked pending transaction-capable deployment and restricted-role verification. Task 2.3 still needs approved appeal storage/contracts. Triage/assigned GET routes still return fixtures, so dispatch is not full frontend end-to-end integration.
 
-### Live read feed update (2026-09-24, local)
+### Live read feed update (2026-09-24; subsequently pushed)
 
 - Normal-mode triage and assigned-task GET routes now read existing MongoDB models,
   including in production. Explicit legacy mock mode is unchanged.

@@ -30,7 +30,7 @@ restarts only that test container, on a fixed temporary localhost port.
 - Disconnect/reconnect messages are observed, with no duplicate listeners.
 - The test removes its container and disposable volumes on completion.
 
-Full working-tree run: 50 passed, 0 failed, 1 skipped. The separate optional
+Historical 2026-09-24 working-tree run: 50 passed, 0 failed, 1 skipped. The separate optional
 transaction replica-set suite was not enabled. This run includes the local ML
 tests; it does not imply those changes have been committed or pushed.
 
@@ -61,3 +61,11 @@ Do not broaden audit update/delete permissions to fix metadata access.
 Transaction-capable deployment is a separate requirement. Run this check with
 `RUN_AUDIT_ROLE_TESTS=1` and the same optional DOCKER_PATH, using
 `node --test test/auditRoleCompatibility.test.js`.
+
+## Current follow-up (2026-09-25)
+
+See [backend verification status](BACKEND_VERIFICATION_STATUS.md) for the latest
+all-enabled test results. Replica-set deployment and index-readiness ownership
+await Renz's resolution in [Decision 006](../decisions/006-backend-transaction-deployment.md).
+They are not automatically assigned to Dustin. Setting autoIndex false does not
+disable the workflow's explicit collection.indexes() inspection.
