@@ -1,4 +1,4 @@
-# Mae's backend: authentication and Phase 1 fixtures
+# Mae's backend: authentication, dispatch and live feeds
 
 ## Run
 
@@ -42,6 +42,20 @@ Mongoose User queries and bcrypt, then deletes only that test database. Supply
 credentials with permission to create/drop the test database if MongoDB requires
 authentication. It never seeds or resets the application's `kilosunlad` database.
 
+## Database disconnect/reconnect handling
+
+The backend now observes database disconnect, reconnect, and error events once
+per connection. Runtime reconnection is handled by the driver; an initial
+connection failure still stops startup before the HTTP listener opens.
+`/health` remains a liveness check, not database readiness. See
+[database recovery review](../docs/reports/DATABASE_RECOVERY_REVIEW.md) for isolated Docker
+verification, rerun instructions, and the outstanding audit-role compatibility check.
+
+## Current verification
+
+See [backend verification status](../docs/reports/BACKEND_VERIFICATION_STATUS.md) for current test counts, optional-suite flags, build evidence and pending acceptance.
+Older dated counts below are historical, not the current suite total.
+
 ## Endpoints and modes
 
 | Method | Path | Contract |
@@ -53,19 +67,30 @@ authentication. It never seeds or resets the application's `kilosunlad` database
 By default, login validates the existing User's bcrypt password hash and active
 status, then returns the contract's field structure with a real 900-second JWT.
 Username normalization matches the User schema. No sample accounts are created.
-The returned `last_login_at` is this session's login timestamp, not persisted
-login history (the User schema has no such field). Password hashes are never
+After successful credential validation, `last_login_at` is persisted using the
+approved User field; failed logins do not advance it. The HTTP login controller
+delegates this write to the auth service. Password hashes are never
 included in session responses. The access lifetime is fixed to the contract's
 900 seconds; `JWT_EXPIRES_IN` is not used by this login implementation.
 
-The two data endpoints require real authentication. Their data is still fixture
-data, marked `X-KilosUnlad-Mock: true`, and available only outside production.
-Triage allows SUPER_ADMIN, REGIONAL_DIRECTOR, and COA_AUDITOR, filters by current
-jurisdiction, and recomputes visible counts. Assigned tasks allow CASE_WORKER and
-return only that worker's matching fixture tasks within current jurisdiction.
-These are not database-backed beneficiary/task queries. Production authenticates
-and authorizes these requests, then returns 503 `ENDPOINT_NOT_READY` until live
-controllers are implemented; it never substitutes mock records.
+The two data endpoints read MongoDB in normal mode, including production. Triage
+allows SUPER_ADMIN, REGIONAL_DIRECTOR and COA_AUDITOR; records and summary counts
+are jurisdiction-scoped. Assigned tasks allow CASE_WORKER and return only their
+PENDING_DISPATCH/CACHED_OFFLINE tasks whose households remain in scope. Missing
+households are excluded. Both responses use Cache-Control: no-store, with no
+mock header or fallback. Database failures return sanitized 503 responses.
+
+Triage accepts province, municipality, barangay, status, page and limit (default
+1/10; maximum limit 100). Rows sort by evaluated_at descending then household ID.
+Summary cards cover the authorized geographic filters across statuses; status
+filters only the paginated table. High risk means composite score >= 70.
+Assigned tasks accept no query parameters; worker identity comes from the session.
+Tasks sort by due date then task ID. Optional missing phone/street/instructions
+map to empty strings; absent prediction/evaluation time map to null rather than
+fabricated values. These missing-value and card semantics are backend choices
+where the example contracts do not specify behavior; confirm with frontend/PM.
+Run live feed tests with TEST_MONGO_URI pointing to a development MongoDB: the
+suite creates and removes its own uniquely named database.
 
 For the legacy unauthenticated Phase 1 frontend demo only, explicitly set
 `PHASE1_MOCK_MODE=true` before starting the server. This mode returns the original
@@ -118,12 +143,11 @@ It permits only consecutive steps in the documented lifecycle from
 `ACTIVE_COMPLIANT` through `GRADUATED`. Other transitions throw a typed
 `INVALID_STATUS_TRANSITION` error, serialized as HTTP 400. Run `npm test`.
 
-This internal guard is not mounted on a live mutation endpoint. Future controllers
-must use the database's current status, enforce RBAC and jurisdiction, check due
-process, and atomically persist status and audit entries with stale-write protection.
-The guard alone does not authorize graduation. Calamity/resumption and retention
-rules remain undefined. Appeal storage/contracts and dispatch metadata are pending;
-Tasks 2.2 through 2.4 remain unchecked.
+The dispatch endpoint uses this guard with stored state, RBAC and jurisdiction,
+and atomic status/task/audit persistence. The guard alone does not authorize
+graduation. Calamity/resumption and retention rules remain undefined. Appeal
+storage/contracts and dispatch deployment verification are pending; Tasks 2.2
+through 2.4 remain unchecked.
 
 ### Internal database workflow service
 
@@ -135,10 +159,11 @@ Stale or concurrent changes return `WORKFLOW_CONFLICT` (409); denied operations
 make no changes. Existing unique audit sequence indexes prevent parallel chain
 forks. Missing indexes fail closed. Audit records use the accepted hash formula.
 
-This is internal infrastructure, not a dispatch or graduation implementation.
+This internal infrastructure is now used by the dispatch service.
 Construct it only in trusted backend code with an explicit policy:
-`{ from, to, roles, action, perform }`. No default policy is installed and no API
-route is added. Never accept policy, actor identity, or an authorization decision
+`{ from, to, roles, action, perform }`. Optional `precheck` validates workflow
+prerequisites before the expected-status check; `auditDelta` supplies associated
+before/after changes. Never accept policy, actor identity, or an authorization decision
 from a request body; use the authenticated actor ID. `perform({ record, actor,
 session })` must check the workflow's prerequisites, make associated writes with
 the supplied session, and return exactly `true`. It may run again on transaction
@@ -149,8 +174,8 @@ not implement task creation and must not be used as a production policy.
 
 MongoDB transactions require a replica set or sharded cluster. The service has
 no nontransactional fallback. Shared Docker/database configuration is unchanged;
-deployment readiness must be coordinated with the database owner before mounting
-live write routes. Appeal storage and workflow-specific policy decisions remain
+deployment readiness and ownership await Renz through Decision 006 before using
+live write routes. Appeal storage and other workflow-specific policy decisions remain
 pending, so Task 2.2 remains in progress.
 
 Run the integration checks on an automatically created, disposable localhost
@@ -165,6 +190,43 @@ Remove-Item Env:RUN_WORKFLOW_MONGO_TESTS, Env:MONGOD_PATH
 
 The test stops its MongoDB process and removes only its generated temporary data
 directory. Without the opt-in variable, the replica-set integration suite is skipped.
+
+## Task dispatch (implemented; deployment verification pending)
+
+`POST /api/v1/tasks/dispatch` is mounted in normal authenticated mode for
+SUPER_ADMIN and REGIONAL_DIRECTOR. It is not available in legacy Phase 1 mock
+mode. It consumes `admin-task-dispatch.json` fields and returns its data shape
+with HTTP 201. Live GET feeds can return newly dispatched records within the
+authenticated user's scope.
+
+The service reloads the actor, household and worker inside the transaction. Both
+director and assigned active CASE_WORKER must cover the household jurisdiction.
+The household must be FLAGGED_FOR_REVIEW. Open tasks are PENDING_DISPATCH,
+CACHED_OFFLINE, or SUBMITTED; they return the exact ACTIVE_TASK_EXISTS 409 error.
+Missing households return the exact HOUSEHOLD_NOT_FOUND 404 error. Other invalid
+input/worker, role/scope, or conflicting-state errors return 400/403/409.
+
+Approved priorities are LOW, MEDIUM, HIGH, CRITICAL; omitted priority defaults to
+HIGH. Notes are trimmed, omitted notes become empty, and a timezone-qualified ISO
+due date is required. No additional future-date policy has been imposed. Task IDs
+use `TSK-<UTC year>-<UUID>`; the frozen contract supplies a string example, not a
+sequence-allocation rule. `dispatched_at` comes from the stored task's createdAt.
+
+Task creation, household transition and TASK_DISPATCHED audit append commit or
+roll back together. The sealed delta includes dispatch metadata and household
+identity without altering the approved hash format. Concurrent requests for one
+household produce one task. MongoDB must support transactions and have the
+existing unique audit sequence index. Unsupported database setup fails closed
+with a sanitized 503; there is no partial-write fallback.
+
+Isolated replica-set tests passed for the HTTP contract, denied roles/workers,
+scope checks, duplicates/concurrency, stored metadata, sealed delta, and audit
+failure rollback. Real-Mongo login tests verified successful timestamp persistence
+and no timestamp change on failed credentials. The full run passed 60 tests and
+skipped the independent Docker recovery test. A separate authenticated MongoDB
+test confirmed the proposed audit role denies index inspection: coordinate
+`listIndexes` metadata access and Mongoose initialization with Dustin before
+deployment approval. Do not grant audit update/delete privileges.
 
 ## Phase 2 appeal timing helpers (in progress)
 
@@ -202,3 +264,9 @@ Timestamps normalize to UTC ISO strings with milliseconds. Delta object keys are
 sorted recursively with `fast-json-stable-stringify`; array ordering and JSON
 scalar values are preserved. Missing deltas default to `{}`. All future writers
 and verifiers must use this same helper and format.
+
+## Backend reviews and handoff
+
+- [Frontend authentication handoff](../docs/handoffs/FRONTEND_AUTH_HANDOFF.md)
+- [Database recovery review](../docs/reports/DATABASE_RECOVERY_REVIEW.md)
+- [Phase 2 gap review](../docs/reports/PHASE2_GAP_REVIEW.md)

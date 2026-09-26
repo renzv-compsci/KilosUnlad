@@ -1,12 +1,11 @@
 # Backend authentication handoff for Markie
 
 Prepared 2026-09-24. This is a test plan, not a record of completed frontend tests.
-Backend baseline: `backend-mae` at `5051624`. Authentication/RBAC also exists on
-`main` through PR #3. Record the exact frontend/backend commits used when testing.
+Backend baseline: `backend-mae`, reviewed at `d8c7b9b` (PR #7, ready for review). Record the exact frontend/backend commits used when testing.
 
 ## Setup and ownership
 
-- Follow [README.md](README.md) for Node 20, `npm ci`, MongoDB connection, a random
+- Follow [backend README](../../server/README.md) for Node 20, `npm ci`, MongoDB connection, a random
   JWT secret of at least 32 characters, and `npm start` from `server/`.
 - Use `NODE_ENV=development` and `PHASE1_MOCK_MODE=false`. Disable frontend login
   fallback and mock role switching. Failed authentication must not open a mock session.
@@ -30,16 +29,14 @@ For director and worker accounts, use complete jurisdiction information:
 `region: "Region IV-A"`, `province: "Laguna"`, `municipality: "Calamba"`, and
 `assigned_barangays` containing `"Palingon"`. Missing or empty scope is denied.
 
-The current assigned-task fixture belongs to worker ID
-`60c72b2f9b1e8a001c8a1101`. For a nonempty fixture test, use that ID only for an
-agreed synthetic worker in an isolated test database; never replace an existing
-user. Another worker ID legitimately receives 200 with an empty task list.
+Use an agreed synthetic worker with pending/cached tasks assigned to its actual
+MongoDB user ID. No hard-coded fixture identity is needed. Empty lists are valid.
 
 | Role | GET `/beneficiaries/triage-queue` | GET `/tasks/assigned` |
 | --- | --- | --- |
 | SUPER_ADMIN | 200 | 403 FORBIDDEN |
 | REGIONAL_DIRECTOR | 200, scoped | 403 FORBIDDEN |
-| CASE_WORKER | 403 FORBIDDEN | 200, own scoped fixtures |
+| CASE_WORKER | 403 FORBIDDEN | 200, own scoped tasks |
 | COA_AUDITOR | 200 | 403 FORBIDDEN |
 
 Use these exact role strings. Frontend aliases such as `DSWD_DIRECTOR` and
@@ -87,7 +84,7 @@ Authorization: Bearer <case_worker_access_token>
 | Director triage with `?municipality=OutsideTestScope` | 403 OUT_OF_JURISDICTION | Show scope denial |
 | Worker assigned GET with `?barangay=OutsideTestScope` | 403 OUT_OF_JURISDICTION | Show scope denial |
 | Director triage with no geography query | 200 filtered to current stored jurisdiction | No out-of-scope records/counts |
-| Assigned GET with `?worker_id=<another_id>` | Still current worker's data, never another worker's | Do not infer selection from that query |
+| Assigned GET with `?worker_id=<another_id>` | 400 INVALID_QUERY; worker override is rejected | Do not infer selection from that query |
 
 For expiry, retain a real token, wait beyond its 900-second expiry, then send it
 again. Do not edit its payload: that tests a forged signature, not token expiry.
@@ -96,16 +93,12 @@ If a test account is unavailable, record the case as blocked rather than passed.
 
 ## What passing means
 
-Login/JWT/RBAC uses MongoDB users. Triage and assigned-task business data remain
-fixtures and carry `X-KilosUnlad-Mock: true`. That header is expected on those
-development data responses even though authentication is real. Login should not
-carry it. Empty authorized lists are valid results.
-
-In production, protected business endpoints return 503 ENDPOINT_NOT_READY after
-authorization; live household/task controllers are not implemented. This plan
-does not verify dispatch, appeal submission, refresh/logout, offline sync, or live
-business-data persistence. A health response or rendered dashboard alone does
-not prove authentication passed. Clear prior sessions between account tests.
+Login and the two GET feeds now read MongoDB in normal mode, including production.
+No X-KilosUnlad-Mock header is expected. Empty authorized lists are valid. Confirm
+seeded row values and scope, with frontend fallback disabled. Query worker_id
+overrides are rejected. This auth/feed plan does not verify appeal submission,
+refresh/logout or offline sync. A health response alone is not an auth test.
+See [backend README](../../server/README.md) for pagination, summary and missing-value behavior.
 
 ## Result template
 

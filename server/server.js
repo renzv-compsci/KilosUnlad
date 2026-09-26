@@ -15,4 +15,8 @@ connectDB().then(() => {
     console.error(`>> [Fatal Error] Unhandled Rejection: ${err.message}`);
     server.close(() => process.exit(1));
   });
+}).catch(() => {
+  // No HTTP listener is started when the initial database connection fails.
+  // Runtime disconnects are observed separately and handled by the driver.
+  process.exit(1);
 });

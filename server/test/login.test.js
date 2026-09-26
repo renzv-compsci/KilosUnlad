@@ -24,6 +24,12 @@ before(async () => {
     await users.create(record);
   } else {
     users = {
+      updateOne: async (filter, update) => {
+        if (!record || String(record._id) !== String(filter._id) ||
+            !record.is_active || record.password_hash !== filter.password_hash) return { matchedCount: 0 };
+        record.last_login_at = update.$max.last_login_at;
+        return { matchedCount: 1 };
+      },
       findOne: async ({ username }) => {
         if (repositoryDown) throw new Error('private database connection details');
         return record && record.username === username ? new User(record) : null;
@@ -34,7 +40,14 @@ before(async () => {
       } }) })
     };
   }
-  const app = createApp({ mockMode: false, production: false, authService: createAuthService({ users, secret }) });
+    const readFeeds = {
+    triage: async (query, scope) => {
+      const visible = scope['address.barangay'].$in.includes('Palingon');
+      return { items: visible ? [{ household_id: 'auth-scope-test' }] : [], pagination: { total_records: visible ? 1 : 0 }, summary_metrics: { high_risk_count: visible ? 1 : 0 } };
+    },
+    assigned: async (query, scope, workerId) => ({ worker_id: workerId, tasks: [] })
+  };
+  const app = createApp({ mockMode: false, production: false, authService: createAuthService({ users, secret }), readFeeds });
   listener = await new Promise(resolve => { const s = app.listen(0, '127.0.0.1', () => resolve(s)); });
   base = `http://127.0.0.1:${listener.address().port}`;
 });
@@ -68,14 +81,19 @@ test('real bcrypt login follows contract shape, issues a 900s JWT, and exposes n
   assert.equal(claims.userId, id); assert.equal(claims.exp - claims.iat, 900);
   assert.equal(r.headers.get('cache-control'), 'no-store');
   assert.equal(r.headers.get('x-kilosunlad-mock'), null);
+  const stored = connection ? await users.findById(id) : record;
+  assert.equal(new Date(stored.last_login_at).toISOString(), session.user.last_login_at);
 });
 
 test('incorrect, unknown, invalid and injection-shaped credentials share contract error', async () => {
+  const before = connection ? await users.findById(id) : { ...record };
   for (const body of [{ username: 'missing', password }, { username: 'mreyes_dir', password: 'wrong' },
     { username: { $ne: null }, password }, {}, { username: 'mreyes_dir', password: 'x'.repeat(73) }]) {
     const r = await login(body); assert.equal(r.status, 401);
     assert.deepEqual(await r.json(), { error: contract.error_responses[0].error });
   }
+  const after = connection ? await users.findById(id) : record;
+  assert.equal(new Date(after.last_login_at).toISOString(), new Date(before.last_login_at).toISOString());
 });
 
 test('deactivation blocks login and an already-issued token', async () => {
@@ -87,7 +105,7 @@ test('deactivation blocks login and an already-issued token', async () => {
   } finally { await change({ is_active: true }); }
 });
 
-test('triage applies current jurisdiction and never exposes global fixture totals', async () => {
+test('triage handler receives current jurisdiction after authentication', async () => {
   let r = await get('/api/v1/beneficiaries/triage-queue?municipality=Calamba');
   assert.equal(r.status, 200); let body = await r.json();
   assert.equal(body.items.length, 1); assert.equal(body.pagination.total_records, 1);
@@ -111,7 +129,7 @@ test('expired token matches assigned-task contract error', async () => {
   assert.deepEqual(await r.json(), { error: require('../../docs/contracts/field-tablet/field-task-download.json').error_responses[0].error });
 });
 
-test('current role changes take effect immediately and users cannot obtain another worker fixtures', async () => {
+test('current role changes take effect immediately and assigned handler receives authenticated identity', async () => {
   await change({ role: 'CASE_WORKER' });
   try {
     assert.equal((await get('/api/v1/beneficiaries/triage-queue')).status, 403);
