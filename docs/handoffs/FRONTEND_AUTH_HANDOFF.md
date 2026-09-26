@@ -1,7 +1,7 @@
 # Backend authentication handoff for Markie
 
 Prepared 2026-09-24. This is a test plan, not a record of completed frontend tests.
-Backend baseline: `backend-mae`, reviewed at `d8c7b9b` (PR #7, ready for review). Record the exact frontend/backend commits used when testing.
+Updated 2026-09-27. PR #7 merged into `main` at `d4edba4`; local `backend-mae` is synced to that commit. Record the exact frontend/backend commits used when testing.
 
 ## Setup and ownership
 
@@ -18,6 +18,10 @@ Backend baseline: `backend-mae`, reviewed at `d8c7b9b` (PR #7, ready for review)
   integration checks; this handoff does not authorize shared database resets or
   schema changes. Dustin coordinates account provisioning; this handoff does not
   create accounts or modify database data.
+
+On separate laptops, localhost refers to each person's own machine. Run the
+backend locally or agree a reachable backend URL and matching CORS origin.
+Do not send the JWT signing secret to the frontend.
 
 ## Account details to coordinate with Dustin
 
@@ -90,6 +94,35 @@ For expiry, retain a real token, wait beyond its 900-second expiry, then send it
 again. Do not edit its payload: that tests a forged signature, not token expiry.
 Do not change the system clock or share the signing secret to accelerate this test.
 If a test account is unavailable, record the case as blocked rather than passed.
+
+## Live feed acceptance cases
+
+Coordinate synthetic records before this test; this document does not create or
+change accounts/data. Prepare at least two visible households in the same scope,
+one outside that scope, pending/cached tasks for the test worker, and a task for
+a second worker. Record expected IDs privately in the test evidence.
+
+| Test | Expected result |
+| --- | --- |
+| Triage `?page=1&limit=1`, then `?page=2&limit=1` | 200; correct distinct rows and consistent pagination against unchanged test data |
+| Triage `?status=UNDER_INVESTIGATION` | Only matching table rows; summary cards still cover all statuses within the selected geographic scope |
+| Triage `?page=0` or `?limit=101` | 400 INVALID_QUERY |
+| Scoped director versus national admin/auditor | Director rows and counts exclude outside records; national roles can see authorized global scope |
+| Worker assigned feed | Only this worker's PENDING_DISPATCH/CACHED_OFFLINE tasks within current jurisdiction |
+| Submitted/closed task, another worker's task, or missing household | Not returned in the assigned feed |
+| Empty authorized result | 200 with empty list and zero result count; no frontend mock fallback |
+| Every live response | No X-KilosUnlad-Mock header; Cache-Control: no-store |
+
+Verify mapped names, coordinates, SWDI levels, risk fields, instructions and dates
+against the approved sample records. Missing predictions/evaluation times are
+currently null; optional phone/street/instructions are empty strings. Record any
+PM/frontend disagreement with these documented choices instead of changing the
+frozen contracts silently. Avoid record mutations while checking pagination.
+
+Auth/read-feed testing can proceed independently of dispatch deployment approval.
+Decision 006 remains proposed; Renz must resolve topology/index readiness and
+assign ownership before shared dispatch acceptance. Isolated backend tests have
+already exercised dispatch-to-feed behavior, but Markie's live run remains pending.
 
 ## What passing means
 
