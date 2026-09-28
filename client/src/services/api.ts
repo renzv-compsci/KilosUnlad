@@ -1,10 +1,13 @@
 import axios from 'axios';
+import { clearStoredSession, parseSession, readStoredSession, saveSession } from './authSession';
 import {
   BeneficiaryTriageItem,
   FieldTaskItem,
   RiskSeverity,
   TriggerBadge,
   UserSession,
+  FieldTaskSubmission,
+  TriagePagination,
 } from '../types/contracts';
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
@@ -15,33 +18,51 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem('kilosunlad_access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (config.url === '/auth/login') {
+    delete config.headers.Authorization;
+    return config;
   }
+  const session = readStoredSession();
+  if (!session) {
+    window.dispatchEvent(new Event('kilosunlad:unauthorized'));
+    throw new Error('Please sign in to continue.');
+  }
+  config.headers.Authorization = `Bearer ${session.access_token}`;
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const token = readStoredSession()?.access_token;
+    if (error.config?.url !== '/auth/login' && token &&
+        error.config?.headers?.Authorization === `Bearer ${token}` &&
+        (error.response?.status === 401 || error.response?.data?.error?.code === 'ACCOUNT_DEACTIVATED')) {
+      clearStoredSession();
+      window.dispatchEvent(new Event('kilosunlad:unauthorized'));
+    }
+    return Promise.reject(error);
+  },
+);
+
 export async function login(username: string, password: string): Promise<UserSession> {
+  clearStoredSession();
   const response = await api.post('/auth/login', { username, password });
   const payload = response.data?.data ?? response.data;
-  const token = payload.access_token ?? payload.token ?? payload.accessToken;
-  const user = payload.user ?? payload.session?.user;
-
-  if (!token || !user) {
-    throw new Error('Login response is missing access_token or user.');
-  }
-
-  sessionStorage.setItem('kilosunlad_access_token', token);
-
-  return {
-    access_token: token,
-    user,
-  };
+  if (response.headers['x-kilosunlad-mock'] === 'true') throw new Error('Disable backend Phase 1 mock mode before signing in.');
+  const session = parseSession(payload);
+  saveSession(session);
+  return session;
 }
 
-export async function fetchTriageQueue(): Promise<BeneficiaryTriageItem[]> {
-  const response = await api.get('/beneficiaries/triage-queue');
+export async function fetchTriageQueue(signal?: AbortSignal): Promise<BeneficiaryTriageItem[]> {
+  return (await fetchTriagePage(1, signal)).items;
+}
+
+export async function fetchTriagePage(page = 1, signal?: AbortSignal): Promise<{ items: BeneficiaryTriageItem[]; pagination: TriagePagination }> {
+  const response = await api.get('/beneficiaries/triage-queue', {
+    signal, params: { page, limit: 10, status: 'FLAGGED_FOR_REVIEW' },
+  });
   const payload = response.data?.data ?? response.data;
   const items = payload.items ?? payload;
 
@@ -49,11 +70,18 @@ export async function fetchTriageQueue(): Promise<BeneficiaryTriageItem[]> {
     throw new Error('Triage queue response did not include an items array.');
   }
 
-  return items.map(normalizeTriageItem);
+  const pagination = payload.pagination;
+  if (!pagination || !Number.isSafeInteger(pagination.total_records) || pagination.total_records < 0 ||
+      !Number.isSafeInteger(pagination.current_page) || pagination.current_page !== page ||
+      !Number.isSafeInteger(pagination.total_pages) || pagination.total_pages < 0 ||
+      !Number.isSafeInteger(pagination.limit) || pagination.limit < 1) {
+    throw new Error('Triage queue response did not include valid pagination.');
+  }
+  return { items: items.map(normalizeTriageItem), pagination };
 }
 
-export async function fetchAssignedTasks(): Promise<FieldTaskItem[]> {
-  const response = await api.get('/tasks/assigned');
+export async function fetchAssignedTasks(signal?: AbortSignal): Promise<FieldTaskItem[]> {
+  const response = await api.get('/tasks/assigned', { signal });
   const payload = response.data?.data ?? response.data;
   const tasks = payload.tasks ?? payload.items ?? payload;
 
@@ -62,6 +90,23 @@ export async function fetchAssignedTasks(): Promise<FieldTaskItem[]> {
   }
 
   return tasks.map(normalizeFieldTask);
+}
+
+export async function submitFieldTask(submission: FieldTaskSubmission): Promise<void> {
+  await api.post(`/tasks/${encodeURIComponent(submission.task_id)}/submit`, submission);
+}
+
+export function apiErrorMessage(error: unknown): string {
+  if (!axios.isAxiosError(error)) return error instanceof Error ? error.message : 'The request could not be completed.';
+  if (!error.response) return 'Cannot reach the API. Check that the backend is running and its CORS origin matches this frontend.';
+  const code = error.response.data?.error?.code;
+  if (code === 'ACCOUNT_DEACTIVATED') return 'This account is inactive. Contact your administrator.';
+  if (error.response.status === 401) return error.config?.url === '/auth/login' ? 'Incorrect username or password.' : 'Your session expired. Please sign in again.';
+  if (code === 'OUT_OF_JURISDICTION') return 'Access denied: this request is outside your assigned jurisdiction.';
+  if (error.response.status === 403) return 'Access denied for your role or jurisdiction.';
+  if (code === 'ENDPOINT_NOT_READY') return 'This backend endpoint is not available yet.';
+  if (error.response.status >= 500) return 'The backend service is unavailable. Please try again later.';
+  return 'The request could not be completed. Please try again.';
 }
 
 function normalizeTriageItem(item: any): BeneficiaryTriageItem {
@@ -90,7 +135,7 @@ function normalizeTriageItem(item: any): BeneficiaryTriageItem {
     trigger_badges: normalizeTriggerBadges(item.trigger_badges),
     meralco_kwh_consumption: item.meralco_kwh_consumption,
     lto_vehicle_record: item.lto_vehicle_record,
-    last_evaluated: item.flagged_at ?? item.last_evaluated ?? new Date().toISOString(),
+    last_evaluated: item.flagged_at ?? item.last_evaluated ?? null,
   };
 }
 
@@ -113,11 +158,11 @@ function normalizeFieldTask(task: any): FieldTaskItem {
       province: task.address?.province ?? 'Laguna',
       coordinates: task.address?.target_coordinates ?? task.address?.coordinates ?? [0, 0],
     },
-    dispatch_instructions: task.dispatch_instructions ?? 'Verify household conditions and beneficiary-provided evidence.',
-    dispatched_at: task.dispatched_at ?? new Date().toISOString(),
-    due_date: task.due_date ?? new Date().toISOString(),
+    dispatch_instructions: task.dispatch_instructions ?? '',
+    dispatched_at: task.dispatched_at ?? null,
+    due_date: task.due_date ?? '',
     status: task.status ?? 'PENDING_VISIT',
-    cached_offline: true,
+    cached_offline: false,
   };
 }
 
@@ -141,7 +186,7 @@ function swdiLabel(value: unknown): string {
     if (value === 2) return 'Level 2: Subsistence';
     if (value === 3) return 'Level 3: Self-Sufficient';
   }
-  return String(value ?? 'Level 1: Survival');
+  return value === null || value === undefined || value === '' ? 'Not available' : String(value);
 }
 
 function severityFromScore(score: number): RiskSeverity {
@@ -152,7 +197,7 @@ function severityFromScore(score: number): RiskSeverity {
 }
 
 function priorityFromScore(score?: number): FieldTaskItem['priority'] {
-  if (!score) return 'MEDIUM';
+  if (score === undefined || !Number.isFinite(score)) return 'MEDIUM';
   if (score >= 85) return 'CRITICAL';
   if (score >= 70) return 'HIGH';
   if (score >= 50) return 'MEDIUM';

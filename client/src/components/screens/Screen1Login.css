@@ -1,0 +1,142 @@
+.login-screen {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 72px 24px 40px;
+  background: #f5f8fc url('/images/login-background.png') center / cover no-repeat;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #132e4f;
+  letter-spacing: 0;
+}
+
+.login-civic-motto,
+.login-civic-signature {
+  position: absolute;
+  z-index: -1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #657891;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.login-civic-motto { top: 30px; right: 40px; text-align: right; }
+.login-civic-signature { bottom: 60px; left: 48px; font-size: 12px; }
+.login-civic-signature::after { content: ''; width: 48px; height: 2px; margin-top: 8px; background: #b48c36; }
+
+.login-panel {
+  width: 100%;
+  max-width: 640px;
+  overflow: hidden;
+  border: 1px solid #dce4ed;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 48px -12px rgb(19 46 79 / 23%);
+}
+
+.login-brand-header {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 40px 40px 44px;
+  text-align: center;
+  color: #fff;
+}
+
+/* Oversized ellipses create the reference's curved header without a rasterized UI. */
+.login-brand-header::before,
+.login-brand-header::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -210px;
+  left: -45%;
+  width: 190%;
+  height: calc(100% + 210px);
+  border-radius: 0 0 50% 50%;
+}
+.login-brand-header::before { background: linear-gradient(100deg, #b48c36, #ecd78a 62%, #b48c36); }
+.login-brand-header::after {
+  top: -220px;
+  background: linear-gradient(125deg, #295b90 0%, #173b63 36%, #0c2340 100%);
+}
+
+.login-seals { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 20px; }
+.login-seal { display: flex; width: 76px; height: 76px; flex: 0 0 76px; align-items: center; justify-content: center; border-radius: 50%; }
+.login-republic-seal { border: 1px solid #dce4ed; background: white; }
+.login-republic-seal svg { display: block; width: 72px; height: 72px; }
+.login-dswd-seal { flex-direction: column; gap: 2px; border: 1.5px solid #d3ad4a; background: #132e4f; }
+.login-dswd-seal span { color: #e4bd5d; font-size: 18px; font-weight: 700; }
+.login-dswd-seal small { color: white; font-size: 13px; }
+.login-republic-label { color: #f1d992; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+.login-republic-label::after { content: ''; display: block; width: 76px; height: 2px; margin: 12px auto 10px; background: #d3ad4a; }
+.login-brand-header h1 { margin: 0; font-size: 40px; font-weight: 800; line-height: 1.2; color: white; }
+.login-brand-description { max-width: 500px; margin: 8px auto 0; color: #e4ecf6; font-size: 18px; line-height: 1.5; }
+
+.login-form { display: flex; flex-direction: column; gap: 26px; padding: 32px 52px 40px; }
+.login-form label { display: block; margin-bottom: 10px; font-size: 16px; font-weight: 600; line-height: 1.4; }
+.login-input-wrap { position: relative; }
+.login-field-icon { position: absolute; top: 50%; left: 18px; width: 22px; height: 22px; transform: translateY(-50%); pointer-events: none; color: #607a98; }
+.login-input {
+  display: block;
+  width: 100%;
+  height: 60px;
+  padding: 12px 16px 12px 58px;
+  border: 1px solid #ccd5e0;
+  border-radius: 8px;
+  background: #fff;
+  color: #25364b;
+  font: inherit;
+  font-size: 18px;
+  box-shadow: 0 2px 5px rgb(19 46 79 / 4%);
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.login-input::placeholder { color: #69788a; }
+.login-input:hover { border-color: #91a6bf; }
+.login-input:focus { outline: none; border-color: #5686b9; box-shadow: 0 0 0 3px rgb(68 125 185 / 15%); }
+.login-password-input { padding-right: 56px; }
+.login-password-toggle { position: absolute; inset: 1px 1px 1px auto; display: flex; width: 52px; align-items: center; justify-content: center; border-radius: 0 7px 7px 0; color: #52677f; }
+.login-password-toggle:hover { background: #eef3f8; color: #132e4f; }
+.login-password-toggle:focus-visible,
+.login-submit:focus-visible { outline: 3px solid #5686b9; outline-offset: 3px; }
+.login-submit { display: flex; min-height: 60px; width: 100%; align-items: center; justify-content: center; padding: 14px 20px; border: 1px solid #234b75; border-radius: 8px; background: linear-gradient(115deg, #214c7c, #0c2340); color: #fff; font-size: 18px; font-weight: 600; line-height: 1.4; box-shadow: 0 8px 18px rgb(19 46 79 / 14%); transition: box-shadow 150ms, filter 150ms; }
+.login-submit > div { gap: 12px; }
+.login-submit:hover:not(:disabled) { filter: brightness(1.12); box-shadow: 0 10px 22px rgb(19 46 79 / 20%); }
+.login-submit:disabled { cursor: wait; opacity: .7; }
+.login-privacy { display: flex; max-width: 640px; align-items: center; justify-content: center; gap: 8px; margin-top: 22px; color: #566a84; font-size: 12px; line-height: 1.6; text-align: center; }
+.login-privacy svg { flex-shrink: 0; }
+
+@media (max-width: 1100px) {
+  .login-civic-signature { display: none; }
+}
+@media (max-width: 600px) {
+  .login-screen { padding: 28px 16px; }
+  .login-civic-motto { display: none; }
+  .login-panel { border-radius: 12px; }
+  .login-brand-header { padding: 28px 20px 36px; }
+  .login-seals { margin-bottom: 18px; gap: 16px; }
+  .login-seal { width: 62px; height: 62px; flex-basis: 62px; }
+  .login-republic-seal svg { width: 58px; height: 58px; }
+  .login-dswd-seal span { font-size: 15px; }
+  .login-dswd-seal small { font-size: 11px; }
+  .login-republic-label { font-size: 10px; }
+  .login-brand-header h1 { font-size: 28px; }
+  .login-brand-description { font-size: 14px; }
+  .login-form { gap: 22px; padding: 28px 24px 30px; }
+  .login-form label { font-size: 14px; }
+  .login-input { height: 54px; padding-left: 44px; font-size: 16px; }
+  .login-field-icon { left: 14px; width: 20px; height: 20px; }
+  .login-submit { min-height: 54px; font-size: 16px; }
+  .login-privacy { max-width: 360px; align-items: flex-start; font-size: 11px; }
+}
+
+@media (max-width: 360px) {
+  .login-brand-header h1 { font-size: 24px; }
+  .login-form { padding-right: 18px; padding-left: 18px; }
+}

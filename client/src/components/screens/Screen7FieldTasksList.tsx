@@ -1,6 +1,5 @@
 import React from 'react';
-import { FieldTaskItem } from '../../types/contracts';
-import { MOCK_FIELD_TASKS } from '../../data/mockContracts';
+import { FieldTaskItem, UserSession } from '../../types/contracts';
 import { 
   Wifi, 
   WifiOff, 
@@ -16,6 +15,7 @@ import {
 } from 'lucide-react';
 
 interface Screen7FieldTasksListProps {
+  user: UserSession['user'];
   isOffline: boolean;
   onToggleOffline: () => void;
   onStartVerification: (task: FieldTaskItem) => void;
@@ -25,12 +25,13 @@ interface Screen7FieldTasksListProps {
 }
 
 export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
+  user,
   isOffline,
   onToggleOffline,
   onStartVerification,
   onOpenSyncDrawer,
   showSpecAnnotations = false,
-  tasks = MOCK_FIELD_TASKS,
+  tasks = [],
 }) => {
   const getPriorityStyle = (priority: string) => {
     switch (priority) {
@@ -74,10 +75,10 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
           </div>
           <div className="text-xs sm:text-sm leading-tight">
             <span className="font-semibold">
-              {isOffline ? 'Offline Mode Active' : 'Online — Connected to GovCloud'}
+              {isOffline ? 'Offline Mode Active' : 'Network Available'}
             </span>
             <div className="text-[11px] font-normal text-slate-500 mt-0.5">
-              {isOffline ? '3 Tasks cached locally in IndexedDB' : 'Synchronized with Regional Office IV-A'}
+              {`${tasks.length} assigned tasks loaded`}
             </div>
           </div>
         </div>
@@ -103,11 +104,11 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
       <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-            MB
+            {user.full_name.charAt(0)}
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-900">Marvin Bautista, RSW</div>
-            <div className="text-[11px] text-slate-500">Municipal Link · Calamba City Cluster</div>
+            <div className="text-xs font-bold text-slate-900">{user.full_name}</div>
+            <div className="text-[11px] text-slate-500">Case Worker · {user.jurisdiction.municipality}</div>
           </div>
         </div>
 
@@ -123,6 +124,7 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
 
       {/* 2. Task Card Feed */}
       <div className="space-y-4">
+        {tasks.length === 0 && <p role="status" className="p-6 text-sm text-slate-600">No tasks are assigned to this account.</p>}
         {tasks.map((task) => (
           <div
             key={task.task_id}
@@ -200,8 +202,8 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
 
               {/* Metadata row */}
               <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
-                <span>Dispatched: {task.dispatched_at}</span>
-                <span className="text-slate-600 font-medium">Due: {task.due_date}</span>
+                <span>Dispatched: {task.dispatched_at ?? 'Not provided'}</span>
+                <span className="text-slate-600 font-medium">Due: {task.due_date || 'Not provided'}</span>
               </div>
 
               {/* Action: Large Touch-Friendly Button Start In-Person Verification (>= 44px) */}

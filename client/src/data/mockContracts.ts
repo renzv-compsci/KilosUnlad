@@ -2,66 +2,9 @@ import {
   BeneficiaryTriageItem, 
   DueProcessNoticeItem, 
   AuditBlock, 
-  FieldTaskItem,
-  UserSession 
+  FieldTaskItem
 } from '../types/contracts';
 
-export const MOCK_USERS: Record<string, UserSession> = {
-  director: {
-    access_token: "jwt_token_dswd_dir_4a_99214a",
-    user: {
-      username: "dir.mendoza@dswd.gov.ph",
-      full_name: "Atty. Carmelita Mendoza, CESO III",
-      role: "DSWD_DIRECTOR",
-      jurisdiction: {
-        region: "Region IV-A (CALABARZON)",
-        province: "Laguna",
-        municipality: "Calamba Regional HQ"
-      }
-    }
-  },
-  municipal_link: {
-    access_token: "jwt_token_ml_lag_3391",
-    user: {
-      username: "ml.bautista@dswd.gov.ph",
-      full_name: "Marvin Bautista, RSW",
-      role: "MUNICIPAL_LINK",
-      jurisdiction: {
-        region: "Region IV-A",
-        province: "Laguna",
-        municipality: "Calamba City",
-        assigned_barangays: ["Barangay Makiling", "Barangay Canlubang", "Barangay Bucal"]
-      }
-    }
-  },
-  grievance_officer: {
-    access_token: "jwt_token_gpo_lag_5521",
-    user: {
-      username: "appeal.castillo@dswd.gov.ph",
-      full_name: "Rochelle Castillo, MSSW",
-      role: "GRIEVANCE_OFFICER",
-      jurisdiction: {
-        region: "Region IV-A",
-        province: "Laguna",
-        municipality: "Regional Due Process Division",
-        assigned_barangays: ["Laguna Cluster A", "Laguna Cluster B"]
-      }
-    }
-  },
-  coa_auditor: {
-    access_token: "jwt_token_coa_inspector_812a",
-    user: {
-      username: "coa.santos@coa.gov.ph",
-      full_name: "Engr. Roberto Santos, CPA, CISA",
-      role: "COA_AUDITOR",
-      jurisdiction: {
-        region: "National Capital & IV-A",
-        province: "Laguna Oversight",
-        municipality: "Special Audit Unit"
-      }
-    }
-  }
-};
 
 export const MOCK_TRIAGE_ITEMS: BeneficiaryTriageItem[] = [
   {

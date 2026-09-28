@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { FieldTaskItem, FieldTaskSubmission } from '../../types/contracts';
+import { useGeolocation } from '../../hooks/useGeolocation';
+import { calculateSha256, readPhotoAsDataUrl } from '../../utils/photoHasher';
 import { 
   Camera, 
   MapPin, 
@@ -53,13 +55,13 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
   const [pawningSuspected, setPawningSuspected] = useState(false);
 
   // Section 4: Geotagged Camera Capture
-  const [photoCaptured, setPhotoCaptured] = useState(true);
-  const [gpsData] = useState({
-    latitude: 14.2145,
-    longitude: 121.1651,
-    accuracy_m: 4.2
-  });
-  const [clientSideHash, setClientSideHash] = useState('SHA-256: a4f5d810e922c019a8412b201');
+  const [photoCaptured, setPhotoCaptured] = useState(false);
+  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
+  const [clientSideHash, setClientSideHash] = useState('');
+  const [captureError, setCaptureError] = useState<string | null>(null);
+  const [isProcessingPhoto, setIsProcessingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const { position: gpsData, error: gpsError, isLocating, capturePosition } = useGeolocation();
 
   // Section 5: Final Recommendation & Narrative
   const [workerRecommendation, setWorkerRecommendation] = useState<
@@ -71,10 +73,24 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
 
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleCapturePhoto = () => {
-    setPhotoCaptured(true);
-    const randomHex = Math.random().toString(16).substring(2, 10);
-    setClientSideHash(`SHA-256: ${randomHex}...b201`);
+  const handleCapturePhoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setIsProcessingPhoto(true);
+    setCaptureError(null);
+    try {
+      const [hash, dataUrl] = await Promise.all([calculateSha256(file), readPhotoAsDataUrl(file)]);
+      await capturePosition();
+      setClientSideHash(hash);
+      setPhotoDataUrl(dataUrl);
+      setPhotoCaptured(true);
+    } catch (reason) {
+      setPhotoCaptured(false);
+      setCaptureError(reason instanceof Error ? reason.message : 'Unable to capture geotagged evidence.');
+    } finally {
+      setIsProcessingPhoto(false);
+      event.target.value = '';
+    }
   };
 
   const handleFinalSubmit = (e: React.FormEvent) => {
@@ -98,9 +114,9 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
       evidence_attachments: photoCaptured
         ? [
             {
-              photo_url: 'blob://simulated_evidence_photo.jpg',
+              photo_url: photoDataUrl ?? '',
               captured_at: new Date().toISOString(),
-              gps_readout: gpsData,
+              gps_readout: gpsData!,
               client_side_hash: clientSideHash
             }
           ]
@@ -518,22 +534,15 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
 
             {/* In-App Camera Viewport / Photo Preview */}
             <div className="relative bg-slate-900 rounded-xl overflow-hidden border border-slate-700 aspect-video flex items-center justify-center text-white">
-              {photoCaptured ? (
-                <div className="relative w-full h-full bg-slate-800 flex items-center justify-center p-4">
-                  {/* Simulated capture image background */}
+              {photoCaptured && photoDataUrl ? (
+                <div className="relative w-full h-full bg-slate-800 flex items-center justify-center">
+                  <img src={photoDataUrl} alt="Captured field evidence" className="h-full w-full object-contain" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent flex flex-col justify-end p-4">
                     <span className="text-[10px] font-mono text-emerald-400 font-semibold uppercase">
-                      ✓ Evidence Captured & Geotagged
+                      Evidence Captured & Geotagged
                     </span>
                     <span className="text-xs font-medium text-white">
-                      Residence & Productive Vehicle Verification (Yamaha NMAX)
-                    </span>
-                  </div>
-
-                  <div className="text-center">
-                    <Camera className="w-10 h-10 text-slate-400 mx-auto mb-2 opacity-40" />
-                    <span className="text-xs text-slate-400 font-mono">
-                      Image cached in IndexedDB
+                      Field verification evidence
                     </span>
                   </div>
                 </div>
@@ -560,10 +569,10 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                   <span>GPS Coordinates</span>
                 </div>
                 <div className="font-mono text-xs font-semibold text-slate-900">
-                  Lat: {gpsData.latitude}, Lon: {gpsData.longitude}
+                  {gpsData ? `Lat: ${gpsData.latitude.toFixed(6)}, Lon: ${gpsData.longitude.toFixed(6)}` : 'Waiting for device location'}
                 </div>
                 <div className="text-[10px] text-emerald-700 mt-0.5">
-                  Accuracy: ±{gpsData.accuracy_m}m (Laguna Sector Verified)
+                  {gpsData ? `Accuracy: +/-${gpsData.accuracy_m.toFixed(1)}m` : 'High-accuracy GPS will be requested with the photo'}
                 </div>
               </div>
 
@@ -574,7 +583,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                   <span>SHA-256 Checksum</span>
                 </div>
                 <div className="font-mono text-xs font-medium text-blue-950 truncate">
-                  {clientSideHash}
+                  {clientSideHash || 'Waiting for photo'}
                 </div>
                 <div className="text-[10px] text-slate-400 mt-0.5">
                   Calculated automatically upon photo capture
@@ -585,15 +594,27 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
 
             {/* Capture button */}
             <div>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleCapturePhoto}
+                className="hidden"
+              />
               <button
                 type="button"
                 id="capture-photo-btn"
-                onClick={handleCapturePhoto}
+                onClick={() => photoInputRef.current?.click()}
+                disabled={isProcessingPhoto || isLocating}
                 className="w-full min-h-[42px] py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg text-xs flex items-center justify-center space-x-2 transition cursor-pointer"
               >
-                <Camera className="w-4 h-4 text-amber-300" />
-                <span>{photoCaptured ? 'Retake Photo Evidence' : 'Capture & Calculate Hash'}</span>
+                {isProcessingPhoto || isLocating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4 text-amber-300" />}
+                <span>{isProcessingPhoto || isLocating ? 'Securing Photo & GPS...' : photoCaptured ? 'Retake Photo Evidence' : 'Capture Photo Evidence'}</span>
               </button>
+              {(captureError || gpsError) && (
+                <p className="mt-2 text-xs text-red-700" role="alert">{captureError || gpsError}</p>
+              )}
             </div>
 
           </div>
@@ -663,7 +684,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <button
                 id="save-and-queue-sync-btn"
                 type="submit"
-                disabled={isSaving}
+                disabled={isSaving || !photoCaptured || !gpsData}
                 className="w-full min-h-[44px] py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs rounded-lg shadow-xs transition flex items-center justify-center space-x-2 cursor-pointer active:scale-98"
               >
                 {isSaving ? (

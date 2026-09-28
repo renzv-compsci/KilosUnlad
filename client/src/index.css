@@ -14,20 +14,20 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    letter-spacing: -0.011em;
+    letter-spacing: 0;
     color: #1e293b;
     background-color: #fafaf9;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    letter-spacing: -0.022em;
+    letter-spacing: 0;
     font-weight: 600;
   }
 
   code, kbd, samp, pre, .font-mono {
     font-family: var(--font-mono);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 
   /* Accessible outline styling for keyboard focus */

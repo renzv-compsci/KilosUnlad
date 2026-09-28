@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { BeneficiaryTriageItem } from '../../types/contracts';
-import { MOCK_TRIAGE_ITEMS } from '../../data/mockContracts';
+import { BeneficiaryTriageItem, TriagePagination } from '../../types/contracts';
 import { 
   Search, 
   Filter, 
@@ -12,19 +11,27 @@ import {
   Building, 
   CreditCard,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface Screen3TriageQueueProps {
   onDispatchTask: (item: BeneficiaryTriageItem) => void;
   showSpecAnnotations?: boolean;
   items?: BeneficiaryTriageItem[];
+  readOnly?: boolean;
+  pagination?: TriagePagination;
+  onPageChange?: (page: number) => void;
 }
 
 export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
   onDispatchTask,
   showSpecAnnotations = false,
-  items = MOCK_TRIAGE_ITEMS,
+  items = [],
+  readOnly = false,
+  pagination,
+  onPageChange,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [municipalityFilter, setMunicipalityFilter] = useState('ALL');
@@ -69,7 +76,7 @@ export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+    <div className="mx-auto max-w-[1440px] space-y-8 p-4 sm:p-6 lg:p-8 xl:px-10 xl:py-9">
       
       {/* Spec Annotation Banner */}
       {showSpecAnnotations && (
@@ -83,14 +90,14 @@ export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
       )}
 
       {/* Screen Title & Clean Filter Bar */}
-      <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs space-y-4">
+      <div className="space-y-5 rounded-lg border border-stone-200/90 bg-white p-5 shadow-2xs sm:p-6">
         
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-stone-200/80">
           <div>
-            <h2 className="text-xl font-bold text-stone-900 tracking-tight flex items-center gap-2.5 font-display">
+            <h2 className="flex flex-wrap items-center gap-2.5 font-display text-xl font-bold text-stone-900 sm:text-2xl">
               <span>Triage Queue</span>
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-200">
-                {filteredItems.length} Flagged Cases
+                {pagination?.total_records ?? items.length} Flagged Cases
               </span>
             </h2>
             <p className="text-xs text-stone-500 mt-1">
@@ -116,7 +123,8 @@ export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by Household ID, Beneficiary Name, or National ID..."
+              aria-label="Search current page"
+              placeholder="Search current page by ID or name..."
               className="w-full pl-9 pr-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#132e4f] focus:border-[#132e4f] outline-none transition bg-white text-stone-900 placeholder:text-stone-400"
             />
             {showSpecAnnotations && (
@@ -164,9 +172,9 @@ export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
       </div>
 
       {/* Clean High-Contrast Data Table */}
-      <div className="bg-white rounded-xl border border-stone-200/90 shadow-2xs overflow-hidden">
+      <div className="overflow-hidden rounded-lg border border-stone-200/90 bg-white shadow-2xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+          <table className="min-w-[1100px] w-full text-left border-collapse text-xs">
             
             {/* Table Header */}
             <thead className="bg-stone-50/90 text-stone-600 uppercase font-semibold text-[11px] tracking-wider border-b border-stone-200">
@@ -221,7 +229,7 @@ export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
               {filteredItems.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="p-8 text-center text-stone-500">
-                    No flagged households match the selected criteria.
+                    No flagged households match on this page.
                   </td>
                 </tr>
               ) : (
@@ -335,14 +343,14 @@ export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
 
                       {/* Column 7: Actions (Dispatch Task) */}
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                        <button
+                        {readOnly ? <span className="text-stone-500">Read-only</span> : <button
                           id={`dispatch-task-btn-${item.household_id}`}
                           onClick={() => onDispatchTask(item)}
                           className="px-3 py-1.5 bg-[#132e4f] hover:bg-[#0c2340] text-white rounded-lg font-medium text-xs shadow-2xs transition inline-flex items-center space-x-1.5 cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" />
                           <span>Dispatch Task</span>
-                        </button>
+                        </button>}
                       </td>
                     </tr>
                   );
@@ -356,12 +364,14 @@ export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
         {/* Footer Summary */}
         <div className="p-3.5 bg-stone-50/80 border-t border-stone-200 flex flex-wrap items-center justify-between gap-2 text-xs text-stone-600">
           <div>
-            Showing <span className="font-semibold text-stone-900">{filteredItems.length}</span> of{' '}
-            <span className="font-semibold text-stone-900">{items.length}</span> audited cases
+            <span className="font-semibold text-stone-900">{filteredItems.length}</span> matching on this page ·{' '}
+            <span className="font-semibold text-stone-900">{pagination?.total_records ?? items.length}</span> total records
           </div>
-          <div className="text-[11px] text-stone-400 font-mono">
-            Laguna Pilot Jurisdiction Cluster
-          </div>
+          {pagination && onPageChange && <div className="flex items-center gap-3">
+            <button type="button" className="icon-control disabled:opacity-40" aria-label="Previous page" title="Previous page" disabled={pagination.current_page <= 1} onClick={() => onPageChange(pagination.current_page - 1)}><ChevronLeft size={18} /></button>
+            <span>Page {pagination.current_page} of {Math.max(1, pagination.total_pages)}</span>
+            <button type="button" className="icon-control disabled:opacity-40" aria-label="Next page" title="Next page" disabled={pagination.current_page >= pagination.total_pages} onClick={() => onPageChange(pagination.current_page + 1)}><ChevronRight size={18} /></button>
+          </div>}
         </div>
 
       </div>

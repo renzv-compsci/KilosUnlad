@@ -43,15 +43,12 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({
   ];
 
   return (
-    <div className="relative w-full h-full min-h-[360px] flex flex-col justify-between p-4 sm:p-5 select-none overflow-hidden bg-stone-50/60">
-      
-      {/* Background Subtle Coordinate Lines */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(#78716c_1px,transparent_1px)] [background-size:24px_24px]"></div>
+    <div className="jurisdiction-map relative flex h-full min-h-[360px] w-full flex-col gap-5 overflow-hidden bg-stone-50/60 p-4 select-none sm:p-6">
 
       {/* Top Map Controls */}
       <div className="relative z-10 space-y-2.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-lg border border-stone-200/90 shadow-2xs text-xs">
+          <div className="flex flex-wrap items-center gap-2 py-1.5 text-xs">
             <Globe className="w-3.5 h-3.5 text-[#132e4f]" />
             <span className="font-semibold text-stone-800 font-display">
               {viewMode === 'laguna' ? 'Laguna de Bay Operational Cluster' : 'Philippine Archipelago'}
@@ -90,7 +87,7 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({
 
         {/* Municipality Quick-Select Ribbon (Only in Laguna view) */}
         {viewMode === 'laguna' && (
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px]">
+          <div className="flex flex-wrap items-center gap-2 pb-1 text-[11px]">
             <span className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider shrink-0 pr-1">
               LGUs:
             </span>
@@ -123,12 +120,12 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({
       </div>
 
       {/* SVG Canvas */}
-      <div className="relative z-10 w-full h-72 sm:h-80 my-auto flex items-center justify-center">
+      <div className="map-canvas relative z-10 flex w-full flex-1 items-center justify-center">
         {viewMode === 'national' ? (
           /* ============================================================
              MINIMAL PHILIPPINE ARCHIPELAGO VECTOR MAP
              ============================================================ */
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="national-map-frame relative flex w-full items-center justify-center">
             <svg
               viewBox="0 0 320 400"
               className="w-full h-full max-h-[320px] filter drop-shadow-2xs"
@@ -295,7 +292,7 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({
              LAGUNA DE BAY PILOT SECTOR DETAIL VIEW
              Realistic, clean vector geometry showing the lake and shoreline
              ============================================================ */
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="laguna-map-frame relative flex w-full items-center justify-center">
             <svg
               viewBox="0 0 480 320"
               className="w-full h-full filter drop-shadow-xs"
@@ -447,7 +444,7 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({
 
       {/* Map Legend & Guidance */}
       <div className="relative z-10 flex flex-wrap items-center justify-between text-xs text-stone-600 pt-2.5 border-t border-stone-200/90 gap-2">
-        <div className="flex items-center space-x-3 text-[11px]">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px]">
           <span className="flex items-center space-x-1.5">
             <span className="w-2 h-2 rounded-full bg-rose-700"></span>
             <span>High Risk (≥ 70)</span>
@@ -462,9 +459,6 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({
           </span>
         </div>
 
-        <span className="text-[11px] text-stone-400">
-          Click any municipality pin to inspect audit caseload
-        </span>
       </div>
 
     </div>

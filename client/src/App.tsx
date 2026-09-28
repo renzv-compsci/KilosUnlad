@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import './styles/workspace.css';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
 import { Screen1Login } from './components/screens/Screen1Login';
@@ -22,117 +23,197 @@ import {
   FieldTaskItem,
   FieldTaskSubmission,
   UserSession,
+  TriagePagination,
 } from './types/contracts';
 import type { ScreenId } from './types/navigation';
+import { apiErrorMessage, fetchAssignedTasks, fetchTriagePage } from './services/api';
+import { clearStoredSession, isUserRole, readStoredSession } from './services/authSession';
+import { ROLE_CONFIG, canReadTriage, canDispatch } from './types/permissions';
 import {
-  MOCK_FIELD_TASKS,
-  MOCK_TRIAGE_ITEMS,
-  MOCK_USERS,
-} from './data/mockContracts';
-import { fetchAssignedTasks, fetchTriageQueue } from './services/api';
+  cacheAssignedTasks,
+  getQueuedSubmissions,
+  queueSubmission,
+} from './services/indexedDB';
+import { useOfflineSync } from './hooks/useOfflineSync';
 import { CheckCircle2, Lock } from 'lucide-react';
 
-const ROLE_CONFIG: Record<string, {
-  defaultScreen: ScreenId;
-  allowedScreens: ScreenId[];
-  roleTitle: string;
-}> = {
-  DSWD_DIRECTOR: {
-    defaultScreen: 'dashboard',
-    allowedScreens: ['dashboard', 'triage', 'dispatch_manager', 'dispatch_modal', 'due_process', 'admin_settings'],
-    roleTitle: 'Regional Director',
-  },
-  MUNICIPAL_LINK: {
-    defaultScreen: 'field_dashboard',
-    allowedScreens: ['field_dashboard', 'field_tasks', 'field_verify', 'field_sync'],
-    roleTitle: 'Municipal Link',
-  },
-  GRIEVANCE_OFFICER: {
-    defaultScreen: 'grievance_dashboard',
-    allowedScreens: ['grievance_dashboard', 'due_process', 'appeal_hearing'],
-    roleTitle: 'Grievance Officer',
-  },
-  COA_AUDITOR: {
-    defaultScreen: 'coa_dashboard',
-    allowedScreens: ['coa_dashboard', 'audit_ledger', 'coa_sampling'],
-    roleTitle: 'COA Auditor',
-  },
-};
-
-const INITIAL_SUBMISSION: FieldTaskSubmission = {
-  task_id: 'TSK-LAG-2026-0102',
-  household_id: '4PS-04A-2026-00341',
-  timestamp: '2026-09-20T17:15:00',
-  wall_construction: 2,
-  roof_construction: 2,
-  water_access: 2,
-  is_motorcycle_present: true,
-  is_productive_asset: true,
-  proof_type: 'MOVEIT',
-  franchise_number: 'MV-2024-88190',
-  physical_card_presented: true,
-  card_matches_beneficiary: true,
-  pawning_suspected: false,
-  evidence_attachments: [
-    {
-      photo_url: 'blob://evidence_photo_01.jpg',
-      captured_at: '2026-09-20T17:10:00',
-      gps_readout: { latitude: 14.3160, longitude: 121.1180, accuracy_m: 3.8 },
-      client_side_hash: 'SHA-256: 9b21f00a...c441',
-    },
-  ],
-  worker_recommendation: 'RETAIN',
-  narrative_report: 'Household verified in Sinalhan. Motorcycle used as daily delivery service. LandBank card produced in physical custody.',
-  sync_status: 'PENDING_SYNC',
-};
 
 export default function App() {
-  const [session, setSession] = useState<UserSession>(MOCK_USERS.director);
-  const [currentScreen, setCurrentScreen] = useState<ScreenId>('dashboard');
-  const [triageItems, setTriageItems] = useState<BeneficiaryTriageItem[]>(MOCK_TRIAGE_ITEMS);
-  const [fieldTasks, setFieldTasks] = useState<FieldTaskItem[]>(MOCK_FIELD_TASKS);
-  const [isOffline, setIsOffline] = useState(false);
-  const [isDispatchModalOpen, setIsDispatchModalOpen] = useState(false);
-  const [targetHouseholdForDispatch, setTargetHouseholdForDispatch] = useState<BeneficiaryTriageItem | null>(MOCK_TRIAGE_ITEMS[0]);
-  const [selectedFieldTask, setSelectedFieldTask] = useState<FieldTaskItem>(MOCK_FIELD_TASKS[0]);
-  const [isSyncDrawerOpen, setIsSyncDrawerOpen] = useState(false);
-  const [submissions, setSubmissions] = useState<FieldTaskSubmission[]>([INITIAL_SUBMISSION]);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const mainColumnRef = React.useRef<HTMLDivElement>(null);
+  const [compactNavigation, setCompactNavigation] = useState(() => window.matchMedia('(max-width: 767px)').matches);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (window.matchMedia('(max-width: 767px)').matches) return true;
+    try { return localStorage.getItem('kilosunlad_sidebar_collapsed') === 'true'; }
+    catch { return false; }
+  });
+  const toggleSidebar = () => setSidebarCollapsed((collapsed) => !collapsed);
 
   useEffect(() => {
-    let isMounted = true;
+    const media = window.matchMedia('(max-width: 767px)');
+    const updateNavigation = () => {
+      setCompactNavigation(media.matches);
+      if (media.matches) setSidebarCollapsed(true);
+    };
+    media.addEventListener('change', updateNavigation);
+    return () => media.removeEventListener('change', updateNavigation);
+  }, []);
+
+  useEffect(() => {
+    if (compactNavigation) return;
+    try { localStorage.setItem('kilosunlad_sidebar_collapsed', String(sidebarCollapsed)); }
+    catch { /* Navigation still works when browser storage is unavailable. */ }
+  }, [sidebarCollapsed, compactNavigation]);
+
+  useEffect(() => {
+    if (sidebarCollapsed || !compactNavigation) return;
+    const content = mainColumnRef.current;
+    const previousOverflow = document.body.style.overflow;
+    content?.setAttribute('inert', '');
+    document.body.style.overflow = 'hidden';
+    const focusFrame = requestAnimationFrame(() => {
+      document.querySelector<HTMLButtonElement>('.sidebar-collapse-toggle')?.focus();
+    });
+    const handleDrawerKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSidebarCollapsed(true);
+      }
+      if (event.key === 'Tab') {
+        const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('#app-sidebar button'));
+        const first = buttons[0];
+        const last = buttons[buttons.length - 1];
+        if (!document.querySelector('#app-sidebar')?.contains(document.activeElement)) {
+          event.preventDefault();
+          first?.focus();
+        } else if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleDrawerKey);
+    return () => {
+      cancelAnimationFrame(focusFrame);
+      document.removeEventListener('keydown', handleDrawerKey);
+      content?.removeAttribute('inert');
+      document.body.style.overflow = previousOverflow;
+      document.querySelector<HTMLButtonElement>('.sidebar-mobile-toggle')?.focus();
+    };
+  }, [sidebarCollapsed, compactNavigation]);
+  const [session, setSession] = useState<UserSession | null>(readStoredSession);
+  const [currentScreen, setCurrentScreen] = useState<ScreenId>(() => session ? ROLE_CONFIG[session.user.role].defaultScreen : 'login');
+  const [triageItems, setTriageItems] = useState<BeneficiaryTriageItem[]>([]);
+  const [triagePage, setTriagePage] = useState(1);
+  const [triagePagination, setTriagePagination] = useState<TriagePagination | null>(null);
+  const [fieldTasks, setFieldTasks] = useState<FieldTaskItem[]>([]);
+  const [dataState, setDataState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [dataError, setDataError] = useState<string | null>(null);
+  const [reloadCounter, setReloadCounter] = useState(0);
+  const [simulateOffline, setSimulateOffline] = useState(false);
+  const [isDispatchModalOpen, setIsDispatchModalOpen] = useState(false);
+  const [targetHouseholdForDispatch, setTargetHouseholdForDispatch] = useState<BeneficiaryTriageItem | null>(null);
+  const [selectedFieldTask, setSelectedFieldTask] = useState<FieldTaskItem | null>(null);
+  const [isSyncDrawerOpen, setIsSyncDrawerOpen] = useState(false);
+  const [submissions, setSubmissions] = useState<FieldTaskSubmission[]>([]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const markSubmissionSynced = React.useCallback((taskId: string) => {
+    setSubmissions((current) => current.map((item) => (
+      item.task_id === taskId ? { ...item, sync_status: 'SYNCED' } : item
+    )));
+  }, []);
+  // Submission endpoints are not in the current backend handoff; keep drafts local.
+  const { isOnline, isSyncing, syncPending } = useOfflineSync(submissions, markSubmissionSynced, session?.user.user_id ?? null, false);
+  const isOffline = simulateOffline || !isOnline;
+
+  const clearSession = React.useCallback(() => {
+    clearStoredSession();
+    setSession(null);
+    setTriagePage(1);
+    setTriagePagination(null);
+    setSidebarCollapsed(true);
+    setCurrentScreen('login');
+    setTriageItems([]);
+    setFieldTasks([]);
+    setSelectedFieldTask(null);
+    setTargetHouseholdForDispatch(null);
+    setSubmissions([]);
+    setIsDispatchModalOpen(false);
+    setIsSyncDrawerOpen(false);
+    setDataState('idle');
+    setDataError(null);
+  }, []);
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      clearSession();
+      setToastMessage('Your session is no longer authorized. Please sign in again.');
+    };
+    window.addEventListener('kilosunlad:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('kilosunlad:unauthorized', handleUnauthorized);
+  }, [clearSession]);
+
+  useEffect(() => {
+    if (!session) return;
+    const expire = () => {
+      clearSession();
+      setToastMessage('Your session expired. Please sign in again.');
+    };
+    const timer = window.setTimeout(expire, Math.max(0, session.expires_at - Date.now()));
+    return () => window.clearTimeout(timer);
+  }, [session, clearSession]);
+
+  useEffect(() => {
+    if (!session) return;
+    const controller = new AbortController();
+    setTriageItems([]);
+    setFieldTasks([]);
+    setSelectedFieldTask(null);
+    setSubmissions([]);
+    setDataState('loading');
+    setDataError(null);
 
     async function loadOperationalData() {
       try {
-        const [remoteTriage, remoteTasks] = await Promise.all([
-          fetchTriageQueue(),
-          fetchAssignedTasks(),
-        ]);
-
-        if (!isMounted) return;
-
-        if (remoteTriage.length > 0) {
-          setTriageItems(remoteTriage);
-          setTargetHouseholdForDispatch(remoteTriage[0]);
+        if (canReadTriage(session!.user.role)) {
+          const { items, pagination } = await fetchTriagePage(triagePage, controller.signal);
+          if (controller.signal.aborted) return;
+          setTriageItems(items);
+          setTriagePagination(pagination);
+          setTargetHouseholdForDispatch(items[0] ?? null);
+        } else if (session!.user.role === 'CASE_WORKER') {
+          const tasks = await fetchAssignedTasks(controller.signal);
+          if (controller.signal.aborted) return;
+          setFieldTasks(tasks);
+          setSelectedFieldTask(tasks[0] ?? null);
+          try {
+            const ownerId = session!.user.user_id;
+            await cacheAssignedTasks(ownerId, tasks);
+            if (!controller.signal.aborted) setFieldTasks(tasks.map((task) => ({ ...task, cached_offline: true })));
+            const drafts = await getQueuedSubmissions(ownerId);
+            if (!controller.signal.aborted) setSubmissions(drafts);
+          } catch {
+            if (!controller.signal.aborted) setToastMessage('API data loaded, but local draft storage is unavailable.');
+          }
         }
-
-        if (remoteTasks.length > 0) {
-          setFieldTasks(remoteTasks);
-          setSelectedFieldTask(remoteTasks[0]);
-        }
-      } catch {
-        // Local backend may not be running during frontend review. Keep bundled sample data available.
+        if (!controller.signal.aborted) setDataState('ready');
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        setTriageItems([]);
+        setTriagePagination(null);
+        setFieldTasks([]);
+        setDataState('error');
+        setDataError(apiErrorMessage(error));
       }
     }
+    void loadOperationalData();
+    return () => controller.abort();
+  }, [session, reloadCounter, triagePage]);
 
-    loadOperationalData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const currentRoleConfig = ROLE_CONFIG[session.user.role] || ROLE_CONFIG.DSWD_DIRECTOR;
+  const currentRoleConfig = session ? ROLE_CONFIG[session.user.role] : {
+    defaultScreen: 'login' as ScreenId, allowedScreens: [] as ScreenId[], roleTitle: 'Signed out',
+  };
   const isScreenAuthorized = currentRoleConfig.allowedScreens.includes(currentScreen);
 
   const showToast = (message: string) => {
@@ -151,24 +232,19 @@ export default function App() {
     showToast(`Access is restricted for ${currentRoleConfig.roleTitle}.`);
   };
 
-  const handleSwitchUser = (roleKey: string) => {
-    const nextSession = MOCK_USERS[roleKey];
-    if (!nextSession) return;
-
-    const nextConfig = ROLE_CONFIG[nextSession.user.role] || ROLE_CONFIG.DSWD_DIRECTOR;
-    setSession(nextSession);
-    setCurrentScreen(nextConfig.defaultScreen);
-    showToast(`Switched to ${nextSession.user.full_name}`);
-  };
-
   const handleLoginSuccess = (userSession: UserSession) => {
-    const nextConfig = ROLE_CONFIG[userSession.user.role] || ROLE_CONFIG.DSWD_DIRECTOR;
+    if (!isUserRole(userSession.user.role)) {
+      clearSession();
+      showToast('This account role is not supported.');
+      return;
+    }
     setSession(userSession);
-    setCurrentScreen(nextConfig.defaultScreen);
+    setCurrentScreen(ROLE_CONFIG[userSession.user.role].defaultScreen);
     showToast(`Signed in as ${userSession.user.full_name}`);
   };
 
   const handleOpenDispatch = (item: BeneficiaryTriageItem) => {
+    if (!session || !canDispatch(session.user.role)) return;
     setTargetHouseholdForDispatch(item);
     setIsDispatchModalOpen(true);
   };
@@ -180,20 +256,26 @@ export default function App() {
   };
 
   const handleStartVerification = (task: FieldTaskItem) => {
+    if (session?.user.role !== 'CASE_WORKER' || !fieldTasks.some((item) => item.task_id === task.task_id)) return;
     setSelectedFieldTask(task);
     setCurrentScreen('field_verify');
   };
 
-  const handleSubmitVerification = (submission: FieldTaskSubmission) => {
+  const handleSubmitVerification = async (submission: FieldTaskSubmission) => {
+    if (session?.user.role !== 'CASE_WORKER') return;
+    await queueSubmission(session.user.user_id, submission);
     setSubmissions((prev) => [submission, ...prev]);
     setCurrentScreen('field_sync');
     setIsSyncDrawerOpen(true);
     showToast(`Verification for ${submission.household_id} was saved.`);
   };
 
-  const handleSyncAll = () => {
-    setSubmissions((prev) => prev.map((item) => ({ ...item, sync_status: 'SYNCED' as const })));
-    showToast('Cached field reports synced successfully.');
+  const handleSyncAll = async () => {
+    if (isOffline) return;
+    const syncedCount = await syncPending();
+    showToast(syncedCount > 0
+      ? `${syncedCount} cached field report${syncedCount === 1 ? '' : 's'} synced.`
+      : 'Reports remain queued until the backend submission endpoint is available.');
   };
 
   const renderRestrictedScreen = () => (
@@ -217,8 +299,14 @@ export default function App() {
   );
 
   const renderScreen = () => {
-    if (!isScreenAuthorized && currentScreen !== 'login') {
-      return renderRestrictedScreen();
+    if (!session) return <Screen1Login onLoginSuccess={handleLoginSuccess} />;
+    if (!isScreenAuthorized && currentScreen !== 'login') return renderRestrictedScreen();
+    const needsApiData = ['triage', 'field_tasks', 'field_dashboard', 'field_verify', 'dispatch_manager', 'dispatch_modal'].includes(currentScreen);
+    if (needsApiData && (dataState === 'idle' || dataState === 'loading')) {
+      return <div className="p-8 text-sm text-stone-600" role="status">Loading authorized records...</div>;
+    }
+    if (needsApiData && dataState === 'error') {
+      return <div className="p-8 space-y-4"><p role="alert">{dataError}</p><button type="button" className="primary-triage-action" onClick={() => setReloadCounter((count) => count + 1)}>Retry</button></div>;
     }
 
     switch (currentScreen) {
@@ -227,12 +315,12 @@ export default function App() {
       case 'dashboard':
         return <Screen2Dashboard onNavigateToScreen={navigateToScreen} />;
       case 'triage':
-        return <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} />;
+        return <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} readOnly={!canDispatch(session.user.role)} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} />;
       case 'dispatch_manager':
         return (
           <AdminDispatchManager
             onOpenDispatchModal={() => {
-              setTargetHouseholdForDispatch(triageItems[0]);
+              setTargetHouseholdForDispatch(triageItems[0] ?? null);
               setIsDispatchModalOpen(true);
             }}
           />
@@ -250,7 +338,7 @@ export default function App() {
                 Open Dispatch
               </button>
             </div>
-            <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} />
+            <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} />
           </div>
         );
       case 'admin_settings':
@@ -258,19 +346,22 @@ export default function App() {
       case 'field_dashboard':
         return (
           <FieldCaseworkerDashboard
+            user={session.user}
+            tasks={fieldTasks}
             onStartVerification={handleStartVerification}
             onNavigateToTasks={() => setCurrentScreen('field_tasks')}
             onOpenSyncDrawer={() => setIsSyncDrawerOpen(true)}
             isOffline={isOffline}
-            onToggleOffline={() => setIsOffline((value) => !value)}
+            onToggleOffline={() => setSimulateOffline((value) => !value)}
           />
         );
       case 'field_tasks':
         return (
           <div className="p-4 sm:p-6">
             <Screen7FieldTasksList
+              user={session.user}
               isOffline={isOffline}
-              onToggleOffline={() => setIsOffline((value) => !value)}
+              onToggleOffline={() => setSimulateOffline((value) => !value)}
               onStartVerification={handleStartVerification}
               onOpenSyncDrawer={() => setIsSyncDrawerOpen(true)}
               tasks={fieldTasks}
@@ -278,6 +369,7 @@ export default function App() {
           </div>
         );
       case 'field_verify':
+        if (!selectedFieldTask) return <div className="p-8 text-sm text-stone-600">No assigned task selected.</div>;
         return (
           <div className="p-4 sm:p-6">
             <Screen8FieldAssessmentForm
@@ -301,8 +393,9 @@ export default function App() {
               </button>
             </div>
             <Screen7FieldTasksList
+              user={session.user}
               isOffline={isOffline}
-              onToggleOffline={() => setIsOffline((value) => !value)}
+              onToggleOffline={() => setSimulateOffline((value) => !value)}
               onStartVerification={handleStartVerification}
               onOpenSyncDrawer={() => setIsSyncDrawerOpen(true)}
               tasks={fieldTasks}
@@ -339,30 +432,38 @@ export default function App() {
         </div>
       )}
 
-      {currentScreen === 'login' ? (
+      {!session || currentScreen === 'login' ? (
         <Screen1Login onLoginSuccess={handleLoginSuccess} />
       ) : (
-        <div className="flex min-h-screen flex-col">
-          <Header
-            session={session}
-            onLogout={() => {
-              setCurrentScreen('login');
-              showToast('Logged out of session');
-            }}
-            onSwitchUser={handleSwitchUser}
-          />
-
-          <div className="flex flex-1">
+        <div className={`app-shell ${sidebarCollapsed ? 'sidebar-minimized' : ''}`}>
             <Sidebar
+              collapsed={sidebarCollapsed}
+              onToggleCollapse={toggleSidebar}
               userRole={session.user.role}
+              jurisdiction={[session.user.jurisdiction.municipality, session.user.jurisdiction.region].filter(Boolean).join(', ') || 'National scope'}
               currentScreen={currentScreen}
-              onSelectScreen={navigateToScreen}
-              pendingTriageCount={triageItems.length}
+              onSelectScreen={(screen) => {
+                navigateToScreen(screen);
+                if (window.matchMedia('(max-width: 767px)').matches) setSidebarCollapsed(true);
+              }}
+              pendingTriageCount={triagePagination?.total_records ?? 0}
+              assignedTasksCount={fieldTasks.length}
               dueProcessCount={3}
               offlineSyncCount={submissions.filter((submission) => submission.sync_status === 'PENDING_SYNC').length}
             />
-
-            <main className="min-w-0 flex-1 overflow-x-hidden bg-white">
+          {!sidebarCollapsed && <button type="button" className="sidebar-backdrop" aria-label="Close navigation" onClick={() => setSidebarCollapsed(true)} />}
+          <div className="app-main-column" ref={mainColumnRef}>
+            <Header
+              session={session}
+              sidebarCollapsed={sidebarCollapsed}
+              onOpenSidebar={() => setSidebarCollapsed(false)}
+              onLogout={clearSession}
+            />
+            <main className="app-workspace">
+              <div className="mx-4 mb-3 rounded border border-amber-100 bg-amber-50 px-3 py-2 text-xs text-amber-900 sm:mx-6" role="status">
+                Triage and assigned tasks use the configured API. Dashboard totals and other workflows remain sample previews.
+              </div>
+              {dataError && !['triage', 'field_tasks', 'field_dashboard', 'field_verify', 'dispatch_manager', 'dispatch_modal'].includes(currentScreen) && <p role="alert" className="mx-6 mb-3 text-sm text-rose-700">{dataError}</p>}
               {renderScreen()}
             </main>
           </div>
@@ -380,9 +481,10 @@ export default function App() {
         isOpen={isSyncDrawerOpen}
         onClose={() => setIsSyncDrawerOpen(false)}
         isOffline={isOffline}
-        onToggleOffline={() => setIsOffline((value) => !value)}
+        onToggleOffline={() => setSimulateOffline((value) => !value)}
         submissions={submissions}
         onSyncAll={handleSyncAll}
+        isSyncing={isSyncing}
       />
     </div>
   );

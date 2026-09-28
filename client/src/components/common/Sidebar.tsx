@@ -1,38 +1,45 @@
 import React from 'react';
 import type { ScreenId } from '../../types/navigation';
+import type { UserRole } from '../../types/contracts';
 import { 
   LayoutDashboard, 
   AlertTriangle, 
-  Send, 
   Clock, 
-  ShieldAlert, 
   CheckCircle2, 
-  Tablet, 
   ClipboardList, 
   RefreshCw,
   FileCheck2,
   Sliders,
   Users,
-  Building2,
   ShieldCheck,
-  Scale
+  Scale,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 
 interface SidebarProps {
-  userRole: 'DSWD_DIRECTOR' | 'MUNICIPAL_LINK' | 'COA_AUDITOR' | string;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
+  userRole: UserRole;
+  jurisdiction: string;
   currentScreen: ScreenId;
   onSelectScreen: (screen: ScreenId) => void;
   pendingTriageCount?: number;
+  assignedTasksCount?: number;
   dueProcessCount?: number;
   offlineSyncCount?: number;
   showSpecAnnotations?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
+  collapsed,
+  onToggleCollapse,
   userRole,
+  jurisdiction,
   currentScreen,
   onSelectScreen,
-  pendingTriageCount = 32,
+  pendingTriageCount = 0,
+  assignedTasksCount = 0,
   dueProcessCount = 3,
   offlineSyncCount = 1,
   showSpecAnnotations = false,
@@ -40,7 +47,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // Define role-specific navigation menus
   const getNavItems = () => {
     switch (userRole) {
-      case 'DSWD_DIRECTOR':
+      case 'SUPER_ADMIN':
+      case 'REGIONAL_DIRECTOR':
         return [
           {
             id: 'dashboard' as ScreenId,
@@ -82,21 +90,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }
         ];
 
-      case 'MUNICIPAL_LINK':
+      case 'CASE_WORKER':
         return [
           {
             id: 'field_dashboard' as ScreenId,
             label: 'Caseworker Hub',
             sublabel: 'Calamba assigned caseload',
             icon: LayoutDashboard,
-            badge: '12 Cases'
+            badge: `${assignedTasksCount} Cases`
           },
           {
             id: 'field_tasks' as ScreenId,
             label: 'Assigned Field Tasks',
             sublabel: 'Priority on-site visits',
             icon: ClipboardList,
-            badge: '3 Pending',
+            badge: `${assignedTasksCount}`,
             badgeColor: 'bg-amber-50 text-amber-900 border-amber-200'
           },
           {
@@ -116,28 +124,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }
         ];
 
-      case 'GRIEVANCE_OFFICER':
-        return [
-          {
-            id: 'grievance_dashboard' as ScreenId,
-            label: 'Grievance & Appeals Hub',
-            sublabel: 'Statutory cases overview',
-            icon: LayoutDashboard,
-            badge: `${dueProcessCount} Active`,
-            badgeColor: 'bg-amber-50 text-amber-900 border-amber-200'
-          },
-          {
-            id: 'due_process' as ScreenId,
-            label: '15-Day Due Process',
-            sublabel: 'Notice of Ineligibility dockets',
-            icon: Clock,
-            badge: `${dueProcessCount}`,
-            badgeColor: 'bg-amber-50 text-amber-900 border-amber-200'
-          }
-        ];
-
       case 'COA_AUDITOR':
         return [
+          {
+            id: 'triage' as ScreenId,
+            label: 'Triage & Flagged Queue',
+            sublabel: 'Read-only review',
+            icon: AlertTriangle,
+            badge: `${pendingTriageCount}`
+          },
           {
             id: 'coa_dashboard' as ScreenId,
             label: 'State Auditor Dashboard',
@@ -171,29 +166,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const getRoleHeaderInfo = () => {
     switch (userRole) {
-      case 'DSWD_DIRECTOR':
+      case 'SUPER_ADMIN':
+      case 'REGIONAL_DIRECTOR':
         return {
           title: 'Executive Administration',
-          agency: 'DSWD Regional Director',
+          agency: userRole === 'SUPER_ADMIN' ? 'System Administrator' : 'DSWD Regional Director',
           jurisdiction: 'Region IV-A (Laguna Cluster)',
           accentColor: 'border-l-[#132e4f] text-[#132e4f]',
           badgeText: 'Admin Authority'
         };
-      case 'MUNICIPAL_LINK':
+      case 'CASE_WORKER':
         return {
           title: 'Field Operations',
           agency: 'Municipal Link Caseworker',
           jurisdiction: 'Calamba City Cluster',
           accentColor: 'border-l-emerald-700 text-emerald-700',
           badgeText: 'Field Caseworker'
-        };
-      case 'GRIEVANCE_OFFICER':
-        return {
-          title: 'Due Process & Appeals',
-          agency: 'Grievance Redress Division',
-          jurisdiction: 'Laguna Regional Appeals Unit',
-          accentColor: 'border-l-amber-700 text-amber-950',
-          badgeText: 'Appeals Officer'
         };
       case 'COA_AUDITOR':
         return {
@@ -217,96 +205,58 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const roleInfo = getRoleHeaderInfo();
 
   return (
-    <aside className="w-64 bg-stone-50/90 border-r border-stone-200/90 flex flex-col justify-between shrink-0 min-h-[calc(100vh-4.25rem)]">
-      <div className="p-3.5 space-y-4">
-        
-        {/* Persona Authority Card */}
-        <div className="p-3 bg-white rounded-xl border border-stone-200/90 shadow-2xs space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
-              Active Persona View
-            </span>
-            <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded bg-stone-100 text-stone-700 border border-stone-200">
-              {roleInfo.badgeText}
-            </span>
-          </div>
-          <div className="text-xs font-bold text-stone-900 leading-tight">
-            {roleInfo.agency}
-          </div>
-          <div className="text-[11px] text-stone-500 truncate">
-            {roleInfo.jurisdiction}
-          </div>
-        </div>
-
-        {/* Persona Navigation Group */}
-        <div>
-          <div className="flex items-center justify-between px-2 mb-2">
-            <h2 className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
-              {roleInfo.title}
-            </h2>
-          </div>
-
-          <nav className="space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentScreen === item.id;
-              return (
-                <button
-                  key={item.id}
-                  id={`nav-item-${item.id}`}
-                  onClick={() => onSelectScreen(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left transition-all cursor-pointer ${
-                    isActive
-                      ? `bg-white text-stone-900 font-semibold border border-stone-200/90 border-l-[3px] shadow-2xs ${
-                          userRole === 'MUNICIPAL_LINK' 
-                            ? 'border-l-emerald-700' 
-                            : userRole === 'COA_AUDITOR' 
-                            ? 'border-l-amber-700' 
-                            : 'border-l-[#132e4f]'
-                        }`
-                      : 'text-stone-700 hover:bg-stone-100/80 hover:text-stone-900 font-normal'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2.5 min-w-0">
-                    <Icon className={`w-4 h-4 shrink-0 ${
-                      isActive 
-                        ? userRole === 'MUNICIPAL_LINK' ? 'text-emerald-700' : userRole === 'COA_AUDITOR' ? 'text-amber-700' : 'text-[#132e4f]'
-                        : 'text-stone-400'
-                    }`} />
-                    <div className="truncate">
-                      <div className="text-xs leading-tight truncate">{item.label}</div>
-                      <div className={`text-[10px] truncate ${isActive ? 'text-stone-500' : 'text-stone-400'}`}>
-                        {item.sublabel}
-                      </div>
-                    </div>
-                  </div>
-
-                  {item.badge && (
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded font-semibold shrink-0 border ${
-                      isActive 
-                        ? 'bg-stone-100 text-stone-800 border-stone-200' 
-                        : 'bg-stone-200/70 text-stone-700 border-stone-300/60'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
+    <aside
+      id="app-sidebar"
+      className={`app-sidebar ${collapsed ? 'is-collapsed' : ''}`}
+      onTransitionEnd={(event) => {
+        if (event.target === event.currentTarget && event.propertyName === 'transform' && !collapsed && window.matchMedia('(max-width: 767px)').matches) {
+          event.currentTarget.querySelector<HTMLButtonElement>('.sidebar-collapse-toggle')?.focus();
+        }
+      }}
+    >
+      <div className="sidebar-brand">
+        <span className="sidebar-wordmark">KilosUnlad<span className="brand-period">.</span></span>
+        <button
+          type="button"
+          className="sidebar-collapse-toggle icon-control"
+          aria-label={collapsed ? 'Expand sidebar' : 'Minimize sidebar'}
+          title={collapsed ? 'Expand sidebar' : 'Minimize sidebar'}
+          aria-expanded={!collapsed}
+          aria-controls="sidebar-navigation"
+          onClick={onToggleCollapse}
+        >
+          {collapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+        </button>
       </div>
 
-      {/* Footer Info / Reference */}
-      <div className="p-3 bg-white border-t border-stone-200/90 text-[11px] text-stone-500">
-        <div className="flex items-center justify-between mb-0.5">
-          <span className="font-semibold text-stone-800 text-[10px]">DSWD Region IV-A</span>
-          <span className="text-[10px] text-stone-500 font-mono">Laguna Cluster</span>
-        </div>
-        <p className="text-[10px] text-stone-400 leading-tight">
-          Role-isolated interface pursuant to RA 11310 & COA 2024-008.
-        </p>
+      <div className="sidebar-section-label">{roleInfo.title}</div>
+      <nav id="sidebar-navigation" aria-label="Main navigation">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = currentScreen === item.id;
+          const badge = item.badge !== 'Admin' && item.badge !== 'Active' ? item.badge : null;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              id={`nav-item-${item.id}`}
+              aria-label={`${item.label}${badge ? `, ${badge}` : ''}`}
+              aria-current={isActive ? 'page' : undefined}
+              onClick={() => onSelectScreen(item.id)}
+              className="sidebar-nav-item"
+            >
+              <Icon size={20} aria-hidden="true" />
+              <span className="nav-copy">{item.label}</span>
+              {badge && <span className="nav-count">{badge}</span>}
+              {collapsed && <span className="nav-tooltip" aria-hidden="true">{item.label}{badge ? ` (${badge})` : ''}</span>}
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="sidebar-footer">
+        <span className="sidebar-footer-dot" aria-hidden="true" />
+        <div><strong>{roleInfo.agency}</strong><span>{jurisdiction}</span></div>
       </div>
     </aside>
   );

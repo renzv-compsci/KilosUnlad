@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FieldTaskSubmission } from '../../types/contracts';
 import { 
   X, 
@@ -21,6 +21,7 @@ interface Screen9OfflineSyncDrawerProps {
   onToggleOffline: () => void;
   submissions: FieldTaskSubmission[];
   onSyncAll: () => void;
+  isSyncing: boolean;
   showSpecAnnotations?: boolean;
 }
 
@@ -31,10 +32,9 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
   onToggleOffline,
   submissions,
   onSyncAll,
+  isSyncing,
   showSpecAnnotations = false,
 }) => {
-  const [isSyncing, setIsSyncing] = useState(false);
-
   if (!isOpen) return null;
 
   const handleForceSync = () => {
@@ -43,11 +43,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
       return;
     }
 
-    setIsSyncing(true);
-    setTimeout(() => {
-      setIsSyncing(false);
-      onSyncAll();
-    }, 1200);
+    onSyncAll();
   };
 
   const pendingCount = submissions.filter((s) => s.sync_status === 'PENDING_SYNC').length;
@@ -116,7 +112,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
         <div className="p-4 sm:p-5 overflow-y-auto space-y-3 flex-1 text-xs">
           
           <div className="flex items-center justify-between text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
-            <span>Cached in Local Memory</span>
+            <span>Saved on this device</span>
             <span>{submissions.length} Total Records</span>
           </div>
 

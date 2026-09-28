@@ -1,6 +1,5 @@
 import React from 'react';
-import { MOCK_FIELD_TASKS } from '../../data/mockContracts';
-import { FieldTaskItem } from '../../types/contracts';
+import { FieldTaskItem, UserSession } from '../../types/contracts';
 import { 
   ClipboardList, 
   MapPin, 
@@ -17,6 +16,8 @@ import {
 } from 'lucide-react';
 
 interface FieldCaseworkerDashboardProps {
+  user: UserSession['user'];
+  tasks: FieldTaskItem[];
   onStartVerification: (task: FieldTaskItem) => void;
   onNavigateToTasks: () => void;
   onOpenSyncDrawer: () => void;
@@ -26,6 +27,8 @@ interface FieldCaseworkerDashboardProps {
 }
 
 export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> = ({
+  user,
+  tasks,
   onStartVerification,
   onNavigateToTasks,
   onOpenSyncDrawer,
@@ -33,7 +36,6 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
   onToggleOffline,
   showSpecAnnotations = false,
 }) => {
-  const tasks = MOCK_FIELD_TASKS;
   const nextPriorityTask = tasks[0];
 
   const barangayCaseload = [
@@ -60,7 +62,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
       <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
           <div className="w-12 h-12 rounded-xl bg-[#132e4f] text-amber-300 font-bold text-base flex items-center justify-center shadow-2xs">
-            MB
+            {user.full_name.charAt(0)}
           </div>
           <div>
             <div className="flex items-center space-x-2">
@@ -72,7 +74,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
               </span>
             </div>
             <p className="text-xs text-stone-500 mt-0.5">
-              Caseworker: <span className="font-semibold text-stone-800">Marvin Bautista, RSW</span> · Jurisdiction: Calamba City Cluster (Makiling, Canlubang, Bucal)
+              Caseworker: <span className="font-semibold text-stone-800">{user.full_name}</span> · Jurisdiction: {user.jurisdiction.municipality} ({user.jurisdiction.assigned_barangays.join(', ')})
             </p>
           </div>
         </div>
@@ -88,7 +90,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
             }`}
           >
             {isOffline ? <WifiOff className="w-3.5 h-3.5 text-amber-700" /> : <Wifi className="w-3.5 h-3.5 text-emerald-700" />}
-            <span>{isOffline ? 'Offline Mode Active' : 'GovCloud Online'}</span>
+            <span>{isOffline ? 'Offline Mode Active' : 'Network Available'}</span>
           </button>
 
           <button
@@ -167,7 +169,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
             <span className="text-[11px] font-medium text-stone-500">Ready to Push</span>
           </div>
           <div className="mt-2 text-[11px] text-stone-500">
-            Last GovCloud Sync: 10:15 AM
+            Uploads pending backend integration
           </div>
         </div>
 
@@ -257,7 +259,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
           {/* Quick Task List Queue */}
           <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs space-y-3">
             <h3 className="text-sm font-bold text-stone-900 font-display">
-              Pending Calamba Queue Overview
+              Assigned Queue Overview
             </h3>
             <div className="divide-y divide-stone-100">
               {tasks.map((task) => (
@@ -296,7 +298,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
               Assigned Barangay Distribution
             </h3>
             <p className="text-xs text-stone-500">
-              Calamba City Casework Cluster assigned to Marvin Bautista, RSW.
+              Sample distribution; live barangay totals are not connected yet.
             </p>
 
             <div className="space-y-2.5 pt-2">

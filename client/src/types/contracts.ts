@@ -1,8 +1,10 @@
-export type UserRole = 'DSWD_DIRECTOR' | 'MUNICIPAL_LINK' | 'GRIEVANCE_OFFICER' | 'COA_AUDITOR';
+export type UserRole = 'SUPER_ADMIN' | 'REGIONAL_DIRECTOR' | 'CASE_WORKER' | 'COA_AUDITOR';
 
 export interface UserSession {
   access_token: string;
+  expires_at: number;
   user: {
+    user_id: string;
     username: string;
     full_name: string;
     role: UserRole;
@@ -16,6 +18,13 @@ export interface UserSession {
 }
 
 export type RiskSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+
+export interface TriagePagination {
+  total_records: number;
+  current_page: number;
+  total_pages: number;
+  limit: number;
+}
 
 export type TriggerBadgeType = 
   | 'POWER_LIFELINE_BREACH' 
@@ -60,7 +69,7 @@ export interface BeneficiaryTriageItem {
     year: number;
     mv_type: string;
   };
-  last_evaluated: string;
+  last_evaluated: string | null;
 }
 
 export interface DispatchTaskPayload {
@@ -146,7 +155,7 @@ export interface FieldTaskItem {
     coordinates: [number, number];
   };
   dispatch_instructions: string;
-  dispatched_at: string;
+  dispatched_at: string | null;
   due_date: string;
   status: 'PENDING_VISIT' | 'COMPLETED_OFFLINE' | 'SYNCED';
   cached_offline: boolean;
