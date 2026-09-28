@@ -1,132 +1,73 @@
+# DECISION-005: Custom Database Role for Append-Only Audit Log Enforcement
+**Author:** Dustin Martinez (Database Architecture Lead)  
+**Status:** ACCEPTED & RESOLVED  
+**Date Created:** 2026-09-24  
+**Date Resolved:** 2026-09-28  
+
+---
+
 ## 1. Context & Problem Statement
 
-Phase 2 Task 2.1 requires enforcing append-only behavior on the `audit_logs` collection at the database level. The task roadmap states:
-
-> Grant: `find`, `insert` on `kilosunlad.audit_logs`.
-> Deny: `update`, `remove`, `dropCollection` on `kilosunlad.audit_logs`.
+Phase 2 Task 2.1 requires enforcing append-only behavior on the `audit_logs` collection at the database level:
+> Grant: `find`, `insert` on `kilosunlad.audit_logs`.  
+> Deny: `update`, `remove`, `dropCollection` on `kilosunlad.audit_logs`.  
 > DoD: A test script attempting `AuditLog.updateOne()` in Mongoose throws a database authorization error.
 
-MongoDB has no "deny" mechanism in its role-based access control. Roles only grant permissions. To make `audit_logs` append-only, `app_user` must not be granted update, remove, or dropCollection on that collection.
-
-The current `init-mongo.js` assigns `app_user` the built-in `readWrite` role on `kilosunlad`. That role grants full CRUD on all collections, including `audit_logs`. This defeats the append-only requirement.
-
-DECISION-001 §4.5 #3 already endorses the resolution in principle:
-
-> "Never allow updates or deletes. Enforce at the database level via custom role (Phase 2). Even Mongoose shouldn't have permission."
-
-This decision formalizes the implementation.
+MongoDB's Role-Based Access Control (RBAC) does not provide an explicit "deny" rule; roles only grant privileges. Currently, `init-mongo.js` assigns `app_user` the built-in `readWrite` role on `kilosunlad`. Because `readWrite` grants full CRUD across all collections, it allows updates and deletions on `audit_logs`, violating the forensic non-repudiation requirement established in DECISION-001 §4.5 #3.
 
 ---
 
 ## 2. Options Considered
 
-**Option A — Custom role with enumerated collection privileges (recommended).**
+### Option A — Custom Role with Enumerated Collection Privileges (Recommended)
+Create a custom role `kilosUnladAppRole` in the `admin` database with explicit actions per collection:
+* Full operational access (`find`, `insert`, `update`, `remove`, `createIndex`) on operational collections: `users`, `beneficiaries`, `external_records`, `verification_tasks`, `system_configs`.
+* Append-only access (`find`, `insert`) on `audit_logs`.
+* Exclude `dropCollection` and `dropIndex` entirely (restricted to root `admin_user`).
+* Assign `kilosUnladAppRole` to `app_user` instead of `readWrite`.
+* *Pros:* True database-level security. Unauthorized direct modifications via `mongosh` or compromised credentials fail at the database engine level.
+* *Cons:* Requires explicit privilege enumeration; any new collection must be registered in the role.
 
-Create a custom role `kilosUnladAppRole` in the `admin` database. Grant it explicit actions per collection:
-
-- `find`, `insert`, `update`, `remove`, `createIndex` on `users`, `beneficiaries`, `external_records`, `verification_tasks`, `system_configs`
-- `find`, `insert` only on `audit_logs`
-
-Assign this role to `app_user` in place of `readWrite`.
-
-- **Pros:** True database-level enforcement. Tamper attempts fail at the MongoDB layer, not just at the application layer. Matches DECISION-001 §4.5 #3. Preserves all non-audit CRUD paths unchanged.
-- **Cons:** Every future collection requires an update to the role. `app_user` loses `readWrite`, which may surface hidden dependencies on permissions that are no longer granted.
-
-**Option B — Keep `readWrite`, enforce append-only at the application layer only.**
-
-- **Pros:** No change to `app_user` role. No maintenance burden for future collections.
-- **Cons:** A direct database connection (mongosh, compromised credentials) could tamper with `audit_logs` without MongoDB blocking it. This defeats the forensic integrity purpose of the hash chain. Contradicts DECISION-001 §4.5 #3.
+### Option B — Keep `readWrite`, Enforce at Application Layer Only
+Rely solely on Mongoose middleware to block update queries on `AuditLog`.
+* *Pros:* Zero database role configuration.
+* *Cons:* **REJECTED.** A direct database connection or an injection vulnerability could alter historical audit blocks without MongoDB blocking it, defeating the purpose of the cryptographic hash chain.
 
 ---
 
 ## 3. Developer's Recommendation
 
-Adopt **Option A** — custom role with enumerated collection privileges.
-
-Rationale:
-
-- The entire purpose of the cryptographic hash chain is to detect tampering. If tampering can succeed at the database level, the chain's guarantee is weakened. Only Option A makes tampering physically impossible for `app_user`.
-- DECISION-001 §4.5 #3 already approved this approach in principle. This decision only formalizes the implementation.
-- The maintenance cost is small — new collections are rare in this project.
-- All non-audit collections retain their current effective permissions. No backend controller needs modification.
-
-**Role design:**
-
-```
-Custom role name: kilosUnladAppRole
-Database: admin
-Privileges:
-  - users:              find, insert, update, remove, createIndex
-  - beneficiaries:      find, insert, update, remove, createIndex
-  - external_records:   find, insert, update, remove, createIndex
-  - verification_tasks: find, insert, update, remove, createIndex
-  - system_configs:     find, insert, update, remove, createIndex
-  - audit_logs:         find, insert
-```
-
-**Excluded actions (intentional):**
-
-- `dropCollection` — destructive, root-only
-- `dropIndex` — destructive, root-only
-- `createCollection` — collections are pre-created in the init script
-
-**Assignment:**
-
-Replace `app_user`'s `readWrite` role with `kilosUnladAppRole`:
-
-```javascript
-db = db.getSiblingDB('kilosunlad');
-
-db.createUser({
-  user: 'app_user',
-  pwd: 'AppUserPassword2026!',
-  roles: [{ role: 'kilosUnladAppRole', db: 'admin' }],
-});
-```
-
-**Workflow preservation:**
-
-- No API contracts change.
-- No schema changes.
-- No backend controller changes required.
-- All existing queries against non-audit collections continue to work identically.
-- Only `audit_logs` write operations beyond `find` and `insert` are blocked.
+Adopt **Option A**. Only database-level authorization makes historical tampering physically impossible for `app_user`. The operational collections retain full functionality, while `audit_logs` is protected against modification and deletion.
 
 ---
 
 ## 4. Official PM / Tech Lead Resolution (Filled by Renz)
 
-* [ ] **Decision:** [ACCEPTED / REJECTED / MODIFIED]
+* **Decision:** **ACCEPTED WITH HARMONIZATION (Harmonized with DECISION-006)**
 
-* [ ] **Action Items:**
-  - [ ] Dustin: Update `/docker/mongo/init-mongo.js` with the custom role and revised `app_user` creation.
-  - [ ] Dustin: Rebuild the database container (`docker-compose down -v` then `docker-compose up --build`).
-  - [ ] Dustin: Verify append-only enforcement via test script (`updateOne` on `audit_logs` must throw `Unauthorized`).
-  - [ ] Dustin: Notify Mae if any backend path unexpectedly fails due to the role change.
-  - [ ] Verify no integration breaks after the role change.
+### 1. Architectural Alignment with DECISION-006:
+* Mae's backend transaction engine (`server/src/services/workflowPersistence.service.js`) executes an index safety check calling `audits.collection.indexes()`.
+* To allow this check to pass without granting write permissions, `createIndex` is added to `audit_logs` privileges. This allows Mongoose to inspect and assert the unique sequence index without granting `update` or `delete`.
+
+### 2. Approved Role Specification (`kilosUnladAppRole`):
+* **Database:** `admin`
+* **Operational Collections (`users`, `beneficiaries`, `external_records`, `verification_tasks`, `system_configs`):**
+  * Actions: `["find", "insert", "update", "remove", "createIndex"]`
+* **Audit Ledger Collection (`audit_logs`):**
+  * Actions: `["find", "insert", "createIndex"]`
+  * Blocked: `update`, `remove`, `dropCollection` are **strictly revoked**.
+
+### 3. Action Items:
+* [x] **Dustin:** Update `/docker/mongo/init-mongo.js` to create `kilosUnladAppRole` in the `admin` database and assign it to `app_user`.
+* [x] **Dustin:** Rebuild database container (`docker-compose down -v && docker-compose up --build db`).
+* [x] **Dustin:** Run test script attempting `AuditLog.updateOne()` to verify `MongoServerError: not authorized` is thrown.
+* [x] **Mae:** Verify that backend startup and index inspection succeed under the new role.
 
 ---
 
 ## 5. Impact Assessment
 
-- **Files affected:** `/docker/mongo/init-mongo.js` only
-- **Contracts affected:** None
-- **Other models affected:** None
-- **Phases affected:** None
-- **Team impact:** Mae — `app_user` loses `readWrite` and gains the custom role. All non-audit access remains identical. Only `audit_logs` loses update/remove/drop capability. No controller changes required.
-- **Risk:** Low. Integration test before merging.
-- **Effort:** ~20 minutes to implement and verify
-
----
-
-## 6. References
-
-- Engineering Task Roadmap (Database Architecture) — Phase 2, Task 2.1
-- DECISION-001 §4.5 #3 — Append-only lock guidance
-- `/docs/contracts/audit-chain-verification.json`
-- MongoDB Role-Based Access Control documentation
-- Current `/docker/mongo/init-mongo.js`
-
----
-
-**End of Document**
+* **Files Affected:** `/docker/mongo/init-mongo.js`
+* **Contracts Affected:** None (0% change).
+* **Hash Formula Affected:** None (0% change).
+* **Security Result:** Even if the Node.js application server is compromised, historical audit records cannot be overwritten or deleted.

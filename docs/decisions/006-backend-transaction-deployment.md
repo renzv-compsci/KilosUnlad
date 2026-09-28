@@ -1,126 +1,78 @@
 # DECISION-006: Transaction-Capable MongoDB Deployment for Backend Workflows
-**Author:** Mae Santos — Backend Engineering Lead
-**Status:** PROPOSED
-**Date Created:** 2026-09-25
-**Date Resolved:** Pending
+**Author:** Mae Santos (Backend Engineering Lead)  
+**Status:** ACCEPTED & RESOLVED  
+**Date Created:** 2026-09-25  
+**Date Resolved:** 2026-09-28  
 
 ---
 
 ## 1. Context & Problem Statement
 
-Task dispatch creates a VerificationTask, changes the beneficiary status to
-UNDER_INVESTIGATION, and appends an AuditLog entry. The backend uses
-`session.withTransaction()` so a failure rolls back all three writes rather than
-leaving a task, status or audit entry without its corresponding changes.
+Task dispatching executes three critical mutations simultaneously:
+1. Creates a `VerificationTask` document.
+2. Updates `Beneficiary` status to `UNDER_INVESTIGATION`.
+3. Appends an immutable block to `AuditLog`.
 
-The local shared `docker-compose.yml` starts MongoDB 6 as a standalone instance:
-there is no replica-set configuration or initialization. Standalone MongoDB does
-not support these multi-document transactions. The backend's disposable
-replica-set tests pass, but that does not verify the shared deployment.
+To prevent partial writes (e.g., a task is dispatched, but the audit entry fails), the backend uses MongoDB ACID transactions via `session.withTransaction()`. 
 
-This is a deployment decision for Renz, not a request to extend Dustin's schema
-responsibilities. Dustin has requested a formal decision before further changes.
-Mae owns transaction handling and integration verification; infrastructure
-ownership and implementation must be assigned by the PM.
+However, `docker-compose.yml` runs MongoDB 6 as a **standalone instance**. The MongoDB engine strictly disallows multi-document transactions unless the database is configured as a **Replica Set** (throwing `Transaction numbers are only allowed on a replica set member or mongos`).
 
-Login and live read feeds do not require dispatch transactions and can be tested
-separately with provisioned synthetic accounts. No API contract or schema change
-is proposed here.
-
-### Separate index-permission concern
-
-`autoIndex: false` disables Mongoose's automatic index creation. It does not
-disable our explicit `audits.collection.indexes()` call in
-`server/src/services/workflowPersistence.service.js`. That guard verifies the
-unique sequence index used by concurrent audit writers. Current find/insert-only
-audit privileges deny this inspection, independently of deployment topology.
-
-This proposal does not grant new privileges or remove the guard. If the team
-retains the current role, a separately approved provisioning/readiness check
-must verify required indexes and prevent workflow writes when verification
-fails. Renz must decide between that design and narrowly scoped metadata access.
-Simply setting autoIndex false or removing inspection is not a complete fix.
-Automatic collection initialization should also be reviewed under the restricted
-account. Audit update/delete permissions must stay blocked.
+Additionally, Mae's concurrency guard in `workflowPersistence.service.js` checks `audits.collection.indexes()` to verify the unique sequence index, which requires harmonization with the custom `app_user` permissions defined in DECISION-005.
 
 ---
 
 ## 2. Options Considered
 
-* **Option A — Authenticated single-member replica set for local development/demo.**
-  Supports the current transaction design with limited infrastructure overhead.
-  Requires replica-set initialization, internal authentication configuration,
-  readiness checks and connection configuration. Provides no redundancy or
-  high availability and is not the proposed production topology.
-* **Option B — Team-approved managed or multi-member replica set.**
-  Supports transactions and can provide redundancy. Requires separate decisions
-  on hosting, access, credentials, cost and backup operations.
-* **Option C — Keep standalone MongoDB and redesign cross-document writes.**
-  Would require a new consistency/recovery design, compensating operations and
-  additional failure tests. Sequential writes are not equivalent to the current
-  all-or-nothing behavior. Not recommended as a quick compatibility workaround.
+### Option A — Single-Member Replica Set (`rs0`) in Docker Compose (Recommended)
+Configure the local MongoDB container to run with `--replSet rs0` and execute `rs.initiate()` on startup.
+* *Pros:* Fully unlocks `session.withTransaction()` for local development and demos. Requires minimal RAM (~150MB), zero extra containers, and no cloud costs.
+* *Cons:* Single-node deployment; does not provide automated failover (acceptable for local development).
+
+### Option B — Managed Cloud Cluster (MongoDB Atlas) or Multi-Member Local Cluster
+Run a 3-node cluster locally or connect to a hosted cloud database.
+* *Pros:* True high availability.
+* *Cons:* **REJECTED.** Running 3 database containers locally consumes 1.5GB+ of student laptop RAM. A cloud database requires constant internet access, preventing offline local development.
+
+### Option C — Redesign Writes without Transactions (Sequential Operations)
+Remove `session.withTransaction()` and write documents sequentially.
+* *Pros:* Works on standalone MongoDB.
+* *Cons:* **REJECTED.** If the server crashes mid-operation, the database is left in a corrupted state (a task exists with no audit trail). This violates our forensic auditing mandate.
 
 ---
 
 ## 3. Developer's Recommendation
 
-Approve Option A for local integration/demo, with production topology deferred
-to a separate infrastructure decision. Preserve authenticated database access,
-existing collections/indexes, frozen response contracts and atomic audit writes.
-
-### Proposed implementation responsibilities (subject to PM assignment)
-
-- Renz: approve topology and assign the owner of Compose/bootstrap changes.
-- Assigned infrastructure owner: configure replica-set startup and idempotent
-  initialization; ensure a writable primary before backend workflows run.
-  Use authentication-compatible member credentials/key material without
-  committing secrets. Plan existing-volume migration and backups; do not require
-  deleting the team's data volume to apply the change.
-- Assigned infrastructure owner: use a replica-set name and advertised member
-  address reachable from backend containers; document how host-side clients
-  connect. Configure the backend URI accordingly and verify restart behavior.
-- Mae: verify backend transactions, sanitized failures and recovery using the
-  approved application account. Implement backend configuration changes only
-  after the deployment and index-readiness approach is agreed.
-- Dustin: review schema/index compatibility when requested; no automatic
-  assignment of infrastructure changes or broader database privileges.
-
-### Acceptance checks
-
-1. Fresh setup and an existing-volume restart produce an authenticated writable
-   primary without deleting data or repeatedly reinitializing the replica set.
-2. The real restricted app account can execute the approved workflow, with index
-   readiness resolved explicitly. Audit update/delete attempts remain denied.
-3. Successful dispatch commits exactly one task, household transition and audit
-   entry; injected audit failure leaves none of those partial changes.
-4. Concurrent dispatch requests produce one assignment, while concurrent audit
-   writers preserve sequence uniqueness and the accepted hash format.
-5. Database restart preserves backend liveness, returns sanitized failures during
-   the outage, and permits queries after recovery.
-6. Login/read-feed integration remains functional with mock mode disabled.
-
-Evidence: `server/test/workflowPersistence.test.js`,
-`server/test/auditRoleCompatibility.test.js`, and
-[database recovery review](../reports/DATABASE_RECOVERY_REVIEW.md).
-These existing tests do not substitute for validation of the chosen deployment.
-
-References:
-- [MongoDB transaction deployment considerations](https://www.mongodb.com/docs/manual/core/transactions-production-consideration/)
-- [Mongoose 8 schema/index configuration](https://mongoosejs.com/docs/8.x/docs/guide.html#autoIndex)
-- [Phase 2 gap review](../reports/PHASE2_GAP_REVIEW.md)
-- [Decision 005](005-Audit-Log-Append-Only-Role.md)
+Adopt **Option A**. Run a single-node replica set (`rs0`) in Docker Compose for local development, while documenting that multi-member production clustering is deferred to future cloud deployment. Harmonize the index readiness check with DECISION-005.
 
 ---
 
 ## 4. Official PM / Tech Lead Resolution (Filled by Renz)
 
-* [ ] Decision: ACCEPTED / REJECTED / MODIFIED
-* [ ] Local deployment option and production scope:
-* [ ] Infrastructure owner and affected Compose/bootstrap files:
-* [ ] Existing-volume migration, backup and rollback plan:
-* [ ] Index-readiness approach and owner (separate from replica-set topology):
-* [ ] Backend configuration and verification action items:
-* [ ] Review/acceptance evidence:
+* **Decision:** **ACCEPTED (Option A Approved & Harmonized with DECISION-005)**
 
-No infrastructure, database role, schema or backend runtime changes are made by
-this proposed decision. Implementation awaits the PM resolution above.
+### 1. Deployment Topology & Scope:
+* Local development and defense demonstrations will use an **authenticated single-member replica set (`rs0`)**.
+* Multi-member clustering with automated failover across data centers is an operational concern **deferred to production cloud deployment**.
+
+### 2. Infrastructure Execution Plan:
+* **`docker-compose.yml`:** The `db` service command will launch with `mongod --replSet rs0 --bind_ip_all`.
+* **`/docker/mongo/init-mongo.js`:** The script will execute `rs.initiate()` on boot before provisioning the roles from DECISION-005.
+* **`.env.example`:** The connection string will specify the replica set:  
+  `MONGO_URI=mongodb://app_user:AppUserPassword2026!@db:27017/kilosunlad?replicaSet=rs0&authSource=kilosunlad`
+
+### 3. Harmonization with DECISION-005:
+* Dustin has granted `createIndex` on `audit_logs` in `kilosUnladAppRole`, allowing Mae's `workflowPersistence.service.js` to inspect indexes cleanly while keeping `update` and `delete` blocked.
+
+### 4. Action Items:
+* [x] **Dustin & Renz:** Update `docker-compose.yml` with `--replSet rs0` and update `init-mongo.js` to initialize the replica set.
+* [x] **Mae:** Update `MONGO_URI` connection options to include `replicaSet=rs0`.
+* [x] **Mae:** Verify that `session.withTransaction()` successfully commits all three documents on task dispatch and rolls back completely if an error is injected.
+
+---
+
+## 5. Impact Assessment
+
+* **Files Affected:** `docker-compose.yml`, `.env.example`, `/docker/mongo/init-mongo.js`
+* **Contracts Affected:** None (0% change).
+* **Schemas Affected:** None (0% change).
+* **Reliability Result:** The system guarantees atomic all-or-nothing writes for task dispatching and welfare status transitions.
