@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const environment = require('./config/environment');
 const v1Routes = require('./routes/v1');
 
+function createApp({ mockMode = process.env.PHASE1_MOCK_MODE === 'true',
+  production = environment.NODE_ENV === 'production', authService, taskDispatcher, readFeeds } = {}) {
 const app = express();
 
 // 1. Security Headers & CORS Middleware
@@ -29,10 +31,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// 4. Phase 1 contract fixtures (authentication and live queries arrive in Phase 2).
-if (environment.NODE_ENV !== 'production') {
-  app.use('/api/v1', v1Routes);
-}
+// 4. Real authentication by default; legacy fixtures require explicit opt-in.
+app.use('/api/v1', v1Routes({ mockMode, production, authService, taskDispatcher, readFeeds }));
 
 // API discovery route.
 app.get('/api/v1', (req, res) => {
@@ -41,4 +41,9 @@ app.get('/api/v1', (req, res) => {
   });
 });
 
-module.exports = app;
+app.use(require('./middleware/error.middleware'));
+return app;
+}
+
+module.exports = createApp();
+module.exports.createApp = createApp;
