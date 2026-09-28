@@ -186,11 +186,38 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 ## Phase 3: ML Integration, Due Process & Tablet Sync Engine (Days 9–12)
 *Goal: Connect Charles's Python ML service via Axios and process batch uploads from Markie's tablet.*
 
+Combined working-tree regression on 2026-09-28: **87 passed, 0 failed, 3 skipped**.
+See [Phase 3 backend checkpoint](../reports/PHASE3_BACKEND_CHECKPOINT.md) for
+coverage, skip reasons and integration decisions. Tasks 3.1–3.3 remain incomplete.
+Docker follow-up: database lifecycle and audit-role suites passed **4 tests with
+zero skips** after the engine became available. A subsequent disposable MongoDB
+run passed **12 login/live-feed tests with zero skips**, covering the remaining
+skipped suite. These are separate runs, not a new combined test total.
+
 - [ ] **Task 3.1: Build Resilient Python ML Client**
   - Path: `/server/src/services/mlClient.service.js`
   - Use `axios` to call `http://ml-service:8000/api/v1/predict-swdi` using payload from `ml-swdi-inference.json`.
   - Configure a **2500ms timeout** and a fallback heuristic rule engine if the ML container is unreachable.
   - *DoD:* If Python container is stopped, backend falls back gracefully and tags record `EVALUATED_VIA_FALLBACK`.
+
+### Task 3.1 client progress (2026-09-23)
+
+- Implemented an internal Axios ML client matching `ml-swdi-inference.json`, with six-feature validation, household identity checks, response validation, and a fixed 2500 ms request deadline. Errors are sanitized; no retries or redirects extend the request.
+- Tests use temporary localhost HTTP servers, not Charles's service. All 47 default tests passed; the opt-in MongoDB transaction suite was skipped in this run. Six new tests cover contract exchange, invalid inputs/responses, upstream failures, connection failure, and timeout.
+- Task remains unchecked: the client is not mounted in a workflow, and fallback calculation, fallback-tag persistence, and live ML integration remain pending. No fabricated prediction or fallback success is returned. Teammates' files and frozen contracts are unchanged.
+
+### Task 3.1 review and resilience verification (2026-09-28)
+
+- Reviewed the internal client against the frozen inference contract, documented
+  feature bounds, and the architecture's 2500 ms deadline.
+- Added slow-stream and oversized-response tests. Focused verification:
+  `node --test test/mlClient.test.js` — 8 passed, 0 failed, 0 skipped.
+- Live inference remains unverified: the local ML inference schema and predict
+  endpoint files are empty. Coordinate an implemented ML service for acceptance.
+- Task remains unchecked. Utility-only fallback scoring, missing/stale-record
+  handling, fallback-tag storage/reprocessing and transactional audit integration
+  require agreement before completing the workflow. The client currently returns
+  typed errors for callers to handle, not fallback success.
 
 - [ ] **Task 3.2: Implement Tablet Batch Sync Consumer**
   - Paths: `/server/src/services/sync.service.js`, `/server/src/controllers/task.controller.js`
@@ -199,12 +226,50 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
   - Update task status to `SUBMITTED` and append an entry to `audit_logs`.
   - *DoD:* Tablet upload successfully validates coordinates, commits findings, and returns audit receipt.
 
+### Task 3.2 submission preparation (2026-09-28)
+
+- Added internal `prepareSubmission(input, routeTaskId)` in `sync.service.js`:
+  validates the submission shape and maps flat findings into `field_findings`.
+  Rejects unknown fields, type coercion, malformed coordinates/evidence metadata,
+  and route/body task-ID mismatch.
+- Geofence checks reject invalid coordinates and compare unrounded distance before
+  formatting the result. The existing inclusive 250 m limit follows the backend
+  prompt; the task bullet above uses strict `< 250 m`. This wording difference
+  needs confirmation before live submission acceptance.
+- Focused tests: 8 passed, 0 failed, 0 skipped across submission preparation and
+  geofence suites, including the 250.01 m rounding regression.
+- Added read-only submission authorization: reload active CASE_WORKER, query by
+  stored assignment, verify household identity/current jurisdiction, and reject
+  submitted/resolved/unknown task statuses. Authorization plus preparation tests:
+  11 passed, zero skips, using model doubles. Database/HTTP acceptance is pending.
+- Added `verifyEvidenceHash` for trusted raw buffers: detects altered/truncated
+  evidence and emits the contract's 422 EVIDENCE_HASH_MISMATCH. Five hash tests
+  plus preparation/authorization regression tests passed (16 total, zero skips).
+- Task remains incomplete: transactional rechecks of assignment/jurisdiction, trusted image
+  retrieval and hash-check integration, replay handling, transactional task/audit
+  persistence and the public submission route are still pending. Metadata
+  validation alone does not verify evidence or authorize submission.
+
 - [ ] **Task 3.3: Dynamic Composite Risk Calculation Service**
   - Path: `/server/src/services/discrepancy.service.js`
   - Aggregate live ML predictions with utility records from `ExternalRecord`:
     $$S_i = \min\left(100, \; 40 \cdot \Delta_{\text{SWDI}} + 20 \cdot I_{\text{power}} + 15 \cdot I_{\text{water}} + 25 \cdot I_{\text{telecom}} + 30 \cdot I_{\text{vehicle}}\right)$$
   - Update beneficiary status to `FLAGGED_FOR_REVIEW` if $S_i \ge 70$.
   - *DoD:* Seeded households with vehicle ownership or high power usage automatically receive $S_i \ge 70$.
+
+### Task 3.3 calculator groundwork (2026-09-28)
+
+- Added pure `calculateRiskScore` in `discrepancy.service.js`, implementing the
+  documented weights, 100-point cap and inclusive 70-point threshold.
+- Internal inputs require an explicitly supplied integer SWDI gap from 0 to 2
+  and four boolean indicators. Missing/unknown values are rejected, not defaulted
+  to low risk. The calculator does not derive the gap or indicators from records.
+- Focused verification: 4 tests passed, zero failures/skips, covering weights,
+  threshold/cap behavior, invalid inputs and deterministic calculation.
+- Task remains unchecked. The meaning/direction of the SWDI gap, telecom/vehicle
+  rules and missing/stale-record policy need agreement before live mapping and
+  transactional flagging. A vehicle alone gives 30 points and power alone 20;
+  the DoD example's automatic 70-point expectation needs clarification.
 
 - [ ] **Task 3.4: Implement Calamity Moratorium Controller**
   - Path: `/server/src/controllers/calamity.controller.js`

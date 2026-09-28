@@ -252,6 +252,122 @@ appeal or pause always blocks this helper; resolution and timer resumption are
 pending decisions. Task 2.3 remains incomplete until storage, docket API, and live
 workflow integration are agreed and tested. The full opt-in test run passes 51 tests.
 
+## Phase 3 ML client (in progress)
+
+`createMlClient()` from `src/services/mlClient.service.js` exposes
+`predict({ household_id, demographics })`, using the configured `ML_SERVICE_URL`
+origin and `/api/v1/predict-swdi`. The request contains only the six contract
+features. Values are validated without string-to-number coercion, using the
+documented model bounds and integer counts/levels. Unknown properties are rejected.
+
+The client expects the contract's response data directly, not a `{ data: ... }`
+wrapper. It checks household identity, SWDI level, three probabilities in [0,1],
+SHAP feature names/numeric weights/descriptions, and a timezone-qualified ISO date.
+Probability totals allow a 0.01 rounding tolerance around 1; this is a local
+validation choice, not a shared-contract edit. Empty explanation arrays are allowed.
+
+The fixed 2500 ms deadline covers connection and response time, with no automatic
+retries or redirects. It intentionally does not use the configurable timeout to
+extend the roadmap's deadline. Responses are limited to 1 MiB. Errors expose only
+`INVALID_FEATURE_VECTOR`, `ML_TIMEOUT`, `ML_UNAVAILABLE`, or `INVALID_ML_RESPONSE`
+and safe messages; Axios configuration and upstream details are not propagated.
+
+This internal service is not mounted on a public route and does not persist data.
+Callers must catch its typed errors. Fallback calculation and tagging remain
+pending clarification; the client does not pretend an outage is a valid prediction.
+Tests use local HTTP fixtures and do not prove live ML readiness. On 2026-09-28,
+`node --test test/mlClient.test.js` passed all eight tests with zero skips. This
+includes a continuously streaming response that still aborts at the overall
+deadline and a response exceeding the 1 MiB limit that returns a sanitized error.
+
+Task 3.1 remains in progress. The local ML inference schema and predict endpoint
+files are empty, so this checkout does not provide a live inference implementation
+for acceptance testing. Fallback integration also needs an agreed utility-only
+scoring policy (including missing/stale external records), the storage location
+and lifecycle of `EVALUATED_VIA_FALLBACK`, and its transactional audit behavior.
+The architecture requires this fallback, but the inference contract supplies
+demographics rather than utility records; fallback belongs in the backend workflow
+that loads those records, not in a fabricated ML response.
+
+## Phase 3 submission preparation (in progress)
+
+`prepareSubmission(input, routeTaskId)` from `src/services/sync.service.js`
+validates the flat `field-task-submission.json` request and returns
+`{ task_id, household_id, field_findings }` for the existing task model. It rejects
+unknown properties, numeric/boolean strings, invalid enums, invalid coordinates,
+negative GPS accuracy, timestamps without timezones, malformed SHA-256 strings,
+and mismatched route/body task IDs. Errors use internal HTTP 400 code
+`INVALID_SUBMISSION_REQUEST`; this is not an addition to the frozen contract.
+
+Current preparation rules require the top-level contract fields, permit an empty
+franchise number, allow JPEG/PNG/WebP metadata and HTTP(S) storage URLs, and allow
+empty evidence arrays or absent EXIF. Evidence sufficiency remains a workflow
+policy to agree before exposing the route. URLs are not fetched and hash strings
+are not treated as proof of binary integrity.
+
+`verifyGeofence` accepts captured latitude/longitude and stored GeoJSON
+`[longitude, latitude]`. Invalid inputs return an unmatched result with null
+distance. Matching uses full precision with the existing inclusive 250 m limit;
+only the reported distance is rounded to one decimal. Consequently an unmatched
+point just beyond the boundary may display as 250.0 m. `calculateDistanceMeters`
+returns unrounded metres or null for invalid coordinates. The backend prompt's
+`<= 250 m` and task list's `< 250 m` need reconciliation before live acceptance.
+
+Verification on 2026-09-28:
+`node --test test/submissionPreparation.test.js test/geoFence.test.js` —
+8 passed, zero failures/skips. These are pure preparation tests.
+
+`createSubmissionAuthorizer()` adds a read-only authorization preflight. Pass
+`{ input, routeTaskId, actorId, session }`, with actorId from verified authentication.
+It reloads the active worker, queries the task by worker ownership, checks the
+stored household against current jurisdiction, and accepts only PENDING_DISPATCH
+or CACHED_OFFLINE tasks. Missing and other-worker tasks both return TASK_NOT_FOUND;
+already submitted/resolved tasks return TASK_NOT_SUBMITTABLE. These internal error
+codes are not changes to the frozen public contract.
+
+Authorization/preparation verification: 11 tests passed, zero skips, using injected
+model doubles (`node --test test/submissionAuthorization.test.js test/submissionPreparation.test.js`).
+Live MongoDB and HTTP acceptance remain pending. The preflight performs no writes
+and cannot guarantee authorization remains valid afterward. Transactional integration
+must repeat the checks and condition writes on stored ownership/status to prevent
+reassignment or duplicate-submission races. Task 3.2 still needs trusted image-byte
+access, hash-check integration, replay policy, atomic task/audit writes and controller integration.
+
+`verifyEvidenceHash(bytes, expectedHash)` in `sync.service.js` now verifies a
+nonempty Node Buffer against a 64-character SHA-256 hex digest. Matching input
+returns the computed lowercase digest; altered bytes return the exact contract
+422 `EVIDENCE_HASH_MISMATCH` message through the existing error middleware.
+Invalid bytes/hash syntax return internal 400 `INVALID_EVIDENCE_INPUT`.
+URLs, base64 strings and JSON Buffer objects are not treated as trusted bytes.
+The caller must obtain bytes through an authorized, size-limited storage/upload
+adapter and bind them to the evidence attachment. This helper proves byte integrity,
+not image validity, ownership or authenticity; it performs no fetching or persistence.
+
+Evidence hash, preparation and authorization suites: 16 passed, zero failures/skips
+on 2026-09-28. Five hash tests cover matching bytes, tampering/truncation, invalid
+inputs, buffer slices and the exact mismatch response. Task 3.2 remains incomplete.
+
+## Phase 3 risk calculator (in progress)
+
+`calculateRiskScore` from `src/services/discrepancy.service.js` accepts
+`{ swdiDifference, power, water, telecom, vehicle }`. This is an internal helper,
+not a public API. The supplied SWDI difference must be an integer from 0 to 2;
+all indicators must be explicit booleans. This provisional nonnegative-gap
+interface does not decide whether to subtract, clamp or take an absolute value
+of stored/predicted SWDI levels. Live mapping requires an agreed policy.
+
+The helper returns `{ score, meetsFlagThreshold, contributions }`. Weights are
+40 per SWDI level, 20 power, 15 water, 25 telecom and 30 vehicle. Contributions
+are uncapped; the total is capped at 100 and meets the flag threshold at 70.
+Missing inputs are rejected rather than assumed false. Meeting the threshold
+alone does not authorize a status change, dispatch or graduation.
+
+Verification: `node --test test/discrepancy.test.js` — 4 passed, zero skips
+on 2026-09-28. Task 3.3 still requires agreed record-to-indicator rules, missing/
+stale-data policy, ML integration, moratorium checks and transactional audit
+persistence. Vehicle or high power alone does not reach 70 with this formula;
+the task's DoD example needs clarification before acceptance.
+
 ## Hash format
 
 `computeEntryHash` preserves the existing colon-separated field format:
@@ -266,6 +382,8 @@ scalar values are preserved. Missing deltas default to `{}`. All future writers
 and verifiers must use this same helper and format.
 
 ## Backend reviews and handoff
+
+- [Phase 3 backend checkpoint](../docs/reports/PHASE3_BACKEND_CHECKPOINT.md)
 
 - [Frontend authentication handoff](../docs/handoffs/FRONTEND_AUTH_HANDOFF.md)
 - [Database recovery review](../docs/reports/DATABASE_RECOVERY_REVIEW.md)
