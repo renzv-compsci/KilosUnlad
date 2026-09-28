@@ -1,3 +1,23 @@
+// ============================================================
+// KilosUnlad MongoDB Initialization Script
+// ============================================================
+// Runs once on first container startup with an empty data directory.
+//
+// Responsibilities:
+//   - Create the custom application role `kilosUnladAppRole`
+//   - Create `app_user` with that role
+//   - Pre-create the 6 core collections
+//   - Create indexes
+//
+// NOTE: Replica set initialization (rs.initiate) is NOT done here.
+// It runs via a separate `replset-init` service in docker-compose.yml
+// after mongod is fully ready. Running it here fails with:
+//   "This node was not started with replication enabled."
+// ============================================================
+
+// ============================================================
+// 1. Create the custom application role in `admin`
+// ============================================================
 db = db.getSiblingDB('admin');
 
 db.createRole({
@@ -25,15 +45,18 @@ db.createRole({
       actions: ['find', 'insert', 'update', 'remove', 'createIndex'],
     },
 
-    // Audit logs — append-only
+    // Audit logs — append-only + createIndex (per DECISION-005/006 harmonization)
     {
       resource: { db: 'kilosunlad', collection: 'audit_logs' },
-      actions: ['find', 'insert'],
+      actions: ['find', 'insert', 'createIndex'],
     },
   ],
   roles: [],
 });
 
+// ============================================================
+// 2. Create the application user with the custom role
+// ============================================================
 db = db.getSiblingDB('kilosunlad');
 
 db.createUser({
@@ -42,12 +65,19 @@ db.createUser({
   roles: [{ role: 'kilosUnladAppRole', db: 'admin' }],
 });
 
+// ============================================================
+// 3. Pre-create the 6 core collections
+// ============================================================
 db.createCollection('users');
 db.createCollection('beneficiaries');
 db.createCollection('external_records');
 db.createCollection('verification_tasks');
 db.createCollection('audit_logs');
 db.createCollection('system_configs');
+
+// ============================================================
+// 4. Create indexes
+// ============================================================
 
 // Users collection indexes
 db.users.createIndex({ email: 1 }, { unique: true });

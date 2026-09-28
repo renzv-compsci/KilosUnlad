@@ -10,7 +10,7 @@ services:
     container_name: kilosunlad-gateway
     restart: unless-stopped
     ports:
-      - "80:80"        # Public port exposed to browser
+      - "80:80"
     depends_on:
       - server
       - client
@@ -26,7 +26,7 @@ services:
     container_name: kilosunlad-client
     restart: unless-stopped
     expose:
-      - "3000"         # Internal port inside Docker network
+      - "3000"
     environment:
       - VITE_API_URL=http://localhost:5000/api/v1
     networks:
@@ -43,25 +43,24 @@ services:
     expose:
       - "5000"
     ports:
-      - "5000:5000"    # Exposed so Mae can test APIs directly with Postman
+      - "5000:5000"
     environment:
       - NODE_ENV=development
       - PORT=5000
-      # ========================================================================
-      # >>> DECISION-006 UPDATE (1 of 2) <<<
-      # Added '?replicaSet=rs0' to MONGO_URI so Mongoose can run multi-document
-      # transactions (session.withTransaction()) for all-or-nothing task dispatching.
-      # ========================================================================
       - MONGO_URI=mongodb://app_user:AppUserPassword2026!@db:27017/kilosunlad?replicaSet=rs0&authSource=kilosunlad
       - ML_SERVICE_URL=http://ml-service:8000
       - UPLOAD_DIR=/app/uploads
       - CORS_ORIGIN=http://localhost:3000,http://localhost
       - APPEAL_WINDOW_DAYS=15
     volumes:
-      - upload-data:/app/uploads   # Keeps uploaded photos safe on disk
+      - upload-data:/app/uploads
     depends_on:
-      - db
-      - ml-service
+      db:
+        condition: service_started
+      replset-init:
+        condition: service_completed_successfully
+      ml-service:
+        condition: service_started
     networks:
       - kilosunlad-network
 
@@ -76,7 +75,7 @@ services:
     expose:
       - "8000"
     ports:
-      - "8000:8000"    # Exposed so Charles can view Swagger docs (localhost:8000/docs)
+      - "8000:8000"
     environment:
       - ML_ENV=development
       - MODEL_ARTIFACT_PATH=/app/artifacts/lightgbm_swdi_v1.joblib
@@ -90,23 +89,63 @@ services:
     image: mongo:6.0
     container_name: kilosunlad-db
     restart: unless-stopped
-    # ========================================================================
-    # >>> DECISION-006 UPDATE (2 of 2) <<<
-    # Boots MongoDB as a Single-Node Replica Set ("rs0") instead of standalone.
-    # This unlocks MongoDB's ACID transaction engine inside Docker with zero extra RAM.
-    # ========================================================================
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    # DECISION-006 — Single-Node Replica Set (rs0) with keyfile ownership fix.
+    entrypoint: >
+      bash -c '
+        if [ ! -f /keyfile/mongo-keyfile ]; then
+          mkdir -p /keyfile &&
+          openssl rand -base64 756 | tr -d "\n" > /keyfile/mongo-keyfile &&
+          chmod 0400 /keyfile/mongo-keyfile
+        fi
+        chown 999:999 /keyfile/mongo-keyfile
+        exec docker-entrypoint.sh mongod --replSet rs0 --keyFile /keyfile/mongo-keyfile --bind_ip_all
+      '
     ports:
-      - "${MONGO_EXTERNAL_PORT:-27017}:27017" # def to 27017 but allows .env to override
+      - "${MONGO_EXTERNAL_PORT:-27017}:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin_user
       - MONGO_INITDB_ROOT_PASSWORD=RootAdminSecret2026!
       - MONGO_INITDB_DATABASE=kilosunlad
     volumes:
-      - mongo-data:/data/db                                             # Persists data on disk
-      - ./docker/mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro # Runs bootstrap script
+      - mongo-data:/data/db
+      - mongo-keyfile-data:/keyfile
+      - ./docker/mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - kilosunlad-network
+
+  # ----------------------------------------------------------------------------
+  # 6. REPLICA SET INITIALIZER (One-Shot Service)
+  # ----------------------------------------------------------------------------
+  replset-init:
+    image: mongo:6.0
+    container_name: kilosunlad-replset-init
+    depends_on:
+      - db
+    entrypoint: >
+      bash -c '
+        echo "Waiting for mongod...";
+        until mongosh --host db:27017 --username admin_user --password RootAdminSecret2026! --authenticationDatabase admin --quiet --eval "db.adminCommand({ping: 1})" > /dev/null 2>&1; do
+          sleep 2;
+        done;
+        echo "mongod is up. Initializing replica set...";
+        mongosh --host db:27017 --username admin_user --password RootAdminSecret2026! --authenticationDatabase admin --quiet --eval "
+          try {
+            rs.status();
+            print(\"Replica set already initialized.\");
+          } catch (e) {
+            rs.initiate({ _id: \"rs0\", members: [{ _id: 0, host: \"db:27017\" }] });
+            print(\"Replica set initialized.\");
+          }
+        ";
+        echo "Waiting for PRIMARY election...";
+        until mongosh --host db:27017 --username admin_user --password RootAdminSecret2026! --authenticationDatabase admin --quiet --eval "rs.status().myState === 1" > /dev/null 2>&1; do
+          sleep 2;
+        done;
+        echo "Replica set is PRIMARY. Done.";
+      '
+    networks:
+      - kilosunlad-network
+    restart: "no"
 
 # ------------------------------------------------------------------------------
 # SHARED NETWORKS & PERSISTENT VOLUMES
@@ -116,5 +155,6 @@ networks:
     driver: bridge
 
 volumes:
-  mongo-data:     # Preserves database records if container is stopped
-  upload-data:    # Preserves evidence photos if container is stopped
+  mongo-data:
+  upload-data:
+  mongo-keyfile-data:
