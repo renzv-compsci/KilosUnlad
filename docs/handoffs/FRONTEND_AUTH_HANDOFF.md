@@ -1,7 +1,29 @@
 # Backend authentication handoff for Markie
 
-Prepared 2026-09-24. This is a test plan, not a record of completed frontend tests.
-Updated 2026-09-27. PR #7 merged into `main` at `d4edba4`; local `backend-mae` is synced to that commit. Record the exact frontend/backend commits used when testing.
+**Author:** Mae Santos — Backend Engineering Lead
+
+Prepared 2026-09-24. Updated 2026-09-28. The live acceptance cases below remain
+pending; the isolated frontend checks are recorded separately.
+PR #7 merged at `d4edba4`. The backend review baseline is `backend-mae` at
+`2f9b568`, which includes main `08eca5c`. Record the exact frontend/backend
+commits used for each live test.
+
+## Frontend verification update — 2026-09-28
+
+Independent verification of `frontend-markie` at `7cc3dd7` used an isolated temporary
+copy: 26 tests passed with zero failures/skips; typecheck and production build
+passed. The build reported a chunk above 500 kB, and dependency installation
+reported five advisories (four moderate, one high). Frontend code, dependencies
+and Markie's branch remained unchanged.
+
+The reviewed login roles, triage pagination and assigned-task requests match
+the backend implementation. Login fallback remains disabled. These tests use
+simulated API responses and do not prove real backend JWT/RBAC or record visibility.
+Actual end-to-end results remain pending. Frontend dispatch is still a preview,
+and submission upload is disabled; neither is covered by this acceptance claim.
+
+Markie's handoff mentions an older worker_id documentation discrepancy. The
+matrix below already documents HTTP 400 INVALID_QUERY for that override.
 
 ## Setup and ownership
 
@@ -35,6 +57,12 @@ For director and worker accounts, use complete jurisdiction information:
 
 Use an agreed synthetic worker with pending/cached tasks assigned to its actual
 MongoDB user ID. No hard-coded fixture identity is needed. Empty lists are valid.
+
+Provisioning confirmation is still pending. Coordinate an inactive account and
+a second worker as well as the four active roles. For Markie's fixed page size
+of 10, request more than 10 in-scope FLAGGED_FOR_REVIEW households to exercise
+the actual next/previous controls, plus out-of-scope records and tasks belonging
+to each worker. Confirm expected record IDs/counts privately before testing.
 
 | Role | GET `/beneficiaries/triage-queue` | GET `/tasks/assigned` |
 | --- | --- | --- |
@@ -119,10 +147,13 @@ currently null; optional phone/street/instructions are empty strings. Record any
 PM/frontend disagreement with these documented choices instead of changing the
 frozen contracts silently. Avoid record mutations while checking pagination.
 
-Auth/read-feed testing can proceed independently of dispatch deployment approval.
-Decision 006 remains proposed; Renz must resolve topology/index readiness and
-assign ownership before shared dispatch acceptance. Isolated backend tests have
-already exercised dispatch-to-feed behavior, but Markie's live run remains pending.
+Decisions 005/006 are approved. The September 28 deployment recheck still found
+replica-set authentication/startup, initialization and audit index-permission
+blockers; see [deployment evidence and follow-up](../reports/BACKEND_DEPLOYMENT_RECHECK.md).
+Auth/read-feed testing can proceed on a working agreed backend with provisioned
+records independently of dispatch acceptance. The checked-in deployment has not
+yet passed that recheck. Isolated backend tests have exercised dispatch-to-feed
+behavior, but Markie's live run remains pending.
 
 ## What passing means
 
