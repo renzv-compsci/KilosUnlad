@@ -1,5 +1,7 @@
 # Backend verification status
 
+**Author:** Mae Santos — Backend Engineering Lead
+
 Reviewed 2026-09-25 on backend-mae at d8c7b9b, with the existing uncommitted
 backend ML client and six ML tests retained locally. This report supersedes older
 test-count summaries for current status; historical evidence is not erased.

@@ -1,5 +1,7 @@
 # Phase 2 backend gap review
 
+**Author:** Mae Santos — Backend Engineering Lead
+
 Reviewed 2026-09-24 against local main merged at cdd33f4 and backend d92a4e7.
 This is an implementation review, not an approved schema or API change.
 

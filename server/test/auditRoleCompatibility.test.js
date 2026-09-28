@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-test('proposed find/insert audit role blocks index inspection as well as mutation', {
+test('audit role requires listIndexes independently of createIndex and blocks mutation', {
   skip: process.env.RUN_AUDIT_ROLE_TESTS !== '1', timeout: 90000
 }, async t => {
   const { promisify } = require('node:util');
@@ -49,4 +49,25 @@ test('proposed find/insert audit role blocks index inspection as well as mutatio
   await assert.rejects(() => logs.indexes(), error => error.code === 13);
   await assert.rejects(() => logs.updateOne({ sequence_index: 1 }, { $set: { test: false } }), error => error.code === 13);
   await assert.rejects(() => logs.deleteOne({ sequence_index: 1 }), error => error.code === 13);
+  // Decision 005 proposes createIndex. Verify its actual effect separately;
+  // all grants here affect only this disposable test database.
+  await root.db('admin').command({ grantPrivilegesToRole: 'auditTestRole', privileges: [
+    { resource: { db: 'kilosunlad', collection: 'audit_logs' }, actions: ['createIndex'] }
+  ] });
+  await app.close();
+  app = new MongoClient(`mongodb://test_app:${password}@${address}/kilosunlad?authSource=kilosunlad`);
+  await app.connect();
+  const withCreate = app.db('kilosunlad').collection('audit_logs');
+  await withCreate.createIndex({ test: 1 });
+  await assert.rejects(() => withCreate.indexes(), error => error.code === 13);
+  await root.db('admin').command({ grantPrivilegesToRole: 'auditTestRole', privileges: [
+    { resource: { db: 'kilosunlad', collection: 'audit_logs' }, actions: ['listIndexes'] }
+  ] });
+  await app.close();
+  app = new MongoClient(`mongodb://test_app:${password}@${address}/kilosunlad?authSource=kilosunlad`);
+  await app.connect();
+  const withMetadata = app.db('kilosunlad').collection('audit_logs');
+  assert.ok((await withMetadata.indexes()).some(i => i.unique && i.key.sequence_index === 1));
+  await assert.rejects(() => withMetadata.updateOne({ sequence_index: 1 }, { $set: { test: false } }), error => error.code === 13);
+  await assert.rejects(() => withMetadata.deleteOne({ sequence_index: 1 }), error => error.code === 13);
 });
