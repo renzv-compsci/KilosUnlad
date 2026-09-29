@@ -48,7 +48,7 @@ db.createRole({
     // Audit logs — append-only + createIndex (per DECISION-005/006 harmonization)
     {
       resource: { db: 'kilosunlad', collection: 'audit_logs' },
-      actions: ['find', 'insert', 'createIndex'],
+      actions: ['find', 'insert', 'createIndex', 'listIndexes'],
     },
   ],
   roles: [],
