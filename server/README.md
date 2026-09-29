@@ -368,7 +368,27 @@ stale-data policy, ML integration, moratorium checks and transactional audit
 persistence. Vehicle or high power alone does not reach 70 with this formula;
 the task's DoD example needs clarification before acceptance.
 
+## Phase 3 calamity check (in progress)
+
+`hasActiveCalamityMoratorium({ zones, address, now })` in `calamity.service.js`
+is a pure internal check using stored SystemConfig zone fields. Inputs require
+valid Date objects, explicit active flags, and province/municipality names.
+Both location fields must match exactly. Invalid configuration throws rather
+than silently allowing compliance processing; callers must stop on errors.
+
+Provisional semantics pending team confirmation: declaration time is inclusive,
+expiry is exclusive, and omitted expiry is open-ended until deactivated. Explicit
+null expiry and nonpositive intervals are rejected. Any matching active interval
+holds, including when zones overlap. These rules are not yet wired to live writes.
+
+On 2026-09-29, calamity and risk-calculator suites passed 10 tests with zero skips
+(six new calamity tests). Task 3.4 still needs an approved toggle contract, role
+and lifecycle rules, configuration selection, transactional audit writes and
+integration into compliance workflows. A false result is not authorization to
+flag or penalize a household.
+
 ## Hash format
+
 
 `computeEntryHash` preserves the existing colon-separated field format:
 

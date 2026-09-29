@@ -276,7 +276,18 @@ skipped suite. These are separate runs, not a new combined test total.
   - Create route `POST /api/v1/calamity/toggle` allowing admins to pause automated compliance flags for a municipality under a declared State of Calamity (RA 10121).
   - *DoD:* Compliance penalties freeze for households in active calamity zones.
 
-*Daily Standup Deliverable (Phase 3):*  
+### Task 3.4 internal check progress (2026-09-29)
+
+- Added pure `hasActiveCalamityMoratorium` using existing zone fields, exact
+  province/municipality matching, explicit activity and validated stored dates.
+- Provisional rules: inclusive declaration, exclusive expiry, omitted expiry
+  open-ended. Malformed configuration throws; any matching active zone holds.
+  These date rules need confirmation before live workflow integration.
+- Six new calamity tests plus four risk-calculator tests passed: 10 passed,
+  zero failures/skips. Task remains unchecked pending toggle contract, role/date
+  policy, transactional configuration/audit writes and compliance integration.
+
+*Daily Standup Deliverable (Phase 3):*
 > "Node.js successfully calls Python ML in under 20ms; tablet batch sync consumer and dynamic risk engine operational."
 
 ---
