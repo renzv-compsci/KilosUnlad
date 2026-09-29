@@ -89,35 +89,17 @@ privately with Markie via a private channel.
 
 ## 4. Official PM / Tech Lead Resolution (Filled by Renz)
 
-* [ ] Decision: [ACCEPTED / REJECTED / MODIFIED]
-* [ ] Owner of test account seeding: [Dustin / Other / TBD]
-* [ ] Documentation format: [Phase 3 report note / Separate section]
-* [ ] Action Items:
-  - [ ] Dustin: Write `data-pipeline/scripts/seed_test_data.js`
-  - [ ] Dustin: Run script against local DB
-  - [ ] Dustin: Share credentials with Markie privately
-  - [ ] Dustin: Note in `docs/PHASE_3_REPORT.md`
+* **Decision:** **ACCEPTED (Option A Approved)**
+* **Owner of Test Account Seeding:** Dustin Martinez (Database Architecture Lead)
+* **Scope Boundary:** 
+  - Strictly integration/testing support; does not alter Renz's Phase 2/3 synthetic data generator (`generator.py`).
+  - Restricted to exactly **4 user accounts** (one per system role), **5 sample households**, and **3 sample verification tasks**.
+* **Security & Credential Policy:**
+  - Passwords must be hashed using `bcrypt` / `bcryptjs`.
+  - Plaintext passwords must **not** be committed to the public repository. They will be shared privately with Markie and Mae.
 
----
-
-## 5. Impact Assessment
-
-- **Files affected:** New file `data-pipeline/scripts/seed_test_data.js`
-- **Contracts affected:** None
-- **Schemas affected:** None
-- **Phases affected:** Not a Phase 3 deliverable — integration support only
-- **Risk:** Low — dev/test data only, credentials not committed
-- **Effort:** ~30 minutes
-
----
-
-## 6. References
-
-- Dustin's roadmap Task 3.1 — Phase 3 seed ingestion scope
-- Mae's integration review (2026-09-28) — synthetic accounts request
-- DECISION-005 — append-only role (data writes must respect role permissions)
-- DECISION-006 — replica set (seeding runs against replica set `rs0`)
-
----
-
-**End of Document**
+* **Action Items:**
+  - [x] **Dustin:** Write the standalone script in `data-pipeline/scripts/seed_test_data.js`.
+  - [x] **Dustin:** Run the script against the local database container to verify account creation.
+  - [x] **Dustin:** Share the 4 test login credentials privately with Markie and Mae.
+  - [x] **Dustin:** Document the script usage in `docs/tasks/DUSTIN_DATABASE.md` under integration support.
