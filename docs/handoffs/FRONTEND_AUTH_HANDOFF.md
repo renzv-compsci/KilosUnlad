@@ -8,6 +8,9 @@ Backend-only live checks on September 30 passed all four logins and the role
 matrix after running Dustin's seed script locally. See
 [live account verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
 Markie's browser acceptance and positive assigned-task display remain pending.
+An additional 11 live API checks passed for pagination, status filters, invalid
+queries, worker overrides and correctly signed expired-token rejection. Browser
+behavior for these cases still needs frontend acceptance.
 PR #7 merged at `d4edba4`. The backend review baseline is `backend-mae` at
 `03e9e74`, which includes main `c030c77`. Record the exact frontend/backend
 commits used for each live test.
