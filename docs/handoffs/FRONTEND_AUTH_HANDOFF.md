@@ -4,8 +4,12 @@
 
 Prepared 2026-09-24. Updated 2026-09-30. The live acceptance cases below remain
 pending; the isolated frontend checks are recorded separately.
+Backend-only live checks on September 30 passed all four logins and the role
+matrix after running Dustin's seed script locally. See
+[live account verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
+Markie's browser acceptance and positive assigned-task display remain pending.
 PR #7 merged at `d4edba4`. The backend review baseline is `backend-mae` at
-`1934549`, which includes main `c030c77`. Record the exact frontend/backend
+`03e9e74`, which includes main `c030c77`. Record the exact frontend/backend
 commits used for each live test.
 
 ## Frontend verification update — 2026-09-28
@@ -47,6 +51,18 @@ Do not send the JWT signing secret to the frontend.
 
 ## Account details to coordinate with Dustin
 
+The merged seed declares these usernames; obtain their passwords privately from
+the database owner and confirm that they exist in the database being tested:
+
+| Username | Role |
+| --- | --- |
+| `super_admin_test` | SUPER_ADMIN |
+| `director_test` | REGIONAL_DIRECTOR |
+| `case_worker_test` | CASE_WORKER |
+| `auditor_test` | COA_AUDITOR |
+
+Seed definitions alone do not confirm provisioning in an existing volume.
+
 Request active synthetic accounts for all four roles below, with unique usernames,
 emails, and bcrypt password hashes. Agree test credentials separately; do not put
 passwords, tokens, or signing secrets in committed reports/screenshots.
@@ -58,7 +74,8 @@ For director and worker accounts, use complete jurisdiction information:
 Use an agreed synthetic worker with pending/cached tasks assigned to its actual
 MongoDB user ID. No hard-coded fixture identity is needed. Empty lists are valid.
 
-Provisioning confirmation is still pending. Coordinate an inactive account and
+The four accounts are now provisioned and verified on the backend developer's
+local database; Markie's database must be provisioned separately. Coordinate an inactive account and
 a second worker as well as the four active roles. For Markie's fixed page size
 of 10, request more than 10 in-scope FLAGGED_FOR_REVIEW households to exercise
 the actual next/previous controls, plus out-of-scope records and tasks belonging
@@ -166,7 +183,30 @@ overrides are rejected. This auth/feed plan does not verify appeal submission,
 refresh/logout or offline sync. A health response alone is not an auth test.
 See [backend README](../../server/README.md) for pagination, summary and missing-value behavior.
 
-## Result template
+## Live-test order
+
+1. Use the backend checkout at the baseline above or a later agreed commit.
+   Record `git rev-parse HEAD` in both backend and frontend checkouts. Keep the
+   frontend on Markie's agreed version; the last independently reviewed version
+   is `7cc3dd7`.
+2. Follow the README Docker startup sequence, including successful
+   `replset-init` completion, the JWT secret and explicit mock mode disabled.
+   Confirm the API is listening on port 5000 and MongoDB connected successfully.
+3. Confirm credentials and expected sample records with Dustin. The seeded
+   worker's Lecheria task is outside its Palingon scope; an empty assigned feed
+   does not prove the positive task-display case. Request an in-scope pending
+   task, plus the additional accounts/records listed above.
+4. Start the frontend with `VITE_API_URL=http://localhost:5000/api/v1` and its
+   login fallback disabled. Restart the frontend after changing its environment.
+   Use a browser origin included in backend CORS settings.
+5. Run valid and invalid login, inactive-account and role-restriction cases,
+   then the triage and assigned-feed cases above. Confirm actual requests reach
+   port 5000 and no mock response header is present.
+6. Record each result below. Mark unavailable sample-data cases BLOCKED and
+   include the missing prerequisite. Share redacted results before claiming
+   end-to-end acceptance.
+
+## Result record
 
 Backend commit: ___; frontend commit: ___; date: ___; test database label: ___
 

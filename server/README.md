@@ -13,19 +13,58 @@ The normal entrypoint requires MongoDB before listening on port 5000. With the
 repository's database container running and its default development credentials:
 
 ```powershell
-$env:MONGO_URI = 'mongodb://app_user:AppUserPassword2026!@localhost:27017/kilosunlad?authSource=kilosunlad'
+$env:MONGO_URI = 'mongodb://app_user:<URL-encoded-password>@localhost:27017/kilosunlad?authSource=kilosunlad&replicaSet=rs0&directConnection=true'
 $env:JWT_SECRET = node -e "process.stdout.write(require('crypto').randomBytes(32).toString('hex'))"
+$env:PHASE1_MOCK_MODE = 'false'
 npm start
 ```
 
 Alternatively, from the repository root with Docker available:
 
 ```powershell
-docker compose up -d db
-docker compose build server
-# Set JWT_SECRET securely in this shell first, then pass it to the container.
-docker compose run --service-ports --no-deps -e JWT_SECRET server npm start
+docker compose up -d db replset-init
+docker compose logs replset-init
+docker compose ps -a replset-init
 ```
+
+Wait for the initializer to show `Exited (0)` before starting the API. If it is
+still running or failed, inspect its logs and resolve readiness first. Existing
+database volumes do not rerun initialization scripts; coordinate any missing
+accounts or role permissions with the database owner rather than resetting data.
+
+Then, in the same terminal:
+
+```powershell
+docker compose build server
+$jwtBytes = New-Object byte[] 32
+$jwtRng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$jwtRng.GetBytes($jwtBytes)
+$jwtRng.Dispose()
+$env:JWT_SECRET = [Convert]::ToBase64String($jwtBytes)
+docker compose run --rm --service-ports --no-deps -e JWT_SECRET -e PHASE1_MOCK_MODE=false -e 'CORS_ORIGIN=http://localhost:3000,http://127.0.0.1:3000,http://localhost' server npm start
+```
+
+Keep this terminal running; port 5000 must be free. This starts the API for
+authentication and read-feed testing. The ML service is not started by this
+command. For host Node startup instead, replace the password placeholder above
+with the agreed database password and use the configured external MongoDB port.
+The direct connection option supports the local single-node replica set whose
+advertised Docker hostname is `db`.
+
+For a local test database without Dustin's accounts, run his approved seed script
+from the repository root. Obtain the database administrator password privately;
+it is different from the test login passwords. Existing matching records are
+skipped, not refreshed:
+
+```powershell
+docker cp data-pipeline/scripts/seed_test_data.js kilosunlad-db:/tmp/seed_test_data.js
+docker exec -it kilosunlad-db mongosh --username admin_user --authenticationDatabase admin --file /tmp/seed_test_data.js --password
+```
+
+The script prints test credentials; do not include that output in shared logs.
+Its current samples contain 3 households and 2 tasks; the worker's pending task
+is outside its jurisdiction. See the [live account check](../docs/reports/LIVE_AUTH_FEED_VERIFICATION.md)
+for verified results and remaining sample-data cases.
 
 Verify `http://localhost:5000/health` and the successful MongoDB connection log.
 `npm test` uses isolated repositories without MongoDB. To repeat the login and
@@ -53,7 +92,7 @@ verification, rerun instructions, and the outstanding audit-role compatibility c
 
 ## Current verification
 
-See [backend verification status](../docs/reports/BACKEND_VERIFICATION_STATUS.md) for current test counts, optional-suite flags, build evidence and pending acceptance.
+See [Phase 1–4 status](../docs/reports/PHASE1_TO_PHASE4_STATUS.md) for the latest verification and pending acceptance, and [backend verification status](../docs/reports/BACKEND_VERIFICATION_STATUS.md) for earlier evidence.
 Older dated counts below are historical, not the current suite total.
 
 ## Endpoints and modes
