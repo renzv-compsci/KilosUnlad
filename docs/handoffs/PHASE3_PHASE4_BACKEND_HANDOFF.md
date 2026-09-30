@@ -34,7 +34,7 @@ Paths below are relative to `server/`.
 | 3.4 | `src/services/calamity.service.js`: `hasActiveCalamityMoratorium` | Approve toggle request/response and date rules; load correct SystemConfig, authorize and audit mutations |
 | 4.1 | `src/controllers/audit.controller.js`: `createVerifyChain` delegates to placeholder by default | Real chain reading/verification, query limits, authenticated role restrictions and route mounting |
 | 4.2 | `src/middleware/audit.middleware.js`: unmounted mutation-blocking placeholder | Integrate transactional audit recording into each mutation workflow |
-| 4.3 | `src/middleware/validation.middleware.js`: schema-driven strict body validation; existing centralized error handler | Supply route-specific schemas, complete database-validation error classification and broader malformed-request acceptance |
+| 4.3 | Strict Joi body validation; sanitized JSON, Mongoose and size errors; HTTP error-boundary tests | Supply schemas and async error forwarding for each future route; repeat acceptance as workflows are mounted |
 
 `src/services/integrationPlaceholders.service.js` exposes async
 `evaluateHousehold`, `submitTask`, `applyRiskAssessment`, `toggleCalamity` and
@@ -83,9 +83,11 @@ must catch/forward failures. The existing Express error middleware handles them.
   it is intentionally not global middleware.
 - Validation: `validateBody(JoiSchema)` sets `req.validatedBody` on success, rejects
   invalid input with sanitized 400 INVALID_REQUEST, and does not coerce types.
-  Controller errors and async rejections must reach the central handler. Existing
-  unknown-error behavior is sanitized 503; generic Mongoose validation classification
-  remains unfinished. Internal errors are not additions to frozen contracts.
+  Controller errors and async rejections must reach the central handler. Mongoose
+  validation/cast failures return sanitized 400 INVALID_REQUEST; oversized JSON
+  returns 413 PAYLOAD_TOO_LARGE. Unknown errors remain sanitized 503. HTTP tests
+  cover malformed JSON, Joi/Mongoose errors, forwarded async failures and continued
+  availability. Internal errors are not additions to frozen contracts.
 
 ## Environment and verification
 
@@ -112,6 +114,11 @@ September 30 verification:
 0 failed, 0 skipped**. `git diff --check` passed.
 
 ## Acceptance and handoff checklist
+
+September 30 follow-up: complete backend regression with all database/Docker
+options enabled passed **101 tests, 0 failures, 0 skips**, including HTTP
+validation/error handling. This supersedes earlier partial test-run counts for
+the current working tree, not the outstanding live integration requirements.
 
 - Renz/Charles: replace the named placeholder boundaries with approved implementations.
 - Confirm pending scoring, upload, geofence and calamity decisions before mounting routes.

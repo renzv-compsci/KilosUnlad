@@ -2,10 +2,10 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
-Prepared 2026-09-24. Updated 2026-09-28. The live acceptance cases below remain
+Prepared 2026-09-24. Updated 2026-09-30. The live acceptance cases below remain
 pending; the isolated frontend checks are recorded separately.
 PR #7 merged at `d4edba4`. The backend review baseline is `backend-mae` at
-`2f9b568`, which includes main `08eca5c`. Record the exact frontend/backend
+`1934549`, which includes main `c030c77`. Record the exact frontend/backend
 commits used for each live test.
 
 ## Frontend verification update — 2026-09-28
@@ -147,13 +147,15 @@ currently null; optional phone/street/instructions are empty strings. Record any
 PM/frontend disagreement with these documented choices instead of changing the
 frozen contracts silently. Avoid record mutations while checking pagination.
 
-Decisions 005/006 are approved. The September 28 deployment recheck still found
-replica-set authentication/startup, initialization and audit index-permission
-blockers; see [deployment evidence and follow-up](../reports/BACKEND_DEPLOYMENT_RECHECK.md).
+Decisions 005/006/007 are approved. Main c030c77 includes the deployment fixes;
+the September 30 isolated fresh-start check passed PRIMARY readiness, restricted
+index permissions and actual dispatch-to-feed behavior. See
+[merged deployment verification](../reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
+Shared deployment/migration and Markie's live acceptance remain pending.
 Auth/read-feed testing can proceed on a working agreed backend with provisioned
-records independently of dispatch acceptance. The checked-in deployment has not
-yet passed that recheck. Isolated backend tests have exercised dispatch-to-feed
-behavior, but Markie's live run remains pending.
+records independently of full dispatch acceptance. Check seeded worker jurisdiction:
+the merged seed's Palingon worker has a pending task in Lecheria, which is correctly
+excluded by scope filtering. Coordinate an in-scope task for the positive test.
 
 ## What passing means
 

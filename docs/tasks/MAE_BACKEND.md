@@ -8,6 +8,13 @@
 
 ## Handoff update (2026-09-30)
 
+Latest complete regression: **101 passed, 0 failed, 0 skipped**, with all optional
+database/Docker suites enabled. Centralized error handling now sanitizes Mongoose
+validation/cast errors and oversized JSON; HTTP tests verify continued availability.
+See [Phase 1–4 status](../reports/PHASE1_TO_PHASE4_STATUS.md) for task-by-task
+evidence and acceptance requirements. Full workflow completion and PM-authorized
+placeholder handoff are tracked separately.
+
 Under Renz's instruction to prepare placeholders through Phase 4, the
 [Phase 3/4 backend handoff](../handoffs/PHASE3_PHASE4_BACKEND_HANDOFF.md) now maps
 implemented helpers, named integration placeholders and continuation requirements.
@@ -16,7 +23,10 @@ guard remain unmounted. A reusable strict Joi body-validation middleware is incl
 Focused placeholder/app tests: 10 passed, zero failures/skips. Tasks remain unchecked
 against their original full DoD; placeholder handoff is not live workflow completion.
 Main `c030c77` is merged locally at `4640351`; Decision 007 is approved and the
-listIndexes/PRIMARY-wait fixes are present. Their deployment acceptance is pending.
+listIndexes/PRIMARY-wait fixes are present. The September 30
+[merged deployment smoke test](../reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md)
+passed fresh startup, restricted permissions and real dispatch-to-feed checks.
+Shared deployment, migration and full Task 2.4 acceptance remain pending.
 
 ## Historical status (2026-09-25)
 
