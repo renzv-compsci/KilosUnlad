@@ -87,7 +87,7 @@ Next coordination steps remain pending, not completed:
 - Dustin: coordinate synthetic accounts for all four roles, an inactive account,
   a second worker, and scoped sample records. More than 10 flagged households
   are needed to test Markie's actual pagination controls.
-- Mae and Markie: once an agreed backend and records are available, record live
+- Backend and frontend teams: once an agreed backend and records are available, record live
   valid/invalid login, role/scope denials, triage pagination, assigned-task
   isolation, and session handling with backend mock mode and frontend fallback
   disabled. Auth/read-feed checks do not require dispatch acceptance if a working

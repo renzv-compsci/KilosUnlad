@@ -71,7 +71,7 @@
 
 ### Mae Santos (Backend)
 
-**Mae status (2026-09-27):** Tasks 1.1 and 1.2 complete. Task 1.3 backend mock handlers and contract tests pass; its frontend integration acceptance remains pending, so the checkbox stays open.
+**Backend status (2026-09-27):** Tasks 1.1 and 1.2 complete. Task 1.3 backend mock handlers and contract tests pass; its frontend integration acceptance remains pending, so the checkbox stays open.
 
 * **Goal:** Stand up Express, mount core security middleware, and serve mock responses matching contracts.
 - [x] **Task 1.1: Express Server Bootstrap & Health Check**
@@ -172,7 +172,7 @@
 
 ### Mae Santos (Backend)
 
-**Mae status (2026-09-27):** Task 2.1 complete for backend authentication/RBAC. Task 2.2 is partial: transition guards and transactional dispatch are implemented, but remaining notice/graduation policies are pending. Task 2.3 has tested 15-day timing helpers; approved appeal storage, docket contract and pause/resume rules remain pending. Task 2.4 is implemented and tested on a disposable replica set; shared transaction deployment and index readiness await Decision 006. Live triage/assigned feeds and dispatch-to-feed isolation tests are implemented. Latest tracked backend run: 58 passed, 0 failed, 0 skipped. PR #7 merged into main at d4edba4; Phase 2 is not fully complete. See [verification evidence](../reports/BACKEND_VERIFICATION_STATUS.md), [gap review](../reports/PHASE2_GAP_REVIEW.md), and [Decision 006](../decisions/006-backend-transaction-deployment.md).
+**Backend status (2026-09-27):** Task 2.1 complete for backend authentication/RBAC. Task 2.2 is partial: transition guards and transactional dispatch are implemented, but remaining notice/graduation policies are pending. Task 2.3 has tested 15-day timing helpers; approved appeal storage, docket contract and pause/resume rules remain pending. Task 2.4 is implemented and tested on a disposable replica set; shared transaction deployment and index readiness await Decision 006. Live triage/assigned feeds and dispatch-to-feed isolation tests are implemented. Latest tracked backend run: 58 passed, 0 failed, 0 skipped. PR #7 merged into main at d4edba4; Phase 2 is not fully complete. See [verification evidence](../reports/BACKEND_VERIFICATION_STATUS.md), [gap review](../reports/PHASE2_GAP_REVIEW.md), and [Decision 006](../decisions/006-backend-transaction-deployment.md).
 
 * **Goal:** Replace mock auth with real JWTs, implement the state machine, and build task dispatching.
 - [x] **Task 2.1: Implement JWT Authentication & Jurisdictional RBAC**
@@ -271,7 +271,7 @@
 
 ### Mae Santos (Backend)
 
-**Mae status (2026-09-27):** Task 3.1 has local, uncommitted ML-client groundwork only; fallback, persistence and live integration remain unfinished. No Phase 3 task is marked complete.
+**Backend status (2026-09-27):** Task 3.1 has local, uncommitted ML-client groundwork only; fallback, persistence and live integration remain unfinished. No Phase 3 task is marked complete.
 
 * **Goal:** Connect Charles's Python ML service via Axios and process batch uploads from Markie's tablet.
 - [ ] **Task 3.1: Build Resilient Python ML Client**
@@ -356,7 +356,7 @@
 
 ### Mae Santos (Backend)
 
-**Mae status (2026-09-27):** Hashing and workflow audit foundations exist, and implemented routes have validation/error handling. The chain-verification endpoint, general mutation auditing and full hardening acceptance remain unfinished; no Phase 4 task is marked complete.
+**Backend status (2026-09-27):** Hashing and workflow audit foundations exist, and implemented routes have validation/error handling. The chain-verification endpoint, general mutation auditing and full hardening acceptance remain unfinished; no Phase 4 task is marked complete.
 
 * **Goal:** Build COA cryptographic chain verification endpoint and verify tamper detection.
 - [ ] **Task 4.1: Implement Cryptographic Chain Verification Endpoint**
@@ -422,7 +422,7 @@
 
 ### Mae Santos (Backend)
 
-**Mae status (2026-09-27):** Clean committed Compose images built and all five services started in an isolated smoke check. This is not completion of the under-30-second optimization target or team demo rehearsals; both Phase 5 tasks remain open.
+**Backend status (2026-09-27):** Clean committed Compose images built and all five services started in an isolated smoke check. This is not completion of the under-30-second optimization target or team demo rehearsals; both Phase 5 tasks remain open.
 
 * **Goal:** Optimize backend Docker build and rehearse live demonstration scenarios.
 - [ ] **Task 5.1: Backend Container Optimization**

@@ -36,7 +36,7 @@ matrix below already documents HTTP 400 INVALID_QUERY for that override.
   if the frontend uses another origin. Never put `JWT_SECRET` in frontend settings.
 - Verify `GET http://localhost:5000/health` and `/api/v1` return 200. The backend
   must log a successful MongoDB connection before listening.
-- Coordinate test-account/database setup with Dustin. Mae owns API behavior and
+- Coordinate test-account/database setup with Dustin. The backend team owns API behavior and
   integration checks; this handoff does not authorize shared database resets or
   schema changes. Dustin coordinates account provisioning; this handoff does not
   create accounts or modify database data.

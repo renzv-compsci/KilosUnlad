@@ -51,7 +51,7 @@ approval or appeal contract.
 
 ## Next actions and ownership
 
-1. Mae: present the above storage, contract, audit and timing questions to Renz
+1. Backend: present the above storage, contract, audit and timing questions to Renz
    and Dustin. Keep both tasks unchecked until their full behavior is verified.
 2. Renz/team: settle the due-process API and business rules, including the notice
    audit action and pause/resume semantics, through the decision process.
@@ -59,7 +59,7 @@ approval or appeal contract.
    Dustin reviews/implements schema changes only when agreed and assigned; no
    broader role permissions or replica-set work are automatically assigned to him.
    Audit update/delete restrictions remain intact.
-4. Mae: consume those approved models/contracts, implement transactional notice,
+4. Backend: consume those approved models/contracts, implement transactional notice,
    docket and graduation policies, then test rollback, stale writes, duplicate
    submissions, role/scope restrictions and deadline/hold boundaries.
 5. Markie: verify frontend integration against the agreed live endpoints with
@@ -71,7 +71,7 @@ complete the remaining notice/graduation and appeal workflows.
 
 ## Evidence and scope
 
-Read: docs/tasks/MAE_BACKEND.md; core architecture/overview/structure and Mae's
+Read: docs/tasks/MAE_BACKEND.md; core architecture/overview/structure and the backend
 prompt; decisions 001/002/003/005; available contract inventory and field
 submission contract; Beneficiary, VerificationTask and AuditLog models; workflow,
 workflowPersistence and appealLifecycle services; mounted v1 routes and appeal

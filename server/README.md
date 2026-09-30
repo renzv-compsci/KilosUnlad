@@ -1,4 +1,4 @@
-# Mae's backend: authentication, dispatch and live feeds
+# Backend: authentication, dispatch and live feeds
 
 ## Run
 

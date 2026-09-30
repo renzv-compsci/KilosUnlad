@@ -47,7 +47,7 @@ historical snapshots; the September 30 handoff update above takes precedence.
 - Accounts, sample records and live frontend acceptance remain pending. Local
   Phase 3 ML client work is uncommitted and excluded from PR #7.
 
-## 1. Context & Architecture Summary for Mae
+## 1. Context & Architecture Summary for Backend
 
 You are building the **Core Application Engine & Security Authority** for **KilosUnlad**, a decision-support and forensic auditing system for the DSWD 4Ps welfare program.
 
