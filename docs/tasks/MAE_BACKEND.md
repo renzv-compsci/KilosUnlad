@@ -6,11 +6,23 @@
 
 ---
 
-## Current status (2026-09-25)
+## Handoff update (2026-09-30)
+
+Under Renz's instruction to prepare placeholders through Phase 4, the
+[Phase 3/4 backend handoff](../handoffs/PHASE3_PHASE4_BACKEND_HANDOFF.md) now maps
+implemented helpers, named integration placeholders and continuation requirements.
+Placeholder services return ENDPOINT_NOT_READY; the audit controller and mutation
+guard remain unmounted. A reusable strict Joi body-validation middleware is included.
+Focused placeholder/app tests: 10 passed, zero failures/skips. Tasks remain unchecked
+against their original full DoD; placeholder handoff is not live workflow completion.
+Main `c030c77` is merged locally at `4640351`; Decision 007 is approved and the
+listIndexes/PRIMARY-wait fixes are present. Their deployment acceptance is pending.
+
+## Historical status (2026-09-25)
 
 See [backend verification status](../reports/BACKEND_VERIFICATION_STATUS.md) for
 current test evidence and skipped-suite explanations. Dated updates below are
-historical snapshots; this section takes precedence for current status.
+historical snapshots; the September 30 handoff update above takes precedence.
 
 - Tasks 1.1, 1.2 and 2.1 remain complete within their documented backend scope.
 - Task 1.3 awaits Markie's actual frontend acceptance; backend mock tests pass.

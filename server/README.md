@@ -403,6 +403,8 @@ and verifiers must use this same helper and format.
 
 ## Backend reviews and handoff
 
+- [Phase 3/4 backend handoff for Renz and Charles](../docs/handoffs/PHASE3_PHASE4_BACKEND_HANDOFF.md)
+
 - [Phase 3 backend checkpoint](../docs/reports/PHASE3_BACKEND_CHECKPOINT.md)
 
 - [Frontend authentication handoff](../docs/handoffs/FRONTEND_AUTH_HANDOFF.md)
