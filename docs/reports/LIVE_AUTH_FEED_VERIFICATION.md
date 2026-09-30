@@ -53,6 +53,29 @@ the machine clock. The temporary API session was stopped after verification.
 
 ### Outstanding cases
 
+### Local browser check — 2026-09-30
+
+The existing isolated frontend copy previously reviewed at `7cc3dd7` ran at
+`http://127.0.0.1:3000`, pointing to the live backend on port 5000.
+Browser observations confirmed:
+
+- When the backend was unavailable, login displayed an API connectivity error
+  and did not open a fallback session.
+- After backend restart, an incorrect password displayed "Incorrect username
+  or password." and stayed on the login screen.
+- Director login succeeded; the triage screen displayed `TEST-4PS-0002`,
+  Lecheria, risk score 82, and one flagged record. Previous/next were disabled
+  for the single page.
+- The director's logout control returned to the login screen. This checks local
+  session UI behavior, not server-side token revocation.
+- Worker login succeeded and displayed "0 assigned tasks loaded" and
+  "No tasks are assigned to this account." Its navigation showed field-worker
+  screens rather than director administration screens.
+
+These local browser checks cover two roles and the current sample data. They do
+not replace Markie's acceptance of his own checkout, full role/browser coverage,
+or positive assigned-task rendering with an in-scope sample.
+
 - The Palingon worker's pending sample task belongs to a Lecheria household.
   The empty assigned feed is correct scope filtering; positive task visibility
   still needs an agreed in-scope pending/cached task from the database owner.
