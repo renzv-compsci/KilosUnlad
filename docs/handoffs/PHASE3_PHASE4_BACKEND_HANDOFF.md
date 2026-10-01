@@ -190,3 +190,37 @@ requires coordination with data/ML and database owners at the boundaries above.
 
 Tasks 3.1–3.4 and 4.1–4.3 remain unchecked against their original full definitions
 of done. Placeholder handoff readiness is a separate status under the PM instruction.
+
+## Acceptance requests prepared — October 1
+
+These requests are prepared for coordination; they do not claim delivery,
+agreement or completion by another team member.
+
+| Recipient | Requested action | Evidence needed to close |
+| --- | --- | --- |
+| Markie | Run the agreed frontend against this backend with fallback disabled; confirm login, invalid login, role handling, triage and assigned-feed behavior | Exact frontend/backend commits, date, expected/actual results and redacted errors; record positive task display separately if blocked |
+| Dustin | Provide a PENDING_DISPATCH sample task assigned to the actual case_worker_test user ID and linked to a Palingon household | Sample task/household identifiers and seed revision; the worker should see that task while the Lecheria task remains excluded |
+| Renz/Charles | Review PR #10 and the continuation order above | Review feedback and confirmation of who continues each integration; handoff acceptance is separate from original full phase completion |
+| Renz | Resolve notice/appeal requirements below with the relevant owners | Recorded decision and approved contracts/storage ownership before backend implementation |
+
+### Phase 2 decision questions for Renz
+
+Use case: after an authorized review enters notice, the backend must calculate
+and preserve the appeal window, record appeals, and prevent graduation while a
+deadline or unresolved hold applies. Current helpers cannot persist this workflow.
+
+1. Which approved storage holds the notice/service timestamp, deadline, appeal
+   docket and resolution? Assign its schema owner and contract owner explicitly.
+2. What starts the 15-day clock: administrative approval or actual notice service?
+   Confirm elapsed-time/calendar handling and what happens exactly at the deadline.
+3. Does an appeal or calamity pause the remaining time, restart it, or apply another
+   rule? Define the authoritative resolution/resumption trigger.
+4. Which roles may issue notice, file/resolve appeals and authorize graduation?
+   Define jurisdiction restrictions and late/duplicate appeal handling.
+5. Approve request/response/error contracts and the audit action for notice;
+   notice must not be logged as completed graduation.
+
+Backend recommendation, pending approval: read trusted stored notice/appeal state
+inside the transaction, enforce holds and current authorization, and commit each
+mutation with its audit entry atomically. Do not introduce a new schema or public
+endpoint until the responsible owners settle these questions.
