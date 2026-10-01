@@ -73,7 +73,7 @@ testUsers.forEach((u) => {
 });
 
 // ============================================================
-// 2. SAMPLE BENEFICIARIES (3)
+// 2. SAMPLE BENEFICIARIES (4)
 // ============================================================
 print('\n[2] Seeding sample beneficiaries...');
 
@@ -194,6 +194,45 @@ const sampleBeneficiaries = [
       evaluated_at: new Date(),
     },
   },
+  {
+    household_id: 'TEST-4PS-0004',
+    head_of_household: {
+      first_name: 'Rosa',
+      last_name: 'Villanueva',
+      national_id: 'TEST-NID-0004',
+      contact_phone: '+639170000004',
+    },
+    address: {
+      street: 'Purok 6',
+      barangay: 'Palingon',
+      municipality: 'Calamba',
+      province: 'Laguna',
+      coordinates: { type: 'Point', coordinates: [121.1680, 14.2130] },
+    },
+    demographics: {
+      household_size: 4,
+      dependents_ratio: 0.5,
+      head_education_level: 1,
+      wall_score: 2,
+      roof_score: 2,
+      water_access_level: 2,
+    },
+    children_registry: [
+      { birthdate: new Date('2016-04-22'), is_eligible: true },
+    ],
+    enrolled_swdi_level: 1,
+    program_status: 'FLAGGED_FOR_REVIEW',
+    risk_assessment: {
+      composite_risk_score: 68,
+      is_flagged: true,
+      predicted_swdi_level: 2,
+      flag_reasons: ['Power consumption above baseline'],
+      trigger_badges: [
+        { code: 'POWER_LIFELINE_BREACH', label: 'Meralco > 150 kWh', severity: 'MEDIUM' },
+      ],
+      evaluated_at: new Date(),
+    },
+  },
 ];
 
 sampleBeneficiaries.forEach((b) => {
@@ -216,7 +255,7 @@ const caseWorker = appDb.users.findOne({ username: 'case_worker_test' });
 const sampleTasks = [
   {
     task_id: 'TEST-TSK-0001',
-    household_id: 'TEST-4PS-0002',
+    household_id: 'TEST-4PS-0004',
     assigned_worker_id: caseWorker ? caseWorker._id : null,
     task_status: 'PENDING_DISPATCH',
     assignment_notes: 'Verify if motorcycle is used for delivery livelihood or personal luxury.',
