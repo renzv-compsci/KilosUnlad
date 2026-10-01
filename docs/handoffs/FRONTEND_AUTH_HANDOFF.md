@@ -2,12 +2,15 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
-Prepared 2026-09-24. Updated 2026-09-30. The live acceptance cases below remain
-pending; the isolated frontend checks are recorded separately.
+Prepared 2026-09-24. Updated 2026-10-01. Completed local checks and remaining
+acceptance cases are distinguished below.
 Backend-only live checks on September 30 passed all four logins and the role
 matrix after running Dustin's seed script locally. See
 [live account verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
 Markie's browser acceptance and positive assigned-task display remain pending.
+On October 1, Mae confirmed the manual SUPER_ADMIN and COA_AUDITOR login and
+triage-display checks passed. Together with the observed director/worker checks,
+basic local browser checks cover all four roles; this is not full acceptance.
 An additional 11 live API checks passed for pagination, status filters, invalid
 queries, worker overrides and correctly signed expired-token rejection. Browser
 behavior for these cases still needs frontend acceptance.

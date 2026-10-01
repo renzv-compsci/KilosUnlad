@@ -4,6 +4,8 @@
 
 **Date:** 2026-09-30
 
+**Updated:** 2026-10-01
+
 ## Setup
 
 Backend implementation: `03e9e74` on `backend-mae`, with documentation updates.
@@ -31,7 +33,7 @@ assigned-task endpoint. Successful feeds returned `Cache-Control: no-store`
 without an `X-KilosUnlad-Mock` header. Login returned real access tokens which
 were used for the protected requests.
 
-## Remaining acceptance
+## Follow-up verification
 
 ### Follow-up live checks — 2026-09-30
 
@@ -50,8 +52,6 @@ setup for these checks. This is separate from the earlier 101-test regression.
 The expiry case used the temporary API session's signing key and an expiration
 in the past; it did not wait for a normal 15-minute session to expire or change
 the machine clock. The temporary API session was stopped after verification.
-
-### Outstanding cases
 
 ### Local browser check — 2026-09-30
 
@@ -76,6 +76,20 @@ These local browser checks cover two roles and the current sample data. They do
 not replace Markie's acceptance of his own checkout, full role/browser coverage,
 or positive assigned-task rendering with an in-scope sample.
 
+### User-confirmed browser checks — 2026-10-01
+
+Mae confirmed that the requested SUPER_ADMIN and COA_AUDITOR manual checks
+worked: login, opening the triage queue and viewing `TEST-4PS-0002`, with logout
+between accounts. These results are user-reported; browser automation was
+unavailable for independent observation during this session. No additional
+HTTP status codes or screenshots were supplied for these manual checks.
+
+Together with the September 30 director/worker observations, basic local login
+and screen checks now cover all four roles. This does not establish complete
+browser authorization coverage or Markie's independent acceptance.
+
+## Remaining acceptance
+
 - The Palingon worker's pending sample task belongs to a Lecheria household.
   The empty assigned feed is correct scope filtering; positive task visibility
   still needs an agreed in-scope pending/cached task from the database owner.
@@ -84,8 +98,8 @@ or positive assigned-task rendering with an in-scope sample.
   from backend authentication behavior.
 - Inactive-account, second-worker isolation, and token-expiry/pagination browser
   cases were not exercised in this live run.
-- Markie's frontend end-to-end acceptance remains pending. These results are
-  direct HTTP checks, not browser UI tests or completion of the whole phase.
+- Markie's independent frontend acceptance remains pending. The direct HTTP
+  checks and limited local browser checks above do not complete the whole phase.
 
 The initial backend session had stopped before the follow-up. The follow-up
 session also stopped after its checks; restart the backend before browser testing.
