@@ -4,6 +4,15 @@
 
 **Date:** 2026-09-30
 
+**Reviewed:** 2026-10-01
+
+Latest documentation review baseline: `dcfd67f`; main `c030c77`. The historical
+101-test run below is supplemented by four-role live API checks, 11 additional
+API cases, observed director/worker browser checks and user-confirmed
+SUPER_ADMIN/COA_AUDITOR browser checks. See
+[live verification](LIVE_AUTH_FEED_VERIFICATION.md) for evidence and limits.
+Positive assigned-task display and Markie's independent acceptance remain pending.
+
 ## Verification result
 
 Complete working-tree backend regression: **101 passed, 0 failed, 0 skipped**.

@@ -4,6 +4,8 @@
 
 **Date:** 2026-09-30
 
+**Reviewed:** 2026-10-01
+
 **Recipients:** Renz and Charles
 
 **Status:** Placeholder handoff prepared under Renz's September 30 instruction;
@@ -21,6 +23,11 @@ describes the handoff changes following that merge. Use the commit containing
 this document as the handoff revision when reporting integration results.
 Existing authentication, read feeds and transactional dispatch remain the live
 implementation. Phase 3 helpers and Phase 4 placeholder controllers are unmounted.
+
+Review baseline: `dcfd67f` on `backend-mae`; [PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10).
+Documentation revisions after that baseline do not change the implementation.
+Start with this guide, then [Phase 1–4 status](../reports/PHASE1_TO_PHASE4_STATUS.md)
+and [live verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
 
 ## Component map
 
@@ -42,6 +49,35 @@ Paths below are relative to `server/`.
 ENDPOINT_NOT_READY. They do not implement inputs/outputs or pretend success.
 These internal names are replacement seams, not new public contracts. Callers
 must catch/forward failures. The existing Express error middleware handles them.
+
+## Inputs, outputs and continuation order
+
+These are existing internal interfaces, not approvals for new public endpoints.
+
+| Interface | Input | Current output / failure |
+| --- | --- | --- |
+| `createMlClient().predict` | Household ID and six demographic features in the ML contract | Validated contract prediction body; typed INVALID_FEATURE_VECTOR, ML_TIMEOUT, ML_UNAVAILABLE or INVALID_ML_RESPONSE errors |
+| `prepareSubmission` | Contract submission body and route task ID | `{ task_id, household_id, field_findings }`; validation failure stops processing |
+| Authorizer returned by `createSubmissionAuthorizer` | `{ input, routeTaskId, actorId, session }` | Prepared submission after current database authorization checks; no writes |
+| `verifyEvidenceHash` | Actual byte Buffer and expected SHA-256 hex string | Normalized matching hash; invalid input or mismatch fails |
+| `calculateRiskScore` | Explicit level gap and four Boolean indicators | `{ score, meetsFlagThreshold, contributions }`; invalid inputs throw |
+| `hasActiveCalamityMoratorium` | `{ zones, address, now }`, with Date objects | Boolean hold decision; invalid configuration throws |
+| Five integration placeholders | No implemented input contract | Always reject with 503 ENDPOINT_NOT_READY; no prediction, receipt or success output |
+
+Recommended continuation:
+
+1. Charles supplies the ML endpoint using the frozen request/response contract;
+   Renz confirms external-data mapping and fallback policy. Exercise the internal
+   client against that service before persisting predictions.
+2. Renz/Charles connect risk and calamity helpers to approved data and policies.
+   Agree missing/stale-data behavior and record provenance before enabling writes.
+3. Complete trusted evidence acquisition and transactional submission, including
+   authorization rechecks and a single atomic audit entry. Mount routes only with
+   approved contracts, role checks and replay/concurrency tests.
+4. Implement real audit-chain verification and workflow-level audit writes.
+   The generic mutation guard is a placeholder, not a working interceptor.
+5. Repeat end-to-end acceptance for each connected workflow. Record the exact
+   commits, data setup and remaining failures before marking its original DoD done.
 
 ## Contracts and integration responsibilities
 
@@ -127,9 +163,30 @@ the current working tree, not the outstanding live integration requirements.
 - Run live ML, submission, risk and moratorium workflows with real test records.
 - Verify 1,000 audit blocks, tampering/link/gap detection and concurrent writes.
 - Verify failed mutations cannot commit without their audit entry.
-- Complete malformed JSON/Joi/Mongoose/async-error tests at the HTTP boundary.
-- Recheck the merged deployment and actual dispatch before marking Phase 2
-  acceptance complete; earlier review findings must be reconciled with fixed main.
+- Existing HTTP error-boundary tests already pass; extend them for newly mounted routes.
+- The merged fresh-start deployment and actual dispatch were verified on September
+  30. Shared-environment acceptance and existing-volume migration remain separate;
+  see [deployment evidence](../reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
+
+## Latest verification and remaining dependencies
+
+- Historical complete backend regression: **101 passed, 0 failed, 0 skipped** on
+  September 30. This review changes documentation only; that count is not a new run.
+- Four seeded accounts passed live login and backend role-access checks. Eleven
+  additional API cases passed pagination, filters, invalid-query handling, worker
+  override rejection and correctly signed expired-token rejection.
+- Director/worker browser checks were independently observed on September 30.
+  SUPER_ADMIN/COA_AUDITOR basic login and triage checks were user-confirmed on
+  October 1. Markie's independent acceptance remains pending.
+- Dustin's current pending task is in Lecheria while the worker is scoped to
+  Palingon. Positive assigned-task display needs an in-scope sample. Current seed
+  counts are 3 households/2 tasks versus Decision 007's approved 5/3.
+- Phase 2 notice/graduation and persistent appeal contracts/policies remain open.
+  They are not silently implemented by the Phase 3–4 placeholder direction.
+
+At the `dcfd67f` review baseline, the PR diff against main `c030c77` contains
+backend code/tests, backend documentation and task/status notes. Continuation
+requires coordination with data/ML and database owners at the boundaries above.
 
 Tasks 3.1–3.4 and 4.1–4.3 remain unchecked against their original full definitions
 of done. Placeholder handoff readiness is a separate status under the PM instruction.
