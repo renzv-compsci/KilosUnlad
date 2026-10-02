@@ -2,6 +2,12 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
+October 2 reading note: the failures below describe the September 28 baseline.
+Subsequent fixes and the successful September 30 isolated fresh-start/dispatch
+check are recorded in [merged deployment verification](PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
+The October 2 local regression again verifies dispatch transactions and rollback
+on a disposable replica set; shared-environment acceptance remains outstanding.
+
 Review baseline: main `08eca5c`, merged locally into `backend-mae` at `886ca2a`.
 Decisions 005/006 are approved. Successful dispatch against the updated shared
 deployment remains unverified.

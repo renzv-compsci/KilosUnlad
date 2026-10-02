@@ -4,7 +4,7 @@
 
 **Date:** 2026-09-30
 
-**Reviewed:** 2026-10-01
+**Reviewed:** 2026-10-02
 
 **Recipients:** Renz and Charles
 
@@ -12,6 +12,17 @@
 full workflow acceptance remains outstanding.
 
 ## Direction and scope
+
+October 2 continuation supersedes the original Task 4.1 placeholder handoff:
+`hashChain.service.js` and the mounted authenticated audit route now implement
+range validation, snapshot reads, canonical rehashing and predecessor linkage.
+Unit/HTTP tests and a disposable MongoDB test verify 1000 blocks and tampering;
+real auditor login also verifies the persisted dispatch ledger. See
+[current results](../reports/PHASE1_TO_PHASE4_STATUS.md) and
+[behavior/limits](../../server/README.md#audit-chain-verification).
+Only Task 4.1 is closed within local backend scope; Task 4.2 remains unmounted.
+Historical descriptions below of five placeholders and an unmounted audit
+controller apply to the September 30 handoff, not the current implementation.
 
 Renz requested backend work through Phase 4 with placeholders for the data/ML
 and remaining testing integrations, then a comprehensive Markdown handoff for
@@ -24,8 +35,10 @@ this document as the handoff revision when reporting integration results.
 Existing authentication, read feeds and transactional dispatch remain the live
 implementation. Phase 3 helpers and Phase 4 placeholder controllers are unmounted.
 
-Review baseline: `dcfd67f` on `backend-mae`; [PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10).
-Documentation revisions after that baseline do not change the implementation.
+Current local review baseline: `19c9997` on `backend-mae`, including Dustin's
+seed fix and test-data handoff. The original handoff baseline was `dcfd67f`;
+[PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10) is the historical
+review reference, not a claim that local commits have been pushed.
 Start with this guide, then [Phase 1–4 status](../reports/PHASE1_TO_PHASE4_STATUS.md)
 and [live verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
 
@@ -39,13 +52,14 @@ Paths below are relative to `server/`.
 | 3.2 | `src/services/sync.service.js`: `prepareSubmission`, `createSubmissionAuthorizer`, `verifyEvidenceHash`; `src/utils/geoFence.js` | Acquire trusted attachment bytes; atomically recheck authorization and write submission plus audit; mount controller |
 | 3.3 | `src/services/discrepancy.service.js`: `calculateRiskScore` | Map real ML/ExternalRecord inputs, apply moratorium and lifecycle policies, persist with audit |
 | 3.4 | `src/services/calamity.service.js`: `hasActiveCalamityMoratorium` | Approve toggle request/response and date rules; load correct SystemConfig, authorize and audit mutations |
-| 4.1 | `src/controllers/audit.controller.js`: `createVerifyChain` delegates to placeholder by default | Real chain reading/verification, query limits, authenticated role restrictions and route mounting |
+| 4.1 | `src/services/hashChain.service.js` and mounted `createVerifyChain` controller | Locally verified; shared deployment and frontend acceptance remain |
 | 4.2 | `src/middleware/audit.middleware.js`: unmounted mutation-blocking placeholder | Integrate transactional audit recording into each mutation workflow |
 | 4.3 | Strict Joi body validation; sanitized JSON, Mongoose and size errors; HTTP error-boundary tests | Supply schemas and async error forwarding for each future route; repeat acceptance as workflows are mounted |
 
 `src/services/integrationPlaceholders.service.js` exposes async
-`evaluateHousehold`, `submitTask`, `applyRiskAssessment`, `toggleCalamity` and
-`verifyChain`. Each throws a sanitized WorkflowError with status 503 and code
+`evaluateHousehold`, `submitTask`, `applyRiskAssessment` and `toggleCalamity`
+(four remaining placeholders; `verifyChain` was replaced). Each throws a
+sanitized WorkflowError with status 503 and code
 ENDPOINT_NOT_READY. They do not implement inputs/outputs or pretend success.
 These internal names are replacement seams, not new public contracts. Callers
 must catch/forward failures. The existing Express error middleware handles them.
@@ -178,9 +192,12 @@ the current working tree, not the outstanding live integration requirements.
 - Director/worker browser checks were independently observed on September 30.
   SUPER_ADMIN/COA_AUDITOR basic login and triage checks were user-confirmed on
   October 1. Markie's independent acceptance remains pending.
-- Dustin's current pending task is in Lecheria while the worker is scoped to
-  Palingon. Positive assigned-task display needs an in-scope sample. Current seed
-  counts are 3 households/2 tasks versus Decision 007's approved 5/3.
+- Fresh seed `d47af57` now links the worker's pending task to Palingon household
+  `TEST-4PS-0004`. Its API feed passed and Mae confirmed browser display on
+  October 2. Current seed counts are 4 households/2 tasks versus Decision 007's
+  approved 5/3. Existing databases retain old links on reseeding; Dustin's
+  [repair instructions](https://github.com/renzv-compsci/KilosUnlad/blob/database-phase3/docs/handoffs/TEST_DATA_SEED_HANDOFF.md) are merged, but execution and
+  verification in the shared environment remain outstanding.
 - Phase 2 notice/graduation and persistent appeal contracts/policies remain open.
   They are not silently implemented by the Phase 3–4 placeholder direction.
 

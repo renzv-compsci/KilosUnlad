@@ -6,6 +6,35 @@
 
 ---
 
+## Current review (2026-10-02)
+
+Reviewed local `backend-mae` at `19c9997` after fetching origin. Main `c030c77`
+and database-phase3 `697f6bb` are already included. The publication includes this
+merge and the subsequent verifier/documentation changes. Frontend remains on its
+separate branch at `7cc3dd7`.
+
+All four roles have documented local login/screen evidence. Fresh-seed assigned
+task visibility passed via API, and Mae confirmed browser display on October 2.
+Markie's independent acceptance remains open. Dustin's existing-data repair
+procedure is now merged; shared-environment repair execution is not verified.
+The seed contains 4 households/2 tasks against the approved 5/3 target.
+
+Task 4.1 continuation: the authenticated chain endpoint now verifies up to 1000
+blocks with snapshot consistency and predecessor linkage. MongoDB tests verify
+persisted workflow hashes, 1000 intact blocks, and exact tampered sequence 451.
+Schemas and frozen contracts are unchanged. See the
+[endpoint behavior and limits](../../server/README.md#audit-chain-verification).
+Phase 1/2 auth, guard, dispatch, concurrency and rollback checks pass locally;
+this does not implement the missing notice or appeal workflows.
+
+Next backend closure work: record independent frontend acceptance, verify the
+agreed shared deployment and existing-data repair, and obtain the remaining
+notice/graduation and appeal contracts. Phase 3/4 integrations remain placeholder
+handoffs except for the now-implemented Task 4.1. See [current status](../reports/PHASE1_TO_PHASE4_STATUS.md) and
+[live verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md). This documentation
+review's original documentation-only scope was followed by implementation and
+regression testing; current results are recorded in the linked status report.
+
 ## Handoff update (2026-09-30)
 
 Latest complete regression: **101 passed, 0 failed, 0 skipped**, with all optional
@@ -32,7 +61,7 @@ Shared deployment, migration and full Task 2.4 acceptance remain pending.
 
 See [backend verification status](../reports/BACKEND_VERIFICATION_STATUS.md) for
 current test evidence and skipped-suite explanations. Dated updates below are
-historical snapshots; the September 30 handoff update above takes precedence.
+historical snapshots; the October 2 current review above takes precedence.
 
 - Tasks 1.1, 1.2 and 2.1 remain complete within their documented backend scope.
 - Task 1.3 awaits Markie's actual frontend acceptance; backend mock tests pass.
@@ -317,7 +346,7 @@ skipped suite. These are separate runs, not a new combined test total.
 ## Phase 4: Forensic Audit Engine & Stress Testing (Days 13–15)
 *Goal: Build the COA cryptographic chain verification endpoint and verify tamper detection.*
 
-- [ ] **Task 4.1: Implement Cryptographic Chain Verification Endpoint**
+- [x] **Task 4.1: Implement Cryptographic Chain Verification Endpoint**
   - Path: `/server/src/controllers/audit.controller.js`
   - Implement `GET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1000` matching `audit-chain-verification.json`.
   - Sequentially iterate through blocks in `AuditLog`, recomputing each SHA-256 hash.

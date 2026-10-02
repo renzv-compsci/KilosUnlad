@@ -2,6 +2,27 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
+## October 2 follow-up
+
+Decision 006 is accepted and the replica-set infrastructure fixes are merged.
+Fresh deployment evidence is recorded in
+[merged deployment verification](PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
+The current regression passes real MongoDB login, dispatch-to-feed isolation,
+concurrent dispatch and transactional rollback in a disposable MongoDB 8.3
+replica set. The new chain verifier also validates persisted workflow audit hashes.
+Shared-environment deployment/permissions and independent frontend acceptance
+remain distinct from those local results.
+
+Phase 1 backend bootstrap, hashing and mock contracts are implemented; frontend
+acceptance of Task 1.3 remains open. Phase 2 authentication is implemented, while
+Tasks 2.2/2.3 still need the notice/appeal storage, API and policy decisions below.
+No new approved appeal contract exists in the current contract inventory. Do not
+add public notice/graduation mutations by inventing those missing decisions.
+The deployment-decision request in the historical next-actions list is resolved;
+the remaining shared-environment acceptance is not.
+
+## Historical review
+
 Reviewed 2026-09-24 against local main merged at cdd33f4 and backend d92a4e7.
 This is an implementation review, not an approved schema or API change.
 

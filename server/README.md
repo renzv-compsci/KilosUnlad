@@ -440,6 +440,35 @@ sorted recursively with `fast-json-stable-stringify`; array ordering and JSON
 scalar values are preserved. Missing deltas default to `{}`. All future writers
 and verifiers must use this same helper and format.
 
+## Audit-chain verification
+
+`GET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1000` is mounted in
+normal mode. Current active SUPER_ADMIN and COA_AUDITOR accounts can read the
+global ledger; scoped director/worker roles cannot. Mock mode does not expose
+this endpoint. Responses use the frozen audit-chain contract and `no-store`.
+
+Both bounds are required positive safe integers, inclusive, with at most 1000
+blocks per request. Unknown/repeated parameters return 400 INVALID_QUERY.
+Verification uses a read-only snapshot transaction on the existing replica set,
+including the immediately preceding block for partial-range linkage. Missing
+requested blocks or predecessor return 409 AUDIT_RANGE_INCOMPLETE; malformed
+hash inputs return 409 AUDIT_ENTRY_INVALID. Storage failures return sanitized 503.
+These operational errors supplement the frozen success/tamper response examples.
+
+Stored hashes are recomputed using the existing hash helper. Altered hashed
+contents or links return HTTP 200 with `is_chain_valid: false`, broken block
+details and `INVALID_HASH_AT_SEQUENCE_<first broken sequence>` as `head_hash`.
+For an intact range, `head_hash` is the last requested block's recorded hash.
+Request a range that actually exists; empty or beyond-head ranges do not report
+success. Partial ranges trust the predecessor's recorded hash, not the whole
+earlier chain; verify earlier ranges separately.
+
+This checks audit-entry integrity, not current beneficiary/task documents. The
+existing hash format binds actor ID, action, timestamp, sequence, previous hash
+and state delta, not every metadata field. Fully rewritten/rehashed history or
+deletion beyond the requested range requires an independent trusted checkpoint
+to detect. No model or frozen hash-format change was made.
+
 ## Backend reviews and handoff
 
 - [Phase 1–4 completion status and full regression](../docs/reports/PHASE1_TO_PHASE4_STATUS.md)

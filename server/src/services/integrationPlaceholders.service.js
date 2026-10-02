@@ -9,6 +9,5 @@ module.exports = {
   evaluateHousehold: async () => notReady('ML/fallback evaluation'),
   submitTask: async () => notReady('Transactional field submission'),
   applyRiskAssessment: async () => notReady('Persisted risk assessment'),
-  toggleCalamity: async () => notReady('Calamity toggle'),
-  verifyChain: async () => notReady('Audit chain verification')
+  toggleCalamity: async () => notReady('Calamity toggle')
 };

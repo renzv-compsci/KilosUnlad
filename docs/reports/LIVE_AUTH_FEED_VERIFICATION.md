@@ -38,7 +38,10 @@ including `TEST-TSK-0001`, Rosa Villanueva, Palingon. This is user-reported brow
 evidence, not an independently automated observation; no screenshot was supplied.
 
 Positive task display is now confirmed for this fresh local setup. Markie's
-independent acceptance and the existing-database update procedure remain pending.
+independent acceptance and existing-database repair verification remain pending.
+Dustin subsequently supplied the [test-data repair procedure](https://github.com/renzv-compsci/KilosUnlad/blob/database-phase3/docs/handoffs/TEST_DATA_SEED_HANDOFF.md),
+merged into `backend-mae` at `19c9997`. Its availability does not establish that
+it has been executed in the shared environment.
 This check does not establish full phase completion or all filtering edge cases.
 
 ## Setup
@@ -123,12 +126,13 @@ Together with the September 30 director/worker observations, basic local login
 and screen checks now cover all four roles. This does not establish complete
 browser authorization coverage or Markie's independent acceptance.
 
-## Remaining acceptance
+## Remaining acceptance (updated October 2)
 
-- The Palingon worker's pending sample task belongs to a Lecheria household.
-  The empty assigned feed is correct scope filtering; positive task visibility
-  still needs an agreed in-scope pending/cached task from the database owner.
-- The current script provides 3 households and 2 tasks versus Decision 007's
+- Fresh seed `d47af57` links the Palingon worker's task to `TEST-4PS-0004`;
+  positive API visibility and user-confirmed browser display passed. Existing
+  databases can retain the old Lecheria link. Dustin's repair instructions are
+  available; shared-environment execution and verification remain outstanding.
+- The current script provides 4 households and 2 tasks versus Decision 007's
   approved 5 households and 3 tasks. Record this sample-data gap separately
   from backend authentication behavior.
 - Inactive-account, second-worker isolation, and token-expiry/pagination browser

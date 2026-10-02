@@ -9,7 +9,8 @@ test: the worker API returned `TEST-TSK-0001` for Palingon household
 `TEST-4PS-0004`. Mae subsequently confirmed positive task display manually using
 the isolated frontend on port 3002 and backend on port 5002. Existing databases
 retain the old task link when the seed is rerun; coordinate a targeted update
-with the database owner. Earlier seed descriptions below refer to main `c030c77`.
+with the database owner. Dustin's [repair instructions](https://github.com/renzv-compsci/KilosUnlad/blob/database-phase3/docs/handoffs/TEST_DATA_SEED_HANDOFF.md)
+are now merged locally at `19c9997`; shared-environment repair verification remains open.
 Backend-only live checks on September 30 passed all four logins and the role
 matrix after running Dustin's seed script locally. See
 [live account verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
@@ -183,9 +184,10 @@ index permissions and actual dispatch-to-feed behavior. See
 [merged deployment verification](../reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
 Shared deployment/migration and Markie's live acceptance remain pending.
 Auth/read-feed testing can proceed on a working agreed backend with provisioned
-records independently of full dispatch acceptance. Check seeded worker jurisdiction:
-the merged seed's Palingon worker has a pending task in Lecheria, which is correctly
-excluded by scope filtering. Coordinate an in-scope task for the positive test.
+records independently of full dispatch acceptance. Fresh seed `d47af57` links
+the Palingon worker's pending task to `TEST-4PS-0004` in Palingon. Existing
+databases may retain the old Lecheria link; check and repair that fixture before
+the positive test using Dustin's handoff.
 
 ## What passing means
 
@@ -205,10 +207,10 @@ See [backend README](../../server/README.md) for pagination, summary and missing
 2. Follow the README Docker startup sequence, including successful
    `replset-init` completion, the JWT secret and explicit mock mode disabled.
    Confirm the API is listening on port 5000 and MongoDB connected successfully.
-3. Confirm credentials and expected sample records with Dustin. The seeded
-   worker's Lecheria task is outside its Palingon scope; an empty assigned feed
-   does not prove the positive task-display case. Request an in-scope pending
-   task, plus the additional accounts/records listed above.
+3. Confirm credentials and expected sample records with Dustin. Verify
+   `TEST-TSK-0001` points to `TEST-4PS-0004` in Palingon; reseeding alone does
+   not replace an existing Lecheria link. Request the additional accounts and
+   records needed for isolation and inactive-account cases listed above.
 4. Start the frontend with `VITE_API_URL=http://localhost:5000/api/v1` and its
    login fallback disabled. Restart the frontend after changing its environment.
    Use a browser origin included in backend CORS settings.

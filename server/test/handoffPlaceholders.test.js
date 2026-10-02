@@ -13,9 +13,9 @@ test('all unfinished integration boundaries reject rather than report success', 
   }
 });
 
-test('audit controller forwards placeholder failure and emits no valid-chain response', async () => {
+test('audit controller forwards service failure and emits no valid-chain response', async () => {
   let forwarded, cache;
-  await createVerifyChain()({ query: { start_sequence: '1', end_sequence: '1000' } }, {
+  await createVerifyChain({ verifyChain: placeholders.submitTask })({ query: { start_sequence: '1', end_sequence: '1000' } }, {
     set(key, value) { cache = [key, value]; }, json() { assert.fail('No false verification success'); }
   }, error => { forwarded = error; });
   assert.deepEqual(cache, ['Cache-Control', 'no-store']);

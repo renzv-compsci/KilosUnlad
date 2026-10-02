@@ -7,9 +7,10 @@ const R = require('../../constants/roles');
 const { createReadFeeds } = require('../../services/readFeeds.service');
 const { createTaskDispatcher } = require('../../services/taskDispatcher.service');
 const { createDispatch } = require('../../controllers/task.controller');
+const { createVerifyChain } = require('../../controllers/audit.controller');
 
 module.exports = function createRouter({ mockMode, production, authService = createAuthService(),
-  taskDispatcher = createTaskDispatcher(), readFeeds = createReadFeeds() }) {
+  taskDispatcher = createTaskDispatcher(), readFeeds = createReadFeeds(), chainVerifier }) {
   const router = Router();
   if (mockMode) {
     if (production) throw new Error('Phase 1 mock mode is forbidden in production.');
@@ -23,6 +24,9 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   // Live feeds require authentication and current-user jurisdiction.
 
   const authenticate = createAuthenticate({ secret: authService.secret, findCurrentUser: authService.findCurrentUser });
+  // The global chain cannot be filtered by jurisdiction without breaking its links.
+  router.get('/audit/verify-chain', authenticate, allowRoles(R.COA_AUDITOR, R.SUPER_ADMIN),
+    createVerifyChain(chainVerifier));
   router.post('/tasks/dispatch', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
     scopeJurisdiction, createDispatch(taskDispatcher));
   const feed = operation => async (req, res, next) => {

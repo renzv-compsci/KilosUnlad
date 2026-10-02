@@ -4,16 +4,43 @@
 
 **Date:** 2026-09-30
 
-**Reviewed:** 2026-10-01
+**Reviewed:** 2026-10-02
 
-Latest documentation review baseline: `dcfd67f`; main `c030c77`. The historical
+Latest documentation review baseline: `19c9997`; main `c030c77`. The historical
 101-test run below is supplemented by four-role live API checks, 11 additional
 API cases, observed director/worker browser checks and user-confirmed
 SUPER_ADMIN/COA_AUDITOR browser checks. See
 [live verification](LIVE_AUTH_FEED_VERIFICATION.md) for evidence and limits.
-Positive assigned-task display and Markie's independent acceptance remain pending.
+Positive assigned-task display was confirmed manually by Mae on October 2 in a
+fresh local setup. Markie's independent acceptance remains pending. Dustin's
+seed and existing-data repair instructions are now merged; applying and verifying
+the repair in an agreed existing environment remains outstanding.
+
+## Publication scope
+
+This update includes the existing merge `19c9997` of database-phase3, including
+Dustin's seed, proposed Decision 008 and test-data handoff, plus the backend
+verifier and documentation changes. The merge remains part of the published
+branch ancestry; Decision 008 is still proposed, not approved by this push.
 
 ## Verification result
+
+Pre-push verification on October 2 with Node 20 and the disposable MongoDB 8.3
+workflow suite: `hashChain`, `handoffPlaceholders`, `workflowPersistence` and
+`app` tests passed **30 tests, 0 failures, 0 skips**. This targeted run includes
+the persisted 1000-block tampering case and authenticated auditor route checks.
+
+October 2 implementation update: Task 4.1 now has a mounted authenticated
+verifier using snapshot reads and the existing hash format. The current Node
+22.16.0 regression with the disposable MongoDB 8.3 workflow suite enabled passed
+104 tests, failed 0, skipped 3. Skips: standalone live-feed suite (TEST_MONGO_URI
+unset), Docker recovery and Docker audit-role suites (not enabled; Docker engine
+unavailable). This is separate from the historical all-optional run below.
+The real database test verifies 1000 blocks and detects tampering at sequence 451.
+Shared deployment/frontend acceptance and Task 4.2 remain open.
+After adding the real auditor-login-to-verifier HTTP check, the affected suites
+passed 24 tests, 0 failures, 0 skips. That run includes current-account deactivation
+enforcement and real dispatch-ledger verification; counts overlap the full run.
 
 Complete working-tree backend regression: **101 passed, 0 failed, 0 skipped**.
 Run after `1934549` with the new centralized-error changes. Node 20 executed
@@ -43,7 +70,7 @@ handling. It is not frontend acceptance or proof that unimplemented workflows ex
 | 3.2 Submission | Validation, mapping, ownership/scope checks, geofence and byte hashing pass | Placeholder handoff; trusted uploads and atomic submission/audit integration |
 | 3.3 Risk | Explicit-input score calculator passes | Placeholder handoff; approved real-data mapping, hold policy and persistence |
 | 3.4 Calamity | Pure location/date check passes | Placeholder handoff; final date policy, toggle contract and writes |
-| 4.1 Chain verification | Unmounted controller delegates to explicit not-ready placeholder | PM-authorized placeholder handoff; real 1,000-block verification and tamper detection remain |
+| 4.1 Chain verification | Mounted endpoint; strict ranges, current-role checks, snapshot verification; 1,000 persisted blocks and tamper detection pass | Backend implementation verified locally; shared deployment and frontend acceptance remain |
 | 4.2 Audit interceptor | Unmounted mutation guard blocks until implemented | PM-authorized placeholder handoff; transaction-aware interception for all administrative mutations |
 | 4.3 Validation/errors | Strict Joi middleware and sanitized JSON/Mongoose/oversize/async error HTTP tests pass | Reusable core implemented; each future controller still needs schemas and error forwarding |
 
