@@ -2,8 +2,13 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
-Prepared 2026-09-24. Updated 2026-10-01. Completed local checks and remaining
+Prepared 2026-09-24. Updated 2026-10-02. Completed local checks and remaining
 acceptance cases are distinguished below.
+October 2 update: Dustin's seed `d47af57` passed a fresh disposable-database
+test: the worker API returned `TEST-TSK-0001` for Palingon household
+`TEST-4PS-0004`. Positive browser display remains pending. Existing databases
+retain the old task link when the seed is rerun; coordinate a targeted update
+with the database owner. Earlier seed descriptions below refer to main `c030c77`.
 Backend-only live checks on September 30 passed all four logins and the role
 matrix after running Dustin's seed script locally. See
 [live account verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).

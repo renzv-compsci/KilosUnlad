@@ -4,7 +4,29 @@
 
 **Date:** 2026-09-30
 
-**Updated:** 2026-10-01
+**Updated:** 2026-10-02
+
+## October 2: updated sample-task verification
+
+Backend `bda0fe2` was tested against Dustin's seed revision `d47af57` from
+`database-phase3` in a fresh disposable MongoDB 6 container. The seed was executed
+unchanged; no teammate branch was merged. This read-feed check used standalone
+MongoDB without authentication and is not a replica-set/deployment-permission test.
+
+- Real `case_worker_test` login returned 200 with mock mode disabled.
+- `GET /api/v1/tasks/assigned` returned 200 and exactly one task:
+  `TEST-TSK-0001`, linked to `TEST-4PS-0004`, Rosa Villanueva in Palingon.
+- The seed now creates 4 accounts, 4 households and 2 tasks. The approved 5
+  households/3 tasks target is still not met.
+- Existing-data behavior was reproduced only in the disposable database:
+  resetting the task link to `TEST-4PS-0002` then rerunning the seed left that
+  old link unchanged because the task was skipped. Existing installations need
+  an owner-approved targeted data update; rerunning this seed is insufficient.
+- Browser automation was unavailable, so positive task rendering in Markie's
+  frontend remains unverified. API visibility with fresh data is now verified.
+
+The disposable container and its anonymous volumes were removed after the test.
+The dated sections below preserve earlier results and their then-current gaps.
 
 ## Setup
 
