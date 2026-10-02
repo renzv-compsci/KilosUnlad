@@ -22,11 +22,24 @@ MongoDB without authentication and is not a replica-set/deployment-permission te
   resetting the task link to `TEST-4PS-0002` then rerunning the seed left that
   old link unchanged because the task was skipped. Existing installations need
   an owner-approved targeted data update; rerunning this seed is insufficient.
-- Browser automation was unavailable, so positive task rendering in Markie's
-  frontend remains unverified. API visibility with fresh data is now verified.
+- Browser automation was unavailable during the API run. A subsequent manual
+  browser check was confirmed by Mae, as recorded below.
 
 The disposable container and its anonymous volumes were removed after the test.
 The dated sections below preserve earlier results and their then-current gaps.
+
+### Manual positive task-display confirmation
+
+On October 2, a second disposable database was seeded from `d47af57`. Backend
+`58eb523` ran on port 5002 with mock mode disabled; the previously reviewed
+isolated frontend copy (`7cc3dd7`) ran on port 3002 against that API.
+Mae confirmed the requested worker login and Assigned Field Tasks check worked,
+including `TEST-TSK-0001`, Rosa Villanueva, Palingon. This is user-reported browser
+evidence, not an independently automated observation; no screenshot was supplied.
+
+Positive task display is now confirmed for this fresh local setup. Markie's
+independent acceptance and the existing-database update procedure remain pending.
+This check does not establish full phase completion or all filtering edge cases.
 
 ## Setup
 

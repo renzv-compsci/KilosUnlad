@@ -6,13 +6,15 @@ Prepared 2026-09-24. Updated 2026-10-02. Completed local checks and remaining
 acceptance cases are distinguished below.
 October 2 update: Dustin's seed `d47af57` passed a fresh disposable-database
 test: the worker API returned `TEST-TSK-0001` for Palingon household
-`TEST-4PS-0004`. Positive browser display remains pending. Existing databases
+`TEST-4PS-0004`. Mae subsequently confirmed positive task display manually using
+the isolated frontend on port 3002 and backend on port 5002. Existing databases
 retain the old task link when the seed is rerun; coordinate a targeted update
 with the database owner. Earlier seed descriptions below refer to main `c030c77`.
 Backend-only live checks on September 30 passed all four logins and the role
 matrix after running Dustin's seed script locally. See
 [live account verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
-Markie's browser acceptance and positive assigned-task display remain pending.
+Markie's independent browser acceptance remains pending; positive assigned-task
+display has been user-confirmed in the fresh local setup.
 On October 1, Mae confirmed the manual SUPER_ADMIN and COA_AUDITOR login and
 triage-display checks passed. Together with the observed director/worker checks,
 basic local browser checks cover all four roles; this is not full acceptance.
