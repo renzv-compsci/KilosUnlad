@@ -1,5 +1,29 @@
 # Phase 1–4 backend completion status
 
+## Markie-reported local acceptance (recorded 2026-10-04)
+
+Markie's message, relayed by Mae, reports testing frontend integration against
+backend `1b185d9` with a fresh isolated database and seed from
+`database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
+were disabled. Reported results:
+
+- All four roles logged in successfully; invalid login was rejected.
+- API role restrictions passed.
+- The actual frontend displayed `TEST-TSK-0001` linked to the Palingon household
+  and excluded the out-of-scope samples.
+- The director's triage displayed two flagged records.
+
+This records Markie's independent local acceptance of login and read feeds.
+It is teammate-reported evidence, not a new test run by this documentation review.
+His frontend commit, execution date and raw test artifacts were not supplied.
+Dispatch, submission, chain-verifier UI and other workflows were not included.
+Shared deployment/migration and existing-volume repair remain unverified.
+Earlier statements that Markie's login/read-feed acceptance is pending are
+superseded within this reported scope. Task 1.3's literal mock-client DoD still
+needs PM reconciliation with the accepted real-API integration; its original
+checkbox is not changed by this report.
+
+
 **Author:** Mae Santos — Backend Engineering Lead
 
 **Date:** 2026-09-30
@@ -12,7 +36,7 @@ API cases, observed director/worker browser checks and user-confirmed
 SUPER_ADMIN/COA_AUDITOR browser checks. See
 [live verification](LIVE_AUTH_FEED_VERIFICATION.md) for evidence and limits.
 Positive assigned-task display was confirmed manually by Mae on October 2 in a
-fresh local setup. Markie's independent acceptance remains pending. Dustin's
+fresh local setup. Markie's later reported login/read-feed acceptance is recorded above. Dustin's
 seed and existing-data repair instructions are now merged; applying and verifying
 the repair in an agreed existing environment remains outstanding.
 
@@ -61,8 +85,8 @@ handling. It is not frontend acceptance or proof that unimplemented workflows ex
 | --- | --- | --- |
 | 1.1 Bootstrap | Previously verified on port 5000; health/security regression passes | Complete within backend scope |
 | 1.2 Hashing | Canonical serialization and accepted hash format tests pass | Complete within backend scope |
-| 1.3 Mock integration | Three contract-shaped mock routes pass HTTP tests | Markie's acceptance or PM confirmation that current real-API integration supersedes the original mock-client DoD |
-| 2.1 Authentication/RBAC | Database login, token, role and jurisdiction tests pass | Complete within backend scope; frontend acceptance separate |
+| 1.3 Mock integration | Mock contract tests pass; Markie reports accepted real login/read-feed integration at backend 1b185d9 | PM reconciliation of the original mock-client DoD with accepted real-API integration |
+| 2.1 Authentication/RBAC | Database login, token, role and jurisdiction tests pass | Complete within backend scope; Markie-reported local login/read-feed acceptance recorded above |
 | 2.2 State machine | Transition guards and transactional dispatch integration pass | Notice/graduation workflow prerequisites and controller integration |
 | 2.3 Appeals | 15-day timing/hold helpers pass | Approved persistent deadline/docket structure, API contract and pause/resolution rules |
 | 2.4 Dispatch | Merged configuration fresh-start smoke passes; concurrency/rollback suite passes separately | Agreed shared deployment/migration and remaining deployment acceptance checklist |
@@ -79,9 +103,9 @@ Phase 3/4 handoff; it does not supply an appeal storage model or API contract.
 
 ## Concrete team acceptance requests
 
-1. Markie/Renz: record acceptance of the existing frontend-to-backend login and
-   feeds, or explicitly accept that real-auth testing replaces the legacy mock
-   client requirement. The current frontend deliberately rejects mock login.
+1. Renz: reconcile the legacy mock-client requirement with Markie's reported
+   real login/read-feed acceptance. Capture the frontend commit and execution
+   date when available. The current frontend deliberately rejects mock login.
 2. Renz/Dustin: agree how the existing-volume database role is migrated and which
    running environment is the shared acceptance target. Fresh-start success does
    not migrate an existing volume.

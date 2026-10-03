@@ -1,5 +1,29 @@
 # Backend authentication handoff for Markie
 
+## Markie-reported local acceptance (recorded 2026-10-04)
+
+Markie's message, relayed by Mae, reports testing frontend integration against
+backend `1b185d9` with a fresh isolated database and seed from
+`database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
+were disabled. Reported results:
+
+- All four roles logged in successfully; invalid login was rejected.
+- API role restrictions passed.
+- The actual frontend displayed `TEST-TSK-0001` linked to the Palingon household
+  and excluded the out-of-scope samples.
+- The director's triage displayed two flagged records.
+
+This records Markie's independent local acceptance of login and read feeds.
+It is teammate-reported evidence, not a new test run by this documentation review.
+His frontend commit, execution date and raw test artifacts were not supplied.
+Dispatch, submission, chain-verifier UI and other workflows were not included.
+Shared deployment/migration and existing-volume repair remain unverified.
+Earlier statements that Markie's login/read-feed acceptance is pending are
+superseded within this reported scope. Task 1.3's literal mock-client DoD still
+needs PM reconciliation with the accepted real-API integration; its original
+checkbox is not changed by this report.
+
+
 **Author:** Mae Santos — Backend Engineering Lead
 
 Prepared 2026-09-24. Updated 2026-10-02. Completed local checks and remaining
@@ -14,16 +38,18 @@ are now merged locally at `19c9997`; shared-environment repair verification rema
 Backend-only live checks on September 30 passed all four logins and the role
 matrix after running Dustin's seed script locally. See
 [live account verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
-Markie's independent browser acceptance remains pending; positive assigned-task
-display has been user-confirmed in the fresh local setup.
+The October 2 setup had user-confirmed positive task display; Markie's later
+independent local login/read-feed acceptance is recorded above.
 On October 1, Mae confirmed the manual SUPER_ADMIN and COA_AUDITOR login and
 triage-display checks passed. Together with the observed director/worker checks,
 basic local browser checks cover all four roles; this is not full acceptance.
 An additional 11 live API checks passed for pagination, status filters, invalid
 queries, worker overrides and correctly signed expired-token rejection. Browser
 behavior for these cases still needs frontend acceptance.
-PR #7 merged at `d4edba4`. The backend review baseline is `backend-mae` at
-`03e9e74`, which includes main `c030c77`. Record the exact frontend/backend
+PR #7 merged at `d4edba4`. The earlier backend review baseline was `03e9e74`.
+The October 4 documentation review used `backend-mae` at `4d0f5bc`, which
+includes main `c030c77` and the audit verifier. No new browser or runtime tests
+were run for that documentation review. Record the exact frontend/backend
 commits used for each live test.
 
 ## Frontend verification update — 2026-09-28
@@ -182,7 +208,8 @@ Decisions 005/006/007 are approved. Main c030c77 includes the deployment fixes;
 the September 30 isolated fresh-start check passed PRIMARY readiness, restricted
 index permissions and actual dispatch-to-feed behavior. See
 [merged deployment verification](../reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
-Shared deployment/migration and Markie's live acceptance remain pending.
+Shared deployment/migration remains pending. Markie's local login/read-feed
+acceptance is recorded above; broader workflow acceptance remains open.
 Auth/read-feed testing can proceed on a working agreed backend with provisioned
 records independently of full dispatch acceptance. Fresh seed `d47af57` links
 the Palingon worker's pending task to `TEST-4PS-0004` in Palingon. Existing

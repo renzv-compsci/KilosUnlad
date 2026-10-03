@@ -1,4 +1,28 @@
 # Engineering Task Roadmap: Backend Engineering & API
+
+## Markie-reported local acceptance (recorded 2026-10-04)
+
+Markie's message, relayed by Mae, reports testing frontend integration against
+backend `1b185d9` with a fresh isolated database and seed from
+`database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
+were disabled. Reported results:
+
+- All four roles logged in successfully; invalid login was rejected.
+- API role restrictions passed.
+- The actual frontend displayed `TEST-TSK-0001` linked to the Palingon household
+  and excluded the out-of-scope samples.
+- The director's triage displayed two flagged records.
+
+This records Markie's independent local acceptance of login and read feeds.
+It is teammate-reported evidence, not a new test run by this documentation review.
+His frontend commit, execution date and raw test artifacts were not supplied.
+Dispatch, submission, chain-verifier UI and other workflows were not included.
+Shared deployment/migration and existing-volume repair remain unverified.
+Earlier statements that Markie's login/read-feed acceptance is pending are
+superseded within this reported scope. Task 1.3's literal mock-client DoD still
+needs PM reconciliation with the accepted real-API integration; its original
+checkbox is not changed by this report.
+
 **Lead:** Mae Santos  
 **Primary Domain:** `/server/` (Excluding `/server/src/models/`)  
 **Core Technologies:** Node.js 18/20 LTS, Express.js, JWT, Mongoose (Consumer), Axios, Crypto, Canonical JSON  
@@ -6,7 +30,13 @@
 
 ---
 
-## Current review (2026-10-02)
+## Documentation review (2026-10-04)
+
+Reviewed `backend-mae` at `4d0f5bc`, matching `origin/backend-mae` after fetch.
+Corrected backend documentation only; no runtime tests were run. The October 2
+evidence below remains the latest recorded implementation verification.
+
+## Implementation review (2026-10-02)
 
 Reviewed local `backend-mae` at `19c9997` after fetching origin. Main `c030c77`
 and database-phase3 `697f6bb` are already included. The publication includes this
@@ -15,7 +45,7 @@ separate branch at `7cc3dd7`.
 
 All four roles have documented local login/screen evidence. Fresh-seed assigned
 task visibility passed via API, and Mae confirmed browser display on October 2.
-Markie's independent acceptance remains open. Dustin's existing-data repair
+Markie's later local login/read-feed acceptance is recorded above. Dustin's existing-data repair
 procedure is now merged; shared-environment repair execution is not verified.
 The seed contains 4 households/2 tasks against the approved 5/3 target.
 
@@ -27,7 +57,7 @@ Schemas and frozen contracts are unchanged. See the
 Phase 1/2 auth, guard, dispatch, concurrency and rollback checks pass locally;
 this does not implement the missing notice or appeal workflows.
 
-Next backend closure work: record independent frontend acceptance, verify the
+Next backend closure work: reconcile the legacy mock-client DoD, verify the
 agreed shared deployment and existing-data repair, and obtain the remaining
 notice/graduation and appeal contracts. Phase 3/4 integrations remain placeholder
 handoffs except for the now-implemented Task 4.1. See [current status](../reports/PHASE1_TO_PHASE4_STATUS.md) and
@@ -37,8 +67,8 @@ regression testing; current results are recorded in the linked status report.
 
 ## Handoff update (2026-09-30)
 
-Latest complete regression: **101 passed, 0 failed, 0 skipped**, with all optional
-database/Docker suites enabled. Centralized error handling now sanitizes Mongoose
+Historical September 30 complete regression: **101 passed, 0 failed, 0 skipped**,
+with all optional database/Docker suites enabled. Centralized error handling now sanitizes Mongoose
 validation/cast errors and oversized JSON; HTTP tests verify continued availability.
 See [Phase 1–4 status](../reports/PHASE1_TO_PHASE4_STATUS.md) for task-by-task
 evidence and acceptance requirements. Full workflow completion and PM-authorized
@@ -47,8 +77,10 @@ placeholder handoff are tracked separately.
 Under Renz's instruction to prepare placeholders through Phase 4, the
 [Phase 3/4 backend handoff](../handoffs/PHASE3_PHASE4_BACKEND_HANDOFF.md) now maps
 implemented helpers, named integration placeholders and continuation requirements.
-Placeholder services return ENDPOINT_NOT_READY; the audit controller and mutation
-guard remain unmounted. A reusable strict Joi body-validation middleware is included.
+At the September 30 handoff, placeholder services returned ENDPOINT_NOT_READY
+and the audit controller and mutation guard were unmounted. The October 2
+implementation mounted the audit verifier; the mutation guard remains unmounted.
+A reusable strict Joi body-validation middleware is included.
 Focused placeholder/app tests: 10 passed, zero failures/skips. Tasks remain unchecked
 against their original full DoD; placeholder handoff is not live workflow completion.
 Main `c030c77` is merged locally at `4640351`; Decision 007 is approved and the
@@ -60,8 +92,9 @@ Shared deployment, migration and full Task 2.4 acceptance remain pending.
 ## Historical status (2026-09-25)
 
 See [backend verification status](../reports/BACKEND_VERIFICATION_STATUS.md) for
-current test evidence and skipped-suite explanations. Dated updates below are
-historical snapshots; the October 2 current review above takes precedence.
+historical test evidence and skipped-suite explanations; use the linked
+Phase 1-4 status above for current evidence. Dated updates below are
+historical snapshots; the October 2 implementation review above takes precedence.
 
 - Tasks 1.1, 1.2 and 2.1 remain complete within their documented backend scope.
 - Task 1.3 awaits Markie's actual frontend acceptance; backend mock tests pass.

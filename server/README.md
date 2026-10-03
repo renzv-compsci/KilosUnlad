@@ -62,8 +62,12 @@ docker exec -it kilosunlad-db mongosh --username admin_user --authenticationData
 ```
 
 The script prints test credentials; do not include that output in shared logs.
-Its current samples contain 3 households and 2 tasks; the worker's pending task
-is outside its jurisdiction. See the [live account check](../docs/reports/LIVE_AUTH_FEED_VERIFICATION.md)
+Its current samples contain 4 households and 2 tasks. The worker's pending task
+`TEST-TSK-0001` links to the in-scope Palingon household `TEST-4PS-0004`.
+Rerunning the seed does not repair old links in existing databases; follow the
+[database owner's repair handoff](../docs/handoffs/TEST_DATA_SEED_HANDOFF.md)
+for a coordinated targeted repair. Shared-environment verification remains open.
+See the [live account check](../docs/reports/LIVE_AUTH_FEED_VERIFICATION.md)
 for verified results and remaining sample-data cases.
 
 Verify `http://localhost:5000/health` and the successful MongoDB connection log.
@@ -88,7 +92,10 @@ per connection. Runtime reconnection is handled by the driver; an initial
 connection failure still stops startup before the HTTP listener opens.
 `/health` remains a liveness check, not database readiness. See
 [database recovery review](../docs/reports/DATABASE_RECOVERY_REVIEW.md) for isolated Docker
-verification, rerun instructions, and the outstanding audit-role compatibility check.
+verification and rerun instructions. The later
+[merged deployment check](../docs/reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md)
+verified audit index inspection and denied update/delete permissions in a fresh
+isolated deployment; existing-volume migration and shared acceptance remain open.
 
 ## Current verification
 
@@ -102,6 +109,8 @@ Older dated counts below are historical, not the current suite total.
 | POST | `/api/v1/auth/login` | `auth/auth-session.json` |
 | GET | `/api/v1/beneficiaries/triage-queue` | `admin-web/admin-triage-feed.json` |
 | GET | `/api/v1/tasks/assigned` | `field-tablet/field-task-download.json` |
+| POST | `/api/v1/tasks/dispatch` | `admin-web/admin-task-dispatch.json` |
+| GET | `/api/v1/audit/verify-chain` | `admin-web/audit-chain-verification.json` |
 
 By default, login validates the existing User's bcrypt password hash and active
 status, then returns the contract's field structure with a real 900-second JWT.

@@ -1,5 +1,29 @@
 # Phase 3 and Phase 4 backend handoff
 
+## Markie-reported local acceptance (recorded 2026-10-04)
+
+Markie's message, relayed by Mae, reports testing frontend integration against
+backend `1b185d9` with a fresh isolated database and seed from
+`database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
+were disabled. Reported results:
+
+- All four roles logged in successfully; invalid login was rejected.
+- API role restrictions passed.
+- The actual frontend displayed `TEST-TSK-0001` linked to the Palingon household
+  and excluded the out-of-scope samples.
+- The director's triage displayed two flagged records.
+
+This records Markie's independent local acceptance of login and read feeds.
+It is teammate-reported evidence, not a new test run by this documentation review.
+His frontend commit, execution date and raw test artifacts were not supplied.
+Dispatch, submission, chain-verifier UI and other workflows were not included.
+Shared deployment/migration and existing-volume repair remain unverified.
+Earlier statements that Markie's login/read-feed acceptance is pending are
+superseded within this reported scope. Task 1.3's literal mock-client DoD still
+needs PM reconciliation with the accepted real-API integration; its original
+checkbox is not changed by this report.
+
+
 **Author:** Mae Santos — Backend Engineering Lead
 
 **Date:** 2026-09-30
@@ -21,8 +45,8 @@ real auditor login also verifies the persisted dispatch ledger. See
 [current results](../reports/PHASE1_TO_PHASE4_STATUS.md) and
 [behavior/limits](../../server/README.md#audit-chain-verification).
 Only Task 4.1 is closed within local backend scope; Task 4.2 remains unmounted.
-Historical descriptions below of five placeholders and an unmounted audit
-controller apply to the September 30 handoff, not the current implementation.
+The current handoff contains four integration placeholders; the audit verifier
+is implemented and mounted. Historical test runs below retain their original dates.
 
 Renz requested backend work through Phase 4 with placeholders for the data/ML
 and remaining testing integrations, then a comprehensive Markdown handoff for
@@ -33,12 +57,16 @@ Base: `backend-mae` after merge `4640351`, including main `c030c77`. This docume
 describes the handoff changes following that merge. Use the commit containing
 this document as the handoff revision when reporting integration results.
 Existing authentication, read feeds and transactional dispatch remain the live
-implementation. Phase 3 helpers and Phase 4 placeholder controllers are unmounted.
+implementation. Phase 3 integration controllers and the Phase 4 mutation guard
+remain unmounted; the Task 4.1 audit verifier is mounted.
 
-Current local review baseline: `19c9997` on `backend-mae`, including Dustin's
-seed fix and test-data handoff. The original handoff baseline was `dcfd67f`;
+Documentation review on October 4: `backend-mae` at `4d0f5bc`, matching
+`origin/backend-mae` after fetch. This includes the verifier and the earlier
+`19c9997` merge of Dustin's seed fix and test-data handoff. No new runtime tests
+were run for this documentation correction. The original handoff baseline was
+`dcfd67f`;
 [PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10) is the historical
-review reference, not a claim that local commits have been pushed.
+review reference; its current review/merge status was not checked in this update.
 Start with this guide, then [Phase 1–4 status](../reports/PHASE1_TO_PHASE4_STATUS.md)
 and [live verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
 
@@ -76,7 +104,7 @@ These are existing internal interfaces, not approvals for new public endpoints.
 | `verifyEvidenceHash` | Actual byte Buffer and expected SHA-256 hex string | Normalized matching hash; invalid input or mismatch fails |
 | `calculateRiskScore` | Explicit level gap and four Boolean indicators | `{ score, meetsFlagThreshold, contributions }`; invalid inputs throw |
 | `hasActiveCalamityMoratorium` | `{ zones, address, now }`, with Date objects | Boolean hold decision; invalid configuration throws |
-| Five integration placeholders | No implemented input contract | Always reject with 503 ENDPOINT_NOT_READY; no prediction, receipt or success output |
+| Four integration placeholders | No implemented input contract | Always reject with 503 ENDPOINT_NOT_READY; no prediction, receipt or success output |
 
 Recommended continuation:
 
@@ -88,8 +116,9 @@ Recommended continuation:
 3. Complete trusted evidence acquisition and transactional submission, including
    authorization rechecks and a single atomic audit entry. Mount routes only with
    approved contracts, role checks and replay/concurrency tests.
-4. Implement real audit-chain verification and workflow-level audit writes.
-   The generic mutation guard is a placeholder, not a working interceptor.
+4. Integrate workflow-level audit writes and verify the existing chain endpoint
+   in the agreed shared deployment and frontend. The generic mutation guard
+   remains a placeholder, not a working interceptor.
 5. Repeat end-to-end acceptance for each connected workflow. Record the exact
    commits, data setup and remaining failures before marking its original DoD done.
 
@@ -122,10 +151,11 @@ Recommended continuation:
   Dates must be stored Date objects. Any matching active zone holds; invalid data
   throws and callers must stop processing rather than interpret failure as no hold.
 - Audit verification: preserve `docs/contracts/admin-web/audit-chain-verification.json`.
-  The placeholder returns no verification data. Real implementation must recompute
-  with `computeEntryHash`, preserve the established colon-separated hash format,
-  detect gaps/duplicates/link mismatches/tampering and define partial-range anchoring.
-  Use a consistent read strategy; do not report success for missing requested blocks.
+  The mounted endpoint recomputes hashes with `computeEntryHash`, preserves the
+  established colon-separated format, and uses snapshot reads with predecessor
+  linkage. Missing ranges fail rather than report success. Partial ranges trust
+  the predecessor's recorded hash; they do not verify the entire earlier history.
+  See the backend README for range limits, errors and integrity limitations.
 - Audit writes: reuse the atomicity pattern in `workflowPersistence.service.js`.
   Mutation and audit must share one transaction. Do not append on response finish
   or audit successful dispatch twice. Determine trusted actor/IP and before/after
@@ -175,14 +205,21 @@ the current working tree, not the outstanding live integration requirements.
 - Add route-level authentication/RBAC and exact contract responses; placeholders
   are currently unmounted and do not expose new endpoints.
 - Run live ML, submission, risk and moratorium workflows with real test records.
-- Verify 1,000 audit blocks, tampering/link/gap detection and concurrent writes.
+- Repeat audit verification in the agreed shared deployment and frontend. Local
+  evidence already covers 1,000 persisted blocks and tampering; deployment
+  acceptance and audit coverage for future mutations remain open.
 - Verify failed mutations cannot commit without their audit entry.
 - Existing HTTP error-boundary tests already pass; extend them for newly mounted routes.
 - The merged fresh-start deployment and actual dispatch were verified on September
   30. Shared-environment acceptance and existing-volume migration remain separate;
   see [deployment evidence](../reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
 
-## Latest verification and remaining dependencies
+## Recorded verification and remaining dependencies
+
+The October 2 regression recorded 104 passed, 0 failed and 3 optional-suite
+skips; a subsequent affected-suite run passed 24 with no failures/skips. Counts
+overlap and are not additive. See [current status](../reports/PHASE1_TO_PHASE4_STATUS.md)
+for environments and limitations. The October 4 documentation review ran no tests.
 
 - Historical complete backend regression: **101 passed, 0 failed, 0 skipped** on
   September 30. This review changes documentation only; that count is not a new run.
@@ -191,7 +228,7 @@ the current working tree, not the outstanding live integration requirements.
   override rejection and correctly signed expired-token rejection.
 - Director/worker browser checks were independently observed on September 30.
   SUPER_ADMIN/COA_AUDITOR basic login and triage checks were user-confirmed on
-  October 1. Markie's independent acceptance remains pending.
+  October 1. Markie's later local login/read-feed acceptance is recorded above.
 - Fresh seed `d47af57` now links the worker's pending task to Palingon household
   `TEST-4PS-0004`. Its API feed passed and Mae confirmed browser display on
   October 2. Current seed counts are 4 households/2 tasks versus Decision 007's
@@ -205,10 +242,17 @@ At the `dcfd67f` review baseline, the PR diff against main `c030c77` contains
 backend code/tests, backend documentation and task/status notes. Continuation
 requires coordination with data/ML and database owners at the boundaries above.
 
-Tasks 3.1–3.4 and 4.1–4.3 remain unchecked against their original full definitions
-of done. Placeholder handoff readiness is a separate status under the PM instruction.
+Tasks 3.1 through 3.4 and 4.2 remain incomplete; Task 4.1 is complete within
+verified local backend scope. Task 4.3 has implemented reusable validation/error
+handling; future controllers still need schemas and error forwarding. Shared
+deployment and frontend acceptance are separate from local implementation evidence.
 
-## Acceptance requests prepared — October 1
+## Historical acceptance requests prepared - October 1
+
+These retain the original requests. The Palingon seed and positive local task
+display were subsequently verified on October 2. Markie's reported local
+login/read-feed acceptance is recorded above; shared repair and broader workflow
+acceptance remain outstanding.
 
 These requests are prepared for coordination; they do not claim delivery,
 agreement or completion by another team member.
