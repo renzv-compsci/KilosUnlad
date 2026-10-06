@@ -1,4 +1,6 @@
 const THRESHOLDS = require('../constants/thresholds');
+const validPoint = (lat, lon) => Number.isFinite(lat) && Number.isFinite(lon) &&
+  Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
 
 /**
  * Calculates the great-circle distance between two geographic points
@@ -11,6 +13,7 @@ const THRESHOLDS = require('../constants/thresholds');
  * @returns {number} - Distance in meters
  */
 const calculateDistanceMeters = (lat1, lon1, lat2, lon2) => {
+  if (!validPoint(lat1, lon1) || !validPoint(lat2, lon2)) return null;
   const toRadians = (degrees) => (degrees * Math.PI) / 180;
 
   const R = 6371000; // Earth radius in meters
@@ -24,8 +27,9 @@ const calculateDistanceMeters = (lat1, lon1, lat2, lon2) => {
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Math.round(R * c * 10) / 10; // Round to 1 decimal place
+  const bounded = Math.min(1, Math.max(0, a));
+  const c = 2 * Math.atan2(Math.sqrt(bounded), Math.sqrt(1 - bounded));
+  return R * c; // Preserve precision for threshold comparison.
 };
 
 /**
@@ -35,7 +39,7 @@ const calculateDistanceMeters = (lat1, lon1, lat2, lon2) => {
  * @returns {Object} - { isMatched: boolean, distanceMeters: number }
  */
 const verifyGeofence = (capturedCoords, targetGeoJSONCoords) => {
-  if (!capturedCoords || !targetGeoJSONCoords || targetGeoJSONCoords.length < 2) {
+  if (!capturedCoords || !Array.isArray(targetGeoJSONCoords) || targetGeoJSONCoords.length !== 2) {
     return { isMatched: false, distanceMeters: null };
   }
 
@@ -51,8 +55,8 @@ const verifyGeofence = (capturedCoords, targetGeoJSONCoords) => {
   );
 
   return {
-    isMatched: distanceMeters <= THRESHOLDS.MAX_GEOFENCE_VARIANCE_METERS,
-    distanceMeters
+    isMatched: distanceMeters !== null && distanceMeters <= THRESHOLDS.MAX_GEOFENCE_VARIANCE_METERS,
+    distanceMeters: distanceMeters === null ? null : Math.round(distanceMeters * 10) / 10
   };
 };
 

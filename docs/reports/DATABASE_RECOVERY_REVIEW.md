@@ -1,5 +1,7 @@
 # Backend response to Dustin's connection-pool review
 
+**Author:** Mae Santos — Backend Engineering Lead
+
 Date: 2026-09-24. Addresses Section 4 of Dustin's Phase 2 database report on
 `database-phase2`. This is backend verification only, not approval of that branch.
 

@@ -180,7 +180,8 @@ test('transactional workflow against a disposable MongoDB replica set', {
     const authService = createAuthService({ users, secret });
     const dispatcher = createTaskDispatcher({ ...models, tasks });
     const readFeeds = require('../src/services/readFeeds.service').createReadFeeds({ beneficiaries, tasks });
-    const app = createApp({ mockMode: false, production: true, authService, taskDispatcher: dispatcher, readFeeds });
+    const chainVerifier = require('../src/services/hashChain.service').createChainVerifier({ audits });
+    const app = createApp({ mockMode: false, production: true, authService, taskDispatcher: dispatcher, readFeeds, chainVerifier });
     const server = await new Promise(resolve => { const s = app.listen(0, '127.0.0.1', () => resolve(s)); });
     try {
       const base = `http://127.0.0.1:${server.address().port}/api/v1`;
@@ -259,6 +260,24 @@ test('transactional workflow against a disposable MongoDB replica set', {
           await users.updateOne({ _id: actor._id }, { $set: { jurisdiction } });
         }
       });
+      await t.test('auditor verifies the dispatch ledger through the authenticated live route', async () => {
+        const auditor = await users.create({ username: 'ledger-auditor', full_name: 'Synthetic Auditor',
+          email: 'ledger-auditor@example.test', password_hash: actor.password_hash,
+          role: 'COA_AUDITOR', jurisdiction, is_active: true });
+        const auditorLogin = await fetch(base + '/auth/login', { method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: auditor.username, password: 'Dispatch-test-password!' }) });
+        assert.equal(auditorLogin.status, 200);
+        const auditorToken = (await auditorLogin.json()).access_token;
+        const head = await audits.findOne().sort({ sequence_index: -1 }).lean();
+        const url = base + `/audit/verify-chain?start_sequence=1&end_sequence=${head.sequence_index}`;
+        const verify = token => fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        assert.equal((await verify(session.access_token)).status, 403);
+        const response = await verify(auditorToken);
+        assert.equal(response.status, 200); assert.equal((await response.json()).is_chain_valid, true);
+        await users.updateOne({ _id: auditor._id }, { $set: { is_active: false } });
+        assert.equal((await verify(auditorToken)).status, 403);
+      });
       const duplicate = await post(request);
       assert.equal(duplicate.status, 409);
       assert.deepEqual(await duplicate.json(), { error: contract.error_responses[1].error });
@@ -280,6 +299,39 @@ test('transactional workflow against a disposable MongoDB replica set', {
         assert.equal((await beneficiaries.findOne({ household_id: 'dispatch-rollback' })).program_status, 'FLAGGED_FOR_REVIEW');
       } finally { audits.create = original; }
     } finally { await new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }); }
+  });
+  await t.test('verifier reads persisted workflow hashes and detects tampering in 1000 MongoDB blocks', async () => {
+    const { createChainVerifier } = require('../src/services/hashChain.service');
+    const head = await audits.findOne().sort({ sequence_index: -1 }).lean();
+    const existing = await createChainVerifier({ audits }).verifyChain({
+      start_sequence: '1', end_sequence: String(head.sequence_index) });
+    assert.equal(existing.is_chain_valid, true);
+    const ledger = connection.model('VerifierTestAudit', audits.schema, 'verifier_test_audits');
+    await ledger.init();
+    const blocks = [];
+    for (let i = 1; i <= 1000; i++) {
+      const timestamp = new Date('2026-10-02T00:00:00Z');
+      const previousEntryHash = blocks.at(-1)?.entry_hash || '0'.repeat(64);
+      const stateDelta = { before: { household_id: `TEST-${i}`, program_status: policy.from },
+        after: { household_id: `TEST-${i}`, program_status: policy.to } };
+      blocks.push({ sequence_index: i, previous_entry_hash: previousEntryHash, timestamp,
+        actor: { user_id: actorId, username: actor.username, role: actor.role },
+        action: policy.action, target_entity: { collection_name: 'beneficiaries', entity_id: `TEST-${i}` },
+        state_delta: stateDelta, entry_hash: computeEntryHash({ sequenceIndex: i, previousEntryHash,
+          timestamp, actorId, action: policy.action, stateDelta }) });
+    }
+    await ledger.insertMany(blocks);
+    const verifier = createChainVerifier({ audits: ledger });
+    const query = { start_sequence: '1', end_sequence: '1000' };
+    const valid = await verifier.verifyChain(query);
+    assert.equal(valid.is_chain_valid, true); assert.equal(valid.total_blocks_verified, 1000);
+    // Deliberate corruption only in this test's disposable replica set.
+    await ledger.collection.updateOne({ sequence_index: 451 }, { $set: { 'state_delta.after.program_status': 'ALTERED' } });
+    const broken = await verifier.verifyChain(query);
+    assert.equal(broken.is_chain_valid, false);
+    assert.deepEqual(broken.broken_blocks.map(block => block.sequence_index), [451]);
+    await ledger.collection.deleteOne({ sequence_index: 500 });
+    await assert.rejects(verifier.verifyChain(query), { code: 'AUDIT_RANGE_INCOMPLETE' });
   });
   await t.test('missing unique audit sequence index prevents all writes', async () => {
     await seed('missing-index');
