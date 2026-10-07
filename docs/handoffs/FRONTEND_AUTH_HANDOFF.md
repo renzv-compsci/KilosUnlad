@@ -1,7 +1,73 @@
 # Backend authentication handoff for Markie
 
-Prepared 2026-09-24. This is a test plan, not a record of completed frontend tests.
-Backend baseline: `backend-mae`, reviewed at `d8c7b9b` (PR #7, ready for review). Record the exact frontend/backend commits used when testing.
+## Markie-reported local acceptance (recorded 2026-10-04)
+
+Markie's message, relayed by Mae, reports testing frontend integration against
+backend `1b185d9` with a fresh isolated database and seed from
+`database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
+were disabled. Reported results:
+
+- All four roles logged in successfully; invalid login was rejected.
+- API role restrictions passed.
+- The actual frontend displayed `TEST-TSK-0001` linked to the Palingon household
+  and excluded the out-of-scope samples.
+- The director's triage displayed two flagged records.
+
+This records Markie's independent local acceptance of login and read feeds.
+It is teammate-reported evidence, not a new test run by this documentation review.
+His frontend commit, execution date and raw test artifacts were not supplied.
+Dispatch, submission, chain-verifier UI and other workflows were not included.
+Shared deployment/migration and existing-volume repair remain unverified.
+Earlier statements that Markie's login/read-feed acceptance is pending are
+superseded within this reported scope. Task 1.3's literal mock-client DoD still
+needs PM reconciliation with the accepted real-API integration; its original
+checkbox is not changed by this report.
+
+
+**Author:** Mae Santos — Backend Engineering Lead
+
+Prepared 2026-09-24. Updated 2026-10-02. Completed local checks and remaining
+acceptance cases are distinguished below.
+October 2 update: Dustin's seed `d47af57` passed a fresh disposable-database
+test: the worker API returned `TEST-TSK-0001` for Palingon household
+`TEST-4PS-0004`. Mae subsequently confirmed positive task display manually using
+the isolated frontend on port 3002 and backend on port 5002. Existing databases
+retain the old task link when the seed is rerun; coordinate a targeted update
+with the database owner. Dustin's [repair instructions](https://github.com/renzv-compsci/KilosUnlad/blob/database-phase3/docs/handoffs/TEST_DATA_SEED_HANDOFF.md)
+are now merged locally at `19c9997`; shared-environment repair verification remains open.
+Backend-only live checks on September 30 passed all four logins and the role
+matrix after running Dustin's seed script locally. See
+[live account verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
+The October 2 setup had user-confirmed positive task display; Markie's later
+independent local login/read-feed acceptance is recorded above.
+On October 1, Mae confirmed the manual SUPER_ADMIN and COA_AUDITOR login and
+triage-display checks passed. Together with the observed director/worker checks,
+basic local browser checks cover all four roles; this is not full acceptance.
+An additional 11 live API checks passed for pagination, status filters, invalid
+queries, worker overrides and correctly signed expired-token rejection. Browser
+behavior for these cases still needs frontend acceptance.
+PR #7 merged at `d4edba4`. The earlier backend review baseline was `03e9e74`.
+The October 4 documentation review used `backend-mae` at `4d0f5bc`, which
+includes main `c030c77` and the audit verifier. No new browser or runtime tests
+were run for that documentation review. Record the exact frontend/backend
+commits used for each live test.
+
+## Frontend verification update — 2026-09-28
+
+Independent verification of `frontend-markie` at `7cc3dd7` used an isolated temporary
+copy: 26 tests passed with zero failures/skips; typecheck and production build
+passed. The build reported a chunk above 500 kB, and dependency installation
+reported five advisories (four moderate, one high). Frontend code, dependencies
+and Markie's branch remained unchanged.
+
+The reviewed login roles, triage pagination and assigned-task requests match
+the backend implementation. Login fallback remains disabled. These tests use
+simulated API responses and do not prove real backend JWT/RBAC or record visibility.
+Actual end-to-end results remain pending. Frontend dispatch is still a preview,
+and submission upload is disabled; neither is covered by this acceptance claim.
+
+Markie's handoff mentions an older worker_id documentation discrepancy. The
+matrix below already documents HTTP 400 INVALID_QUERY for that override.
 
 ## Setup and ownership
 
@@ -14,12 +80,28 @@ Backend baseline: `backend-mae`, reviewed at `d8c7b9b` (PR #7, ready for review)
   if the frontend uses another origin. Never put `JWT_SECRET` in frontend settings.
 - Verify `GET http://localhost:5000/health` and `/api/v1` return 200. The backend
   must log a successful MongoDB connection before listening.
-- Coordinate test-account/database setup with Dustin. Mae owns API behavior and
+- Coordinate test-account/database setup with Dustin. The backend team owns API behavior and
   integration checks; this handoff does not authorize shared database resets or
   schema changes. Dustin coordinates account provisioning; this handoff does not
   create accounts or modify database data.
 
+On separate laptops, localhost refers to each person's own machine. Run the
+backend locally or agree a reachable backend URL and matching CORS origin.
+Do not send the JWT signing secret to the frontend.
+
 ## Account details to coordinate with Dustin
+
+The merged seed declares these usernames; obtain their passwords privately from
+the database owner and confirm that they exist in the database being tested:
+
+| Username | Role |
+| --- | --- |
+| `super_admin_test` | SUPER_ADMIN |
+| `director_test` | REGIONAL_DIRECTOR |
+| `case_worker_test` | CASE_WORKER |
+| `auditor_test` | COA_AUDITOR |
+
+Seed definitions alone do not confirm provisioning in an existing volume.
 
 Request active synthetic accounts for all four roles below, with unique usernames,
 emails, and bcrypt password hashes. Agree test credentials separately; do not put
@@ -31,6 +113,13 @@ For director and worker accounts, use complete jurisdiction information:
 
 Use an agreed synthetic worker with pending/cached tasks assigned to its actual
 MongoDB user ID. No hard-coded fixture identity is needed. Empty lists are valid.
+
+The four accounts are now provisioned and verified on the backend developer's
+local database; Markie's database must be provisioned separately. Coordinate an inactive account and
+a second worker as well as the four active roles. For Markie's fixed page size
+of 10, request more than 10 in-scope FLAGGED_FOR_REVIEW households to exercise
+the actual next/previous controls, plus out-of-scope records and tasks belonging
+to each worker. Confirm expected record IDs/counts privately before testing.
 
 | Role | GET `/beneficiaries/triage-queue` | GET `/tasks/assigned` |
 | --- | --- | --- |
@@ -91,6 +180,42 @@ again. Do not edit its payload: that tests a forged signature, not token expiry.
 Do not change the system clock or share the signing secret to accelerate this test.
 If a test account is unavailable, record the case as blocked rather than passed.
 
+## Live feed acceptance cases
+
+Coordinate synthetic records before this test; this document does not create or
+change accounts/data. Prepare at least two visible households in the same scope,
+one outside that scope, pending/cached tasks for the test worker, and a task for
+a second worker. Record expected IDs privately in the test evidence.
+
+| Test | Expected result |
+| --- | --- |
+| Triage `?page=1&limit=1`, then `?page=2&limit=1` | 200; correct distinct rows and consistent pagination against unchanged test data |
+| Triage `?status=UNDER_INVESTIGATION` | Only matching table rows; summary cards still cover all statuses within the selected geographic scope |
+| Triage `?page=0` or `?limit=101` | 400 INVALID_QUERY |
+| Scoped director versus national admin/auditor | Director rows and counts exclude outside records; national roles can see authorized global scope |
+| Worker assigned feed | Only this worker's PENDING_DISPATCH/CACHED_OFFLINE tasks within current jurisdiction |
+| Submitted/closed task, another worker's task, or missing household | Not returned in the assigned feed |
+| Empty authorized result | 200 with empty list and zero result count; no frontend mock fallback |
+| Every live response | No X-KilosUnlad-Mock header; Cache-Control: no-store |
+
+Verify mapped names, coordinates, SWDI levels, risk fields, instructions and dates
+against the approved sample records. Missing predictions/evaluation times are
+currently null; optional phone/street/instructions are empty strings. Record any
+PM/frontend disagreement with these documented choices instead of changing the
+frozen contracts silently. Avoid record mutations while checking pagination.
+
+Decisions 005/006/007 are approved. Main c030c77 includes the deployment fixes;
+the September 30 isolated fresh-start check passed PRIMARY readiness, restricted
+index permissions and actual dispatch-to-feed behavior. See
+[merged deployment verification](../reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
+Shared deployment/migration remains pending. Markie's local login/read-feed
+acceptance is recorded above; broader workflow acceptance remains open.
+Auth/read-feed testing can proceed on a working agreed backend with provisioned
+records independently of full dispatch acceptance. Fresh seed `d47af57` links
+the Palingon worker's pending task to `TEST-4PS-0004` in Palingon. Existing
+databases may retain the old Lecheria link; check and repair that fixture before
+the positive test using Dustin's handoff.
+
 ## What passing means
 
 Login and the two GET feeds now read MongoDB in normal mode, including production.
@@ -100,7 +225,30 @@ overrides are rejected. This auth/feed plan does not verify appeal submission,
 refresh/logout or offline sync. A health response alone is not an auth test.
 See [backend README](../../server/README.md) for pagination, summary and missing-value behavior.
 
-## Result template
+## Live-test order
+
+1. Use the backend checkout at the baseline above or a later agreed commit.
+   Record `git rev-parse HEAD` in both backend and frontend checkouts. Keep the
+   frontend on Markie's agreed version; the last independently reviewed version
+   is `7cc3dd7`.
+2. Follow the README Docker startup sequence, including successful
+   `replset-init` completion, the JWT secret and explicit mock mode disabled.
+   Confirm the API is listening on port 5000 and MongoDB connected successfully.
+3. Confirm credentials and expected sample records with Dustin. Verify
+   `TEST-TSK-0001` points to `TEST-4PS-0004` in Palingon; reseeding alone does
+   not replace an existing Lecheria link. Request the additional accounts and
+   records needed for isolation and inactive-account cases listed above.
+4. Start the frontend with `VITE_API_URL=http://localhost:5000/api/v1` and its
+   login fallback disabled. Restart the frontend after changing its environment.
+   Use a browser origin included in backend CORS settings.
+5. Run valid and invalid login, inactive-account and role-restriction cases,
+   then the triage and assigned-feed cases above. Confirm actual requests reach
+   port 5000 and no mock response header is present.
+6. Record each result below. Mark unavailable sample-data cases BLOCKED and
+   include the missing prerequisite. Share redacted results before claiming
+   end-to-end acceptance.
+
+## Result record
 
 Backend commit: ___; frontend commit: ___; date: ___; test database label: ___
 

@@ -1,4 +1,28 @@
 # Engineering Task Roadmap: Backend Engineering & API
+
+## Markie-reported local acceptance (recorded 2026-10-04)
+
+Markie's message, relayed by Mae, reports testing frontend integration against
+backend `1b185d9` with a fresh isolated database and seed from
+`database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
+were disabled. Reported results:
+
+- All four roles logged in successfully; invalid login was rejected.
+- API role restrictions passed.
+- The actual frontend displayed `TEST-TSK-0001` linked to the Palingon household
+  and excluded the out-of-scope samples.
+- The director's triage displayed two flagged records.
+
+This records Markie's independent local acceptance of login and read feeds.
+It is teammate-reported evidence, not a new test run by this documentation review.
+His frontend commit, execution date and raw test artifacts were not supplied.
+Dispatch, submission, chain-verifier UI and other workflows were not included.
+Shared deployment/migration and existing-volume repair remain unverified.
+Earlier statements that Markie's login/read-feed acceptance is pending are
+superseded within this reported scope. Task 1.3's literal mock-client DoD still
+needs PM reconciliation with the accepted real-API integration; its original
+checkbox is not changed by this report.
+
 **Lead:** Mae Santos  
 **Primary Domain:** `/server/` (Excluding `/server/src/models/`)  
 **Core Technologies:** Node.js 18/20 LTS, Express.js, JWT, Mongoose (Consumer), Axios, Crypto, Canonical JSON  
@@ -6,11 +30,71 @@
 
 ---
 
-## Current status (2026-09-25)
+## Documentation review (2026-10-04)
+
+Reviewed `backend-mae` at `4d0f5bc`, matching `origin/backend-mae` after fetch.
+Corrected backend documentation only; no runtime tests were run. The October 2
+evidence below remains the latest recorded implementation verification.
+
+## Implementation review (2026-10-02)
+
+Reviewed local `backend-mae` at `19c9997` after fetching origin. Main `c030c77`
+and database-phase3 `697f6bb` are already included. The publication includes this
+merge and the subsequent verifier/documentation changes. Frontend remains on its
+separate branch at `7cc3dd7`.
+
+All four roles have documented local login/screen evidence. Fresh-seed assigned
+task visibility passed via API, and Mae confirmed browser display on October 2.
+Markie's later local login/read-feed acceptance is recorded above. Dustin's existing-data repair
+procedure is now merged; shared-environment repair execution is not verified.
+The seed contains 4 households/2 tasks against the approved 5/3 target.
+
+Task 4.1 continuation: the authenticated chain endpoint now verifies up to 1000
+blocks with snapshot consistency and predecessor linkage. MongoDB tests verify
+persisted workflow hashes, 1000 intact blocks, and exact tampered sequence 451.
+Schemas and frozen contracts are unchanged. See the
+[endpoint behavior and limits](../../server/README.md#audit-chain-verification).
+Phase 1/2 auth, guard, dispatch, concurrency and rollback checks pass locally;
+this does not implement the missing notice or appeal workflows.
+
+Next backend closure work: reconcile the legacy mock-client DoD, verify the
+agreed shared deployment and existing-data repair, and obtain the remaining
+notice/graduation and appeal contracts. Phase 3/4 integrations remain placeholder
+handoffs except for the now-implemented Task 4.1. See [current status](../reports/PHASE1_TO_PHASE4_STATUS.md) and
+[live verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md). This documentation
+review's original documentation-only scope was followed by implementation and
+regression testing; current results are recorded in the linked status report.
+
+## Handoff update (2026-09-30)
+
+Historical September 30 complete regression: **101 passed, 0 failed, 0 skipped**,
+with all optional database/Docker suites enabled. Centralized error handling now sanitizes Mongoose
+validation/cast errors and oversized JSON; HTTP tests verify continued availability.
+See [Phase 1–4 status](../reports/PHASE1_TO_PHASE4_STATUS.md) for task-by-task
+evidence and acceptance requirements. Full workflow completion and PM-authorized
+placeholder handoff are tracked separately.
+
+Under Renz's instruction to prepare placeholders through Phase 4, the
+[Phase 3/4 backend handoff](../handoffs/PHASE3_PHASE4_BACKEND_HANDOFF.md) now maps
+implemented helpers, named integration placeholders and continuation requirements.
+At the September 30 handoff, placeholder services returned ENDPOINT_NOT_READY
+and the audit controller and mutation guard were unmounted. The October 2
+implementation mounted the audit verifier; the mutation guard remains unmounted.
+A reusable strict Joi body-validation middleware is included.
+Focused placeholder/app tests: 10 passed, zero failures/skips. Tasks remain unchecked
+against their original full DoD; placeholder handoff is not live workflow completion.
+Main `c030c77` is merged locally at `4640351`; Decision 007 is approved and the
+listIndexes/PRIMARY-wait fixes are present. The September 30
+[merged deployment smoke test](../reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md)
+passed fresh startup, restricted permissions and real dispatch-to-feed checks.
+Shared deployment, migration and full Task 2.4 acceptance remain pending.
+
+## Historical status (2026-09-25)
 
 See [backend verification status](../reports/BACKEND_VERIFICATION_STATUS.md) for
-current test evidence and skipped-suite explanations. Dated updates below are
-historical snapshots; this section takes precedence for current status.
+historical test evidence and skipped-suite explanations; use the linked
+Phase 1-4 status above for current evidence. Dated updates below are
+historical snapshots; the October 2 implementation review above takes precedence.
 
 - Tasks 1.1, 1.2 and 2.1 remain complete within their documented backend scope.
 - Task 1.3 awaits Markie's actual frontend acceptance; backend mock tests pass.
@@ -25,7 +109,7 @@ historical snapshots; this section takes precedence for current status.
 - Accounts, sample records and live frontend acceptance remain pending. Local
   Phase 3 ML client work is uncommitted and excluded from PR #7.
 
-## 1. Context & Architecture Summary for Mae
+## 1. Context & Architecture Summary for Backend
 
 You are building the **Core Application Engine & Security Authority** for **KilosUnlad**, a decision-support and forensic auditing system for the DSWD 4Ps welfare program.
 
@@ -186,11 +270,38 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 ## Phase 3: ML Integration, Due Process & Tablet Sync Engine (Days 9–12)
 *Goal: Connect Charles's Python ML service via Axios and process batch uploads from Markie's tablet.*
 
+Combined working-tree regression on 2026-09-28: **87 passed, 0 failed, 3 skipped**.
+See [Phase 3 backend checkpoint](../reports/PHASE3_BACKEND_CHECKPOINT.md) for
+coverage, skip reasons and integration decisions. Tasks 3.1–3.3 remain incomplete.
+Docker follow-up: database lifecycle and audit-role suites passed **4 tests with
+zero skips** after the engine became available. A subsequent disposable MongoDB
+run passed **12 login/live-feed tests with zero skips**, covering the remaining
+skipped suite. These are separate runs, not a new combined test total.
+
 - [ ] **Task 3.1: Build Resilient Python ML Client**
   - Path: `/server/src/services/mlClient.service.js`
   - Use `axios` to call `http://ml-service:8000/api/v1/predict-swdi` using payload from `ml-swdi-inference.json`.
   - Configure a **2500ms timeout** and a fallback heuristic rule engine if the ML container is unreachable.
   - *DoD:* If Python container is stopped, backend falls back gracefully and tags record `EVALUATED_VIA_FALLBACK`.
+
+### Task 3.1 client progress (2026-09-23)
+
+- Implemented an internal Axios ML client matching `ml-swdi-inference.json`, with six-feature validation, household identity checks, response validation, and a fixed 2500 ms request deadline. Errors are sanitized; no retries or redirects extend the request.
+- Tests use temporary localhost HTTP servers, not Charles's service. All 47 default tests passed; the opt-in MongoDB transaction suite was skipped in this run. Six new tests cover contract exchange, invalid inputs/responses, upstream failures, connection failure, and timeout.
+- Task remains unchecked: the client is not mounted in a workflow, and fallback calculation, fallback-tag persistence, and live ML integration remain pending. No fabricated prediction or fallback success is returned. Teammates' files and frozen contracts are unchanged.
+
+### Task 3.1 review and resilience verification (2026-09-28)
+
+- Reviewed the internal client against the frozen inference contract, documented
+  feature bounds, and the architecture's 2500 ms deadline.
+- Added slow-stream and oversized-response tests. Focused verification:
+  `node --test test/mlClient.test.js` — 8 passed, 0 failed, 0 skipped.
+- Live inference remains unverified: the local ML inference schema and predict
+  endpoint files are empty. Coordinate an implemented ML service for acceptance.
+- Task remains unchecked. Utility-only fallback scoring, missing/stale-record
+  handling, fallback-tag storage/reprocessing and transactional audit integration
+  require agreement before completing the workflow. The client currently returns
+  typed errors for callers to handle, not fallback success.
 
 - [ ] **Task 3.2: Implement Tablet Batch Sync Consumer**
   - Paths: `/server/src/services/sync.service.js`, `/server/src/controllers/task.controller.js`
@@ -199,6 +310,30 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
   - Update task status to `SUBMITTED` and append an entry to `audit_logs`.
   - *DoD:* Tablet upload successfully validates coordinates, commits findings, and returns audit receipt.
 
+### Task 3.2 submission preparation (2026-09-28)
+
+- Added internal `prepareSubmission(input, routeTaskId)` in `sync.service.js`:
+  validates the submission shape and maps flat findings into `field_findings`.
+  Rejects unknown fields, type coercion, malformed coordinates/evidence metadata,
+  and route/body task-ID mismatch.
+- Geofence checks reject invalid coordinates and compare unrounded distance before
+  formatting the result. The existing inclusive 250 m limit follows the backend
+  prompt; the task bullet above uses strict `< 250 m`. This wording difference
+  needs confirmation before live submission acceptance.
+- Focused tests: 8 passed, 0 failed, 0 skipped across submission preparation and
+  geofence suites, including the 250.01 m rounding regression.
+- Added read-only submission authorization: reload active CASE_WORKER, query by
+  stored assignment, verify household identity/current jurisdiction, and reject
+  submitted/resolved/unknown task statuses. Authorization plus preparation tests:
+  11 passed, zero skips, using model doubles. Database/HTTP acceptance is pending.
+- Added `verifyEvidenceHash` for trusted raw buffers: detects altered/truncated
+  evidence and emits the contract's 422 EVIDENCE_HASH_MISMATCH. Five hash tests
+  plus preparation/authorization regression tests passed (16 total, zero skips).
+- Task remains incomplete: transactional rechecks of assignment/jurisdiction, trusted image
+  retrieval and hash-check integration, replay handling, transactional task/audit
+  persistence and the public submission route are still pending. Metadata
+  validation alone does not verify evidence or authorize submission.
+
 - [ ] **Task 3.3: Dynamic Composite Risk Calculation Service**
   - Path: `/server/src/services/discrepancy.service.js`
   - Aggregate live ML predictions with utility records from `ExternalRecord`:
@@ -206,12 +341,37 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
   - Update beneficiary status to `FLAGGED_FOR_REVIEW` if $S_i \ge 70$.
   - *DoD:* Seeded households with vehicle ownership or high power usage automatically receive $S_i \ge 70$.
 
+### Task 3.3 calculator groundwork (2026-09-28)
+
+- Added pure `calculateRiskScore` in `discrepancy.service.js`, implementing the
+  documented weights, 100-point cap and inclusive 70-point threshold.
+- Internal inputs require an explicitly supplied integer SWDI gap from 0 to 2
+  and four boolean indicators. Missing/unknown values are rejected, not defaulted
+  to low risk. The calculator does not derive the gap or indicators from records.
+- Focused verification: 4 tests passed, zero failures/skips, covering weights,
+  threshold/cap behavior, invalid inputs and deterministic calculation.
+- Task remains unchecked. The meaning/direction of the SWDI gap, telecom/vehicle
+  rules and missing/stale-record policy need agreement before live mapping and
+  transactional flagging. A vehicle alone gives 30 points and power alone 20;
+  the DoD example's automatic 70-point expectation needs clarification.
+
 - [ ] **Task 3.4: Implement Calamity Moratorium Controller**
   - Path: `/server/src/controllers/calamity.controller.js`
   - Create route `POST /api/v1/calamity/toggle` allowing admins to pause automated compliance flags for a municipality under a declared State of Calamity (RA 10121).
   - *DoD:* Compliance penalties freeze for households in active calamity zones.
 
-*Daily Standup Deliverable (Phase 3):*  
+### Task 3.4 internal check progress (2026-09-29)
+
+- Added pure `hasActiveCalamityMoratorium` using existing zone fields, exact
+  province/municipality matching, explicit activity and validated stored dates.
+- Provisional rules: inclusive declaration, exclusive expiry, omitted expiry
+  open-ended. Malformed configuration throws; any matching active zone holds.
+  These date rules need confirmation before live workflow integration.
+- Six new calamity tests plus four risk-calculator tests passed: 10 passed,
+  zero failures/skips. Task remains unchecked pending toggle contract, role/date
+  policy, transactional configuration/audit writes and compliance integration.
+
+*Daily Standup Deliverable (Phase 3):*
 > "Node.js successfully calls Python ML in under 20ms; tablet batch sync consumer and dynamic risk engine operational."
 
 ---
@@ -219,7 +379,7 @@ Your backend runs inside an isolated Node.js container on Port 5000. It acts as 
 ## Phase 4: Forensic Audit Engine & Stress Testing (Days 13–15)
 *Goal: Build the COA cryptographic chain verification endpoint and verify tamper detection.*
 
-- [ ] **Task 4.1: Implement Cryptographic Chain Verification Endpoint**
+- [x] **Task 4.1: Implement Cryptographic Chain Verification Endpoint**
   - Path: `/server/src/controllers/audit.controller.js`
   - Implement `GET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1000` matching `audit-chain-verification.json`.
   - Sequentially iterate through blocks in `AuditLog`, recomputing each SHA-256 hash.

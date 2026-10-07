@@ -47,8 +47,8 @@ integration testing. It includes:
 - `TEST-TSK-0001` is the only pending task in her jurisdiction.
 - `TEST-TSK-0002` (Real) is out of her jurisdiction — should not appear in her
   assigned tasks feed.
-- `TEST-4PS-0002` (Lecheria) is out of her jurisdiction — should not appear
-  in her triage view.
+- CASE_WORKER cannot access the triage endpoint (expected HTTP 403). Check
+  worker jurisdiction through the assigned-task feed instead.
 
 ---
 
@@ -112,9 +112,8 @@ Once the data is set up, log in as `case_worker_test` and verify:
 
 - [ ] Assigned tasks feed shows `TEST-TSK-0001` (PENDING_DISPATCH)
 - [ ] `TEST-TSK-0002` (Real) does **not** appear — out of jurisdiction
-- [ ] Triage view excludes `TEST-4PS-0002` (Lecheria) — out of jurisdiction
-- [ ] Beneficiaries in Palingon (`TEST-4PS-0001`, `TEST-4PS-0004`) are visible
-  as applicable
+- [ ] Triage endpoint rejects CASE_WORKER access with HTTP 403
+- [ ] Assigned task `TEST-TSK-0001` displays household `TEST-4PS-0004` in Palingon
 
 If any of these fail, send the actual result + browser console output to Mae
 so she can verify the backend filtering.

@@ -1,8 +1,8 @@
 # DECISION-007: Test Account Seeding for Integration Testing
 **Author:** Dustin Martinez (Database Architecture Lead)
-**Status:** PROPOSED
+**Status:** ACCEPTED (Option A; see recorded PM resolution below)
 **Date Created:** 2026-09-29
-**Date Resolved:** —
+**Date Resolved:** Not recorded in the PM resolution
 
 ---
 

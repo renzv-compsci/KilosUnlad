@@ -1,7 +1,28 @@
 # KilosUnlad: Unified Master Task Phase Roadmap
 **Classification:** Master Progress Tracker & Sprint Status Board  
 **Target Repository:** `KilosUnlad`  
-**Current Overall Progress:** 3 / 52 Tasks Completed  
+**Progress:** Completion totals require reconciliation with each owner's evidence;
+the earlier 3 / 52 summary is not a current verified project total.
+
+## Latest backend review (2026-10-02)
+
+Local `backend-mae` at `19c9997` includes main `c030c77` and database-phase3
+`697f6bb`. Backend tasks 1.1, 1.2, 2.1 and now 4.1 are complete within documented
+local backend scope. Task 4.1 verifies the ledger through an authenticated route,
+including 1000 persisted blocks and tamper detection in a disposable replica set.
+The October 2 regression passed 104 tests, failed 0 and skipped 3 optional suites;
+the subsequent affected-suite run passed 24 with no failures/skips. See current
+status for environment and coverage limits. Live checks cover four-role
+authentication and feeds; positive assigned-task display was manually confirmed
+by Mae on October 2. Markie's independent acceptance remains open.
+
+Dustin's seed fix and existing-data repair handoff are merged. Current fixtures
+contain 4 households/2 tasks versus the approved 5/3 target. Shared-environment
+repair and deployment acceptance, notice/appeal contracts, and Phase 3/4 live
+integration (except implemented Task 4.1) remain open. See [current backend status](../reports/PHASE1_TO_PHASE4_STATUS.md)
+and [latest live evidence](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
+This update takes precedence over the dated backend snapshots below; the role
+counts and unchecked teammate tasks below await owner reconciliation.
 
 ---
 
@@ -10,7 +31,7 @@
 | Team Member | Role | Domain | Total Tasks | Completed | Status |
 | :--- | :--- | :--- | :---: | :---: | :---: |
 | **Dustin Martinez** | Database Architecture Lead | `/server/src/models/`, `/docker/mongo/` | 11 | 0 | In Progress |
-| **Mae Santos** | Backend Engineering Lead | `/server/` (API & Core Logic) | 13 | 3 | In Progress |
+| **Mae Santos** | Backend Engineering Lead | `/server/` (API & Core Logic) | 13 | 4 | In Progress |
 | **Charles Cabatian** | ML Modeling Lead | `/ml-service/` | 10 | 0 | In Progress |
 | **Markie Angelo** | Frontend Engineering Lead | `/client/` (Web & PWA) | 11 | 0 | In Progress |
 | **Renz Viloria** | Project Manager & Data Lead | `/data-pipeline/`, Governance | 13 | 0 | In Progress |
@@ -70,6 +91,9 @@
   - *DoD:* Endpoints respond with HTTP `200 OK` and match contract JSON structures 1:1.
 
 ### Mae Santos (Backend)
+
+**Backend status (2026-09-27):** Tasks 1.1 and 1.2 complete. Task 1.3 backend mock handlers and contract tests pass; its frontend integration acceptance remains pending, so the checkbox stays open.
+
 * **Goal:** Stand up Express, mount core security middleware, and serve mock responses matching contracts.
 - [x] **Task 1.1: Express Server Bootstrap & Health Check**
   - Paths: `/server/server.js`, `/server/src/app.js`
@@ -168,6 +192,9 @@
   - *DoD:* Automated unit test flags suspicious test clusters with `is_anomalous_batch: true`.
 
 ### Mae Santos (Backend)
+
+**Backend status (2026-09-27):** Task 2.1 complete for backend authentication/RBAC. Task 2.2 is partial: transition guards and transactional dispatch are implemented, but remaining notice/graduation policies are pending. Task 2.3 has tested 15-day timing helpers; approved appeal storage, docket contract and pause/resume rules remain pending. Task 2.4 is implemented and tested on a disposable replica set; shared transaction deployment and index readiness await Decision 006. Live triage/assigned feeds and dispatch-to-feed isolation tests are implemented. Latest tracked backend run: 58 passed, 0 failed, 0 skipped. PR #7 merged into main at d4edba4; Phase 2 is not fully complete. See [verification evidence](../reports/BACKEND_VERIFICATION_STATUS.md), [gap review](../reports/PHASE2_GAP_REVIEW.md), and [Decision 006](../decisions/006-backend-transaction-deployment.md).
+
 * **Goal:** Replace mock auth with real JWTs, implement the state machine, and build task dispatching.
 - [x] **Task 2.1: Implement JWT Authentication & Jurisdictional RBAC**
   - Paths: `/server/src/middleware/auth.middleware.js`, `/server/src/middleware/rbac.middleware.js`
@@ -264,6 +291,9 @@
   - *DoD:* Zero unhandled 500 crashes during malformed payload tests.
 
 ### Mae Santos (Backend)
+
+**Backend status (2026-09-27):** Task 3.1 has local, uncommitted ML-client groundwork only; fallback, persistence and live integration remain unfinished. No Phase 3 task is marked complete.
+
 * **Goal:** Connect Charles's Python ML service via Axios and process batch uploads from Markie's tablet.
 - [ ] **Task 3.1: Build Resilient Python ML Client**
   - Path: `/server/src/services/mlClient.service.js`
@@ -346,8 +376,11 @@
   - *DoD:* Model does not produce arbitrary 1.0/0.0 extreme probabilities on borderline data.
 
 ### Mae Santos (Backend)
+
+**Backend status (2026-09-27):** Hashing and workflow audit foundations exist, and implemented routes have validation/error handling. The chain-verification endpoint, general mutation auditing and full hardening acceptance remain unfinished; no Phase 4 task is marked complete.
+
 * **Goal:** Build COA cryptographic chain verification endpoint and verify tamper detection.
-- [ ] **Task 4.1: Implement Cryptographic Chain Verification Endpoint**
+- [x] **Task 4.1: Implement Cryptographic Chain Verification Endpoint**
   - Path: `/server/src/controllers/audit.controller.js`
   - Implement `GET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1000` matching `audit-chain-verification.json`.
   - Sequentially iterate through blocks in `AuditLog`, recomputing each SHA-256 hash.
@@ -409,6 +442,9 @@
   - *DoD:* Both test cases execute smoothly during end-to-end rehearsal.
 
 ### Mae Santos (Backend)
+
+**Backend status (2026-09-27):** Clean committed Compose images built and all five services started in an isolated smoke check. This is not completion of the under-30-second optimization target or team demo rehearsals; both Phase 5 tasks remain open.
+
 * **Goal:** Optimize backend Docker build and rehearse live demonstration scenarios.
 - [ ] **Task 5.1: Backend Container Optimization**
   - Path: `/server/Dockerfile`

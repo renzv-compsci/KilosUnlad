@@ -1,5 +1,28 @@
 # Phase 2 backend gap review
 
+**Author:** Mae Santos — Backend Engineering Lead
+
+## October 2 follow-up
+
+Decision 006 is accepted and the replica-set infrastructure fixes are merged.
+Fresh deployment evidence is recorded in
+[merged deployment verification](PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
+The current regression passes real MongoDB login, dispatch-to-feed isolation,
+concurrent dispatch and transactional rollback in a disposable MongoDB 8.3
+replica set. The new chain verifier also validates persisted workflow audit hashes.
+Shared-environment deployment/permissions and independent frontend acceptance
+remain distinct from those local results.
+
+Phase 1 backend bootstrap, hashing and mock contracts are implemented; frontend
+acceptance of Task 1.3 remains open. Phase 2 authentication is implemented, while
+Tasks 2.2/2.3 still need the notice/appeal storage, API and policy decisions below.
+No new approved appeal contract exists in the current contract inventory. Do not
+add public notice/graduation mutations by inventing those missing decisions.
+The deployment-decision request in the historical next-actions list is resolved;
+the remaining shared-environment acceptance is not.
+
+## Historical review
+
 Reviewed 2026-09-24 against local main merged at cdd33f4 and backend d92a4e7.
 This is an implementation review, not an approved schema or API change.
 
@@ -49,7 +72,7 @@ approval or appeal contract.
 
 ## Next actions and ownership
 
-1. Mae: present the above storage, contract, audit and timing questions to Renz
+1. Backend: present the above storage, contract, audit and timing questions to Renz
    and Dustin. Keep both tasks unchecked until their full behavior is verified.
 2. Renz/team: settle the due-process API and business rules, including the notice
    audit action and pause/resume semantics, through the decision process.
@@ -57,7 +80,7 @@ approval or appeal contract.
    Dustin reviews/implements schema changes only when agreed and assigned; no
    broader role permissions or replica-set work are automatically assigned to him.
    Audit update/delete restrictions remain intact.
-4. Mae: consume those approved models/contracts, implement transactional notice,
+4. Backend: consume those approved models/contracts, implement transactional notice,
    docket and graduation policies, then test rollback, stale writes, duplicate
    submissions, role/scope restrictions and deadline/hold boundaries.
 5. Markie: verify frontend integration against the agreed live endpoints with
@@ -69,7 +92,7 @@ complete the remaining notice/graduation and appeal workflows.
 
 ## Evidence and scope
 
-Read: docs/tasks/MAE_BACKEND.md; core architecture/overview/structure and Mae's
+Read: docs/tasks/MAE_BACKEND.md; core architecture/overview/structure and the backend
 prompt; decisions 001/002/003/005; available contract inventory and field
 submission contract; Beneficiary, VerificationTask and AuditLog models; workflow,
 workflowPersistence and appealLifecycle services; mounted v1 routes and appeal
