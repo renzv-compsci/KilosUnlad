@@ -1,5 +1,41 @@
 # Phase 3 and Phase 4 backend handoff
 
+## Backend turnover (2026-10-07)
+
+Per Renz's fast-track announcement, Mae is handing over the current backend
+and all remaining tasks to Renz and Charles. No phase is retained for further
+development. Start with the [complete backend turnover](BACKEND_TURNOVER.md).
+This transfers continuation responsibility; unfinished task checkboxes and
+shared/frontend acceptance requirements remain unchanged. Recipient review
+and acknowledgement are pending.
+
+
+## Latest compatibility review (2026-10-07)
+
+The [frontend/backend compatibility review](FRONTEND_BACKEND_COMPATIBILITY.md)
+compares frontend `b36361c` with backend `9e9e3a3` (main merge `dc55600`).
+Login/read-feed calls match current routes. Dispatch remains a disabled preview;
+the audit screen simulates results while the real verifier is already mounted.
+The review provides dispatch/audit integration details and flags task-metadata
+presentation limits. It is a static review, not new live acceptance.
+
+
+## Publication and next acceptance (2026-10-07)
+
+[PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10) merged
+`backend-mae` commit `9e9e3a3` into main at `dc55600` on October 6 at
+23:36 Manila time. Remote history was fetched and verified on October 7.
+The two commits have identical file trees. Merge acceptance does not close
+remaining workflow or shared-deployment acceptance.
+
+The [dispatch acceptance checklist](BACKEND_DISPATCH_ACCEPTANCE.md) is prepared
+for the next test session, including fixture prerequisites, API dispatch,
+frontend task visibility, audit evidence, rejection/concurrency and rollback
+checks. It has not been executed. No runtime tests were run for this update.
+Earlier PR-review requests below are historical; remaining coordination concerns
+continuation ownership and workflow acceptance.
+
+
 ## Markie-reported local acceptance (recorded 2026-10-04)
 
 Markie's message, relayed by Mae, reports testing frontend integration against
@@ -32,8 +68,9 @@ checkbox is not changed by this report.
 
 **Recipients:** Renz and Charles
 
-**Status:** Placeholder handoff prepared under Renz's September 30 instruction;
-full workflow acceptance remains outstanding.
+**Status:** Superseded as the main entry point by the complete backend turnover
+above; retained for detailed helper interfaces. Full workflow acceptance remains
+outstanding.
 
 ## Direction and scope
 
@@ -65,8 +102,8 @@ Documentation review on October 4: `backend-mae` at `4d0f5bc`, matching
 `19c9997` merge of Dustin's seed fix and test-data handoff. No new runtime tests
 were run for this documentation correction. The original handoff baseline was
 `dcfd67f`;
-[PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10) is the historical
-review reference; its current review/merge status was not checked in this update.
+The original PR review reference was PR #10; its October 6 merge is recorded
+in the publication update above.
 Start with this guide, then [Phase 1–4 status](../reports/PHASE1_TO_PHASE4_STATUS.md)
 and [live verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
 
@@ -261,7 +298,7 @@ agreement or completion by another team member.
 | --- | --- | --- |
 | Markie | Run the agreed frontend against this backend with fallback disabled; confirm login, invalid login, role handling, triage and assigned-feed behavior | Exact frontend/backend commits, date, expected/actual results and redacted errors; record positive task display separately if blocked |
 | Dustin | Provide a PENDING_DISPATCH sample task assigned to the actual case_worker_test user ID and linked to a Palingon household | Sample task/household identifiers and seed revision; the worker should see that task while the Lecheria task remains excluded |
-| Renz/Charles | Review PR #10 and the continuation order above | Review feedback and confirmation of who continues each integration; handoff acceptance is separate from original full phase completion |
+| Renz/Charles | Confirm continuation ownership for the merged handoff | Named owners for remaining integrations; workflow acceptance stays separate from PR merge |
 | Renz | Resolve notice/appeal requirements below with the relevant owners | Recorded decision and approved contracts/storage ownership before backend implementation |
 
 ### Phase 2 decision questions for Renz
