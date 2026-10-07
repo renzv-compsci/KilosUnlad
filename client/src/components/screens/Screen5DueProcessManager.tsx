@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { AccessibleDialog } from '../common/AccessibleDialog';
+import { SampleDataLabel } from '../common/SampleDataLabel';
+import { displayDate, displayDateTime } from '../../utils/displayDate';
+import { noticeCountdown, sortDueProcessNotices } from '../../utils/dueProcessPresentation';
 import { DueProcessNoticeItem } from '../../types/contracts';
 import { MOCK_DUE_PROCESS_NOTICES } from '../../data/mockContracts';
 import { 
@@ -21,17 +25,18 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
   const [notices, setNotices] = useState<DueProcessNoticeItem[]>(MOCK_DUE_PROCESS_NOTICES);
   const [selectedNoticeForAppeal, setSelectedNoticeForAppeal] = useState<DueProcessNoticeItem | null>(null);
   const [isAppealModalOpen, setIsAppealModalOpen] = useState(false);
+  const [previewUpdated, setPreviewUpdated] = useState(false);
 
   // Appeal Docket Modal Inputs
-  const [appealDocketId, setAppealDocketId] = useState('APP-CAL-2026-0089');
-  const [hearingDate, setHearingDate] = useState('2026-10-08');
-  const [appealGrounds, setAppealGrounds] = useState(
-    'Unauthorized power line tapping by informal neighbor verified by Barangay Certificate; motorcycle registered to separated relative not resident in household.'
-  );
+  const [appealDocketId, setAppealDocketId] = useState('');
+  const [hearingDate, setHearingDate] = useState('');
+  const [appealGrounds, setAppealGrounds] = useState('');
 
   const handleOpenAppealModal = (item: DueProcessNoticeItem) => {
     setSelectedNoticeForAppeal(item);
-    setAppealDocketId(`APP-${item.address.municipality.substring(0, 3).toUpperCase()}-2026-${Math.floor(1000 + Math.random() * 9000)}`);
+    setAppealDocketId('');
+    setHearingDate('');
+    setAppealGrounds('');
     setIsAppealModalOpen(true);
   };
 
@@ -55,36 +60,11 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
     );
 
     setIsAppealModalOpen(false);
-  };
-
-  // Helper calculation for 15-day countdown
-  const getRemainingDaysAndHours = (expiryDateStr: string, isPaused: boolean) => {
-    if (isPaused) {
-      return { days: 0, hours: 0, text: 'Paused Pending Evidentiary Hearing', progressPct: 60 };
-    }
-    const expiry = new Date(expiryDateStr).getTime();
-    const now = new Date('2026-09-21T10:00:00').getTime();
-    const diffMs = expiry - now;
-
-    if (diffMs <= 0) {
-      return { days: 0, hours: 0, text: 'Notice Expired (De-listing Finalized)', progressPct: 100 };
-    }
-
-    const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const days = Math.floor(totalHours / 24);
-    const hours = totalHours % 24;
-    const progressPct = Math.min(100, Math.max(0, Math.round(((15 - days) / 15) * 100)));
-
-    return {
-      days,
-      hours,
-      text: `${days} Days, ${hours} Hours Remaining`,
-      progressPct
-    };
+    setPreviewUpdated(true);
   };
 
   return (
-    <div className="p-5 sm:p-7 space-y-6 max-w-7xl mx-auto">
+    <div className="module-page due-process-page operations-page">
       
       {/* Spec Annotation Banner */}
       {showSpecAnnotations && (
@@ -97,161 +77,72 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
         </div>
       )}
 
-      {/* Screen Title */}
-      <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <header className="module-heading">
         <div>
-          <div className="flex items-center space-x-2.5">
-            <h2 className="text-xl font-bold text-stone-900 tracking-tight font-display">
-              Due Process & Appeals Manager
-            </h2>
-            <span className="text-[11px] font-semibold text-stone-600 bg-stone-100 px-2 py-0.5 rounded border border-stone-200">
-              {notices.length} Active Dockets
-            </span>
-          </div>
-          <p className="text-xs text-stone-500 mt-1 max-w-3xl leading-relaxed">
-            Under Section 12 of RA 11310, cash transfers cannot be terminated without serving formal Notice of Ineligibility and providing a 15-day statutory appeal window.
-          </p>
+          <SampleDataLabel />
+          <h2>15-Day Due Process</h2>
+          <p>Upcoming deadlines first. Sample timeline: Sep 21, 2026, 10:00 AM PHT.</p>
         </div>
+        <span className="quiet-count">{notices.length} active dockets</span>
+      </header>
 
-        {/* Global Legal Shield Badge - Unboxed Clean Design */}
-        <div className="flex items-center space-x-2 text-xs font-semibold text-emerald-800 bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-200/80 self-start md:self-auto shrink-0">
-          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>Statutory Protection Enforced</span>
-        </div>
+      <div className="process-summary" aria-label="Docket summary">
+        <span><strong>{notices.filter((notice) => notice.status !== 'UNDER_APPEAL_HEARING').length}</strong> Notice issued</span>
+        <span><strong>{notices.filter((notice) => notice.status === 'UNDER_APPEAL_HEARING').length}</strong> Under appeal</span>
       </div>
+      {previewUpdated && <p role="status" className="preview-note">Preview updated only. No appeal was filed and no official deadline was changed.</p>}
 
-      {/* 1. Countdown Card List */}
-      <div className="space-y-4">
-        {notices.map((notice) => {
+      <section className="operations-records" aria-label="Due process notices">
+        {sortDueProcessNotices(notices).map((notice) => {
           const isUnderAppeal = notice.status === 'UNDER_APPEAL_HEARING';
-          const countdown = getRemainingDaysAndHours(notice.notice_expiry_date, isUnderAppeal);
-
+          const countdown = noticeCountdown(notice.notice_expiry_date, isUnderAppeal);
           return (
-            <div
-              key={notice.household_id}
-              id={`due-process-card-${notice.household_id}`}
-              className="bg-white rounded-xl border border-stone-200/90 shadow-2xs p-5 sm:p-6 hover:border-stone-300 transition"
-            >
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-                
-                {/* Left: Beneficiary & Notice Basis */}
-                <div className="space-y-2 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono font-bold text-sm text-[#132e4f]">
-                      {notice.household_id}
-                    </span>
-                    <span className="text-stone-300">·</span>
-                    <span className="font-bold text-stone-900 text-sm font-display">
-                      {notice.head_of_household.full_name}
-                    </span>
-                    <span className="text-[11px] font-mono text-stone-500 bg-stone-100 px-1.5 py-0.5 rounded border border-stone-200/70">
-                      PhilSys: {notice.head_of_household.national_id}
-                    </span>
-                  </div>
-
-                  <div className="text-xs text-stone-500">
-                    Jurisdiction: {notice.address.barangay}, {notice.address.municipality} (Laguna Pilot)
-                  </div>
-
-                  <div className="bg-stone-50 p-3 rounded-lg border border-stone-200/80 text-xs text-stone-700 mt-2">
-                    <span className="font-semibold text-stone-800">Grounds for Notice: </span>
-                    <span>{notice.initial_ineligibility_cause}</span>
-                  </div>
-
-                  {/* If appeal is already filed */}
-                  {isUnderAppeal && (
-                    <div className="bg-stone-50 p-3 rounded-lg border border-stone-200/80 text-xs text-stone-800 mt-2">
-                      <div className="flex items-center justify-between font-semibold mb-1">
-                        <span className="flex items-center gap-1.5 text-[#132e4f]">
-                          <Scale className="w-3.5 h-3.5 text-[#132e4f]" />
-                          <span className="font-mono">Docket: {notice.appeal_docket_id}</span>
-                        </span>
-                        <span className="text-[11px] text-stone-600 font-mono">Hearing Date: {notice.hearing_date}</span>
-                      </div>
-                      <p className="text-xs text-stone-600 italic">
-                        &quot;{notice.appeal_grounds}&quot;
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Right: Visual 15-Day Countdown Timer & Actions */}
-                <div className="lg:w-84 shrink-0 bg-stone-50 p-4 rounded-xl border border-stone-200/80 flex flex-col justify-between space-y-3">
-                  
-                  {/* Status Indicator - Clean Unboxed */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center space-x-1.5">
-                      <span className={`w-2 h-2 rounded-full ${
-                        isUnderAppeal ? 'bg-[#132e4f]' : 'bg-amber-600'
-                      }`} />
-                      <span className="text-[11px] font-semibold text-stone-800">
-                        {isUnderAppeal ? 'Under Appeal Hearing' : 'Notice of Ineligibility'}
-                      </span>
-                    </div>
-
-                    {notice.grant_continuation_active && (
-                      <span className="text-[10px] font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/80">
-                        Grants Protected
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Countdown Timer Display */}
-                  <div>
-                    <div className="flex items-center space-x-1.5 text-stone-500 text-[11px] mb-1">
-                      <Clock className="w-3.5 h-3.5 text-amber-700" />
-                      <span className="font-medium">15-Day Statutory Countdown</span>
-                    </div>
-
-                    <div className="text-sm font-bold text-stone-900 font-mono flex items-center justify-between">
-                      <span>{countdown.text}</span>
-                      {isUnderAppeal && <PauseCircle className="w-4 h-4 text-[#132e4f]" />}
-                    </div>
-
-                    {/* Visual Progress Bar */}
-                    <div className="w-full bg-stone-200 rounded-full h-1.5 mt-2 overflow-hidden">
-                      <div
-                        className={`h-full transition-all ${
-                          isUnderAppeal ? 'bg-[#132e4f]' : 'bg-amber-600'
-                        }`}
-                        style={{ width: `${countdown.progressPct}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-[10px] text-stone-400 font-mono mt-1.5">
-                      <span>Served: {notice.notice_date}</span>
-                      <span>Expires: {notice.notice_expiry_date}</span>
-                    </div>
-                  </div>
-
-                  {/* Action Button: File Formal Appeal */}
-                  <div className="pt-2 border-t border-stone-200/80">
-                    {isUnderAppeal ? (
-                      <div className="text-center text-xs font-medium text-[#132e4f] py-1.5 bg-white rounded-lg border border-stone-200">
-                        ✓ Statutory Clock Suspended for Hearing
-                      </div>
-                    ) : (
-                      <button
-                        id={`file-appeal-btn-${notice.household_id}`}
-                        onClick={() => handleOpenAppealModal(notice)}
-                        className="w-full py-2 bg-amber-700 hover:bg-amber-800 text-white font-semibold rounded-lg text-xs shadow-2xs transition flex items-center justify-center space-x-1.5 cursor-pointer"
-                      >
-                        <Scale className="w-3.5 h-3.5" />
-                        <span>File Formal Appeal Docket</span>
-                      </button>
-                    )}
-                  </div>
-
-                </div>
-
+            <article key={notice.household_id} id={`due-process-card-${notice.household_id}`} className={`operations-record process-record ${countdown.urgent ? 'record-urgent' : ''}`}>
+              <div className="record-main">
+                <h3>{notice.head_of_household.full_name}</h3>
+                <p className="record-location">{notice.address.barangay}, {notice.address.municipality}</p>
+                <details className="record-details">
+                  <summary>Notice &amp; appeal details</summary>
+                  <dl>
+                    <div><dt>Household</dt><dd>{notice.household_id}</dd></div>
+                    <div><dt>PhilSys</dt><dd>{notice.head_of_household.national_id}</dd></div>
+                    <div><dt>Notice served</dt><dd><time dateTime={notice.notice_date} title={notice.notice_date}>{displayDate(notice.notice_date)}</time></dd></div>
+                    <div><dt>Notice expires</dt><dd><time dateTime={notice.notice_expiry_date} title={notice.notice_expiry_date}>{displayDate(notice.notice_expiry_date)}</time></dd></div>
+                  </dl>
+                  <p><strong>Grounds for notice:</strong> {notice.initial_ineligibility_cause}</p>
+                  {isUnderAppeal && <>
+                    <dl>
+                      <div><dt>Appeal docket</dt><dd>{notice.appeal_docket_id}</dd></div>
+                      <div><dt>Hearing date</dt><dd>{displayDate(notice.hearing_date)}</dd></div>
+                    </dl>
+                    <p><strong>Appeal grounds:</strong> {notice.appeal_grounds}</p>
+                  </>}
+                </details>
               </div>
-            </div>
+              <div className="record-status">
+                <span className="quiet-status">{isUnderAppeal ? 'Under appeal hearing' : 'Notice of ineligibility'}</span>
+                <span className={`countdown-label ${countdown.urgent ? 'is-urgent' : ''}`}>
+                  {isUnderAppeal ? <PauseCircle size={16} aria-hidden="true" /> : <Clock size={16} aria-hidden="true" />}
+                  {countdown.text}
+                </span>
+                <span className="record-date-label">{isUnderAppeal ? 'Hearing ' : 'Deadline '}<time dateTime={isUnderAppeal ? notice.hearing_date : notice.notice_expiry_date}>{displayDateTime(isUnderAppeal ? notice.hearing_date : notice.notice_expiry_date)}</time></span>
+                {notice.grant_continuation_active && <span className="protected-label"><ShieldCheck size={14} aria-hidden="true" />Grants protected</span>}
+              </div>
+              <div className="record-action-area">
+                {!isUnderAppeal && <button id={`file-appeal-btn-${notice.household_id}`} onClick={() => handleOpenAppealModal(notice)} className="record-action"><Scale size={16} aria-hidden="true" />Preview Appeal</button>}
+              </div>
+            </article>
           );
         })}
-      </div>
+      </section>
+      <details className="context-details">
+        <summary>Statutory protection &amp; appeal rules</summary>
+        <p>Under Section 12 of RA 11310, cash transfers cannot be terminated without serving formal Notice of Ineligibility and providing a 15-day statutory appeal window. A filed appeal suspends the statutory clock pending evidentiary hearing.</p>
+      </details>
 
       {/* 2. Appeal Docket Modal */}
       {isAppealModalOpen && selectedNoticeForAppeal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <AccessibleDialog titleId="appeal-dialog-title" onClose={() => setIsAppealModalOpen(false)} className="workspace-dialog fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl border border-stone-200/90 w-full max-w-lg overflow-hidden transition-all">
             
             <div className="bg-stone-50/70 border-b border-stone-200/90 p-5 flex items-center justify-between">
@@ -260,17 +151,18 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                   <Scale className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-stone-900 font-display">
-                    File Statutory Appeal Docket
+                  <h3 id="appeal-dialog-title" className="text-base font-bold text-stone-900 font-display">
+                    Appeal Preview
                   </h3>
                   <p className="text-xs text-stone-500 mt-0.5">
-                    Suspends the 15-day graduation countdown pending evidentiary hearing
+                    Sample docket; no official filing
                   </p>
                 </div>
               </div>
 
               <button
                 onClick={() => setIsAppealModalOpen(false)}
+                aria-label="Close appeal dialog"
                 className="text-stone-400 hover:text-stone-700 p-1.5 rounded-lg hover:bg-stone-100 transition cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -287,10 +179,10 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-700 mb-1.5 text-xs">
-                  Appeal Docket Reference
+                <label htmlFor="appeal-reference" className="block font-semibold text-stone-700 mb-1.5 text-xs">
+                  Appeal Docket Reference <span className="required-label">(required)</span>
                 </label>
-                <input
+                <input id="appeal-reference"
                   type="text"
                   required
                   value={appealDocketId}
@@ -300,10 +192,10 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-700 mb-1.5 text-xs">
-                  Evidentiary Hearing Date
+                <label htmlFor="appeal-hearing" className="block font-semibold text-stone-700 mb-1.5 text-xs">
+                  Evidentiary Hearing Date <span className="required-label">(required)</span>
                 </label>
-                <input
+                <input id="appeal-hearing"
                   type="date"
                   required
                   value={hearingDate}
@@ -313,10 +205,10 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-700 mb-1.5 text-xs">
-                  Formal Grounds & Rebuttal Arguments
+                <label htmlFor="appeal-grounds" className="block font-semibold text-stone-700 mb-1.5 text-xs">
+                  Formal Grounds & Rebuttal Arguments <span className="required-label">(required)</span>
                 </label>
-                <textarea
+                <textarea id="appeal-grounds"
                   rows={4}
                   required
                   value={appealGrounds}
@@ -327,7 +219,7 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
               </div>
 
               <div className="bg-amber-50 p-3 rounded-lg border border-amber-200/80 text-amber-900 text-xs leading-relaxed">
-                <span className="font-semibold">Legal Consequence:</span> Submitting this docket immediately pauses the automatic 15-day timer and continues grant disbursements until hearing conclusion.
+                <span className="font-semibold">Preview only:</span> This updates the sample on this page. It does not file an appeal, change an official deadline, or affect grant payments.
               </div>
 
               <div className="pt-3 border-t border-stone-100 flex justify-end space-x-3">
@@ -344,14 +236,14 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                   className="px-4 py-2 bg-[#132e4f] hover:bg-[#0c2340] text-white font-semibold rounded-lg text-xs shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>File Docket & Suspend Timer</span>
+                  <span>Preview Appeal Status</span>
                 </button>
               </div>
 
             </form>
 
           </div>
-        </div>
+        </AccessibleDialog>
       )}
 
     </div>

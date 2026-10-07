@@ -12,9 +12,7 @@ import {
   Sliders,
   Users,
   ShieldCheck,
-  Scale,
-  PanelLeftClose,
-  PanelLeftOpen
+  Scale
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -59,7 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           },
           {
             id: 'triage' as ScreenId,
-            label: 'Triage & Flagged Queue',
+            label: 'Triage Queue',
             sublabel: 'Discrepancies (Si ≥ 70)',
             icon: AlertTriangle,
             badge: `${pendingTriageCount}`,
@@ -83,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           },
           {
             id: 'admin_settings' as ScreenId,
-            label: 'Policy Thresholds',
+            label: 'Policy Settings',
             sublabel: 'Cross-match sensitivity',
             icon: Sliders,
             badge: null
@@ -94,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         return [
           {
             id: 'field_dashboard' as ScreenId,
-            label: 'Caseworker Hub',
+            label: 'Field Overview',
             sublabel: 'Calamba assigned caseload',
             icon: LayoutDashboard,
             badge: `${assignedTasksCount} Cases`
@@ -135,14 +133,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           },
           {
             id: 'coa_dashboard' as ScreenId,
-            label: 'State Auditor Dashboard',
+            label: 'Audit Overview',
             sublabel: 'RA 11310 compliance metrics',
             icon: Scale,
             badge: '94.2%'
           },
           {
             id: 'audit_ledger' as ScreenId,
-            label: 'Cryptographic Ledger',
+            label: 'Audit Ledger',
             sublabel: 'SHA-256 Merkle chain',
             icon: ShieldCheck,
             badge: '100% Valid',
@@ -150,7 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           },
           {
             id: 'coa_sampling' as ScreenId,
-            label: 'Evidentiary Sampling',
+            label: 'Audit Sampling',
             sublabel: 'Cross-match audit ledger',
             icon: FileCheck2,
             badge: '68.4%'
@@ -208,25 +206,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside
       id="app-sidebar"
       className={`app-sidebar ${collapsed ? 'is-collapsed' : ''}`}
+      tabIndex={0}
+      aria-label={`Sidebar, ${collapsed ? 'collapsed' : 'expanded'}. Press Enter or Space to toggle.`}
+      onClick={(event) => {
+        // Ignore navigation clicks, including their nested labels and SVG icons.
+        if ((event.target as Element).closest('button, a')) return;
+        onToggleCollapse();
+      }}
+      onKeyDown={(event) => {
+        if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          if (!event.repeat) onToggleCollapse();
+        }
+      }}
       onTransitionEnd={(event) => {
         if (event.target === event.currentTarget && event.propertyName === 'transform' && !collapsed && window.matchMedia('(max-width: 767px)').matches) {
-          event.currentTarget.querySelector<HTMLButtonElement>('.sidebar-collapse-toggle')?.focus();
+          event.currentTarget.focus();
         }
       }}
     >
-      <div className="sidebar-brand">
+      <div className="sidebar-brand" title={collapsed ? 'Expand navigation' : 'Collapse navigation'}>
         <span className="sidebar-wordmark">KilosUnlad<span className="brand-period">.</span></span>
-        <button
-          type="button"
-          className="sidebar-collapse-toggle icon-control"
-          aria-label={collapsed ? 'Expand sidebar' : 'Minimize sidebar'}
-          title={collapsed ? 'Expand sidebar' : 'Minimize sidebar'}
-          aria-expanded={!collapsed}
-          aria-controls="sidebar-navigation"
-          onClick={onToggleCollapse}
-        >
-          {collapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
-        </button>
       </div>
 
       <div className="sidebar-section-label">{roleInfo.title}</div>

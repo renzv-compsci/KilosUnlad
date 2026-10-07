@@ -1,5 +1,6 @@
+import { AccessibleDialog } from '../common/AccessibleDialog';
 import React, { useState } from 'react';
-import { BeneficiaryTriageItem, DispatchTaskPayload } from '../../types/contracts';
+import { BeneficiaryTriageItem } from '../../types/contracts';
 import { MOCK_MUNICIPAL_LINKS } from '../../data/mockContracts';
 import { X, Send, Calendar, User, ShieldCheck } from 'lucide-react';
 
@@ -7,7 +8,6 @@ interface Screen4TaskDispatchModalProps {
   isOpen: boolean;
   onClose: () => void;
   targetHousehold: BeneficiaryTriageItem | null;
-  onDispatchSuccess: (payload: DispatchTaskPayload) => void;
   showSpecAnnotations?: boolean;
 }
 
@@ -15,7 +15,6 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
   isOpen,
   onClose,
   targetHousehold,
-  onDispatchSuccess,
   showSpecAnnotations = false,
 }) => {
   // Default due date: +14 days
@@ -23,38 +22,20 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
     .toISOString()
     .split('T')[0];
 
-  const [selectedWorkerId, setSelectedWorkerId] = useState(MOCK_MUNICIPAL_LINKS[0].id);
-  const [assignmentNotes, setAssignmentNotes] = useState(
-    'Verify if vehicle (Yamaha NMAX) is used for active delivery service (MoveIt/Angkas) or personal leisure. Inspect physical possession of LandBank cash card.'
-  );
+  const [selectedWorkerId, setSelectedWorkerId] = useState('');
+  const [assignmentNotes, setAssignmentNotes] = useState('');
   const [dueDate, setDueDate] = useState(defaultDueDate);
-  const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('CRITICAL');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | ''>('');
 
   if (!isOpen || !targetHousehold) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    const worker = MOCK_MUNICIPAL_LINKS.find((w) => w.id === selectedWorkerId) || MOCK_MUNICIPAL_LINKS[0];
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      onDispatchSuccess({
-        household_id: targetHousehold.household_id,
-        assigned_worker_id: worker.id,
-        assigned_worker_name: worker.name,
-        assignment_notes: assignmentNotes,
-        due_date: dueDate,
-        priority: priority
-      });
-      onClose();
-    }, 800);
+    // Preview only: no dispatch integration is connected in this frontend.
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <AccessibleDialog titleId="dispatch-dialog-title" onClose={onClose} className="workspace-dialog fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-xl border border-stone-200/90 w-full max-w-xl overflow-hidden transition-all">
         
         {/* Modal Header */}
@@ -64,8 +45,8 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
               <Send className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-stone-900 font-display">
-                Dispatch Field Verification Task
+              <h3 id="dispatch-dialog-title" className="text-base font-bold text-stone-900 font-display">
+                Dispatch Preview
               </h3>
               <p className="text-xs text-stone-500 mt-0.5">
                 Statutory On-Site SWDI Verification (DSWD Field Operations)
@@ -75,6 +56,7 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
 
           <button
             onClick={onClose}
+            aria-label="Close dispatch dialog"
             className="text-stone-400 hover:text-stone-700 p-1.5 rounded-lg hover:bg-stone-100 transition cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -90,6 +72,7 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
         )}
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs text-stone-800">
+          <p id="dispatch-preview-status" className="preview-note">Preview only. Staff choices are sample data. Dispatch is not connected; no task will be created.</p>
           
           {/* Target Display: Shows household_id and family name */}
           <div className="bg-stone-50 p-4 rounded-xl border border-stone-200/80 space-y-1.5">
@@ -117,7 +100,7 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
 
           {/* Worker Selector: Municipal Links assigned to that barangay */}
           <div>
-            <label className="block font-semibold text-stone-700 mb-1.5 text-xs flex items-center justify-between">
+            <label htmlFor="dispatch-worker-select" className="block font-semibold text-stone-700 mb-1.5 text-xs flex items-center justify-between">
               <span>Assigned Municipal Link Caseworker</span>
               {showSpecAnnotations && <span className="text-[9px] font-mono text-stone-400">assigned_worker_id</span>}
             </label>
@@ -131,6 +114,7 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
                 onChange={(e) => setSelectedWorkerId(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-[#132e4f] outline-none bg-white cursor-pointer"
               >
+                <option value="" disabled>Select a sample caseworker</option>
                 {MOCK_MUNICIPAL_LINKS.map((worker) => (
                   <option key={worker.id} value={worker.id}>
                     {worker.name} — Area: {worker.area} ({worker.id})
@@ -142,8 +126,8 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
 
           {/* Input: assignment_notes (Textarea) */}
           <div>
-            <label className="block font-semibold text-stone-700 mb-1.5 text-xs flex items-center justify-between">
-              <span>Evidentiary Inspection Instructions</span>
+            <label htmlFor="dispatch-notes-input" className="block font-semibold text-stone-700 mb-1.5 text-xs flex items-center justify-between">
+              <span>Inspection Instructions <span className="required-label">(required)</span></span>
               {showSpecAnnotations && <span className="text-[9px] font-mono text-stone-400">assignment_notes</span>}
             </label>
             <textarea
@@ -162,8 +146,8 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
             
             {/* Input: due_date */}
             <div>
-              <label className="block font-semibold text-stone-700 mb-1.5 text-xs flex items-center justify-between">
-                <span>Statutory Deadline</span>
+              <label htmlFor="dispatch-due-date-input" className="block font-semibold text-stone-700 mb-1.5 text-xs flex items-center justify-between">
+                <span>Deadline <span className="required-label">(required)</span></span>
                 {showSpecAnnotations && <span className="text-[9px] font-mono text-stone-400">due_date (+14d)</span>}
               </label>
               <div className="relative">
@@ -227,26 +211,18 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
             <button
               id="confirm-dispatch-submit-btn"
               type="submit"
-              disabled={isSubmitting}
+              disabled
+              aria-describedby="dispatch-preview-status"
               className="px-4 py-2 bg-[#132e4f] hover:bg-[#0c2340] text-white font-semibold rounded-lg text-xs shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
             >
-              {isSubmitting ? (
-                <>
-                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Dispatching...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Confirm Dispatch</span>
-                </>
-              )}
+              <Send className="w-3.5 h-3.5" />
+              <span>Dispatch unavailable</span>
             </button>
           </div>
 
         </form>
 
       </div>
-    </div>
+    </AccessibleDialog>
   );
 };

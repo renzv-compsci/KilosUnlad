@@ -1,3 +1,4 @@
+import { SampleDataLabel } from '../common/SampleDataLabel';
 import React, { useState } from 'react';
 import { 
   Sliders, 
@@ -28,7 +29,7 @@ export const AdminSettingsView: React.FC<AdminSettingsViewProps> = ({
   };
 
   return (
-    <div className="p-5 sm:p-7 space-y-6 max-w-5xl mx-auto">
+    <div className="module-page settings-page">
       
       {/* Spec Annotation Banner */}
       {showSpecAnnotations && (
@@ -42,25 +43,26 @@ export const AdminSettingsView: React.FC<AdminSettingsViewProps> = ({
       )}
 
       {/* Header */}
-      <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="module-heading">
         <div>
           <div className="flex items-center space-x-2">
             <span className="text-[10px] font-semibold bg-[#132e4f] text-white px-2 py-0.5 rounded font-mono">
               ADMINISTRATIVE GOVERNANCE
             </span>
           </div>
+          <SampleDataLabel />
           <h2 className="text-xl font-bold text-stone-900 tracking-tight mt-1 font-display">
-            Statutory Rule Parameters & System Settings
+            Policy Settings
           </h2>
           <p className="text-xs text-stone-500 mt-0.5">
-            Configure automated cross-matching engine sensitivity and statutory due process timers.
+            Preview cross-matching thresholds and due process timers. Changes are not applied to the system.
           </p>
         </div>
 
         {savedSuccess && (
-          <div className="flex items-center space-x-1.5 text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 text-xs font-semibold">
+          <div role="status" className="preview-note">
             <Check className="w-3.5 h-3.5" />
-            <span>Policy Parameters Updated</span>
+            <span>Preview updated. No system settings were saved.</span>
           </div>
         )}
       </div>
@@ -169,7 +171,7 @@ export const AdminSettingsView: React.FC<AdminSettingsViewProps> = ({
             className="px-5 py-2.5 bg-[#132e4f] hover:bg-[#0c2340] text-white font-semibold rounded-lg text-xs shadow-2xs transition flex items-center space-x-2 cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            <span>Save Administrative Parameters</span>
+            <span>Preview Parameters</span>
           </button>
         </div>
 

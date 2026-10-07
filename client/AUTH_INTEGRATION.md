@@ -1,5 +1,11 @@
 # Frontend Authentication Handoff
 
+Current UI review instructions: [Frontend review](FRONTEND_REVIEW.md).
+The [Sept 30 acceptance report](FRONTEND_ACCEPTANCE_2026-09-30.md) is a historical
+snapshot, not the current local service status. The current regression suite has
+40 passing tests; real director login and triage rendering were also checked
+locally. These checks do not establish complete live acceptance for every module.
+
 Updated: 2026-09-28. Scope: frontend implementation only; upstream main merged
 without custom backend edits, database changes, or account provisioning.
 

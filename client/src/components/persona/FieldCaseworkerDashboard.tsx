@@ -1,4 +1,6 @@
 import React from 'react';
+import { SampleDataLabel } from '../common/SampleDataLabel';
+import { displayDate } from '../../utils/displayDate';
 import { FieldTaskItem, UserSession } from '../../types/contracts';
 import { 
   ClipboardList, 
@@ -45,7 +47,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
   ];
 
   return (
-    <div className="p-5 sm:p-7 space-y-6 max-w-7xl mx-auto">
+    <div className="module-page field-dashboard">
       
       {/* Spec Annotation Banner */}
       {showSpecAnnotations && (
@@ -59,7 +61,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
       )}
 
       {/* Caseworker Profile & Header */}
-      <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="module-heading">
         <div className="flex items-center space-x-4">
           <div className="w-12 h-12 rounded-xl bg-[#132e4f] text-amber-300 font-bold text-base flex items-center justify-center shadow-2xs">
             {user.full_name.charAt(0)}
@@ -67,7 +69,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
           <div>
             <div className="flex items-center space-x-2">
               <h2 className="text-xl font-bold text-stone-900 tracking-tight font-display">
-                Field Operations Workspace
+                Field Overview
               </h2>
               <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/80">
                 Municipal Link
@@ -98,12 +100,13 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
             className="px-3 py-1.5 bg-[#132e4f] hover:bg-[#0c2340] text-white font-semibold rounded-lg text-xs shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
           >
             <ClipboardList className="w-3.5 h-3.5" />
-            <span>Sync Queue (1)</span>
+            <span>Sync Queue</span>
           </button>
         </div>
       </div>
 
       {/* Primary Field Caseworker KPIs */}
+      <div className="data-section-label">Operational snapshot <SampleDataLabel /></div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* KPI 1: Assigned Field Dockets */}
@@ -226,7 +229,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
                 <div className="bg-stone-50 p-4 rounded-xl border border-stone-200/80 space-y-1.5">
                   <div className="text-[11px] font-semibold text-stone-700 flex items-center justify-between">
                     <span>Field Evidentiary Mandate</span>
-                    <span className="font-mono text-stone-500 text-[10px]">Due: {nextPriorityTask.due_date}</span>
+                    <span className="font-mono text-stone-500 text-[10px]" title={nextPriorityTask.due_date}>Due: {displayDate(nextPriorityTask.due_date)}</span>
                   </div>
                   <p className="text-xs text-stone-600 leading-relaxed italic">
                     &quot;{nextPriorityTask.dispatch_instructions}&quot;
@@ -273,7 +276,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
                       </span>
                     </div>
                     <div className="text-[11px] text-stone-500 mt-0.5">
-                      {task.address.barangay} · Statutory Deadline: {task.due_date}
+                      {task.address.barangay} · Due: {displayDate(task.due_date)}
                     </div>
                   </div>
 
@@ -295,7 +298,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
           {/* Barangay Caseload Distribution */}
           <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs space-y-3">
             <h3 className="text-sm font-bold text-stone-900 font-display">
-              Assigned Barangay Distribution
+              Barangay Distribution <SampleDataLabel />
             </h3>
             <p className="text-xs text-stone-500">
               Sample distribution; live barangay totals are not connected yet.

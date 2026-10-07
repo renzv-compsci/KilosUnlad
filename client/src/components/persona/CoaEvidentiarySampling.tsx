@@ -1,3 +1,4 @@
+import { SampleDataLabel } from '../common/SampleDataLabel';
 import React, { useState } from 'react';
 import { MOCK_TRIAGE_ITEMS } from '../../data/mockContracts';
 import { BeneficiaryTriageItem } from '../../types/contracts';
@@ -40,7 +41,7 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
   );
 
   return (
-    <div className="p-5 sm:p-7 space-y-6 max-w-7xl mx-auto">
+    <div className="module-page sampling-page">
       
       {/* Spec Annotation Banner */}
       {showSpecAnnotations && (
@@ -54,15 +55,16 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
       )}
 
       {/* Header */}
-      <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="module-heading">
         <div>
           <div className="flex items-center space-x-2">
             <span className="text-[10px] font-semibold bg-amber-50 text-amber-900 px-2 py-0.5 rounded border border-amber-200 font-mono">
               INDEPENDENT COA RECONCILIATION
             </span>
           </div>
+          <SampleDataLabel />
           <h2 className="text-xl font-bold text-stone-900 tracking-tight mt-1 font-display">
-            Evidentiary Audit Sampling & Discrepancy Ledger
+            Audit Sampling
           </h2>
           <p className="text-xs text-stone-500 mt-0.5">
             Cross-examine DSWD 4Ps beneficiary claims against external utility APIs, LTO vehicle registrations, and municipal link field submissions.
@@ -218,7 +220,7 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
           {/* Auditor Determination & Certification Actions */}
           <div className="pt-4 border-t border-stone-100 space-y-3">
             <h4 className="text-xs font-bold text-stone-900 font-display">
-              Auditor Official Certification
+              Certification Preview
             </h4>
 
             <div className="flex flex-col sm:flex-row items-center gap-3">
@@ -228,7 +230,7 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
                 className="w-full sm:w-1/2 py-2.5 px-4 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs rounded-lg shadow-2xs transition flex items-center justify-center space-x-1.5 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Certify as Statutory Compliant</span>
+                <span>Preview Certification</span>
               </button>
 
               <button
@@ -237,12 +239,12 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
                 className="w-full sm:w-1/2 py-2.5 px-4 bg-rose-700 hover:bg-rose-800 text-white font-semibold text-xs rounded-lg shadow-2xs transition flex items-center justify-center space-x-1.5 cursor-pointer"
               >
                 <ShieldAlert className="w-4 h-4" />
-                <span>Flag for Notice of Disallowance</span>
+                <span>Preview Disallowance Flag</span>
               </button>
             </div>
 
             <p className="text-[11px] text-stone-400 italic text-center">
-              Decisions are logged to the cryptographic audit trail under COA State Auditor session credentials.
+              Preview only. No decision is saved or added to the audit trail.
             </p>
           </div>
 

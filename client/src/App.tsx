@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './styles/workspace.css';
+import './styles/modules.css';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
 import { Screen1Login } from './components/screens/Screen1Login';
@@ -19,7 +20,6 @@ import { CoaAuditDashboard } from './components/persona/CoaAuditDashboard';
 import { CoaEvidentiarySampling } from './components/persona/CoaEvidentiarySampling';
 import {
   BeneficiaryTriageItem,
-  DispatchTaskPayload,
   FieldTaskItem,
   FieldTaskSubmission,
   UserSession,
@@ -35,7 +35,7 @@ import {
   queueSubmission,
 } from './services/indexedDB';
 import { useOfflineSync } from './hooks/useOfflineSync';
-import { CheckCircle2, Lock } from 'lucide-react';
+import { CheckCircle2, Lock, LoaderCircle, AlertCircle, RefreshCw, ClipboardList } from 'lucide-react';
 
 
 export default function App() {
@@ -71,14 +71,14 @@ export default function App() {
     content?.setAttribute('inert', '');
     document.body.style.overflow = 'hidden';
     const focusFrame = requestAnimationFrame(() => {
-      document.querySelector<HTMLButtonElement>('.sidebar-collapse-toggle')?.focus();
+      document.querySelector<HTMLElement>('#app-sidebar')?.focus();
     });
     const handleDrawerKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setSidebarCollapsed(true);
       }
       if (event.key === 'Tab') {
-        const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('#app-sidebar button'));
+        const buttons = Array.from(document.querySelectorAll<HTMLElement>('#app-sidebar, #app-sidebar button'));
         const first = buttons[0];
         const last = buttons[buttons.length - 1];
         if (!document.querySelector('#app-sidebar')?.contains(document.activeElement)) {
@@ -104,6 +104,9 @@ export default function App() {
   }, [sidebarCollapsed, compactNavigation]);
   const [session, setSession] = useState<UserSession | null>(readStoredSession);
   const [currentScreen, setCurrentScreen] = useState<ScreenId>(() => session ? ROLE_CONFIG[session.user.role].defaultScreen : 'login');
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [currentScreen]);
   const [triageItems, setTriageItems] = useState<BeneficiaryTriageItem[]>([]);
   const [triagePage, setTriagePage] = useState(1);
   const [triagePagination, setTriagePagination] = useState<TriagePagination | null>(null);
@@ -181,7 +184,6 @@ export default function App() {
           if (controller.signal.aborted) return;
           setTriageItems(items);
           setTriagePagination(pagination);
-          setTargetHouseholdForDispatch(items[0] ?? null);
         } else if (session!.user.role === 'CASE_WORKER') {
           const tasks = await fetchAssignedTasks(controller.signal);
           if (controller.signal.aborted) return;
@@ -224,7 +226,6 @@ export default function App() {
   const navigateToScreen = (screen: ScreenId) => {
     if (screen === 'login' || currentRoleConfig.allowedScreens.includes(screen)) {
       setCurrentScreen(screen);
-      if (screen === 'dispatch_modal') setIsDispatchModalOpen(true);
       if (screen === 'field_sync') setIsSyncDrawerOpen(true);
       return;
     }
@@ -249,12 +250,6 @@ export default function App() {
     setIsDispatchModalOpen(true);
   };
 
-  const handleDispatchSuccess = (payload: DispatchTaskPayload) => {
-    showToast(`Task dispatched to ${payload.assigned_worker_name}.`);
-    setIsDispatchModalOpen(false);
-    setCurrentScreen('triage');
-  };
-
   const handleStartVerification = (task: FieldTaskItem) => {
     if (session?.user.role !== 'CASE_WORKER' || !fieldTasks.some((item) => item.task_id === task.task_id)) return;
     setSelectedFieldTask(task);
@@ -267,7 +262,7 @@ export default function App() {
     setSubmissions((prev) => [submission, ...prev]);
     setCurrentScreen('field_sync');
     setIsSyncDrawerOpen(true);
-    showToast(`Verification for ${submission.household_id} was saved.`);
+    showToast(`Report for ${submission.household_id} saved on this device. Not submitted to the server.`);
   };
 
   const handleSyncAll = async () => {
@@ -303,41 +298,28 @@ export default function App() {
     if (!isScreenAuthorized && currentScreen !== 'login') return renderRestrictedScreen();
     const needsApiData = ['triage', 'field_tasks', 'field_dashboard', 'field_verify', 'dispatch_manager', 'dispatch_modal'].includes(currentScreen);
     if (needsApiData && (dataState === 'idle' || dataState === 'loading')) {
-      return <div className="p-8 text-sm text-stone-600" role="status">Loading authorized records...</div>;
+      return <div className="workspace-state" role="status"><LoaderCircle className="state-spinner" aria-hidden="true" /><p>Loading authorized records...</p></div>;
     }
     if (needsApiData && dataState === 'error') {
-      return <div className="p-8 space-y-4"><p role="alert">{dataError}</p><button type="button" className="primary-triage-action" onClick={() => setReloadCounter((count) => count + 1)}>Retry</button></div>;
+      return <div className="workspace-state workspace-state-error"><AlertCircle aria-hidden="true" /><p role="alert">{dataError}</p><button type="button" className="primary-triage-action" onClick={() => setReloadCounter((count) => count + 1)}><RefreshCw size={16} aria-hidden="true" />Retry</button></div>;
     }
 
     switch (currentScreen) {
       case 'login':
         return <Screen1Login onLoginSuccess={handleLoginSuccess} />;
       case 'dashboard':
-        return <Screen2Dashboard onNavigateToScreen={navigateToScreen} />;
+        return <Screen2Dashboard onNavigateToScreen={navigateToScreen} triageCount={dataState === 'ready' ? triagePagination?.total_records : undefined} triageItems={dataState === 'ready' ? triageItems : []} triageLoading={dataState === 'loading'} />;
       case 'triage':
         return <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} readOnly={!canDispatch(session.user.role)} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} />;
       case 'dispatch_manager':
         return (
           <AdminDispatchManager
-            onOpenDispatchModal={() => {
-              setTargetHouseholdForDispatch(triageItems[0] ?? null);
-              setIsDispatchModalOpen(true);
-            }}
+            onSelectHousehold={() => navigateToScreen('triage')}
           />
         );
       case 'dispatch_modal':
         return (
           <div className="p-6">
-            <div className="mb-6 flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 p-4 text-xs text-blue-900">
-              <span className="font-semibold">Select a household and assign it to a municipal link for field verification.</span>
-              <button
-                type="button"
-                onClick={() => setIsDispatchModalOpen(true)}
-                className="rounded-lg bg-[#132e4f] px-3 py-1.5 text-xs font-bold text-white shadow-xs"
-              >
-                Open Dispatch
-              </button>
-            </div>
             <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} />
           </div>
         );
@@ -357,7 +339,7 @@ export default function App() {
         );
       case 'field_tasks':
         return (
-          <div className="p-4 sm:p-6">
+          <div className="field-screen-wrapper">
             <Screen7FieldTasksList
               user={session.user}
               isOffline={isOffline}
@@ -369,10 +351,11 @@ export default function App() {
           </div>
         );
       case 'field_verify':
-        if (!selectedFieldTask) return <div className="p-8 text-sm text-stone-600">No assigned task selected.</div>;
+        if (!selectedFieldTask) return <div className="workspace-state" role="status"><ClipboardList aria-hidden="true" /><p>No assigned task selected.</p></div>;
         return (
-          <div className="p-4 sm:p-6">
+          <div className="field-screen-wrapper">
             <Screen8FieldAssessmentForm
+              key={selectedFieldTask.task_id}
               task={selectedFieldTask}
               onBackToTasks={() => setCurrentScreen('field_tasks')}
               onSubmitVerification={handleSubmitVerification}
@@ -381,7 +364,7 @@ export default function App() {
         );
       case 'field_sync':
         return (
-          <div className="p-4 sm:p-6">
+          <div className="field-screen-wrapper">
             <div className="mx-auto mb-4 flex max-w-3xl items-center justify-between rounded-xl border border-stone-200 bg-stone-100 p-3">
               <span className="text-xs font-medium text-stone-700">Offline reports pending synchronization</span>
               <button
@@ -426,8 +409,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-stone-50 font-sans text-stone-900">
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border border-stone-700 bg-[#132e4f] px-4 py-3 text-xs font-semibold text-stone-100 shadow-2xl">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+        <div role="status" className="workspace-toast fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-stone-700 bg-[#132e4f] px-4 py-3 text-sm text-stone-100 shadow-lg">
+          <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -460,10 +443,17 @@ export default function App() {
               onLogout={clearSession}
             />
             <main className="app-workspace">
-              <div className="mx-4 mb-3 rounded border border-amber-100 bg-amber-50 px-3 py-2 text-xs text-amber-900 sm:mx-6" role="status">
-                Triage and assigned tasks use the configured API. Dashboard totals and other workflows remain sample previews.
+              <div className="data-source-note">
+                Triage and assigned tasks use API records. Other modules are previews; changes are not submitted.
               </div>
-              {dataError && !['triage', 'field_tasks', 'field_dashboard', 'field_verify', 'dispatch_manager', 'dispatch_modal'].includes(currentScreen) && <p role="alert" className="mx-6 mb-3 text-sm text-rose-700">{dataError}</p>}
+              {dataError && !['triage', 'field_tasks', 'field_dashboard', 'field_verify', 'dispatch_manager', 'dispatch_modal'].includes(currentScreen) && (
+                <div className="mx-6 mb-3 flex flex-wrap items-center gap-3 text-sm text-rose-700">
+                  <p role="alert">{dataError}</p>
+                  <button type="button" className="record-action" style={{ width: 'auto' }} onClick={() => setReloadCounter((count) => count + 1)}>
+                    <RefreshCw size={16} aria-hidden="true" /> Retry API connection
+                  </button>
+                </div>
+              )}
               {renderScreen()}
             </main>
           </div>
@@ -471,10 +461,10 @@ export default function App() {
       )}
 
       <Screen4TaskDispatchModal
+        key={isDispatchModalOpen ? targetHouseholdForDispatch?.household_id : 'closed'}
         isOpen={isDispatchModalOpen}
         onClose={() => setIsDispatchModalOpen(false)}
         targetHousehold={targetHouseholdForDispatch}
-        onDispatchSuccess={handleDispatchSuccess}
       />
 
       <Screen9OfflineSyncDrawer

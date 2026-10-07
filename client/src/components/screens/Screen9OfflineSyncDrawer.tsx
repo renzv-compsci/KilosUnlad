@@ -1,3 +1,4 @@
+import { AccessibleDialog } from '../common/AccessibleDialog';
 import React from 'react';
 import { FieldTaskSubmission } from '../../types/contracts';
 import { 
@@ -50,7 +51,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
   const syncedCount = submissions.filter((s) => s.sync_status === 'SYNCED').length;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden flex items-end sm:items-center justify-center bg-slate-900/40 backdrop-blur-xs p-0 sm:p-4">
+    <AccessibleDialog titleId="sync-dialog-title" onClose={onClose} busy={isSyncing} className="workspace-dialog sync-dialog fixed inset-0 z-50 overflow-hidden flex items-end sm:items-center justify-center bg-slate-900/40 backdrop-blur-xs p-0 sm:p-4">
       <div className="w-full max-w-lg bg-white rounded-t-2xl sm:rounded-xl shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[85vh]">
         
         {/* Drawer Header */}
@@ -61,8 +62,8 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-sm font-bold text-slate-900">
-                  Offline Sync Status Drawer
+                <h3 id="sync-dialog-title" className="text-sm font-bold text-slate-900">
+                  Offline Reports
                 </h3>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -73,6 +74,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
 
           <button
             onClick={onClose}
+            aria-label="Close sync drawer"
             className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -184,6 +186,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
             id="force-sync-now-btn"
             type="button"
             disabled={isSyncing || pendingCount === 0}
+            aria-describedby="sync-action-status"
             onClick={handleForceSync}
             className={`w-full min-h-[42px] py-2 px-4 rounded-lg font-semibold text-xs shadow-xs transition flex items-center justify-center space-x-2 cursor-pointer ${
               isOffline
@@ -211,6 +214,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
         </div>
 
       </div>
-    </div>
+      <span id="sync-action-status" className="sr-only" role="status">{isSyncing ? 'Sync in progress.' : pendingCount === 0 ? 'No pending reports to sync.' : isOffline ? 'Network connection required.' : `${pendingCount} reports ready to sync.`}</span>
+    </AccessibleDialog>
   );
 };

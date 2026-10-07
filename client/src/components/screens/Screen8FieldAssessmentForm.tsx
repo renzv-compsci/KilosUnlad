@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { FieldTaskItem, FieldTaskSubmission } from '../../types/contracts';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { calculateSha256, readPhotoAsDataUrl } from '../../utils/photoHasher';
+import { assessmentProgress } from '../../utils/assessmentProgress';
 import { 
   Camera, 
   MapPin, 
@@ -24,7 +25,7 @@ import {
 interface Screen8FieldAssessmentFormProps {
   task: FieldTaskItem;
   onBackToTasks: () => void;
-  onSubmitVerification: (submission: FieldTaskSubmission) => void;
+  onSubmitVerification: (submission: FieldTaskSubmission) => void | Promise<void>;
   showSpecAnnotations?: boolean;
 }
 
@@ -37,22 +38,22 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
   const [currentStep, setCurrentStep] = useState(1);
 
   // Section 1: Living Conditions
-  const [wallConstruction, setWallConstruction] = useState<1 | 2 | 3>(2); // Mixed (2)
-  const [roofConstruction, setRoofConstruction] = useState<1 | 2 | 3>(3); // Galvanized Iron (3)
-  const [waterAccess, setWaterAccess] = useState<1 | 2 | 3>(2); // Communal (2)
+  const [wallConstruction, setWallConstruction] = useState<1 | 2 | 3 | null>(null);
+  const [roofConstruction, setRoofConstruction] = useState<1 | 2 | 3 | null>(null);
+  const [waterAccess, setWaterAccess] = useState<1 | 2 | 3 | null>(null);
 
   // Section 2: Livelihood Asset Verification (The Motorcycle Check)
-  const [isMotorcyclePresent, setIsMotorcyclePresent] = useState(true);
-  const [isProductiveAsset, setIsProductiveAsset] = useState(true);
+  const [isMotorcyclePresent, setIsMotorcyclePresent] = useState<boolean | null>(null);
+  const [isProductiveAsset, setIsProductiveAsset] = useState<boolean | null>(null);
   const [proofType, setProofType] = useState<
-    'MOVEIT' | 'ANGKAS' | 'TRICYCLE_MTOP' | 'DELIVERY_LOGISTICS' | 'PERSONAL_ONLY'
-  >('MOVEIT');
-  const [franchiseNumber, setFranchiseNumber] = useState('MV-CAL-2026-99120');
+    'MOVEIT' | 'ANGKAS' | 'TRICYCLE_MTOP' | 'DELIVERY_LOGISTICS' | 'PERSONAL_ONLY' | ''
+  >('');
+  const [franchiseNumber, setFranchiseNumber] = useState('');
 
   // Section 3: Anti-Loan Shark Check (Sangla-ATM)
-  const [physicalCardPresented, setPhysicalCardPresented] = useState(true);
-  const [cardMatchesBeneficiary, setCardMatchesBeneficiary] = useState(true);
-  const [pawningSuspected, setPawningSuspected] = useState(false);
+  const [physicalCardPresented, setPhysicalCardPresented] = useState<boolean | null>(null);
+  const [cardMatchesBeneficiary, setCardMatchesBeneficiary] = useState<boolean | null>(null);
+  const [pawningSuspected, setPawningSuspected] = useState<boolean | null>(null);
 
   // Section 4: Geotagged Camera Capture
   const [photoCaptured, setPhotoCaptured] = useState(false);
@@ -65,13 +66,19 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
 
   // Section 5: Final Recommendation & Narrative
   const [workerRecommendation, setWorkerRecommendation] = useState<
-    'RETAIN' | 'RECOMMEND_GRADUATION' | 'INVESTIGATE_FRAUD'
-  >('RETAIN');
-  const [narrativeReport, setNarrativeReport] = useState(
-    'Field visit confirmed family operates active MoveIt delivery service with validated operator ID MV-CAL-2026-99120. Asset directly generates household daily sustenance. Beneficiary physically produced LandBank card without pawning indicators. Recommending RETAIN under working asset exemption.'
-  );
+    'RETAIN' | 'RECOMMEND_GRADUATION' | 'INVESTIGATE_FRAUD' | ''
+  >('');
+  const [narrativeReport, setNarrativeReport] = useState('');
 
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const completedSteps = assessmentProgress({
+    wall: wallConstruction, roof: roofConstruction, water: waterAccess,
+    motorcycle: isMotorcyclePresent, productive: isProductiveAsset, proof: proofType,
+    cardPresented: physicalCardPresented, cardMatches: cardMatchesBeneficiary, pawning: pawningSuspected,
+    evidenceReady: photoCaptured && Boolean(gpsData) && Boolean(clientSideHash),
+    recommendation: workerRecommendation, narrative: narrativeReport,
+  });
 
   const handleCapturePhoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -93,9 +100,11 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
     }
   };
 
-  const handleFinalSubmit = (e: React.FormEvent) => {
+  const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSaving || !completedSteps.every(Boolean) || wallConstruction === null || roofConstruction === null || waterAccess === null || isMotorcyclePresent === null || physicalCardPresented === null || cardMatchesBeneficiary === null || pawningSuspected === null || !workerRecommendation || !gpsData) return;
     setIsSaving(true);
+    setSaveError(null);
 
     const submission: FieldTaskSubmission = {
       task_id: task.task_id,
@@ -105,8 +114,8 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
       roof_construction: roofConstruction,
       water_access: waterAccess,
       is_motorcycle_present: isMotorcyclePresent,
-      is_productive_asset: isProductiveAsset,
-      proof_type: isMotorcyclePresent ? proofType : undefined,
+      is_productive_asset: isMotorcyclePresent ? isProductiveAsset === true : false,
+      proof_type: isMotorcyclePresent && proofType ? proofType : undefined,
       franchise_number: isMotorcyclePresent ? franchiseNumber : undefined,
       physical_card_presented: physicalCardPresented,
       card_matches_beneficiary: cardMatchesBeneficiary,
@@ -126,10 +135,13 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
       sync_status: 'PENDING_SYNC'
     };
 
-    setTimeout(() => {
+    try {
+      await onSubmitVerification(submission);
+    } catch {
+      setSaveError('The report could not be saved on this device. Your answers are still here; please try again.');
+    } finally {
       setIsSaving(false);
-      onSubmitVerification(submission);
-    }, 800);
+    }
   };
 
   const steps = [
@@ -141,12 +153,13 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
   ];
 
   return (
-    <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-5">
+    <div className="module-page assessment-page">
       
       {/* Back button & Screen Spec */}
       <div className="flex items-center justify-between">
         <button
           onClick={onBackToTasks}
+          disabled={isSaving}
           className="min-h-[38px] px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 rounded-lg flex items-center space-x-1.5 shadow-xs cursor-pointer"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -171,16 +184,21 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
       )}
 
       {/* 5-Step Visual Stepper Bar */}
-      <div className="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/80 shadow-xs">
+      <div className="assessment-stepper">
         <div className="flex items-center justify-between">
           {steps.map((s, idx) => {
             const Icon = s.icon;
-            const isCompleted = currentStep > s.num;
+            const isCompleted = completedSteps[s.num - 1];
             const isCurrent = currentStep === s.num;
 
             return (
               <button
                 key={s.num}
+                aria-label={`Step ${s.num}: ${s.title}`}
+                aria-current={isCurrent ? 'step' : undefined}
+                data-complete={isCompleted}
+                title={isCompleted ? 'Complete' : 'Incomplete'}
+                disabled={isSaving}
                 onClick={() => setCurrentStep(s.num)}
                 className="flex-1 flex flex-col items-center group py-1 cursor-pointer"
               >
@@ -202,10 +220,11 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
             );
           })}
         </div>
+        <p className="assessment-step-caption" aria-live="polite">{currentStep}. {steps.find((step) => step.num === currentStep)?.title}</p>
       </div>
 
       {/* Form Content Card */}
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
+      <div className="assessment-content">
         
         {/* SECTION 1: Living Conditions (SWDI Physical Scoring) */}
         {currentStep === 1 && (
@@ -235,6 +254,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                 ].map((opt) => (
                   <button
                     key={opt.val}
+                    aria-pressed={wallConstruction === opt.val}
                     type="button"
                     onClick={() => setWallConstruction(opt.val as 1 | 2 | 3)}
                     className={`min-h-[46px] p-2 rounded-lg border text-center transition cursor-pointer ${
@@ -263,6 +283,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                 ].map((opt) => (
                   <button
                     key={opt.val}
+                    aria-pressed={roofConstruction === opt.val}
                     type="button"
                     onClick={() => setRoofConstruction(opt.val as 1 | 2 | 3)}
                     className={`min-h-[46px] p-2 rounded-lg border text-center transition cursor-pointer ${
@@ -291,6 +312,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                 ].map((opt) => (
                   <button
                     key={opt.val}
+                    aria-pressed={waterAccess === opt.val}
                     type="button"
                     onClick={() => setWaterAccess(opt.val as 1 | 2 | 3)}
                     className={`min-h-[46px] p-2 rounded-lg border text-center transition cursor-pointer ${
@@ -331,9 +353,10 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
+                  aria-pressed={isMotorcyclePresent === true}
                   onClick={() => setIsMotorcyclePresent(true)}
                   className={`min-h-[44px] rounded-lg font-semibold text-xs border transition cursor-pointer ${
-                    isMotorcyclePresent
+                    isMotorcyclePresent === true
                       ? 'bg-amber-50 text-amber-900 border-amber-300 shadow-xs'
                       : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                   }`}
@@ -342,9 +365,10 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                 </button>
                 <button
                   type="button"
+                  aria-pressed={isMotorcyclePresent === false}
                   onClick={() => setIsMotorcyclePresent(false)}
                   className={`min-h-[44px] rounded-lg font-semibold text-xs border transition cursor-pointer ${
-                    !isMotorcyclePresent
+                    isMotorcyclePresent === false
                       ? 'bg-blue-50 text-blue-900 border-blue-300 shadow-xs'
                       : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                   }`}
@@ -366,9 +390,10 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
+                      aria-pressed={isProductiveAsset === true}
                       onClick={() => setIsProductiveAsset(true)}
                       className={`min-h-[42px] rounded-lg font-semibold text-xs border transition cursor-pointer ${
-                        isProductiveAsset
+                        isProductiveAsset === true
                           ? 'bg-emerald-50 text-emerald-900 border-emerald-300 shadow-xs'
                           : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                       }`}
@@ -377,9 +402,10 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                     </button>
                     <button
                       type="button"
+                      aria-pressed={isProductiveAsset === false}
                       onClick={() => setIsProductiveAsset(false)}
                       className={`min-h-[42px] rounded-lg font-semibold text-xs border transition cursor-pointer ${
-                        !isProductiveAsset
+                        isProductiveAsset === false
                           ? 'bg-red-50 text-red-900 border-red-300 shadow-xs'
                           : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                       }`}
@@ -391,14 +417,16 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
 
                 {/* Dropdown proof_type */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label htmlFor="assessment-proof" className="block text-xs font-semibold text-slate-700 mb-1">
                     Livelihood Platform / Verification Proof
                   </label>
                   <select
+                    id="assessment-proof"
                     value={proofType}
                     onChange={(e) => setProofType(e.target.value as any)}
                     className="w-full min-h-[40px] px-3 border border-slate-200 rounded-lg text-xs font-medium bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-700"
                   >
+                    <option value="" disabled>Select verification proof</option>
                     <option value="MOVEIT">MOVEIT (Ride-Hailing / Delivery)</option>
                     <option value="ANGKAS">ANGKAS (Ride-Hailing / Delivery)</option>
                     <option value="TRICYCLE_MTOP">TRICYCLE_MTOP (Local Municipal Franchise)</option>
@@ -441,78 +469,25 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               </p>
             </div>
 
-            <div className="space-y-3">
-              
-              {/* Checklist 1: physical_card_presented */}
-              <label 
-                id="checklist-card-presented"
-                className="flex items-start space-x-3 p-3.5 bg-slate-50/70 hover:bg-slate-50 rounded-xl border border-slate-200/80 cursor-pointer transition"
-              >
-                <input
-                  type="checkbox"
-                  checked={physicalCardPresented}
-                  onChange={(e) => setPhysicalCardPresented(e.target.checked)}
-                  className="w-4 h-4 mt-0.5 text-blue-700 rounded focus:ring-blue-500 cursor-pointer"
-                />
-                <div>
-                  <div className="text-xs font-semibold text-slate-900">
-                    Did the beneficiary physically produce their LandBank 4Ps Cash Card?
+            <div className="assessment-questions">
+              {[
+                { id: 'card-presented', label: 'Did the beneficiary present their LandBank 4Ps card?', value: physicalCardPresented, onChange: setPhysicalCardPresented },
+                { id: 'card-match', label: 'Does the card name match the PhilSys National ID?', value: cardMatchesBeneficiary, onChange: setCardMatchesBeneficiary },
+                { id: 'pawning', label: 'Is there evidence of card pawning (Sangla-ATM)?', value: pawningSuspected, onChange: setPawningSuspected },
+              ].map((question) => (
+                <fieldset key={question.id} className="assessment-question">
+                  <legend>{question.label}</legend>
+                  <div className="answer-options">
+                    {[true, false].map((answer) => (
+                      <label key={String(answer)}>
+                        <input type="radio" name={question.id} checked={question.value === answer} onChange={() => question.onChange(answer)} />
+                        {answer ? 'Yes' : 'No'}
+                      </label>
+                    ))}
                   </div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">
-                    Evaluator must inspect physical custody on site to ensure card is not in possession of informal lenders.
-                  </div>
-                </div>
-              </label>
-
-              {/* Checklist 2: card_matches_beneficiary */}
-              <label 
-                id="checklist-card-match"
-                className="flex items-start space-x-3 p-3.5 bg-slate-50/70 hover:bg-slate-50 rounded-xl border border-slate-200/80 cursor-pointer transition"
-              >
-                <input
-                  type="checkbox"
-                  checked={cardMatchesBeneficiary}
-                  onChange={(e) => setCardMatchesBeneficiary(e.target.checked)}
-                  className="w-4 h-4 mt-0.5 text-blue-700 rounded focus:ring-blue-500 cursor-pointer"
-                />
-                <div>
-                  <div className="text-xs font-semibold text-slate-900">
-                    Does name on card match the PhilSys National ID?
-                  </div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">
-                    Validates identity match with household head registration details.
-                  </div>
-                </div>
-              </label>
-
-              {/* Alert Box: Checkbox pawning_suspected */}
-              <div 
-                id="alert-box-pawning"
-                className={`p-3.5 rounded-xl border transition ${
-                  pawningSuspected
-                    ? 'bg-red-50/70 border-red-200 text-red-950'
-                    : 'bg-amber-50/50 border-amber-200/80 text-amber-950'
-                }`}
-              >
-                <label className="flex items-start space-x-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={pawningSuspected}
-                    onChange={(e) => setPawningSuspected(e.target.checked)}
-                    className="w-4 h-4 mt-0.5 text-red-600 rounded focus:ring-red-500 cursor-pointer"
-                  />
-                  <div>
-                    <div className="text-xs font-semibold flex items-center gap-1.5 text-red-900">
-                      <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                      <span>FLAG: Pawning Suspected (Sangla-ATM Active)</span>
-                    </div>
-                    <div className="text-[11px] mt-0.5 text-slate-600 leading-relaxed">
-                      Beneficiary surrendered card to local lenders. Flagging triggers referral for social counseling and assistance.
-                    </div>
-                  </div>
-                </label>
-              </div>
-
+                </fieldset>
+              ))}
+              {pawningSuspected === true && <p className="preview-note">Pawning concern recorded for review. No referral has been submitted.</p>}
             </div>
           </div>
         )}
@@ -528,7 +503,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                 </h3>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Tamper-proof coordinates and SHA-256 client verification hash.
+                Photo evidence with device location and a SHA-256 file checksum.
               </p>
             </div>
 
@@ -550,7 +525,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                 <div className="text-center p-6">
                   <Camera className="w-10 h-10 text-slate-500 mx-auto mb-2" />
                   <p className="text-xs text-slate-400">
-                    Camera viewfinder ready. Tap Capture Evidence below.
+                    No photo attached
                   </p>
                 </div>
               )}
@@ -631,21 +606,23 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                 </h3>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Official endorsement to be queued for regional synchronization.
+                Field findings and recommendation for this household.
               </p>
             </div>
 
             {/* Select: worker_recommendation */}
             <div>
-              <label className="block text-xs font-semibold text-slate-800 mb-1.5">
-                Evaluator Statutory Recommendation
+              <label htmlFor="worker-recommendation-select" className="block text-xs font-semibold text-slate-800 mb-1.5">
+                Recommendation
               </label>
               <select
                 id="worker-recommendation-select"
+                disabled={isSaving}
                 value={workerRecommendation}
                 onChange={(e) => setWorkerRecommendation(e.target.value as any)}
                 className="w-full min-h-[42px] px-3 border border-slate-200 rounded-lg text-xs font-medium bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-700"
               >
+                <option value="" disabled>Select a recommendation</option>
                 <option value="RETAIN">
                   RETAIN — Beneficiary remains compliant (Asset used for livelihood)
                 </option>
@@ -660,11 +637,12 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
 
             {/* Textarea: narrative_report */}
             <div>
-              <label className="block text-xs font-semibold text-slate-800 mb-1.5">
-                Official Narrative Report
+              <label htmlFor="narrative-report-textarea" className="block text-xs font-semibold text-slate-800 mb-1.5">
+                Narrative Report <span className="required-label">(required)</span>
               </label>
               <textarea
                 id="narrative-report-textarea"
+                disabled={isSaving}
                 rows={4}
                 required
                 value={narrativeReport}
@@ -676,7 +654,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
 
             {/* Offline Save Notice */}
             <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-600">
-              <span className="font-semibold text-slate-800">IndexedDB Offline Storage:</span> This evaluation will be saved immediately to local storage. It queues in the sync drawer until connection is restored.
+              <span className="font-semibold text-slate-800">Device-only draft:</span> This report stays on this device. Server submission is not connected yet.
             </div>
 
             {/* Primary Action Button: Save & Queue for Sync */}
@@ -684,7 +662,8 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <button
                 id="save-and-queue-sync-btn"
                 type="submit"
-                disabled={isSaving || !photoCaptured || !gpsData}
+                disabled={isSaving || !completedSteps.every(Boolean)}
+                aria-describedby="assessment-save-status"
                 className="w-full min-h-[44px] py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs rounded-lg shadow-xs transition flex items-center justify-center space-x-2 cursor-pointer active:scale-98"
               >
                 {isSaving ? (
@@ -695,10 +674,14 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    <span>Save & Queue for Sync (Offline Ready)</span>
+                    <span>Save Report on This Device</span>
                   </>
                 )}
               </button>
+              <p id="assessment-save-status" className="form-feedback" role="status">
+                {isSaving ? 'Saving report...' : completedSteps.every(Boolean) ? 'All required sections complete. Ready to save locally.' : `Incomplete sections: ${steps.filter((step) => !completedSteps[step.num - 1]).map((step) => step.title).join(', ')}.`}
+              </p>
+              {saveError && <p role="alert" className="form-error">{saveError}</p>}
             </div>
 
           </form>
@@ -709,7 +692,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
           <button
             type="button"
             onClick={() => setCurrentStep((prev) => Math.max(1, prev - 1))}
-            disabled={currentStep === 1}
+            disabled={currentStep === 1 || isSaving}
             className="min-h-[38px] px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 disabled:opacity-40 transition flex items-center space-x-1 cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />

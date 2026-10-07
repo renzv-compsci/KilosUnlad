@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { SampleDataLabel } from '../common/SampleDataLabel';
 import type { ScreenId } from '../../types/navigation';
+import type { BeneficiaryTriageItem } from '../../types/contracts';
 import { 
   Users, 
   AlertOctagon, 
@@ -16,6 +18,9 @@ import { MinimalPhMap, ClusterPin } from '../dashboard/MinimalPhMap';
 
 interface Screen2DashboardProps {
   onNavigateToScreen: (screen: ScreenId) => void;
+  triageCount?: number;
+  triageItems?: BeneficiaryTriageItem[];
+  triageLoading?: boolean;
   showSpecAnnotations?: boolean;
 }
 
@@ -23,6 +28,9 @@ export type MetricVisualType = 'active_beneficiaries' | 'flagged_review' | 'disp
 
 export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
   onNavigateToScreen,
+  triageCount,
+  triageItems = [],
+  triageLoading = false,
   showSpecAnnotations = false,
 }) => {
   // Metric counts from admin-triage-feed.json
@@ -184,27 +192,24 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
           <h2>Executive overview</h2>
           <p>Laguna Provincial Cluster <span aria-hidden="true">&middot;</span> Region IV-A</p>
         </div>
-        <div className="dashboard-actions">
-          <span className="cycle-label">Q3 2026 Active Cycle</span>
+      <section className="live-workload" aria-labelledby="live-workload-title" aria-busy={triageLoading}>
+        <div className="live-workload-heading">
+          <div>
+            <h3 id="live-workload-title">Triage queue <span>API records</span></h3>
+            <p className="live-workload-total">{triageLoading ? 'Loading queue...' : triageCount === undefined ? 'Live queue count unavailable' : <><strong>{triageCount.toLocaleString()}</strong><span>{triageCount === 1 ? 'case' : 'cases'} awaiting review</span></>}</p>
+          </div>
           <button type="button" onClick={() => onNavigateToScreen('triage')} className="primary-triage-action">
             <ClipboardList size={18} aria-hidden="true" />
             Open Triage Queue
             <ChevronRight size={16} aria-hidden="true" />
           </button>
         </div>
+      </section>
       </div>
 
-      <div id="calamity-status-banner" className="moratorium-banner">
-        <AlertTriangle size={20} aria-hidden="true" />
-        <div>
-          <strong>Moratorium active in Calamba City</strong>
-          <p>Involuntary graduation and benefit delisting are suspended through October 24, 2026 under RA 10121. Field verification and due process notices continue.</p>
-        </div>
-        <button type="button" onClick={() => onNavigateToScreen('due_process')}>
-          Review Appeals <ChevronRight size={15} aria-hidden="true" />
-        </button>
-      </div>
-
+      <section className="sample-analytics-section" aria-labelledby="sample-analytics-title">
+        <header className="sample-analytics-heading"><h3 id="sample-analytics-title">Regional snapshot</h3><span><SampleDataLabel /> Q3 2026</span></header>
+      <section className="sample-snapshot" aria-label="Sample caseload summary">
       <div className="metric-summary-grid" aria-label="Caseload summary">
         {[
           { key: 'active_beneficiaries', id: 'metric-active-beneficiaries', label: 'Active Beneficiaries', value: metrics.active_beneficiaries.toLocaleString(), note: 'Laguna Cluster', badge: '+2.9% Trend', Icon: Users, tone: 'navy' },
@@ -212,24 +217,21 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
           { key: 'dispatched_tasks', id: 'metric-dispatched-tasks', label: 'Dispatched to Field', value: metrics.under_investigation_count, note: 'Municipal Links assigned', badge: 'Active verification', Icon: Send, tone: 'amber' },
           { key: 'graduated_cycle', id: 'metric-graduated-cycle', label: 'Graduated This Cycle', value: metrics.notice_of_ineligibility_count, note: 'Transition exits', badge: 'SWDI Level 3', Icon: Award, tone: 'emerald' },
         ].map(({ key, id, label, value, note, badge, Icon, tone }) => (
-          <button
+          <article
             key={key}
             id={id}
-            type="button"
-            aria-pressed={activeVisualMetric === key}
-            aria-controls="metric-visual-deck"
-            onClick={() => setActiveVisualMetric(key as MetricVisualType)}
-            className={`metric-summary metric-${tone} ${activeVisualMetric === key ? 'metric-selected' : ''}`}
+            title={note}
+            className={`metric-summary metric-${tone}`}
           >
             <span className="metric-card-heading"><span>{label}</span><Icon size={19} aria-hidden="true" /></span>
             <span className="metric-value">{value}</span>
-            <span className="metric-note">{note}</span>
             <span className="metric-badge">{badge}</span>
-          </button>
+          </article>
         ))}
       </div>
 
-      {/* DEDICATED VISUAL ANALYTICS DECK (Driven by clicked metric card above) */}
+      </section>
+      {/* Analytics selection is independent of the read-only metric summaries. */}
       <div 
         id="metric-visual-deck" 
         className="analytics-section"
@@ -252,7 +254,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                 activeVisualMetric === 'flagged_review' ? 'analytics-tab-active bg-white text-stone-900 font-semibold' : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              Flagged (32)
+              Flagged
             </button>
             <button
               type="button"
@@ -262,7 +264,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                 activeVisualMetric === 'dispatched_tasks' ? 'analytics-tab-active bg-white text-stone-900 font-semibold' : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              Field Dispatched (12)
+              Field Dispatched
             </button>
             <button
               type="button"
@@ -272,7 +274,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                 activeVisualMetric === 'active_beneficiaries' ? 'analytics-tab-active bg-white text-stone-900 font-semibold' : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              Caseload (4,850)
+              Caseload
             </button>
             <button
               type="button"
@@ -282,7 +284,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                 activeVisualMetric === 'graduated_cycle' ? 'analytics-tab-active bg-white text-stone-900 font-semibold' : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              Graduated (4)
+              Graduated
             </button>
           </div>
         </div>
@@ -299,17 +301,20 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                 </div>
                 <div className="trigger-chart-bars">
                   {[
-                    { label: 'Meralco lifeline breach', detail: '>200 kWh', count: 16, pct: 50, tone: 'rose' },
-                    { label: 'LTO vehicle match', detail: 'Registered vehicles', count: 11, pct: 34.4, tone: 'amber' },
-                    { label: 'Sangla-ATM reports', detail: 'Loan sharking', count: 5, pct: 15.6, tone: 'navy' },
+                    { label: 'Meralco lifeline breach', count: 16, pct: 50 },
+                    { label: 'LTO vehicle match', count: 11, pct: 34.4 },
+                    { label: 'Sangla-ATM reports', count: 5, pct: 15.6 },
                   ].map((item) => (
-                    <div key={item.label} className={`chart-bar-row chart-${item.tone}`}>
-                      <div><span>{item.label} <small>{item.detail}</small></span><strong>{item.count} <small>{item.pct}%</small></strong></div>
+                    <div key={item.label} className="chart-bar-row chart-navy">
+                      <div><span>{item.label}</span><strong>{item.count} <small>{item.pct}%</small></strong></div>
                       <div className="chart-bar-track" aria-hidden="true"><span style={{ width: `${item.pct}%` }} /></div>
                     </div>
                   ))}
                 </div>
-                <div className="chart-footnote">Lifeline audit threshold: 200 kWh / month</div>
+                <details className="chart-footnote context-details">
+                  <summary>Trigger definitions</summary>
+                  <p>Meralco: consumption above 200 kWh/month. LTO: registered vehicle matches. Sangla-ATM: loan-sharking reports.</p>
+                </details>
               </section>
 
               <section className="analytics-column severity-chart" aria-labelledby="severity-chart-title">
@@ -319,36 +324,36 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                 </div>
                 <div className="severity-donut" role="img" aria-label="32 flagged cases: 14 critical, 18 high priority">
                   <svg viewBox="0 0 240 240" aria-hidden="true">
-                    <circle cx="120" cy="120" r="96" fill="none" stroke="#f7ecd8" strokeWidth="22" />
-                    <circle cx="120" cy="120" r="96" fill="none" stroke="#c99440" strokeWidth="22" pathLength="100" strokeDasharray="55.25 44.75" transform="rotate(-88 120 120)" />
-                    <circle cx="120" cy="120" r="96" fill="none" stroke="#c46a83" strokeWidth="22" pathLength="100" strokeDasharray="42.75 57.25" transform="rotate(114.5 120 120)" />
+                    <circle cx="120" cy="120" r="96" fill="none" stroke="#f7edf0" strokeWidth="22" />
+                    <circle className="risk-high" cx="120" cy="120" r="96" fill="none" strokeWidth="22" pathLength="100" strokeDasharray="55.25 44.75" transform="rotate(-88 120 120)" />
+                    <circle className="risk-critical" cx="120" cy="120" r="96" fill="none" strokeWidth="22" pathLength="100" strokeDasharray="42.75 57.25" transform="rotate(114.5 120 120)" />
                   </svg>
-                  <div><strong>32</strong><span>flagged cases</span></div>
+                  <div><strong>32</strong><span>cases</span></div>
                 </div>
                 <div className="severity-legend">
-                  <div><span><i className="legend-dot rose" />Critical</span><strong>14 <small>cases</small></strong><small>Score 80-100</small></div>
-                  <div><span><i className="legend-dot amber" />High priority</span><strong>18 <small>cases</small></strong><small>Score 70-79</small></div>
+                  <div><span><i className="legend-dot risk-critical" />Critical</span><strong>14 <small>cases</small></strong><small>Score 80-100</small></div>
+                  <div><span><i className="legend-dot risk-high" />High priority</span><strong>18 <small>cases</small></strong><small>Score 70-79</small></div>
                 </div>
-                <div className="severity-baseline"><span><i className="legend-dot emerald" />Below threshold <small>Score &lt; 70</small></span><strong>4,818</strong></div>
-                <div className="chart-footnote">14 cases require immediate dispatch.</div>
+                <div className="severity-baseline"><span>Below threshold <small>Score &lt; 70</small></span><strong>4,818</strong></div>
+                <details className="chart-footnote context-details"><summary>Priority guidance</summary><p>14 critical cases require immediate dispatch.</p></details>
               </section>
 
               <section className="analytics-column municipality-chart" aria-labelledby="municipality-chart-title">
                 <div className="chart-heading"><h4 id="municipality-chart-title">Flags by municipality</h4><span>5 LGUs</span></div>
                 <div className="municipality-ranks">
                   {[
-                    { name: 'Calamba City', flags: 14, pct: 43.8, tone: 'rose' },
-                    { name: 'Santa Rosa', flags: 8, pct: 25, tone: 'amber' },
-                    { name: 'San Pedro', flags: 6, pct: 18.8, tone: 'rose' },
-                    { name: 'Los Baños', flags: 3, pct: 9.4, tone: 'amber' },
-                    { name: 'Biñan City', flags: 1, pct: 3.1, tone: 'emerald' },
+                    { name: 'Calamba City', flags: 14, pct: 43.8 },
+                    { name: 'Santa Rosa', flags: 8, pct: 25 },
+                    { name: 'San Pedro', flags: 6, pct: 18.8 },
+                    { name: 'Los Baños', flags: 3, pct: 9.4 },
+                    { name: 'Biñan City', flags: 1, pct: 3.1 },
                   ].map((item) => (
                     <button
                       key={item.name}
                       type="button"
                       aria-pressed={selectedCluster === item.name}
                       onClick={() => setSelectedCluster(item.name)}
-                      className={`municipality-rank chart-${item.tone}`}
+                      className="municipality-rank chart-navy"
                     >
                       <span>{item.name}</span>
                       <span className="chart-bar-track" aria-hidden="true"><span style={{ width: `${item.pct}%` }} /></span>
@@ -797,6 +802,28 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
         </div>
       </div>
 
+      <div id="calamity-status-banner" className="moratorium-banner">
+        <AlertTriangle size={20} aria-hidden="true" />
+        <div>
+          <strong>Sample advisory: Calamba City moratorium</strong>
+          <details className="context-details">
+            <summary>Moratorium details</summary>
+            <p>Graduation and benefit delisting paused through October 24, 2026. Under RA 10121, involuntary graduation and benefit delisting are suspended in Calamba City. Field verification and due process notices continue.</p>
+          </details>
+        </div>
+        <button type="button" onClick={() => onNavigateToScreen('due_process')}>Review Appeals <ChevronRight size={15} aria-hidden="true" /></button>
+      </div>
+      </section>
+
+      {triageCount !== undefined && !triageLoading && <section className="live-queue-preview" aria-labelledby="live-list-title">
+        <div className="live-list-heading"><h3 id="live-list-title">Households in the queue <span>API records</span></h3><span>{Math.min(3, triageItems.length)} shown from the current page</span></div>
+        {triageCount === 0 ? <p className="live-workload-empty">No flagged cases in the current API response.</p> : triageItems.length > 0 && <ul className="live-households">{triageItems.slice(0, 3).map((item) => <li key={item.household_id}>
+          <div><strong>{item.head_of_household.full_name}</strong><span>{item.household_id}</span></div>
+          <div><strong>{item.address.municipality}</strong><span>{item.address.barangay}</span></div>
+          <div className="live-household-risk"><span>Risk score</span><strong>{item.composite_risk_score.toFixed(1)} <small>/ 100</small></strong></div>
+        </li>)}</ul>}
+      </section>}
+
       {/* 3. Regional Map & Cluster Explorer with Minimal Philippine Map & Jurisdiction Inspector */}
       <div className="geography-section">
         <div className="geography-heading">
@@ -806,7 +833,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-semibold text-stone-900 font-display">
-                Operations by municipality
+                Operations by municipality <SampleDataLabel />
               </h3>
               <p className="text-xs text-stone-500">
                 Laguna operational cluster
@@ -1057,7 +1084,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                 onClick={() => onNavigateToScreen('triage')}
                 className="w-full py-2.5 bg-[#132e4f] hover:bg-[#0c2340] text-white rounded-lg text-xs font-semibold shadow-2xs transition flex items-center justify-center space-x-1.5 cursor-pointer"
               >
-                <span>Filter Triage Queue for {activePin.municipality}</span>
+                <span>Open Triage Queue</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>

@@ -1,3 +1,4 @@
+import { SampleDataLabel } from '../common/SampleDataLabel';
 import React, { useState } from 'react';
 import { 
   Scale, 
@@ -32,7 +33,7 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
   const underAppealCount = notices.filter(n => n.status === 'UNDER_APPEAL_HEARING').length;
 
   return (
-    <div className="p-5 sm:p-7 space-y-6 max-w-7xl mx-auto">
+    <div className="module-page appeals-page">
       
       {/* Spec Annotation Banner */}
       {showSpecAnnotations && (
@@ -46,10 +47,11 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
       )}
 
       {/* Screen Title & Statutory Shield Header */}
-      <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="module-heading">
         <div>
           <div className="flex items-center space-x-2.5">
-            <h2 className="text-xl font-bold text-stone-900 tracking-tight font-display">
+            <SampleDataLabel />
+          <h2 className="text-xl font-bold text-stone-900 tracking-tight font-display">
               Grievance & Statutory Appeals Division
             </h2>
             <span className="text-[11px] font-semibold text-stone-600 bg-stone-100 px-2 py-0.5 rounded border border-stone-200">

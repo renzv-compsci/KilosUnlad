@@ -1,3 +1,5 @@
+import { SampleDataLabel } from '../common/SampleDataLabel';
+import { AccessibleDialog } from '../common/AccessibleDialog';
 import React, { useState } from 'react';
 import { 
   ShieldCheck, 
@@ -12,7 +14,8 @@ import {
   TrendingDown,
   Building2,
   Download,
-  Search
+  Search,
+  X
 } from 'lucide-react';
 
 interface CoaAuditDashboardProps {
@@ -47,13 +50,13 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
   };
 
   return (
-    <div className="p-5 sm:p-7 space-y-6 max-w-7xl mx-auto">
+    <div className="module-page audit-page">
       
       {/* Spec Annotation Banner */}
       {showSpecAnnotations && (
         <div className="bg-stone-100 border border-stone-200 rounded-lg p-2.5 text-[10px] font-mono text-stone-600 flex justify-between items-center">
           <div>
-            <span className="font-semibold">PERSONA 3: COA State Auditor Oversight Dashboard</span>
+            <span className="font-semibold">PERSONA 3: COA Audit Overview</span>
             <span className="ml-2">Constitutional Mandate: RA 11310 & COA Circular 2024-008</span>
           </div>
           <div>coa-audit-overview.json</div>
@@ -61,7 +64,7 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
       )}
 
       {/* Official COA Header & Jurisdiction */}
-      <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="module-heading">
         <div className="flex items-center space-x-4">
           <div className="w-12 h-12 rounded-xl bg-[#0c2340] border border-amber-400/80 text-amber-300 font-bold text-xs flex flex-col items-center justify-center shadow-2xs leading-none">
             <span className="text-[11px] font-black">COA</span>
@@ -69,8 +72,9 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-xl font-bold text-stone-900 tracking-tight font-display">
-                State Auditor Oversight Dashboard
+              <SampleDataLabel />
+          <h2 className="text-xl font-bold text-stone-900 tracking-tight font-display">
+                Audit Overview
               </h2>
               <span className="text-[11px] font-semibold text-amber-900 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                 Special Audit Unit
@@ -329,7 +333,7 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
 
       {/* Modal: Draft Audit Observation Memorandum (AOM) */}
       {aomModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <AccessibleDialog titleId="aom-dialog-title" onClose={() => setAomModalOpen(false)} busy={aomSubmitted} className="workspace-dialog fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl border border-stone-200/90 w-full max-w-lg overflow-hidden transition-all">
             
             <div className="bg-stone-50/70 border-b border-stone-200/90 p-5 flex items-center justify-between">
@@ -338,7 +342,7 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
                   <FileText className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-stone-900 font-display">
+                  <h3 id="aom-dialog-title" className="text-base font-bold text-stone-900 font-display">
                     Issue Audit Observation Memorandum (AOM)
                   </h3>
                   <p className="text-xs text-stone-500 mt-0.5">
@@ -349,19 +353,21 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
 
               <button
                 onClick={() => setAomModalOpen(false)}
+                aria-label="Close audit observation dialog"
                 className="text-stone-400 hover:text-stone-700 p-1.5 rounded-lg hover:bg-stone-100 transition cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 
             <form onSubmit={handleGenerateAOM} className="p-6 space-y-4 text-xs text-stone-800">
               
               <div>
-                <label className="block font-semibold text-stone-700 mb-1.5 text-xs">
+                <label htmlFor="aom-reference" className="block font-semibold text-stone-700 mb-1.5 text-xs">
                   AOM Reference Number
                 </label>
                 <input
+                  id="aom-reference"
                   type="text"
                   readOnly
                   value="COA-AOM-2026-LAG-003"
@@ -370,10 +376,10 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-700 mb-1.5 text-xs">
+                <label htmlFor="aom-scope" className="block font-semibold text-stone-700 mb-1.5 text-xs">
                   Audit Scope & Subject Matter
                 </label>
-                <select className="w-full p-2.5 border border-stone-300 rounded-lg text-xs bg-white">
+                <select id="aom-scope" className="w-full p-2.5 border border-stone-300 rounded-lg text-xs bg-white">
                   <option>32 Beneficiaries with Unreconciled Lifeline Electricity Discrepancies (&gt;200 kWh)</option>
                   <option>11 Beneficiaries with LTO Motor Vehicle Ownership without Productive Livelihood Proof</option>
                   <option>5 Beneficiaries with Flagged Sangla-ATM Card Possession Anomalies</option>
@@ -381,10 +387,11 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-700 mb-1.5 text-xs">
-                  Auditor Observations & Recommendations
+                <label htmlFor="aom-observations" className="block font-semibold text-stone-700 mb-1.5 text-xs">
+                  Observations & Recommendations <span className="required-label">(required)</span>
                 </label>
                 <textarea
+                  id="aom-observations"
                   rows={4}
                   required
                   defaultValue="Management is advised to expedite on-site SWDI verification of the flagged 32 beneficiaries in Calamba and San Pedro to avoid potential Notice of Disallowance under Section 12 of RA 11310."
@@ -420,7 +427,7 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
             </form>
 
           </div>
-        </div>
+        </AccessibleDialog>
       )}
 
     </div>

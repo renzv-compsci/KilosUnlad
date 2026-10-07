@@ -125,7 +125,7 @@ export const Screen1Login: React.FC<Screen1LoginProps> = ({
           {/* Password Input with Toggle */}
           <div>
             <label htmlFor="login-password-input">
-              GovPass / Security Key
+              Password
             </label>
             <div className="login-input-wrap">
               <Lock className="login-field-icon" aria-hidden="true" />

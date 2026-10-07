@@ -1,3 +1,4 @@
+import { SampleDataLabel } from '../common/SampleDataLabel';
 import React, { useState } from 'react';
 import { AuditBlock } from '../../types/contracts';
 import { MOCK_AUDIT_BLOCKS } from '../../data/mockContracts';
@@ -35,7 +36,7 @@ export const Screen6AuditLedger: React.FC<Screen6AuditLedgerProps> = ({
   };
 
   return (
-    <div className="p-5 sm:p-7 space-y-6 max-w-7xl mx-auto">
+    <div className="module-page ledger-page">
       
       {/* Spec Annotation Banner */}
       {showSpecAnnotations && (
@@ -49,15 +50,16 @@ export const Screen6AuditLedger: React.FC<Screen6AuditLedgerProps> = ({
       )}
 
       {/* Screen Title */}
-      <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="module-heading">
         <div>
           <div className="flex items-center space-x-2">
             <span className="text-[10px] font-semibold bg-amber-50 text-amber-900 px-2 py-0.5 rounded border border-amber-200/80 font-mono">
               COA INDEPENDENT OVERSIGHT
             </span>
           </div>
+          <SampleDataLabel />
           <h2 className="text-xl font-bold text-stone-900 tracking-tight mt-1.5 font-display">
-            Audit Ledger & Cryptographic Chain Inspector
+            Audit Ledger
           </h2>
           <p className="text-xs text-stone-500 mt-0.5">
             Sealed SHA-256 Merkle audit trail recording state transitions, SWDI evaluations, task dispatches, and notice issuance.
