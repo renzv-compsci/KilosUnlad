@@ -89,25 +89,35 @@ privately with Markie via a private channel.
 
 ## 4. Official PM / Tech Lead Resolution (Filled by Renz)
 
-* [ ] Decision: [ACCEPTED / REJECTED / MODIFIED]
-* [ ] Owner of test account seeding: [Dustin / Other / TBD]
-* [ ] Documentation format: [Phase 3 report note / Separate section]
-* [ ] Action Items:
-  - [ ] Dustin: Write `data-pipeline/scripts/seed_test_data.js`
-  - [ ] Dustin: Run script against local DB
-  - [ ] Dustin: Share credentials with Markie privately
-  - [ ] Dustin: Note in `docs/PHASE_3_REPORT.md`
+* **Decision:** **ACCEPTED (Option A Approved)**
+* **Assigned Owner:** Dustin Martinez (Database Architecture Lead)
+
+### Architectural & Operational Terms:
+1. **Scope Boundary:** 
+   - This task is categorized strictly as **Ad-Hoc Integration Support**. It does not alter Dustin's official Phase 3 deliverables or Renz's synthetic data pipeline.
+   - The script is restricted to exactly **4 user accounts**, **5 sample households**, and **3 sample verification tasks**.
+2. **Security & Credential Management:**
+   - All 4 user accounts must be hashed using `bcrypt` / `bcryptjs`.
+   - In accordance with team policy, plaintext passwords must **never** be committed to Git. Dustin will share the test credentials privately with Markie and Mae via direct message.
+3. **Execution Environment:**
+   - The script must execute against the replica set (`rs0`) established in DECISION-006.
+
+### Action Items:
+- [x] **Dustin:** Write the standalone setup script in `/data-pipeline/scripts/seed_test_data.js`.
+- [x] **Dustin:** Execute the script locally against `kilosunlad-db` and verify account creation.
+- [x] **Dustin:** Distribute the test credentials privately to Markie (Frontend) and Mae (Backend).
+- [x] **Markie & Mae:** Verify live role-based authentication using the seeded accounts.
 
 ---
 
 ## 5. Impact Assessment
 
-- **Files affected:** New file `data-pipeline/scripts/seed_test_data.js`
-- **Contracts affected:** None
-- **Schemas affected:** None
-- **Phases affected:** Not a Phase 3 deliverable — integration support only
-- **Risk:** Low — dev/test data only, credentials not committed
-- **Effort:** ~30 minutes
+- **Files affected:** New file `/data-pipeline/scripts/seed_test_data.js`
+- **Contracts affected:** None (0% change).
+- **Schemas affected:** None (uses existing Mongoose schemas).
+- **Phases affected:** Integration support; does not alter Phase 3 deliverable timeline.
+- **Risk:** Low — dev/test data only; credentials excluded from version control.
+- **Effort:** ~30 minutes.
 
 ---
 
@@ -115,9 +125,5 @@ privately with Markie via a private channel.
 
 - Dustin's roadmap Task 3.1 — Phase 3 seed ingestion scope
 - Mae's integration review (2026-09-28) — synthetic accounts request
-- DECISION-005 — append-only role (data writes must respect role permissions)
-- DECISION-006 — replica set (seeding runs against replica set `rs0`)
-
----
-
-**End of Document**
+- DECISION-005 — Append-only audit role
+- DECISION-006 — Single-node replica set deployment

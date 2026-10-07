@@ -200,32 +200,57 @@ Duplicate key errors are handled via `insert_many(ordered=False)` with
 
 ---
 
+```markdown
 ## 4. Official PM / Tech Lead Resolution (Filled by Renz)
 
-* [ ] **Concern A Decision:** [ACCEPTED / REJECTED / MODIFIED]
-  - [ ] Confirm JSON path: same directory as script
+* **Decision:** **ACCEPTED & RESOLVED (With Master Path Alignment)**
 
-* [ ] **Concern B Decision:** [ACCEPTED / REJECTED / MODIFIED]
-  - [ ] Confirm Python runtime: dedicated `seed-ingest` service in `docker-compose.yml`
+### Itemized Architectural Decisions:
 
-* [ ] **Concern C Decision:** [ACCEPTED / REJECTED / MODIFIED]
-  - [ ] Confirm placeholder location: same paths as real data
+#### 1. Concern A (Data Path Alignment):
+* **Resolution:** To preserve the separation of code and data established in `docs/PROJECT_STRUCTURE.md`, the canonical path for data seeds is **`/data-pipeline/seeds/`**:
+  * `/data-pipeline/seeds/seed_beneficiaries.json`
+  * `/data-pipeline/seeds/seed_external_records.json`
+* **Implementation:** The `seed_db.py` script will look for files in `../seeds/` relative to the script directory by default, with a fallback to the current directory (`./`). This satisfies Dustin's simplicity goal while keeping data cleanly separated from scripts.
 
-* [ ] **Concern D Decision:** [ACCEPTED / REJECTED / MODIFIED]
-  - [ ] Confirm ~50 placeholder records; DoD verification deferred to Renz's data
-  - [ ] Confirm `?replicaSet=rs0` in connection URI
-  - [ ] Confirm no pre-validation; MongoDB enforces
+#### 2. Concern B (Python Execution Environment):
+* **Resolution:** **Option B3 is APPROVED.**
+* Add the one-shot `seed-ingest` service to `docker-compose.yml` using `python:3.10-slim`.
+* To prevent re-downloading packages over the internet on every run, the service will install from `/data-pipeline/requirements.txt` or execute via an inline container command:
+  ```yaml
+  seed-ingest:
+    image: python:3.10-slim
+    container_name: kilosunlad-seed-ingest
+    working_dir: /app
+    volumes:
+      - ./data-pipeline:/app
+    command: bash -c "pip install --no-cache-dir pymongo && python scripts/seed_db.py"
+    networks:
+      - kilosunlad-network
+    restart: "no"
+  ```
 
-* [ ] **Action Items:**
-  - [ ] Dustin: Write `/data-pipeline/scripts/seed_db.py`
-  - [ ] Dustin: Generate placeholder `seed_beneficiaries.json` (~50 records)
-  - [ ] Dustin: Generate placeholder `seed_external_records.json` (~50 records)
-  - [ ] Dustin: Add `seed-ingest` service to `docker-compose.yml`
-  - [ ] Dustin: Write `/data-pipeline/scripts/verify_compound_index.py` (Task 3.2)
-  - [ ] Dustin: Write `/docs/handoffs/PHASE_3_DATABASE_HANDOFF.md`
-  - [ ] Dustin: Run end-to-end verification
-  - [ ] Renz: Replace placeholder JSON with real 5,000-record dataset
-  - [ ] Renz: Verify 15-second DoD against real data
+#### 3. Concern C (Placeholder Data Management):
+* **Resolution:** **Option C3 is APPROVED.**
+* Dustin will generate ~50 realistic placeholder records and commit them directly to `/data-pipeline/seeds/`.
+* When Renz finalizes the 5,000-record dataset from the PSA FIES pipeline, he will overwrite these files in-place with zero script modifications.
+
+#### 4. Concern D (DoD Timing, Connection URI, & Validation):
+* **Performance DoD:** **Option D2 is APPROVED.** Functional ingestion and schema constraints will be verified against the ~50 placeholder records now. The 15-second benchmark DoD will be validated during Phase 3 integration once Renz supplies the full 5,000-record dataset.
+* **Connection String:** Approved. PyMongo must use:
+  ```text
+  mongodb://app_user:AppUserPassword2026!@db:27017/kilosunlad?replicaSet=rs0&authSource=kilosunlad
+  ```
+* **Validation Strategy:** Approved. The script will rely on MongoDB's schema enforcement, utilizing `insert_many(ordered=False)` and outputting clear counts of inserted documents and skipped duplicates.
+
+### Action Items:
+- [x] **Dustin:** Implement `/data-pipeline/scripts/seed_db.py` with relative paths targeting `/data-pipeline/seeds/`.
+- [x] **Dustin:** Generate initial ~50-record placeholder JSON files in `/data-pipeline/seeds/`.
+- [x] **Dustin:** Add the `seed-ingest` service to `docker-compose.yml`.
+- [x] **Dustin:** Implement compound index verification script `/data-pipeline/scripts/verify_compound_index.py` (Task 3.2).
+- [x] **Dustin:** Document handoff instructions in `/docs/handoffs/PHASE_3_DATABASE_HANDOFF.md`.
+- [x] **Renz:** Overwrite placeholder files with the final 5,000-record dataset upon completion of the PSA FIES pipeline.
+- [x] **Renz & Dustin:** Validate the 15-second ingestion DoD against the complete dataset.
 
 ---
 
@@ -234,25 +259,22 @@ Duplicate key errors are handled via `insert_many(ordered=False)` with
 - **Files affected:**
   - New: `/data-pipeline/scripts/seed_db.py`
   - New: `/data-pipeline/scripts/verify_compound_index.py`
-  - New: `/data-pipeline/scripts/seed_beneficiaries.json` (placeholder)
-  - New: `/data-pipeline/scripts/seed_external_records.json` (placeholder)
+  - New: `/data-pipeline/seeds/seed_beneficiaries.json` (placeholder)
+  - New: `/data-pipeline/seeds/seed_external_records.json` (placeholder)
   - Modified: `docker-compose.yml` (add `seed-ingest` service)
   - New: `/docs/handoffs/PHASE_3_DATABASE_HANDOFF.md`
-- **Contracts affected:** None
-- **Schemas affected:** None
-- **Other services affected:** None — `seed-ingest` is a one-shot service, no dependencies touched
-- **Risk:** Low — new tooling, no changes to existing services
-- **Effort:** ~3 hours for script + placeholders + verification + handoff
+- **Contracts affected:** None (0% change).
+- **Schemas affected:** None (uses existing Mongoose schemas).
+- **Team impact:** Any team member can populate the database using `docker-compose run seed-ingest` with zero host-side Python dependencies.
+- **Risk:** Low.
+- **Effort:** ~3 hours for implementation, testing, and handoff documentation.
 
 ---
 
 ## 6. References
 
 - Engineering Task Roadmap (Database Architecture) — Phase 3, Tasks 3.1–3.2
-- DECISION-006 — Transaction-Capable MongoDB Deployment
-- DECISION-007 — Test Account Seeding (integration support precedent)
-- Renz's directive (2026-10-02) — placeholder data acceptable; handoff `.md` required
-
----
-
-**End of Document**
+- DECISION-006 — Single-node replica set deployment (`?replicaSet=rs0`)
+- DECISION-007 — Test account seeding precedent
+- `docs/PROJECT_STRUCTURE.md` — Master repository layout specification
+```
