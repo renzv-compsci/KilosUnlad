@@ -1,5 +1,16 @@
 # Frontend/backend compatibility review
 
+## Verification follow-up (2026-10-07)
+
+The [independent verification report](../reports/FRONTEND_BACKEND_VERIFICATION_2026-10-07.md)
+records 40 passing frontend tests, successful TypeScript/build, and 15 passing
+real API/adapter and static component-render checks against backend `4dcba9a`.
+Interactive browser acceptance remains unverified: no browser was connected.
+Dispatch, submission and audit UI workflows remain pending. Earlier statements
+about no tests being run apply to the original documentation review/turnover,
+not this later verification follow-up.
+
+
 **Author:** Mae Santos - Backend Engineering Lead
 **Date:** 2026-10-07
 **Backend:** `9e9e3a3` on backend-mae; merged into main at `dc55600`.
