@@ -1,0 +1,36 @@
+{
+  "matched_household_id": "DEMO-4PS-GRAD-0001",
+  "national_id": "DEMO-NID-GRAD-0001",
+  "power_utility": {
+    "provider": "Meralco",
+    "meter_no": "DEMO-METER-GRAD-0001",
+    "avg_monthly_kwh": 285,
+    "is_lifeline": false
+  },
+  "water_utility": {
+    "provider": "Maynilad",
+    "meter_type": "INDIVIDUAL",
+    "avg_monthly_cu_m": 32,
+    "is_lifeline": false
+  },
+  "telecom_registry": {
+    "contract_type": "POSTPAID",
+    "monthly_plan_php": 1800
+  },
+  "transport_registry": {
+    "vehicles": [
+      {
+        "plate_number": "DEMO-GRAD-4W",
+        "vehicle_category": "PASSENGER_4W",
+        "make_model": "Toyota Vios 1.3 XE",
+        "year_model": 2022,
+        "is_commercial_franchise": false
+      }
+    ]
+  },
+  "landbank_telemetry": {
+    "card_masked_pan": "5044-xxxx-xxxx-0099",
+    "last_withdrawal_timestamp": "2026-09-15T14:30:00.000Z",
+    "sangla_atm_risk_score": 15
+  }
+}

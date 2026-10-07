@@ -226,6 +226,24 @@ services:
       - kilosunlad-network
     restart: "no"
 
+     # ----------------------------------------------------------------------------
+  # 11. RESET DEMO (One-Shot Service)
+  # ----------------------------------------------------------------------------
+  # Phase 5 Task 5.1 — wipes DB, recreates indexes, re-seeds demo data.
+  # Invoke: docker-compose run --rm reset-demo
+  # ----------------------------------------------------------------------------
+  reset-demo:
+    image: docker:cli
+    container_name: kilosunlad-reset-demo
+    working_dir: /workspace
+    volumes:
+      - ./data-pipeline:/workspace/data-pipeline
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: sh /workspace/data-pipeline/scripts/reset_demo.sh
+    networks:
+      - kilosunlad-network
+    restart: "no"
+
 # ------------------------------------------------------------------------------
 # SHARED NETWORKS & PERSISTENT VOLUMES
 # ------------------------------------------------------------------------------

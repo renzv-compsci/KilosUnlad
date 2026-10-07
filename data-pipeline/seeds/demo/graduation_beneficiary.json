@@ -1,0 +1,49 @@
+{
+  "household_id": "DEMO-4PS-GRAD-0001",
+  "head_of_household": {
+    "first_name": "Miguel",
+    "last_name": "Villanueva",
+    "national_id": "DEMO-NID-GRAD-0001",
+    "contact_phone": "+639170099001"
+  },
+  "address": {
+    "street": "Purok 12",
+    "barangay": "Real",
+    "municipality": "Calamba",
+    "province": "Laguna",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [121.1875, 14.2215]
+    }
+  },
+  "demographics": {
+    "household_size": 6,
+    "dependents_ratio": 2.0,
+    "head_education_level": 4,
+    "wall_score": 3,
+    "roof_score": 3,
+    "water_access_level": 3
+  },
+  "children_registry": [
+    { "birthdate": "2010-05-12T00:00:00.000Z", "is_eligible": true },
+    { "birthdate": "2014-09-08T00:00:00.000Z", "is_eligible": true }
+  ],
+  "enrolled_swdi_level": 1,
+  "program_status": "ACTIVE_COMPLIANT",
+  "risk_assessment": {
+    "composite_risk_score": 78,
+    "is_flagged": true,
+    "predicted_swdi_level": 3,
+    "flag_reasons": [
+      "Declared Level 1 but demographics indicate Level 3",
+      "Registered 4-wheel vehicle under household head",
+      "Power consumption exceeds lifeline threshold"
+    ],
+    "trigger_badges": [
+      { "code": "TIER_INVERSION", "label": "AI Predicted Level 3", "severity": "CRITICAL" },
+      { "code": "LTO_VEHICLE_MATCH", "label": "Registered 4-Wheel Vehicle", "severity": "HIGH" },
+      { "code": "POWER_LIFELINE_BREACH", "label": "Meralco > 200 kWh", "severity": "HIGH" }
+    ],
+    "evaluated_at": "2026-10-08T00:00:00.000Z"
+  }
+}
