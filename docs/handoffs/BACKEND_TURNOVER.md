@@ -1,4 +1,14 @@
 # Backend turnover to Renz and Charles
+## Merged-stack verification follow-up (2026-10-09)
+
+The [Docker backend acceptance report](../reports/BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
+records 26 passing gateway/API checks against main `6e3c958`, including real
+transactional dispatch, duplicate/concurrent rejection and verification of
+resulting audit entries using the restricted database account. All 108 distinct
+backend suite tests passed across the full run and enabled integration follow-up.
+No backend code fix was required. Interactive frontend acceptance and the
+remaining workflows below are still pending.
+
 
 ## Verification follow-up (2026-10-07)
 
