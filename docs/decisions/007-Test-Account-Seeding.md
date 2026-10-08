@@ -90,16 +90,3 @@ privately with Markie via a private channel.
 ## 4. Official PM / Tech Lead Resolution (Filled by Renz)
 
 * **Decision:** **ACCEPTED (Option A Approved)**
-* **Owner of Test Account Seeding:** Dustin Martinez (Database Architecture Lead)
-* **Scope Boundary:** 
-  - Strictly integration/testing support; does not alter Renz's Phase 2/3 synthetic data generator (`generator.py`).
-  - Restricted to exactly **4 user accounts** (one per system role), **5 sample households**, and **3 sample verification tasks**.
-* **Security & Credential Policy:**
-  - Passwords must be hashed using `bcrypt` / `bcryptjs`.
-  - Plaintext passwords must **not** be committed to the public repository. They will be shared privately with Markie and Mae.
-
-* **Action Items:**
-  - [x] **Dustin:** Write the standalone script in `data-pipeline/scripts/seed_test_data.js`.
-  - [x] **Dustin:** Run the script against the local database container to verify account creation.
-  - [x] **Dustin:** Share the 4 test login credentials privately with Markie and Mae.
-  - [x] **Dustin:** Document the script usage in `docs/tasks/DUSTIN_DATABASE.md` under integration support.

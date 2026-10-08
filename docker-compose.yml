@@ -154,6 +154,42 @@ services:
       - kilosunlad-network
     restart: "no"
 
+    # ----------------------------------------------------------------------------
+  # 7. SEED INGEST (One-Shot Python Service)
+  # ----------------------------------------------------------------------------
+  # Runs Phase 3 Task 3.1 — ingests seed JSON files into MongoDB.
+  # Invoked manually via: docker-compose run seed-ingest
+  # Reads from ./data-pipeline/seeds/, connects to db:27017 over the
+  # kilosunlad-network with the app_user account.
+  # ----------------------------------------------------------------------------
+  seed-ingest:
+    image: python:3.10-slim
+    container_name: kilosunlad-seed-ingest
+    working_dir: /app
+    volumes:
+      - ./data-pipeline:/app
+    command: bash -c "pip install --no-cache-dir pymongo && python scripts/seed_db.py"
+    networks:
+      - kilosunlad-network
+    restart: "no"
+
+      # ----------------------------------------------------------------------------
+  # 8. SEED VERIFY (One-Shot Python Service)
+  # ----------------------------------------------------------------------------
+  # Phase 3 Task 3.2 — verifies the compound index is used by the triage query.
+  # Invoke manually via: docker-compose run --rm seed-verify
+  # ----------------------------------------------------------------------------
+  seed-verify:
+    image: python:3.10-slim
+    container_name: kilosunlad-seed-verify
+    working_dir: /app
+    volumes:
+      - ./data-pipeline:/app
+    command: bash -c "pip install --no-cache-dir pymongo && python scripts/verify_compound_index.py"
+    networks:
+      - kilosunlad-network
+    restart: "no"
+
 # ------------------------------------------------------------------------------
 # SHARED NETWORKS & PERSISTENT VOLUMES
 # ------------------------------------------------------------------------------
