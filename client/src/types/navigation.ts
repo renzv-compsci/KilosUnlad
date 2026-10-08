@@ -1,0 +1,17 @@
+export type ScreenId =
+  | 'login'
+  | 'dashboard'
+  | 'triage'
+  | 'dispatch_modal'
+  | 'dispatch_manager'
+  | 'due_process'
+  | 'admin_settings'
+  | 'field_dashboard'
+  | 'field_tasks'
+  | 'field_verify'
+  | 'field_sync'
+  | 'grievance_dashboard'
+  | 'appeal_hearing'
+  | 'coa_dashboard'
+  | 'audit_ledger'
+  | 'coa_sampling';
