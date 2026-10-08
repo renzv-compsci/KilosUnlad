@@ -2,6 +2,10 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
+> Historical report: results and status refer to the dated baseline below.
+> For current handoff and test status, use the [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+> and [latest verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md).
+
 **Date:** 2026-09-29
 
 **Reviewed commit:** `5d14cf1` on `origin/database-phase3`, compared with main `08eca5c`.
@@ -16,7 +20,7 @@ these findings. This report does not assess completion of Phase 3 backend tasks.
 
 Source review used Git objects. Docker was initially unavailable; the subsequent
 targeted permission and command-exit checks are recorded in the Docker follow-up
-below. The complete Compose setup and seeder were not executed in this review.
+below. I did not run the complete Compose setup or seeder during this review.
 
 ## Findings and requested follow-up
 

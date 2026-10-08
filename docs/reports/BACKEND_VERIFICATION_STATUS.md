@@ -1,5 +1,11 @@
 # Historical backend verification status - September 25
 
+**Author:** Mae Santos — Backend Engineering Lead
+
+> Historical report: results and status refer to the dated baseline below.
+> For current handoff and test status, use the [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+> and [latest verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md).
+
 Superseded for current status by [Phase 1-4 status](PHASE1_TO_PHASE4_STATUS.md)
 and [merged deployment verification](PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
 The counts, uncommitted-work description, PR references and deployment blockers
@@ -7,7 +13,6 @@ below describe September 25 only. Decision 006 is now accepted; fresh isolated
 deployment verified index permissions and dispatch on September 30. Shared
 deployment acceptance remains open. This October 4 annotation ran no new tests.
 
-**Author:** Mae Santos — Backend Engineering Lead
 
 Reviewed 2026-09-25 on backend-mae at d8c7b9b, with the existing uncommitted
 backend ML client and six ML tests retained locally. At that review date this
@@ -91,5 +96,5 @@ dispatch/persistence, associated tests, task status, README, handoff and gap/rec
 reports against the available contracts and decisions. Corrected stale document
 paths/status/ownership and the handoff's worker_id query expectation (400
 INVALID_QUERY). No runtime, shared model, frozen contract, frontend or infrastructure
-changes were needed for this documentation refresh. This is not a claim that all
-future tasks or production/security acceptance criteria are complete.
+changes were needed for this documentation refresh. Remaining tasks and
+production/security acceptance still need to be completed.

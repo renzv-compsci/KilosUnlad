@@ -2,7 +2,13 @@
 
 **Owner:** Mae Santos - Backend Engineering Lead
 **Prepared:** 2026-10-07
-**Status:** Prepared; not executed. No acceptance result is claimed.
+**Status:** Isolated Docker API acceptance executed on 2026-10-09; interactive frontend and shared-deployment acceptance pending.
+
+See the [merged-stack acceptance report](../reports/BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
+for successful director/admin dispatch, worker-feed visibility, duplicate and
+concurrent rejection, persisted consistency and restricted database permissions
+against main `6e3c958`. The checklist below remains a guide for recipient deployment
+and browser acceptance; local API evidence does not complete those checks.
 
 ## Baseline and scope
 
@@ -95,7 +101,7 @@ commits and redacted errors. Exclude passwords, tokens, signing secrets and
 credential-bearing connection strings. Capture frontend display evidence and
 API/persistence evidence separately.
 
-- [ ] Mae records backend results and remaining deployment limitations.
+- [ ] Record my backend test results and remaining deployment limitations.
 - [ ] Markie records actual frontend dispatch/task-display results and any UI
   preview limitation. This document prepares that request; it sends no message.
 - [ ] The team records acceptance against the agreed environment before Task

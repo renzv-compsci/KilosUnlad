@@ -1,56 +1,10 @@
 # Phase 1–4 backend completion status
 
-## Backend turnover (2026-10-07)
-
-Per Renz's fast-track announcement, Mae is handing over the current backend
-and all remaining tasks to Renz and Charles. No phase is retained for further
-development. Start with the [complete backend turnover](../handoffs/BACKEND_TURNOVER.md).
-This transfers continuation responsibility; unfinished task checkboxes and
-shared/frontend acceptance requirements remain unchanged. Recipient review
-and acknowledgement are pending.
-
-
-## Publication and next acceptance (2026-10-07)
-
-[PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10) merged
-`backend-mae` commit `9e9e3a3` into main at `dc55600` on October 6 at
-23:36 Manila time. Remote history was fetched and verified on October 7.
-The two commits have identical file trees. Merge acceptance does not close
-remaining workflow or shared-deployment acceptance.
-
-The [dispatch acceptance checklist](../handoffs/BACKEND_DISPATCH_ACCEPTANCE.md) is prepared
-for the next test session, including fixture prerequisites, API dispatch,
-frontend task visibility, audit evidence, rejection/concurrency and rollback
-checks. It has not been executed. No runtime tests were run for this update.
-Earlier PR-review requests below are historical; remaining coordination concerns
-continuation ownership and workflow acceptance.
-
-
-## Markie-reported local acceptance (recorded 2026-10-04)
-
-Markie's message, relayed by Mae, reports testing frontend integration against
-backend `1b185d9` with a fresh isolated database and seed from
-`database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
-were disabled. Reported results:
-
-- All four roles logged in successfully; invalid login was rejected.
-- API role restrictions passed.
-- The actual frontend displayed `TEST-TSK-0001` linked to the Palingon household
-  and excluded the out-of-scope samples.
-- The director's triage displayed two flagged records.
-
-This records Markie's independent local acceptance of login and read feeds.
-It is teammate-reported evidence, not a new test run by this documentation review.
-His frontend commit, execution date and raw test artifacts were not supplied.
-Dispatch, submission, chain-verifier UI and other workflows were not included.
-Shared deployment/migration and existing-volume repair remain unverified.
-Earlier statements that Markie's login/read-feed acceptance is pending are
-superseded within this reported scope. Task 1.3's literal mock-client DoD still
-needs PM reconciliation with the accepted real-API integration; its original
-checkbox is not changed by this report.
-
-
 **Author:** Mae Santos — Backend Engineering Lead
+
+> Historical report: results and status refer to the dated baseline below.
+> For current handoff and test status, use the [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+> and [latest verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md).
 
 **Date:** 2026-09-30
 
@@ -58,10 +12,10 @@ checkbox is not changed by this report.
 
 Latest documentation review baseline: `19c9997`; main `c030c77`. The historical
 101-test run below is supplemented by four-role live API checks, 11 additional
-API cases, observed director/worker browser checks and user-confirmed
+API cases, observed director/worker browser checks and manually confirmed
 SUPER_ADMIN/COA_AUDITOR browser checks. See
 [live verification](LIVE_AUTH_FEED_VERIFICATION.md) for evidence and limits.
-Positive assigned-task display was confirmed manually by Mae on October 2 in a
+I manually confirmed positive assigned-task display on October 2 in a
 fresh local setup. Markie's later reported login/read-feed acceptance is recorded above. Dustin's
 seed and existing-data repair instructions are now merged; applying and verifying
 the repair in an agreed existing environment remains outstanding.
@@ -144,6 +98,6 @@ Phase 3/4 handoff; it does not supply an appeal storage model or API contract.
 4. Renz/Charles: continue the explicit Phase 3/4 placeholder seams described in
    [the handoff](../handoffs/PHASE3_PHASE4_BACKEND_HANDOFF.md).
 
-These are prepared coordination requests; this report does not claim they were
-sent or accepted. Latest deployment evidence is in
-[merged deployment verification](PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
+The requests above still need follow-up; delivery and acceptance have not been
+confirmed. The latest isolated deployment results are in the
+[October 9 verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md).

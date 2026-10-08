@@ -17,7 +17,7 @@ To prevent partial writes (e.g., a task is dispatched, but the audit entry fails
 
 However, `docker-compose.yml` runs MongoDB 6 as a **standalone instance**. The MongoDB engine strictly disallows multi-document transactions unless the database is configured as a **Replica Set** (throwing `Transaction numbers are only allowed on a replica set member or mongos`).
 
-Additionally, Mae's concurrency guard in `workflowPersistence.service.js` checks `audits.collection.indexes()` to verify the unique sequence index, which requires harmonization with the custom `app_user` permissions defined in DECISION-005.
+Additionally, the concurrency guard I implemented in `workflowPersistence.service.js` checks `audits.collection.indexes()` to verify the unique sequence index, which requires harmonization with the custom `app_user` permissions defined in DECISION-005.
 
 ---
 

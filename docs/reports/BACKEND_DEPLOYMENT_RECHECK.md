@@ -2,6 +2,15 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
+> Historical report: results and status refer to the dated baseline below.
+> For current handoff and test status, use the [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+> and [latest verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md).
+
+October 9 update: the [merged-stack acceptance report](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
+records successful fresh Docker startup, restricted-account dispatch and audit
+verification against main `6e3c958`. The September 28 failures below are historical;
+shared-deployment and interactive browser acceptance are still pending.
+
 October 2 reading note: the failures below describe the September 28 baseline.
 Subsequent fixes and the successful September 30 isolated fresh-start/dispatch
 check are recorded in [merged deployment verification](PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
@@ -105,7 +114,7 @@ deployment blockers and Task 2.4 acceptance status are unchanged by these result
 
 ## Task 2.4 completion checklist
 
-The latest fetch for this review on 2026-09-28 confirmed main at `08eca5c`.
+I fetched the remote branches on 2026-09-28 and confirmed main at `08eca5c`.
 The deployment blockers above remain unresolved. Task 2.4 remains incomplete;
 existing isolated test results do not establish shared deployment readiness.
 

@@ -1,21 +1,22 @@
 # Frontend/backend compatibility review
 
+**Author:** Mae Santos - Backend Engineering Lead
+**Date:** 2026-10-07
+**Backend:** `9e9e3a3` on backend-mae; merged into main at `dc55600`.
+**Frontend:** `b36361c` on origin/frontend-markie.
+**Scope:** Static source review. No new frontend/runtime tests or live acceptance.
+
 ## Verification follow-up (2026-10-07)
 
 The [independent verification report](../reports/FRONTEND_BACKEND_VERIFICATION_2026-10-07.md)
 records 40 passing frontend tests, successful TypeScript/build, and 15 passing
 real API/adapter and static component-render checks against backend `4dcba9a`.
 Interactive browser acceptance remains unverified: no browser was connected.
-Dispatch, submission and audit UI workflows remain pending. Earlier statements
-about no tests being run apply to the original documentation review/turnover,
-not this later verification follow-up.
+Dispatch, submission and audit UI workflows remain pending. The original
+documentation review did not run tests; the results above come from the later
+verification session.
 
 
-**Author:** Mae Santos - Backend Engineering Lead
-**Date:** 2026-10-07
-**Backend:** `9e9e3a3` on backend-mae; merged into main at `dc55600`.
-**Frontend:** `b36361c` on origin/frontend-markie.
-**Scope:** Static source review. No new frontend/runtime tests or live acceptance.
 
 The frontend includes main through `c030c77`, not the newer PR #10 merge.
 Its historical acceptance report describes that older backend. Use the current
@@ -97,12 +98,12 @@ See [verifier behavior and limits](../../server/README.md#audit-chain-verificati
 Source reviewed: frontend services/api.ts, App.tsx, useOfflineSync.ts, dispatch,
 field-task and audit screens; backend v1 router, readFeeds, dispatcher,
 audit controller and hashChain service. Markie's notes report 40 frontend tests
-and successful typecheck/build; this review did not rerun or independently
-validate those results.
+and successful typecheck/build. I did not rerun those checks during the source
+review; the later verification results are linked above.
 
 1. Confirm the frontend and backend commits for the next acceptance session.
 2. Complete real dispatch UI/worker selection and audit range integration with
-   Markie; do not change his branch as part of Mae's documentation work.
+   Markie. Changes to his frontend should be handled on his branch by its owner.
 3. Execute isolated API/persistence checks and record actual frontend acceptance
    separately. Keep submission/appeal workflows pending until implemented.
 

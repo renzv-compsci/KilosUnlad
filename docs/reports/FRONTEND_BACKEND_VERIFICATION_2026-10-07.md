@@ -1,6 +1,10 @@
 # Frontend/backend verification - October 7, 2026
 
 **Author:** Mae Santos - Backend Engineering Lead
+
+> Historical report: results and status refer to the dated baseline below.
+> For current handoff and test status, use the [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+> and [latest verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md).
 **Frontend:** `b36361cfcfe54af7d63b863103a2e66ca3da1966`
 **Backend:** `4dcba9a91b12d0bb6f27169394ecb28dd66fd0ff`
 **Result:** Automated frontend checks and real login/read-feed adapter checks passed.
@@ -8,8 +12,8 @@
 
 ## Isolation and commands
 
-Frontend source was extracted with git archive into a temporary directory;
-Markie's branch and repository files were not modified. Official Node 20.20.0
+I extracted the frontend source with git archive into a temporary directory.
+I did not modify Markie's branch or repository files. Official Node 20.20.0
 was downloaded from nodejs.org after the old cached npm runtime proved incomplete.
 Dependencies were installed from the frontend lockfile with npm ci --no-audit
 --no-fund. This did not perform a dependency security audit. Installation warned
