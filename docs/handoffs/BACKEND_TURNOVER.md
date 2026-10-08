@@ -1,79 +1,51 @@
 # Backend turnover to Renz and Charles
 
 **Prepared by:** Mae Santos - Backend Engineering Lead
-**Date:** 2026-10-07
-**Recipients / continuation owners:** Renz and Charles, per Renz's announcement
+**Prepared:** 2026-10-07; updated 2026-10-09
 **Branch:** backend-mae
-**Status:** Backend turnover prepared for repository review; recipient acknowledgement pending.
-
-## Merged-stack verification follow-up (2026-10-09)
-
-The [Docker backend acceptance report](../reports/BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
-records 26 passing gateway/API checks against main `6e3c958`, including real
-transactional dispatch, duplicate/concurrent rejection and verification of
-resulting audit entries using the restricted database account. All 108 distinct
-backend suite tests passed across the full run and enabled integration follow-up.
-These checks passed without changes to the backend code. Interactive frontend acceptance and the
-remaining workflows below are still pending.
-
-
-## Verification follow-up (2026-10-07)
-
-The [independent verification report](../reports/FRONTEND_BACKEND_VERIFICATION_2026-10-07.md)
-records 40 passing frontend tests, successful TypeScript/build, and 15 passing
-real API/adapter and static component-render checks against backend `4dcba9a`.
-Interactive browser acceptance remains unverified: no browser was connected.
-Dispatch, submission and audit UI workflows remain pending. The original
-documentation review did not run tests; the results above come from the later
-verification session.
-
-
-
-## Direction and delivery scope
+**Recipients:** Renz and Charles
+**Status:** Ready for review; recipient acknowledgement pending.
 
 As requested by Renz, I'm handing over the current backend implementation and
-remaining tasks to Renz and Charles for continued development and finalization.
-The unfinished workflows are listed below. Their review and acceptance of the
-handoff are still pending.
-
-This handoff follows Renz's request to turn over the remaining development tasks
-for system finalization.
-
-Implementation baseline: backend `9e9e3a3`, merged through PR #10 into main at
-`dc55600` on October 6 at 23:36 Manila time. Those commits have identical file
-trees. The turnover commit adds backend documentation only. Use the exact commit
-containing this document when recording subsequent acceptance results.
+remaining tasks to Renz and Charles for system finalization.
 
 ## Start here
 
-1. [Server setup, APIs and verifier limits](../../server/README.md)
-2. [Task-by-task implementation and evidence](../reports/PHASE1_TO_PHASE4_STATUS.md)
-3. [Phase 3/4 helper interfaces and continuation boundaries](PHASE3_PHASE4_BACKEND_HANDOFF.md)
-4. [Latest frontend/backend compatibility review](FRONTEND_BACKEND_COMPATIBILITY.md)
-5. [Dispatch acceptance checklist](BACKEND_DISPATCH_ACCEPTANCE.md)
-6. [Login/read-feed handoff and reported acceptance](FRONTEND_AUTH_HANDOFF.md)
+1. [Server README](../../server/README.md): setup, configuration, APIs and test commands.
+2. This document: implemented work, remaining tasks and handoff references.
+3. [Backend task roadmap](../tasks/MAE_BACKEND.md): original task criteria and checkboxes.
+4. [Latest backend verification](../reports/BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md): October 9 Docker/API results and limits.
 
-## Implemented work and live API surface
+## Implemented backend
 
-Implemented foundations include Express startup/security, canonical hashing,
-database-backed login, current-account JWT/RBAC, jurisdiction-scoped feeds,
-transactional dispatch, workflow transition guards, reusable validation/errors,
-and authenticated audit-chain verification. Internal helpers are described below;
-they do not establish complete notice, appeal, ML or submission workflows.
+The backend includes Express startup/security, canonical hashing, database-backed
+login, JWT/RBAC with current-account checks, jurisdiction-scoped feeds,
+transactional dispatch, workflow guards, strict validation/error helpers and
+authenticated audit-chain verification.
 
 Normal mode exposes these routes under `/api/v1`:
 
 | Route | Access / behavior |
 | --- | --- |
-| POST `/auth/login` | Active account credentials; real 900-second session token |
+| POST `/auth/login` | Active account credentials; 900-second session token |
 | GET `/beneficiaries/triage-queue` | Admin/director/auditor; authorized scope and pagination |
 | GET `/tasks/assigned` | Case worker; own pending/cached tasks with in-scope households |
-| POST `/tasks/dispatch` | Admin/director; task + household transition + audit in one transaction |
-| GET `/audit/verify-chain` | Admin/auditor; explicit existing inclusive range, up to 1,000 blocks |
+| POST `/tasks/dispatch` | Admin/director; task, household transition and audit in one transaction |
+| GET `/audit/verify-chain` | Admin/auditor; existing inclusive range, up to 1,000 blocks |
 
-`/health` is process liveness, not database readiness. Startup waits for MongoDB.
-There is no mounted submission, appeal, calamity-toggle or public prediction
-workflow, nor a worker directory or audit-list/head discovery endpoint.
+Submission, appeal, calamity-toggle and public prediction routes are not mounted.
+There is no worker directory or audit-list/head endpoint. `/health` reports process
+liveness; startup waits for MongoDB.
+
+## Latest verification
+
+Against main `6e3c958`, 26 isolated Docker/gateway API checks passed. All 108
+distinct backend tests passed across the full suite and optional integration
+follow-up. Dispatch persistence, duplicate/concurrent rejection, audit hashes,
+restricted-account permissions and database outage recovery were checked.
+See the [verification report](../reports/BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
+for exact coverage and reproduction details. These results do not complete
+browser, shared-deployment, model or unfinished-workflow acceptance.
 
 ## All remaining backend tasks transferred
 
@@ -98,64 +70,58 @@ task checkboxes are retained; transfer of ownership does not mark incomplete
 tasks complete. Historical standup deliverables in the roadmap are target text,
 not evidence that all workflows operate.
 
-## Verification evidence and reproduction
+## Setup and acceptance requirements
 
-The latest recorded October 2 regression is 104 passed, 0 failed and 3 optional
-suite skips; a subsequent affected-suite run passed 24 with no failures/skips.
-Historical September 30 all-enabled regression passed 101 with no failures/skips.
-These runs overlap and must not be added together. See the status report for
-environments and exact coverage. No new runtime tests were run for this turnover.
+Use Node 20 and follow the [server README](../../server/README.md). Real mode
+requires a transaction-capable MongoDB connection, a private JWT secret,
+`PHASE1_MOCK_MODE=false` and the exact frontend CORS origin. Optional integration
+tests require their documented environment flags; default `npm test` can skip them.
 
-Markie's relayed report used backend `1b185d9`, a fresh isolated database and
-seed revision `697f6bb`, with mocks/fallback disabled. It reports four-role login,
-invalid-login rejection, API role restrictions, Palingon task display, out-of-scope
-exclusion and two director flagged records. It excludes dispatch/submission and
-other workflows; frontend commit, execution date and raw artifacts were not supplied.
+- Coordinate database models, seeds and existing-volume migrations with Dustin.
+  Existing volumes do not automatically receive new roles or repaired task links.
+- Arrange an eligible synthetic household/worker pair for dispatch. The four-household
+  test-account seed has no eligible positive dispatch to its Palingon-only worker.
+- The reviewed frontend `b36361c` has real login/read feeds, a disabled dispatch
+  preview and simulated audit results. Confirm the current frontend revision with
+  Markie before browser acceptance. Main's tested client was still a scaffold.
+- The audit ledger is a sequential hash chain. It does not verify current household
+  data or detect fully rewritten history without an independent trusted checkpoint.
+- Assigned feeds omit stored priority, status and dispatch timestamp. Agree any
+  contract changes before presenting derived/default values as stored metadata.
+- Direct ingestion can bypass Mongoose validation; database validator enforcement
+  remains a database-owner decision.
 
-Use Node 20 and `npm ci`, then `npm test` from `server/`. Default tests are not
-equivalent to all optional database/Docker acceptance. Optional environment flags
-and disposable-resource requirements are in the linked status reports and README.
-Obtain credentials privately; never commit passwords, tokens or signing keys.
+## Detailed integration guides
 
-For real local startup, configure the correct transaction-capable MongoDB URI,
-a private JWT signing secret, PHASE1_MOCK_MODE=false, and exact frontend CORS
-origin. The frontend defaults to `http://localhost:5000/api/v1`; VITE_API_URL
-can override it. Prior localhost previews are temporary sessions, not a shared
-deployment or a reproducible readiness guarantee.
+Read these when working on the corresponding integration:
 
-## Dependencies and acceptance traps
-
-- Database models and shared seed/deployment tooling remain Dustin's domain;
-  coordinate with that owner. Existing volumes do not automatically adopt role
-  changes or repaired task links. Preserve append-only audit permissions.
-- The current seed has four households/two tasks, short of the approved five/three.
-  The Palingon flagged household already has an open task; the other flagged
-  household is outside the seeded worker's scope. Arrange a separate eligible
-  fixture rather than deleting tasks or broadening shared user scope.
-- The October 7 remote branch named `origin/database-phase3` contains decision
-  edits at `18f4ac3`, separate from regular database-phase3 at `697f6bb`.
-  It is not merged here. Its checked action items alone do not prove ingestion
-  scripts, dataset or performance acceptance; confirm actual artifacts/evidence.
-- Frontend `b36361c` has real login/read feeds, disabled dispatch preview and
-  sample audit simulation. The backend verifier is already available; integrate
-  its actual results rather than using simulated shields or sample ledger entries.
-- The implemented ledger is a sequential hash chain, not a Merkle DAG/signature
-  system. Verification does not validate current household documents or detect
-  fully rewritten history without an independent trusted checkpoint.
-- Backend assigned feeds omit stored priority/status/dispatch timestamp; frontend
-  derives/defaults some values. Agree contract changes before treating them as
-  stored dispatch metadata. Keep dashboard sample analytics labeled.
+- [Dispatch acceptance checklist](BACKEND_DISPATCH_ACCEPTANCE.md)
+- [Frontend/backend compatibility](FRONTEND_BACKEND_COMPATIBILITY.md)
+- [Authentication and read-feed integration](FRONTEND_AUTH_HANDOFF.md)
+- [Phase 3/4 helper interfaces and remaining implementation](PHASE3_PHASE4_BACKEND_HANDOFF.md)
 
 ## Recommended continuation order
 
-1. Confirm recipient ownership, deployed commits and environment; reconcile Task
-   1.3 and obtain notice/appeal decisions while other work proceeds.
-2. Execute dispatch acceptance and integrate the existing chain verifier with
-   Markie. These can proceed independently of unfinished ML/submission workflows.
-3. Complete ML/risk/calamity policy and persistence; then trusted submission and
-   atomic auditing with real end-to-end checks. No false-success placeholders.
-4. Run current regression plus required optional integrations, clean deployment,
-   offline/device checks and the recorded video scenarios before finalization.
+1. Confirm owners and deployed revisions; resolve Task 1.3 criteria and notice/appeal decisions.
+2. Complete shared-deployment and browser dispatch/audit acceptance with Markie.
+3. Implement ML/risk/calamity persistence, trusted submission and transactional auditing.
+4. Run regression, offline/device acceptance and the planned demo workflows.
 
-I've prepared the repository handoff for Renz and Charles to review. Their
-acknowledgement and final system acceptance are still pending.
+## Historical reports
+
+These preserve earlier baselines and test evidence. Use the latest verification
+above for current backend acceptance; historical results do not establish current
+shared-deployment or browser acceptance.
+
+- [Audit endpoint diagnosis - October 8, 2026](../reports/AUDIT_ENDPOINT_DIAGNOSIS_2026-10-08.md)
+- [Backend deployment recheck — 2026-09-28](../reports/BACKEND_DEPLOYMENT_RECHECK.md)
+- [Historical backend verification status - September 25](../reports/BACKEND_VERIFICATION_STATUS.md)
+- [Database/backend compatibility verification - October 8, 2026](../reports/DATABASE_BACKEND_COMPATIBILITY_2026-10-08.md)
+- [Database deployment and integration review](../reports/DATABASE_DEPLOYMENT_INTEGRATION_REVIEW.md)
+- [Backend response to Dustin's connection-pool review](../reports/DATABASE_RECOVERY_REVIEW.md)
+- [Frontend/backend verification - October 7, 2026](../reports/FRONTEND_BACKEND_VERIFICATION_2026-10-07.md)
+- [Live authentication and feed verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md)
+- [Phase 1–4 backend completion status](../reports/PHASE1_TO_PHASE4_STATUS.md)
+- [Phase 2 backend gap review](../reports/PHASE2_GAP_REVIEW.md)
+- [Phase 2 merged deployment verification](../reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md)
+- [Phase 3 backend checkpoint](../reports/PHASE3_BACKEND_CHECKPOINT.md)

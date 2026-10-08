@@ -2,60 +2,13 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
+> Historical report: results and status refer to the dated baseline below.
+> For current handoff and test status, use the [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+> and [latest verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md).
+
 **Date:** 2026-09-30
 
 **Reviewed:** 2026-10-02
-
-## Backend turnover (2026-10-07)
-
-As requested by Renz, I'm handing over the current backend implementation and
-remaining tasks to Renz and Charles. The [backend turnover](../handoffs/BACKEND_TURNOVER.md)
-lists the implemented work and what still needs to be finished. Incomplete tasks
-stay unchecked. Recipient review, shared-deployment testing and frontend
-acceptance are still pending.
-
-
-## Publication and next acceptance (2026-10-07)
-
-[PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10) merged
-`backend-mae` commit `9e9e3a3` into main at `dc55600` on October 6 at
-23:36 Manila time. Remote history was fetched and verified on October 7.
-The two commits have identical file trees. The merge publishes the backend
-changes; remaining workflows and shared-deployment testing still need to be completed.
-
-The [dispatch acceptance checklist](../handoffs/BACKEND_DISPATCH_ACCEPTANCE.md) covers test
-fixtures, API dispatch, frontend task display, audit records and rejected requests.
-It had not been executed when this section was published on October 7. The
-[October 9 verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
-subsequently passed the isolated Docker API checks. Browser acceptance and
-shared-deployment testing are still pending. Earlier PR-review requests below
-are kept as historical notes.
-
-
-## Markie-reported local acceptance (recorded 2026-10-04)
-
-Markie reported testing frontend integration against
-backend `1b185d9` with a fresh isolated database and seed from
-`database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
-were disabled. Reported results:
-
-- All four roles logged in successfully; invalid login was rejected.
-- API role restrictions passed.
-- The actual frontend displayed `TEST-TSK-0001` linked to the Palingon household
-  and excluded the out-of-scope samples.
-- The director's triage displayed two flagged records.
-
-This records Markie's independent local acceptance of login and read feeds.
-I recorded Markie's results here; I did not rerun these checks during this update.
-His frontend commit, execution date and raw test artifacts were not supplied.
-Dispatch, submission, chain-verifier UI and other workflows were not included.
-Shared deployment/migration and existing-volume repair remain unverified.
-Markie's reported results cover local login and read feeds. Task 1.3 remains
-unchecked because its completion criteria specify mock-client integration. Renz
-needs to confirm whether the accepted real-API integration satisfies those
-criteria.
-
-
 
 Latest documentation review baseline: `19c9997`; main `c030c77`. The historical
 101-test run below is supplemented by four-role live API checks, 11 additional

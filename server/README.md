@@ -1,5 +1,9 @@
 # Backend: authentication, dispatch and live feeds
 
+For the handoff and remaining tasks, see [backend turnover](../docs/handoffs/BACKEND_TURNOVER.md).
+The [task roadmap](../docs/tasks/MAE_BACKEND.md) tracks completion criteria; the
+[latest verification](../docs/reports/BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md) records test coverage and limits.
+
 ## Run
 
 With Node.js 20 (matching the Docker image) and npm available, run from `server/`:

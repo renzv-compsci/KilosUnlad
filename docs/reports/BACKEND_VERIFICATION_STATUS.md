@@ -2,6 +2,10 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
+> Historical report: results and status refer to the dated baseline below.
+> For current handoff and test status, use the [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+> and [latest verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md).
+
 Superseded for current status by [Phase 1-4 status](PHASE1_TO_PHASE4_STATUS.md)
 and [merged deployment verification](PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
 The counts, uncommitted-work description, PR references and deployment blockers

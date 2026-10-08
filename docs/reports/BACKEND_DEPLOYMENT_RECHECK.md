@@ -2,6 +2,10 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
+> Historical report: results and status refer to the dated baseline below.
+> For current handoff and test status, use the [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+> and [latest verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md).
+
 October 9 update: the [merged-stack acceptance report](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
 records successful fresh Docker startup, restricted-account dispatch and audit
 verification against main `6e3c958`. The September 28 failures below are historical;

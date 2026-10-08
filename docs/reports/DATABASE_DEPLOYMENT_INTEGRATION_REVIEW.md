@@ -2,6 +2,10 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
+> Historical report: results and status refer to the dated baseline below.
+> For current handoff and test status, use the [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+> and [latest verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md).
+
 **Date:** 2026-09-29
 
 **Reviewed commit:** `5d14cf1` on `origin/database-phase3`, compared with main `08eca5c`.

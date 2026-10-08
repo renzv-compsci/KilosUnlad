@@ -8,136 +8,15 @@
 
 **Container:** `kilosunlad-server` (Port `5000`)
 
-## Backend turnover (2026-10-07)
+## Current handoff
 
-As requested by Renz, I'm handing over the current backend implementation and
-remaining tasks to Renz and Charles. The [backend turnover](../handoffs/BACKEND_TURNOVER.md)
-lists the implemented work and what still needs to be finished. Incomplete tasks
-stay unchecked. Recipient review, shared-deployment testing and frontend
-acceptance are still pending.
-
-
-## Publication and next acceptance (2026-10-07)
-
-[PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10) merged
-`backend-mae` commit `9e9e3a3` into main at `dc55600` on October 6 at
-23:36 Manila time. Remote history was fetched and verified on October 7.
-The two commits have identical file trees. The merge publishes the backend
-changes; remaining workflows and shared-deployment testing still need to be completed.
-
-The [dispatch acceptance checklist](../handoffs/BACKEND_DISPATCH_ACCEPTANCE.md) covers test
-fixtures, API dispatch, frontend task display, audit records and rejected requests.
-It had not been executed when this section was published on October 7. The
-[October 9 verification](../reports/BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
-subsequently passed the isolated Docker API checks. Browser acceptance and
-shared-deployment testing are still pending. Earlier PR-review requests below
-are kept as historical notes.
-
-
-## Markie-reported local acceptance (recorded 2026-10-04)
-
-Markie reported testing frontend integration against
-backend `1b185d9` with a fresh isolated database and seed from
-`database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
-were disabled. Reported results:
-
-- All four roles logged in successfully; invalid login was rejected.
-- API role restrictions passed.
-- The actual frontend displayed `TEST-TSK-0001` linked to the Palingon household
-  and excluded the out-of-scope samples.
-- The director's triage displayed two flagged records.
-
-This records Markie's independent local acceptance of login and read feeds.
-I recorded Markie's results here; I did not rerun these checks during this update.
-His frontend commit, execution date and raw test artifacts were not supplied.
-Dispatch, submission, chain-verifier UI and other workflows were not included.
-Shared deployment/migration and existing-volume repair remain unverified.
-Markie's reported results cover local login and read feeds. Task 1.3 remains
-unchecked because its completion criteria specify mock-client integration. Renz
-needs to confirm whether the accepted real-API integration satisfies those
-criteria.
-
-
----
-
-## Documentation review (2026-10-04)
-
-Reviewed `backend-mae` at `4d0f5bc`, matching `origin/backend-mae` after fetch.
-Corrected backend documentation only; no runtime tests were run. The October 2
-evidence below remains the latest recorded implementation verification.
-
-## Implementation review (2026-10-02)
-
-Reviewed local `backend-mae` at `19c9997` after fetching origin. Main `c030c77`
-and database-phase3 `697f6bb` are already included. The publication includes this
-merge and the subsequent verifier/documentation changes. Frontend remains on its
-separate branch at `7cc3dd7`.
-
-All four roles have documented local login/screen evidence. Fresh-seed assigned
-task visibility passed via API, and I confirmed browser display on October 2.
-Markie's later local login/read-feed acceptance is recorded above. Dustin's existing-data repair
-procedure is now merged; shared-environment repair execution is not verified.
-The seed contains 4 households/2 tasks against the approved 5/3 target.
-
-Task 4.1 continuation: the authenticated chain endpoint now verifies up to 1000
-blocks with snapshot consistency and predecessor linkage. MongoDB tests verify
-persisted workflow hashes, 1000 intact blocks, and exact tampered sequence 451.
-Schemas and frozen contracts are unchanged. See the
-[endpoint behavior and limits](../../server/README.md#audit-chain-verification).
-Phase 1/2 auth, guard, dispatch, concurrency and rollback checks pass locally;
-this does not implement the missing notice or appeal workflows.
-
-Next backend closure work: reconcile the legacy mock-client DoD, verify the
-agreed shared deployment and existing-data repair, and obtain the remaining
-notice/graduation and appeal contracts. Phase 3/4 integrations remain placeholder
-handoffs except for the now-implemented Task 4.1. See [current status](../reports/PHASE1_TO_PHASE4_STATUS.md) and
-[live verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md). This documentation
-review's original documentation-only scope was followed by implementation and
-regression testing; current results are recorded in the linked status report.
-
-## Handoff update (2026-09-30)
-
-Historical September 30 complete regression: **101 passed, 0 failed, 0 skipped**,
-with all optional database/Docker suites enabled. Centralized error handling now sanitizes Mongoose
-validation/cast errors and oversized JSON; HTTP tests verify continued availability.
-See [Phase 1–4 status](../reports/PHASE1_TO_PHASE4_STATUS.md) for task-by-task
-evidence and acceptance requirements. Full workflow completion and PM-authorized
-placeholder handoff are tracked separately.
-
-Under Renz's instruction to prepare placeholders through Phase 4, the
-[Phase 3/4 backend handoff](../handoffs/PHASE3_PHASE4_BACKEND_HANDOFF.md) now maps
-implemented helpers, named integration placeholders and continuation requirements.
-At the September 30 handoff, placeholder services returned ENDPOINT_NOT_READY
-and the audit controller and mutation guard were unmounted. The October 2
-implementation mounted the audit verifier; the mutation guard remains unmounted.
-A reusable strict Joi body-validation middleware is included.
-Focused placeholder/app tests: 10 passed, zero failures/skips. Tasks remain unchecked
-against their original full DoD; placeholder handoff is not live workflow completion.
-Main `c030c77` is merged locally at `4640351`; Decision 007 is approved and the
-listIndexes/PRIMARY-wait fixes are present. The September 30
-[merged deployment smoke test](../reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md)
-passed fresh startup, restricted permissions and real dispatch-to-feed checks.
-Shared deployment, migration and full Task 2.4 acceptance remain pending.
-
-## Historical status (2026-09-25)
-
-See [backend verification status](../reports/BACKEND_VERIFICATION_STATUS.md) for
-historical test evidence and skipped-suite explanations; use the linked
-Phase 1-4 status above for current evidence. Dated updates below are
-historical snapshots; the October 2 implementation review above takes precedence.
-
-- Tasks 1.1, 1.2 and 2.1 remain complete within their documented backend scope.
-- Task 1.3 awaits Markie's actual frontend acceptance; backend mock tests pass.
-- Live triage/assigned feeds and dispatch are implemented; backend integration
-  verifies dispatch-to-feed visibility, isolation, concurrency and rollback.
-- Tasks 2.2/2.3 remain incomplete: notice/graduation policies and approved appeal
-  storage/contracts are outstanding. Task 2.4 awaits shared deployment acceptance.
-- Login timestamp persistence is implemented. Decisions 002/003 are resolved;
-  Decision 006 remains proposed for deployment/index readiness and ownership.
-- All Compose images built and five services started in an isolated clean-commit
-  smoke check. PR #7 is ready for review, not merged or a Phase 2 completion claim.
-- Accounts, sample records and live frontend acceptance remain pending. Local
-  Phase 3 ML client work is uncommitted and excluded from PR #7.
+I'm handing over the current implementation and remaining backend tasks to Renz
+and Charles. See the [backend turnover](../handoffs/BACKEND_TURNOVER.md) for the
+remaining work and [latest verification](../reports/BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
+for test results. The original task criteria and checkboxes below are retained;
+local test results do not complete pending browser or shared-deployment acceptance.
+Task 1.3 remains unchecked until Renz confirms whether real-API acceptance meets
+its mock-client integration criteria.
 
 ## 1. Context & Architecture Summary for Backend
 

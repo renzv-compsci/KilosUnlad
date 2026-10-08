@@ -1,6 +1,10 @@
 # Audit endpoint diagnosis - October 8, 2026
 
 **Author:** Mae Santos - Backend Engineering Lead
+
+> Historical report: results and status refer to the dated baseline below.
+> For current handoff and test status, use the [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+> and [latest verification](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md).
 **Backend tested:** `86f7977` on backend-mae
 **Scope:** Targeted audit/workflow regression and isolated mode/CORS reproduction.
 I could not inspect Markie's running backend, container or browser.
