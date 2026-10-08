@@ -52,6 +52,8 @@ services:
       - UPLOAD_DIR=/app/uploads
       - CORS_ORIGIN=http://localhost:3000,http://localhost
       - APPEAL_WINDOW_DAYS=15
+      - PHASE1_MOCK_MODE=false
+      - JWT_SECRET=super_secret_kilosunlad_jwt_key_2026_dswd_audit
     volumes:
       - upload-data:/app/uploads
     depends_on:
@@ -186,6 +188,40 @@ services:
     volumes:
       - ./data-pipeline:/app
     command: bash -c "pip install --no-cache-dir pymongo && python scripts/verify_compound_index.py"
+    networks:
+      - kilosunlad-network
+    restart: "no"
+
+      # ----------------------------------------------------------------------------
+  # 9. SEED AUDIT (One-Shot Python Service)
+  # ----------------------------------------------------------------------------
+  # Phase 4 Task 4.1 support — seeds a valid audit chain for tamper testing.
+  # Invoke manually via: docker-compose run --rm seed-audit
+  # ----------------------------------------------------------------------------
+  seed-audit:
+    image: python:3.10-slim
+    container_name: kilosunlad-seed-audit
+    working_dir: /app
+    volumes:
+      - ./data-pipeline:/app
+    command: bash -c "pip install --no-cache-dir pymongo && python scripts/seed_audit_chain.py"
+    networks:
+      - kilosunlad-network
+    restart: "no"
+
+      # ----------------------------------------------------------------------------
+  # 10. AUDIT INTEGRITY (One-Shot Python Service)
+  # ----------------------------------------------------------------------------
+  # Phase 4 Task 4.2 — audits 6 collections for orphaned references and
+  # missing natural keys. Invoke: docker-compose run --rm audit-integrity
+  # ----------------------------------------------------------------------------
+  audit-integrity:
+    image: python:3.10-slim
+    container_name: kilosunlad-audit-integrity
+    working_dir: /app
+    volumes:
+      - ./data-pipeline:/app
+    command: bash -c "pip install --no-cache-dir pymongo && python scripts/audit_integrity.py"
     networks:
       - kilosunlad-network
     restart: "no"
