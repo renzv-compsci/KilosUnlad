@@ -35,11 +35,8 @@ remaining tasks to Renz and Charles for continued development and finalization.
 The unfinished workflows are listed below. Their review and acceptance of the
 handoff are still pending.
 
-The announcement targets system and video finalization before October 14, with
-presentation on October 15 or 19 still unconfirmed. The paper is separately due
-October 21. The Friday mentioned in the announcement is October 9 in the current
-week. These dates come from Renz's announcement; confirm any schedule changes
-with him.
+This handoff follows Renz's request to turn over the remaining development tasks
+for system finalization.
 
 Implementation baseline: backend `9e9e3a3`, merged through PR #10 into main at
 `dc55600` on October 6 at 23:36 Manila time. Those commits have identical file
