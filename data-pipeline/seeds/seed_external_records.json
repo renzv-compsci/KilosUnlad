@@ -1,0 +1,1474 @@
+[
+  {
+    "matched_household_id": "SEED-4PS-0001",
+    "national_id": "SEED-NID-0001",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0001",
+      "avg_monthly_kwh": 31.9,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 12.2,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0001",
+      "last_withdrawal_timestamp": "2026-09-01T20:31:55.000Z",
+      "sangla_atm_risk_score": 29
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0002",
+    "national_id": "SEED-NID-0002",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0002",
+      "avg_monthly_kwh": 45.5,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 18.0,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": [
+        {
+          "plate_number": "SEED997",
+          "vehicle_category": "TRICYCLE",
+          "make_model": "Yamaha NMAX 155",
+          "year_model": 2019,
+          "is_commercial_franchise": false
+        }
+      ]
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0002",
+      "last_withdrawal_timestamp": "2026-08-12T20:31:55.000Z",
+      "sangla_atm_risk_score": 4
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0003",
+    "national_id": "SEED-NID-0003",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0003",
+      "avg_monthly_kwh": 20.3,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 24.6,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0003",
+      "last_withdrawal_timestamp": "2026-09-19T20:31:55.000Z",
+      "sangla_atm_risk_score": 15
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0004",
+    "national_id": "SEED-NID-0004",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0004",
+      "avg_monthly_kwh": 33.1,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 13.4,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0004",
+      "last_withdrawal_timestamp": "2026-08-26T20:31:55.000Z",
+      "sangla_atm_risk_score": 19
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0005",
+    "national_id": "SEED-NID-0005",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0005",
+      "avg_monthly_kwh": 118.5,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 17.4,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 2000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0005",
+      "last_withdrawal_timestamp": "2026-08-30T20:31:55.000Z",
+      "sangla_atm_risk_score": 8
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0006",
+    "national_id": "SEED-NID-0006",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0006",
+      "avg_monthly_kwh": 50.2,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 16.2,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0006",
+      "last_withdrawal_timestamp": "2026-10-06T20:31:55.000Z",
+      "sangla_atm_risk_score": 25
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0007",
+    "national_id": "SEED-NID-0007",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0007",
+      "avg_monthly_kwh": 128.5,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 11.5,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0007",
+      "last_withdrawal_timestamp": "2026-09-26T20:31:55.000Z",
+      "sangla_atm_risk_score": 20
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0008",
+    "national_id": "SEED-NID-0008",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0008",
+      "avg_monthly_kwh": 378.4,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 31.6,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0008",
+      "last_withdrawal_timestamp": "2026-10-01T20:31:55.000Z",
+      "sangla_atm_risk_score": 86
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0009",
+    "national_id": "SEED-NID-0009",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0009",
+      "avg_monthly_kwh": 280.4,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 41.2,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 2000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0009",
+      "last_withdrawal_timestamp": "2026-08-27T20:31:55.000Z",
+      "sangla_atm_risk_score": 83
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0010",
+    "national_id": "SEED-NID-0010",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0010",
+      "avg_monthly_kwh": 107.7,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 9.5,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0010",
+      "last_withdrawal_timestamp": "2026-08-12T20:31:55.000Z",
+      "sangla_atm_risk_score": 11
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0011",
+    "national_id": "SEED-NID-0011",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0011",
+      "avg_monthly_kwh": 218.8,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 47.5,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 1500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0011",
+      "last_withdrawal_timestamp": "2026-09-17T20:31:55.000Z",
+      "sangla_atm_risk_score": 90
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0012",
+    "national_id": "SEED-NID-0012",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0012",
+      "avg_monthly_kwh": 394.8,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 36.3,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0012",
+      "last_withdrawal_timestamp": "2026-10-05T20:31:55.000Z",
+      "sangla_atm_risk_score": 43
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0013",
+    "national_id": "SEED-NID-0013",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0013",
+      "avg_monthly_kwh": 43.1,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 16.0,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0013",
+      "last_withdrawal_timestamp": "2026-09-16T20:31:55.000Z",
+      "sangla_atm_risk_score": 13
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0014",
+    "national_id": "SEED-NID-0014",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0014",
+      "avg_monthly_kwh": 289.9,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 35.7,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": [
+        {
+          "plate_number": "SEED531",
+          "vehicle_category": "PASSENGER_4W",
+          "make_model": "Mitsubishi Mirage G4",
+          "year_model": 2019,
+          "is_commercial_franchise": true
+        }
+      ]
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0014",
+      "last_withdrawal_timestamp": "2026-09-04T20:31:55.000Z",
+      "sangla_atm_risk_score": 78
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0015",
+    "national_id": "SEED-NID-0015",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0015",
+      "avg_monthly_kwh": 299.0,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 35.7,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 2000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0015",
+      "last_withdrawal_timestamp": "2026-08-10T20:31:55.000Z",
+      "sangla_atm_risk_score": 87
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0016",
+    "national_id": "SEED-NID-0016",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0016",
+      "avg_monthly_kwh": 68.1,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 20.4,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0016",
+      "last_withdrawal_timestamp": "2026-09-07T20:31:55.000Z",
+      "sangla_atm_risk_score": 26
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0017",
+    "national_id": "SEED-NID-0017",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0017",
+      "avg_monthly_kwh": 202.1,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 26.7,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 1000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0017",
+      "last_withdrawal_timestamp": "2026-09-11T20:31:55.000Z",
+      "sangla_atm_risk_score": 72
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0018",
+    "national_id": "SEED-NID-0018",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0018",
+      "avg_monthly_kwh": 212.1,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 41.2,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 2000
+    },
+    "transport_registry": {
+      "vehicles": [
+        {
+          "plate_number": "SEED894",
+          "vehicle_category": "COMMERCIAL_UV",
+          "make_model": "Yamaha NMAX 155",
+          "year_model": 2016,
+          "is_commercial_franchise": true
+        }
+      ]
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0018",
+      "last_withdrawal_timestamp": "2026-08-23T20:31:55.000Z",
+      "sangla_atm_risk_score": 52
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0019",
+    "national_id": "SEED-NID-0019",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0019",
+      "avg_monthly_kwh": 162.8,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 24.9,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0019",
+      "last_withdrawal_timestamp": "2026-09-22T20:31:55.000Z",
+      "sangla_atm_risk_score": 0
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0020",
+    "national_id": "SEED-NID-0020",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0020",
+      "avg_monthly_kwh": 312.8,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 36.8,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 1000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0020",
+      "last_withdrawal_timestamp": "2026-09-27T20:31:55.000Z",
+      "sangla_atm_risk_score": 52
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0021",
+    "national_id": "SEED-NID-0021",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0021",
+      "avg_monthly_kwh": 259.3,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 27.4,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1000
+    },
+    "transport_registry": {
+      "vehicles": [
+        {
+          "plate_number": "SEED877",
+          "vehicle_category": "TRICYCLE",
+          "make_model": "Mitsubishi Mirage G4",
+          "year_model": 2025,
+          "is_commercial_franchise": false
+        }
+      ]
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0021",
+      "last_withdrawal_timestamp": "2026-09-19T20:31:55.000Z",
+      "sangla_atm_risk_score": 55
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0022",
+    "national_id": "SEED-NID-0022",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0022",
+      "avg_monthly_kwh": 54.1,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 21.0,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 1500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0022",
+      "last_withdrawal_timestamp": "2026-08-14T20:31:55.000Z",
+      "sangla_atm_risk_score": 28
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0023",
+    "national_id": "SEED-NID-0023",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0023",
+      "avg_monthly_kwh": 125.7,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 6.9,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0023",
+      "last_withdrawal_timestamp": "2026-09-19T20:31:55.000Z",
+      "sangla_atm_risk_score": 21
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0024",
+    "national_id": "SEED-NID-0024",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0024",
+      "avg_monthly_kwh": 168.1,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 15.4,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 500
+    },
+    "transport_registry": {
+      "vehicles": [
+        {
+          "plate_number": "SEED489",
+          "vehicle_category": "COMMERCIAL_UV",
+          "make_model": "Mitsubishi Mirage G4",
+          "year_model": 2019,
+          "is_commercial_franchise": false
+        }
+      ]
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0024",
+      "last_withdrawal_timestamp": "2026-09-04T20:31:55.000Z",
+      "sangla_atm_risk_score": 17
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0025",
+    "national_id": "SEED-NID-0025",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0025",
+      "avg_monthly_kwh": 104.3,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 22.2,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0025",
+      "last_withdrawal_timestamp": "2026-09-25T20:31:55.000Z",
+      "sangla_atm_risk_score": 17
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0026",
+    "national_id": "SEED-NID-0026",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0026",
+      "avg_monthly_kwh": 130.3,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 21.0,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0026",
+      "last_withdrawal_timestamp": "2026-08-20T20:31:55.000Z",
+      "sangla_atm_risk_score": 20
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0027",
+    "national_id": "SEED-NID-0027",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0027",
+      "avg_monthly_kwh": 129.9,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 20.9,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 1000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0027",
+      "last_withdrawal_timestamp": "2026-10-05T20:31:55.000Z",
+      "sangla_atm_risk_score": 10
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0028",
+    "national_id": "SEED-NID-0028",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0028",
+      "avg_monthly_kwh": 53.2,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 5.6,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0028",
+      "last_withdrawal_timestamp": "2026-09-12T20:31:55.000Z",
+      "sangla_atm_risk_score": 19
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0029",
+    "national_id": "SEED-NID-0029",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0029",
+      "avg_monthly_kwh": 135.9,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 18.6,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 2000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0029",
+      "last_withdrawal_timestamp": "2026-09-24T20:31:55.000Z",
+      "sangla_atm_risk_score": 23
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0030",
+    "national_id": "SEED-NID-0030",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0030",
+      "avg_monthly_kwh": 295.5,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 47.4,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 2000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0030",
+      "last_withdrawal_timestamp": "2026-08-12T20:31:55.000Z",
+      "sangla_atm_risk_score": 45
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0031",
+    "national_id": "SEED-NID-0031",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0031",
+      "avg_monthly_kwh": 54.4,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 22.9,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0031",
+      "last_withdrawal_timestamp": "2026-08-09T20:31:55.000Z",
+      "sangla_atm_risk_score": 25
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0032",
+    "national_id": "SEED-NID-0032",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0032",
+      "avg_monthly_kwh": 70.8,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 17.9,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 1000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0032",
+      "last_withdrawal_timestamp": "2026-08-18T20:31:55.000Z",
+      "sangla_atm_risk_score": 30
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0033",
+    "national_id": "SEED-NID-0033",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0033",
+      "avg_monthly_kwh": 353.4,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 38.0,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1000
+    },
+    "transport_registry": {
+      "vehicles": [
+        {
+          "plate_number": "SEED115",
+          "vehicle_category": "TRICYCLE",
+          "make_model": "Toyota Vios 1.3",
+          "year_model": 2022,
+          "is_commercial_franchise": true
+        }
+      ]
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0033",
+      "last_withdrawal_timestamp": "2026-08-22T20:31:55.000Z",
+      "sangla_atm_risk_score": 60
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0034",
+    "national_id": "SEED-NID-0034",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0034",
+      "avg_monthly_kwh": 347.7,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 47.8,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 1500
+    },
+    "transport_registry": {
+      "vehicles": [
+        {
+          "plate_number": "SEED803",
+          "vehicle_category": "TRICYCLE",
+          "make_model": "Yamaha NMAX 155",
+          "year_model": 2024,
+          "is_commercial_franchise": true
+        }
+      ]
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0034",
+      "last_withdrawal_timestamp": "2026-09-26T20:31:55.000Z",
+      "sangla_atm_risk_score": 78
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0035",
+    "national_id": "SEED-NID-0035",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0035",
+      "avg_monthly_kwh": 27.7,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 7.1,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0035",
+      "last_withdrawal_timestamp": "2026-08-11T20:31:55.000Z",
+      "sangla_atm_risk_score": 1
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0036",
+    "national_id": "SEED-NID-0036",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0036",
+      "avg_monthly_kwh": 88.4,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "COMMUNAL",
+      "avg_monthly_cu_m": 7.8,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0036",
+      "last_withdrawal_timestamp": "2026-09-20T20:31:55.000Z",
+      "sangla_atm_risk_score": 10
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0037",
+    "national_id": "SEED-NID-0037",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0037",
+      "avg_monthly_kwh": 111.2,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 19.1,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0037",
+      "last_withdrawal_timestamp": "2026-09-14T20:31:55.000Z",
+      "sangla_atm_risk_score": 22
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0038",
+    "national_id": "SEED-NID-0038",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0038",
+      "avg_monthly_kwh": 56.3,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 19.5,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0038",
+      "last_withdrawal_timestamp": "2026-10-05T20:31:55.000Z",
+      "sangla_atm_risk_score": 2
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0039",
+    "national_id": "SEED-NID-0039",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0039",
+      "avg_monthly_kwh": 134.5,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 11.8,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0039",
+      "last_withdrawal_timestamp": "2026-10-04T20:31:55.000Z",
+      "sangla_atm_risk_score": 23
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0040",
+    "national_id": "SEED-NID-0040",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0040",
+      "avg_monthly_kwh": 76.3,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 9.8,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 1500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0040",
+      "last_withdrawal_timestamp": "2026-08-20T20:31:55.000Z",
+      "sangla_atm_risk_score": 1
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0041",
+    "national_id": "SEED-NID-0041",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0041",
+      "avg_monthly_kwh": 96.7,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 18.6,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 2000
+    },
+    "transport_registry": {
+      "vehicles": [
+        {
+          "plate_number": "SEED982",
+          "vehicle_category": "COMMERCIAL_UV",
+          "make_model": "Yamaha NMAX 155",
+          "year_model": 2015,
+          "is_commercial_franchise": false
+        }
+      ]
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0041",
+      "last_withdrawal_timestamp": "2026-08-29T20:31:55.000Z",
+      "sangla_atm_risk_score": 29
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0042",
+    "national_id": "SEED-NID-0042",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0042",
+      "avg_monthly_kwh": 143.8,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 13.8,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0042",
+      "last_withdrawal_timestamp": "2026-09-17T20:31:55.000Z",
+      "sangla_atm_risk_score": 15
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0043",
+    "national_id": "SEED-NID-0043",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0043",
+      "avg_monthly_kwh": 72.9,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 5.5,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 2000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0043",
+      "last_withdrawal_timestamp": "2026-08-15T20:31:55.000Z",
+      "sangla_atm_risk_score": 10
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0044",
+    "national_id": "SEED-NID-0044",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0044",
+      "avg_monthly_kwh": 155.4,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 21.6,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0044",
+      "last_withdrawal_timestamp": "2026-09-06T20:31:55.000Z",
+      "sangla_atm_risk_score": 15
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0045",
+    "national_id": "SEED-NID-0045",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0045",
+      "avg_monthly_kwh": 313.1,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 44.8,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": [
+        {
+          "plate_number": "SEED227",
+          "vehicle_category": "PASSENGER_4W",
+          "make_model": "Mitsubishi Mirage G4",
+          "year_model": 2021,
+          "is_commercial_franchise": false
+        }
+      ]
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0045",
+      "last_withdrawal_timestamp": "2026-09-13T20:31:55.000Z",
+      "sangla_atm_risk_score": 45
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0046",
+    "national_id": "SEED-NID-0046",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0046",
+      "avg_monthly_kwh": 64.6,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 18.7,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0046",
+      "last_withdrawal_timestamp": "2026-08-19T20:31:55.000Z",
+      "sangla_atm_risk_score": 22
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0047",
+    "national_id": "SEED-NID-0047",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0047",
+      "avg_monthly_kwh": 341.0,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "NONE",
+      "avg_monthly_cu_m": 30.9,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 2000
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0047",
+      "last_withdrawal_timestamp": "2026-08-16T20:31:55.000Z",
+      "sangla_atm_risk_score": 40
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0048",
+    "national_id": "SEED-NID-0048",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0048",
+      "avg_monthly_kwh": 122.1,
+      "is_lifeline": false
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 18.6,
+      "is_lifeline": false
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 1500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0048",
+      "last_withdrawal_timestamp": "2026-09-21T20:31:55.000Z",
+      "sangla_atm_risk_score": 5
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0049",
+    "national_id": "SEED-NID-0049",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0049",
+      "avg_monthly_kwh": 93.5,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 10.7,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "POSTPAID",
+      "monthly_plan_php": 1500
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0049",
+      "last_withdrawal_timestamp": "2026-09-06T20:31:55.000Z",
+      "sangla_atm_risk_score": 13
+    }
+  },
+  {
+    "matched_household_id": "SEED-4PS-0050",
+    "national_id": "SEED-NID-0050",
+    "power_utility": {
+      "provider": "Meralco",
+      "meter_no": "SEED-METER-0050",
+      "avg_monthly_kwh": 94.9,
+      "is_lifeline": true
+    },
+    "water_utility": {
+      "provider": "Maynilad",
+      "meter_type": "INDIVIDUAL",
+      "avg_monthly_cu_m": 13.9,
+      "is_lifeline": true
+    },
+    "telecom_registry": {
+      "contract_type": "PREPAID",
+      "monthly_plan_php": 0
+    },
+    "transport_registry": {
+      "vehicles": []
+    },
+    "landbank_telemetry": {
+      "card_masked_pan": "****-****-****-0050",
+      "last_withdrawal_timestamp": "2026-09-24T20:31:55.000Z",
+      "sangla_atm_risk_score": 21
+    }
+  }
+]

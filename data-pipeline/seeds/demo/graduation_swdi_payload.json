@@ -1,0 +1,11 @@
+{
+  "household_id": "DEMO-4PS-GRAD-0001",
+  "demographics": {
+    "household_size": 6,
+    "dependents_ratio": 2.0,
+    "head_education_level": 4,
+    "wall_score": 3,
+    "roof_score": 3,
+    "water_access_level": 3
+  }
+}

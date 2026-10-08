@@ -1,0 +1,26 @@
+{
+  "terminal_id": "ATM-LBP-CAL-03",
+  "terminal_metadata": {
+    "bank_network": "LANDBANK",
+    "location_name": "LBP Calamba Branch - Outside Lobby",
+    "municipality": "Calamba",
+    "province": "Laguna",
+    "coordinates": [121.1578, 14.2110]
+  },
+  "window_start_time": "2026-09-05T02:00:00Z",
+  "window_end_time": "2026-09-05T02:20:00Z",
+  "transactions": [
+    { "transaction_id": "TXN-LBP-990182", "card_masked_pan": "5044-xxxx-xxxx-1201", "household_id": "DEMO-4PS-ATM-0001", "timestamp": "2026-09-05T02:14:10Z", "amount_php": 4000.00 },
+    { "transaction_id": "TXN-LBP-990183", "card_masked_pan": "5044-xxxx-xxxx-8842", "household_id": "DEMO-4PS-ATM-0002", "timestamp": "2026-09-05T02:14:48Z", "amount_php": 3500.00 },
+    { "transaction_id": "TXN-LBP-990184", "card_masked_pan": "5044-xxxx-xxxx-7129", "household_id": "DEMO-4PS-ATM-0003", "timestamp": "2026-09-05T02:15:26Z", "amount_php": 5000.00 },
+    { "transaction_id": "TXN-LBP-990185", "card_masked_pan": "5044-xxxx-xxxx-4466", "household_id": "DEMO-4PS-ATM-0004", "timestamp": "2026-09-05T02:16:04Z", "amount_php": 3000.00 },
+    { "transaction_id": "TXN-LBP-990186", "card_masked_pan": "5044-xxxx-xxxx-9933", "household_id": "DEMO-4PS-ATM-0005", "timestamp": "2026-09-05T02:16:42Z", "amount_php": 4500.00 },
+    { "transaction_id": "TXN-LBP-990187", "card_masked_pan": "5044-xxxx-xxxx-2277", "household_id": "DEMO-4PS-ATM-0006", "timestamp": "2026-09-05T02:17:20Z", "amount_php": 4000.00 },
+    { "transaction_id": "TXN-LBP-990188", "card_masked_pan": "5044-xxxx-xxxx-5588", "household_id": "DEMO-4PS-ATM-0007", "timestamp": "2026-09-05T02:17:58Z", "amount_php": 3500.00 },
+    { "transaction_id": "TXN-LBP-990189", "card_masked_pan": "5044-xxxx-xxxx-3311", "household_id": "DEMO-4PS-ATM-0008", "timestamp": "2026-09-05T02:18:36Z", "amount_php": 5000.00 },
+    { "transaction_id": "TXN-LBP-990190", "card_masked_pan": "5044-xxxx-xxxx-8899", "household_id": "DEMO-4PS-ATM-0009", "timestamp": "2026-09-05T02:19:14Z", "amount_php": 4200.00 },
+    { "transaction_id": "TXN-LBP-990191", "card_masked_pan": "5044-xxxx-xxxx-6644", "household_id": "DEMO-4PS-ATM-0010", "timestamp": "2026-09-05T02:19:52Z", "amount_php": 3800.00 },
+    { "transaction_id": "TXN-LBP-990192", "card_masked_pan": "5044-xxxx-xxxx-1122", "household_id": "DEMO-4PS-ATM-0011", "timestamp": "2026-09-05T02:20:30Z", "amount_php": 4000.00 },
+    { "transaction_id": "TXN-LBP-990193", "card_masked_pan": "5044-xxxx-xxxx-7755", "household_id": "DEMO-4PS-ATM-0012", "timestamp": "2026-09-05T02:21:08Z", "amount_php": 4400.00 }
+  ]
+}

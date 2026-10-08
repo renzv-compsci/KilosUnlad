@@ -52,6 +52,8 @@ services:
       - UPLOAD_DIR=/app/uploads
       - CORS_ORIGIN=http://localhost:3000,http://localhost
       - APPEAL_WINDOW_DAYS=15
+      - PHASE1_MOCK_MODE=false
+      - JWT_SECRET=super_secret_kilosunlad_jwt_key_2026_dswd_audit
     volumes:
       - upload-data:/app/uploads
     depends_on:
@@ -150,6 +152,94 @@ services:
         done;
         echo "Replica set is PRIMARY. Done.";
       '
+    networks:
+      - kilosunlad-network
+    restart: "no"
+
+    # ----------------------------------------------------------------------------
+  # 7. SEED INGEST (One-Shot Python Service)
+  # ----------------------------------------------------------------------------
+  # Runs Phase 3 Task 3.1 — ingests seed JSON files into MongoDB.
+  # Invoked manually via: docker-compose run seed-ingest
+  # Reads from ./data-pipeline/seeds/, connects to db:27017 over the
+  # kilosunlad-network with the app_user account.
+  # ----------------------------------------------------------------------------
+  seed-ingest:
+    image: python:3.10-slim
+    container_name: kilosunlad-seed-ingest
+    working_dir: /app
+    volumes:
+      - ./data-pipeline:/app
+    command: bash -c "pip install --no-cache-dir pymongo && python scripts/seed_db.py"
+    networks:
+      - kilosunlad-network
+    restart: "no"
+
+      # ----------------------------------------------------------------------------
+  # 8. SEED VERIFY (One-Shot Python Service)
+  # ----------------------------------------------------------------------------
+  # Phase 3 Task 3.2 — verifies the compound index is used by the triage query.
+  # Invoke manually via: docker-compose run --rm seed-verify
+  # ----------------------------------------------------------------------------
+  seed-verify:
+    image: python:3.10-slim
+    container_name: kilosunlad-seed-verify
+    working_dir: /app
+    volumes:
+      - ./data-pipeline:/app
+    command: bash -c "pip install --no-cache-dir pymongo && python scripts/verify_compound_index.py"
+    networks:
+      - kilosunlad-network
+    restart: "no"
+
+      # ----------------------------------------------------------------------------
+  # 9. SEED AUDIT (One-Shot Python Service)
+  # ----------------------------------------------------------------------------
+  # Phase 4 Task 4.1 support — seeds a valid audit chain for tamper testing.
+  # Invoke manually via: docker-compose run --rm seed-audit
+  # ----------------------------------------------------------------------------
+  seed-audit:
+    image: python:3.10-slim
+    container_name: kilosunlad-seed-audit
+    working_dir: /app
+    volumes:
+      - ./data-pipeline:/app
+    command: bash -c "pip install --no-cache-dir pymongo && python scripts/seed_audit_chain.py"
+    networks:
+      - kilosunlad-network
+    restart: "no"
+
+      # ----------------------------------------------------------------------------
+  # 10. AUDIT INTEGRITY (One-Shot Python Service)
+  # ----------------------------------------------------------------------------
+  # Phase 4 Task 4.2 — audits 6 collections for orphaned references and
+  # missing natural keys. Invoke: docker-compose run --rm audit-integrity
+  # ----------------------------------------------------------------------------
+  audit-integrity:
+    image: python:3.10-slim
+    container_name: kilosunlad-audit-integrity
+    working_dir: /app
+    volumes:
+      - ./data-pipeline:/app
+    command: bash -c "pip install --no-cache-dir pymongo && python scripts/audit_integrity.py"
+    networks:
+      - kilosunlad-network
+    restart: "no"
+
+     # ----------------------------------------------------------------------------
+  # 11. RESET DEMO (One-Shot Service)
+  # ----------------------------------------------------------------------------
+  # Phase 5 Task 5.1 — wipes DB, recreates indexes, re-seeds demo data.
+  # Invoke: docker-compose run --rm reset-demo
+  # ----------------------------------------------------------------------------
+  reset-demo:
+    image: docker:cli
+    container_name: kilosunlad-reset-demo
+    working_dir: /workspace
+    volumes:
+      - ./data-pipeline:/workspace/data-pipeline
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: sh /workspace/data-pipeline/scripts/reset_demo.sh
     networks:
       - kilosunlad-network
     restart: "no"

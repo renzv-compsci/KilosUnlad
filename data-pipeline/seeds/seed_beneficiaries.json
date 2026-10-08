@@ -1,0 +1,2738 @@
+[
+  {
+    "household_id": "SEED-4PS-0001",
+    "head_of_household": {
+      "first_name": "Hector",
+      "last_name": "Marquez",
+      "national_id": "SEED-NID-0001",
+      "contact_phone": "+639178838255"
+    },
+    "address": {
+      "street": "Purok 1",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1705,
+          14.2124
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 13,
+      "dependents_ratio": 0.36,
+      "head_education_level": 1,
+      "wall_score": 2,
+      "roof_score": 2,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2020-11-23T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2011-07-04T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 18,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0002",
+    "head_of_household": {
+      "first_name": "Josefa",
+      "last_name": "Salazar",
+      "national_id": "SEED-NID-0002",
+      "contact_phone": "+639179860348"
+    },
+    "address": {
+      "street": "Purok 10",
+      "barangay": "Palingon",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1612,
+          14.2149
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 3,
+      "dependents_ratio": 0.32,
+      "head_education_level": 2,
+      "wall_score": 1,
+      "roof_score": 1,
+      "water_access_level": 3
+    },
+    "children_registry": [
+      {
+        "birthdate": "2015-01-01T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2020-06-03T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2020-08-03T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 36,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0003",
+    "head_of_household": {
+      "first_name": "Angela",
+      "last_name": "Gonzales",
+      "national_id": "SEED-NID-0003",
+      "contact_phone": "+639171457037"
+    },
+    "address": {
+      "street": "Purok 2",
+      "barangay": "Palingon",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.167,
+          14.2096
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 17,
+      "dependents_ratio": 0.85,
+      "head_education_level": 0,
+      "wall_score": 2,
+      "roof_score": 1,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2020-01-07T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2020-02-01T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "GRADUATED",
+    "risk_assessment": {
+      "composite_risk_score": 10,
+      "is_flagged": false,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0004",
+    "head_of_household": {
+      "first_name": "Teresa",
+      "last_name": "Marquez",
+      "national_id": "SEED-NID-0004",
+      "contact_phone": "+639174175181"
+    },
+    "address": {
+      "street": "Purok 8",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1714,
+          14.2118
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 10,
+      "dependents_ratio": 0.27,
+      "head_education_level": 1,
+      "wall_score": 1,
+      "roof_score": 1,
+      "water_access_level": 3
+    },
+    "children_registry": [
+      {
+        "birthdate": "2013-02-19T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2020-06-02T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 24,
+      "is_flagged": false,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0005",
+    "head_of_household": {
+      "first_name": "Jorge",
+      "last_name": "Torres",
+      "national_id": "SEED-NID-0005",
+      "contact_phone": "+639176140162"
+    },
+    "address": {
+      "street": "Purok 10",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.181,
+          14.215
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 2,
+      "dependents_ratio": 0.72,
+      "head_education_level": 0,
+      "wall_score": 3,
+      "roof_score": 1,
+      "water_access_level": 1
+    },
+    "children_registry": [],
+    "enrolled_swdi_level": 3,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 26,
+      "is_flagged": false,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0006",
+    "head_of_household": {
+      "first_name": "Felipe",
+      "last_name": "Bautista",
+      "national_id": "SEED-NID-0006",
+      "contact_phone": "+639174507927"
+    },
+    "address": {
+      "street": "Purok 5",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.171,
+          14.2145
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 17,
+      "dependents_ratio": 0.74,
+      "head_education_level": 1,
+      "wall_score": 3,
+      "roof_score": 1,
+      "water_access_level": 3
+    },
+    "children_registry": [
+      {
+        "birthdate": "2011-03-26T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2020-07-28T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 14,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0007",
+    "head_of_household": {
+      "first_name": "Lucia",
+      "last_name": "Aguilar",
+      "national_id": "SEED-NID-0007",
+      "contact_phone": "+639175865672"
+    },
+    "address": {
+      "street": "Purok 3",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1814,
+          14.2196
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 2,
+      "dependents_ratio": 0.07,
+      "head_education_level": 3,
+      "wall_score": 1,
+      "roof_score": 1,
+      "water_access_level": 3
+    },
+    "children_registry": [],
+    "enrolled_swdi_level": 3,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 13,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0008",
+    "head_of_household": {
+      "first_name": "Manuel",
+      "last_name": "Aguilar",
+      "national_id": "SEED-NID-0008",
+      "contact_phone": "+639177495849"
+    },
+    "address": {
+      "street": "Purok 5",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1875,
+          14.2168
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 1,
+      "dependents_ratio": 0.48,
+      "head_education_level": 3,
+      "wall_score": 1,
+      "roof_score": 3,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2011-08-20T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "NOTICE_OF_INELIGIBILITY",
+    "risk_assessment": {
+      "composite_risk_score": 67,
+      "is_flagged": true,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [
+        "Maynilad > 25 cu.m"
+      ],
+      "trigger_badges": [
+        {
+          "code": "WATER_LIFELINE_BREACH",
+          "label": "Maynilad > 25 cu.m",
+          "severity": "MEDIUM"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0009",
+    "head_of_household": {
+      "first_name": "Oscar",
+      "last_name": "Cruz",
+      "national_id": "SEED-NID-0009",
+      "contact_phone": "+639173237193"
+    },
+    "address": {
+      "street": "Purok 3",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1874,
+          14.2222
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 13,
+      "dependents_ratio": 0.34,
+      "head_education_level": 2,
+      "wall_score": 1,
+      "roof_score": 1,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2020-05-22T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2019-03-21T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "UNDER_INVESTIGATION",
+    "risk_assessment": {
+      "composite_risk_score": 71,
+      "is_flagged": true,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [
+        "AI Predicted Level 3",
+        "Maynilad > 25 cu.m"
+      ],
+      "trigger_badges": [
+        {
+          "code": "TIER_INVERSION",
+          "label": "AI Predicted Level 3",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "WATER_LIFELINE_BREACH",
+          "label": "Maynilad > 25 cu.m",
+          "severity": "MEDIUM"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0010",
+    "head_of_household": {
+      "first_name": "Liza",
+      "last_name": "Lopez",
+      "national_id": "SEED-NID-0010",
+      "contact_phone": "+639177709190"
+    },
+    "address": {
+      "street": "Purok 7",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1794,
+          14.218
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 15,
+      "dependents_ratio": 0.59,
+      "head_education_level": 3,
+      "wall_score": 3,
+      "roof_score": 2,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2015-05-09T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2011-07-06T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2012-07-01T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 16,
+      "is_flagged": false,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0011",
+    "head_of_household": {
+      "first_name": "Marta",
+      "last_name": "Flores",
+      "national_id": "SEED-NID-0011",
+      "contact_phone": "+639178285227"
+    },
+    "address": {
+      "street": "Purok 9",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1826,
+          14.219
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 2,
+      "dependents_ratio": 0.55,
+      "head_education_level": 0,
+      "wall_score": 1,
+      "roof_score": 3,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2019-10-21T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2017-07-13T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2009-06-14T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "FLAGGED_FOR_REVIEW",
+    "risk_assessment": {
+      "composite_risk_score": 82,
+      "is_flagged": true,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [
+        "Registered Motorcycle",
+        "Sangla-ATM cluster detected",
+        "Maynilad > 25 cu.m"
+      ],
+      "trigger_badges": [
+        {
+          "code": "LTO_VEHICLE_MATCH",
+          "label": "Registered Motorcycle",
+          "severity": "MEDIUM"
+        },
+        {
+          "code": "SANGLA_ATM_PATTERN",
+          "label": "Sangla-ATM cluster detected",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "WATER_LIFELINE_BREACH",
+          "label": "Maynilad > 25 cu.m",
+          "severity": "MEDIUM"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0012",
+    "head_of_household": {
+      "first_name": "Carmen",
+      "last_name": "Lopez",
+      "national_id": "SEED-NID-0012",
+      "contact_phone": "+639172910115"
+    },
+    "address": {
+      "street": "Purok 7",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.173,
+          14.2164
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 20,
+      "dependents_ratio": 0.46,
+      "head_education_level": 2,
+      "wall_score": 1,
+      "roof_score": 1,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2008-08-05T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "UNDER_INVESTIGATION",
+    "risk_assessment": {
+      "composite_risk_score": 71,
+      "is_flagged": true,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [
+        "AI Predicted Level 3"
+      ],
+      "trigger_badges": [
+        {
+          "code": "TIER_INVERSION",
+          "label": "AI Predicted Level 3",
+          "severity": "CRITICAL"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0013",
+    "head_of_household": {
+      "first_name": "Emilio",
+      "last_name": "Santos",
+      "national_id": "SEED-NID-0013",
+      "contact_phone": "+639177756740"
+    },
+    "address": {
+      "street": "Purok 10",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1861,
+          14.2191
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 5,
+      "dependents_ratio": 0.06,
+      "head_education_level": 3,
+      "wall_score": 2,
+      "roof_score": 1,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2009-05-14T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 16,
+      "is_flagged": false,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0014",
+    "head_of_household": {
+      "first_name": "Rosa",
+      "last_name": "Fernandez",
+      "national_id": "SEED-NID-0014",
+      "contact_phone": "+639175328504"
+    },
+    "address": {
+      "street": "Purok 10",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1707,
+          14.2105
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 8,
+      "dependents_ratio": 0.9,
+      "head_education_level": 0,
+      "wall_score": 1,
+      "roof_score": 3,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2017-08-19T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2018-05-04T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2011-11-13T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2009-08-22T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "FLAGGED_FOR_REVIEW",
+    "risk_assessment": {
+      "composite_risk_score": 81,
+      "is_flagged": true,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [
+        "AI Predicted Level 3",
+        "Sangla-ATM cluster detected",
+        "Meralco > 200 kWh"
+      ],
+      "trigger_badges": [
+        {
+          "code": "TIER_INVERSION",
+          "label": "AI Predicted Level 3",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "SANGLA_ATM_PATTERN",
+          "label": "Sangla-ATM cluster detected",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "POWER_LIFELINE_BREACH",
+          "label": "Meralco > 200 kWh",
+          "severity": "HIGH"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0015",
+    "head_of_household": {
+      "first_name": "Liza",
+      "last_name": "Castillo",
+      "national_id": "SEED-NID-0015",
+      "contact_phone": "+639173632499"
+    },
+    "address": {
+      "street": "Purok 3",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1775,
+          14.2147
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 16,
+      "dependents_ratio": 0.84,
+      "head_education_level": 1,
+      "wall_score": 1,
+      "roof_score": 1,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2016-10-25T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "FLAGGED_FOR_REVIEW",
+    "risk_assessment": {
+      "composite_risk_score": 76,
+      "is_flagged": true,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [
+        "Registered Motorcycle",
+        "AI Predicted Level 3",
+        "Sangla-ATM cluster detected"
+      ],
+      "trigger_badges": [
+        {
+          "code": "LTO_VEHICLE_MATCH",
+          "label": "Registered Motorcycle",
+          "severity": "MEDIUM"
+        },
+        {
+          "code": "TIER_INVERSION",
+          "label": "AI Predicted Level 3",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "SANGLA_ATM_PATTERN",
+          "label": "Sangla-ATM cluster detected",
+          "severity": "CRITICAL"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0016",
+    "head_of_household": {
+      "first_name": "Alberto",
+      "last_name": "Flores",
+      "national_id": "SEED-NID-0016",
+      "contact_phone": "+639171560310"
+    },
+    "address": {
+      "street": "Purok 2",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1727,
+          14.2111
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 3,
+      "dependents_ratio": 0.72,
+      "head_education_level": 2,
+      "wall_score": 1,
+      "roof_score": 3,
+      "water_access_level": 3
+    },
+    "children_registry": [
+      {
+        "birthdate": "2014-12-14T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2009-08-04T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2010-04-11T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "GRADUATED",
+    "risk_assessment": {
+      "composite_risk_score": 5,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0017",
+    "head_of_household": {
+      "first_name": "Carmen",
+      "last_name": "Domingo",
+      "national_id": "SEED-NID-0017",
+      "contact_phone": "+639176628426"
+    },
+    "address": {
+      "street": "Purok 10",
+      "barangay": "Palingon",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1644,
+          14.2157
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 15,
+      "dependents_ratio": 0.13,
+      "head_education_level": 2,
+      "wall_score": 3,
+      "roof_score": 1,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2016-07-05T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2018-11-13T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2017-12-18T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2020-01-01T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "FLAGGED_FOR_REVIEW",
+    "risk_assessment": {
+      "composite_risk_score": 65,
+      "is_flagged": true,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [
+        "Meralco > 200 kWh"
+      ],
+      "trigger_badges": [
+        {
+          "code": "POWER_LIFELINE_BREACH",
+          "label": "Meralco > 200 kWh",
+          "severity": "HIGH"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0018",
+    "head_of_household": {
+      "first_name": "Patricia",
+      "last_name": "Aguilar",
+      "national_id": "SEED-NID-0018",
+      "contact_phone": "+639174668338"
+    },
+    "address": {
+      "street": "Purok 6",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1751,
+          14.2167
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 5,
+      "dependents_ratio": 0.87,
+      "head_education_level": 1,
+      "wall_score": 1,
+      "roof_score": 3,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2013-08-23T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2014-10-17T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2018-05-09T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2009-01-05T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "FLAGGED_FOR_REVIEW",
+    "risk_assessment": {
+      "composite_risk_score": 93,
+      "is_flagged": true,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [
+        "Meralco > 200 kWh",
+        "AI Predicted Level 3",
+        "Maynilad > 25 cu.m"
+      ],
+      "trigger_badges": [
+        {
+          "code": "POWER_LIFELINE_BREACH",
+          "label": "Meralco > 200 kWh",
+          "severity": "HIGH"
+        },
+        {
+          "code": "TIER_INVERSION",
+          "label": "AI Predicted Level 3",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "WATER_LIFELINE_BREACH",
+          "label": "Maynilad > 25 cu.m",
+          "severity": "MEDIUM"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0019",
+    "head_of_household": {
+      "first_name": "Fernando",
+      "last_name": "Roxas",
+      "national_id": "SEED-NID-0019",
+      "contact_phone": "+639173523302"
+    },
+    "address": {
+      "street": "Purok 3",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1791,
+          14.2122
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 13,
+      "dependents_ratio": 0.48,
+      "head_education_level": 1,
+      "wall_score": 2,
+      "roof_score": 1,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2010-04-25T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2011-08-26T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2019-01-08T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2017-04-15T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 9,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0020",
+    "head_of_household": {
+      "first_name": "Rafael",
+      "last_name": "Dela Cruz",
+      "national_id": "SEED-NID-0020",
+      "contact_phone": "+639177049380"
+    },
+    "address": {
+      "street": "Purok 3",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1756,
+          14.2161
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 17,
+      "dependents_ratio": 0.37,
+      "head_education_level": 2,
+      "wall_score": 1,
+      "roof_score": 2,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2018-07-17T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2017-06-15T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2010-04-22T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2020-12-22T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "UNDER_INVESTIGATION",
+    "risk_assessment": {
+      "composite_risk_score": 67,
+      "is_flagged": true,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [
+        "Maynilad > 25 cu.m"
+      ],
+      "trigger_badges": [
+        {
+          "code": "WATER_LIFELINE_BREACH",
+          "label": "Maynilad > 25 cu.m",
+          "severity": "MEDIUM"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0021",
+    "head_of_household": {
+      "first_name": "Rafael",
+      "last_name": "Marquez",
+      "national_id": "SEED-NID-0021",
+      "contact_phone": "+639179658500"
+    },
+    "address": {
+      "street": "Purok 2",
+      "barangay": "Palingon",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1668,
+          14.2091
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 5,
+      "dependents_ratio": 0.86,
+      "head_education_level": 1,
+      "wall_score": 1,
+      "roof_score": 3,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2011-11-28T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "FLAGGED_FOR_REVIEW",
+    "risk_assessment": {
+      "composite_risk_score": 95,
+      "is_flagged": true,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [
+        "Meralco > 200 kWh",
+        "Sangla-ATM cluster detected",
+        "Maynilad > 25 cu.m"
+      ],
+      "trigger_badges": [
+        {
+          "code": "POWER_LIFELINE_BREACH",
+          "label": "Meralco > 200 kWh",
+          "severity": "HIGH"
+        },
+        {
+          "code": "SANGLA_ATM_PATTERN",
+          "label": "Sangla-ATM cluster detected",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "WATER_LIFELINE_BREACH",
+          "label": "Maynilad > 25 cu.m",
+          "severity": "MEDIUM"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0022",
+    "head_of_household": {
+      "first_name": "Ruben",
+      "last_name": "Lopez",
+      "national_id": "SEED-NID-0022",
+      "contact_phone": "+639172397848"
+    },
+    "address": {
+      "street": "Purok 5",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1846,
+          14.2163
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 14,
+      "dependents_ratio": 0.09,
+      "head_education_level": 3,
+      "wall_score": 3,
+      "roof_score": 1,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2011-08-21T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2016-05-02T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2009-09-01T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2016-01-13T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 10,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0023",
+    "head_of_household": {
+      "first_name": "Amelia",
+      "last_name": "Salazar",
+      "national_id": "SEED-NID-0023",
+      "contact_phone": "+639178456845"
+    },
+    "address": {
+      "street": "Purok 10",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1853,
+          14.2195
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 10,
+      "dependents_ratio": 0.89,
+      "head_education_level": 0,
+      "wall_score": 1,
+      "roof_score": 1,
+      "water_access_level": 3
+    },
+    "children_registry": [],
+    "enrolled_swdi_level": 2,
+    "program_status": "GRADUATED",
+    "risk_assessment": {
+      "composite_risk_score": 23,
+      "is_flagged": false,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0024",
+    "head_of_household": {
+      "first_name": "Alberto",
+      "last_name": "Roxas",
+      "national_id": "SEED-NID-0024",
+      "contact_phone": "+639176852161"
+    },
+    "address": {
+      "street": "Purok 10",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1808,
+          14.2194
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 3,
+      "dependents_ratio": 0.8,
+      "head_education_level": 2,
+      "wall_score": 3,
+      "roof_score": 3,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2009-04-22T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2016-08-11T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2012-03-03T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "CALAMITY_SUSPENDED",
+    "risk_assessment": {
+      "composite_risk_score": 24,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0025",
+    "head_of_household": {
+      "first_name": "Jorge",
+      "last_name": "Domingo",
+      "national_id": "SEED-NID-0025",
+      "contact_phone": "+639171864680"
+    },
+    "address": {
+      "street": "Purok 2",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1751,
+          14.2138
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 19,
+      "dependents_ratio": 0.94,
+      "head_education_level": 3,
+      "wall_score": 3,
+      "roof_score": 2,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2016-02-11T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2011-11-03T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2008-05-20T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 8,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0026",
+    "head_of_household": {
+      "first_name": "Beatriz",
+      "last_name": "Bautista",
+      "national_id": "SEED-NID-0026",
+      "contact_phone": "+639175802453"
+    },
+    "address": {
+      "street": "Purok 2",
+      "barangay": "Palingon",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1686,
+          14.2078
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 9,
+      "dependents_ratio": 0.78,
+      "head_education_level": 4,
+      "wall_score": 2,
+      "roof_score": 3,
+      "water_access_level": 3
+    },
+    "children_registry": [
+      {
+        "birthdate": "2010-06-03T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2011-08-05T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 14,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0027",
+    "head_of_household": {
+      "first_name": "Fernando",
+      "last_name": "Lopez",
+      "national_id": "SEED-NID-0027",
+      "contact_phone": "+639174984737"
+    },
+    "address": {
+      "street": "Purok 5",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1773,
+          14.2196
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 18,
+      "dependents_ratio": 0.48,
+      "head_education_level": 1,
+      "wall_score": 3,
+      "roof_score": 2,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2009-02-20T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2020-06-02T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 19,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0028",
+    "head_of_household": {
+      "first_name": "Andres",
+      "last_name": "Aguilar",
+      "national_id": "SEED-NID-0028",
+      "contact_phone": "+639174552635"
+    },
+    "address": {
+      "street": "Purok 9",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1735,
+          14.2117
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 11,
+      "dependents_ratio": 0.07,
+      "head_education_level": 0,
+      "wall_score": 2,
+      "roof_score": 1,
+      "water_access_level": 1
+    },
+    "children_registry": [],
+    "enrolled_swdi_level": 2,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 15,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0029",
+    "head_of_household": {
+      "first_name": "Elena",
+      "last_name": "Rivera",
+      "national_id": "SEED-NID-0029",
+      "contact_phone": "+639173054810"
+    },
+    "address": {
+      "street": "Purok 6",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1888,
+          14.2236
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 7,
+      "dependents_ratio": 0.18,
+      "head_education_level": 4,
+      "wall_score": 1,
+      "roof_score": 2,
+      "water_access_level": 1
+    },
+    "children_registry": [],
+    "enrolled_swdi_level": 3,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 34,
+      "is_flagged": false,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0030",
+    "head_of_household": {
+      "first_name": "Ramon",
+      "last_name": "Dela Cruz",
+      "national_id": "SEED-NID-0030",
+      "contact_phone": "+639176495531"
+    },
+    "address": {
+      "street": "Purok 6",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1773,
+          14.2177
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 14,
+      "dependents_ratio": 0.41,
+      "head_education_level": 0,
+      "wall_score": 3,
+      "roof_score": 3,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2009-08-15T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2012-10-13T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2019-06-05T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2014-10-08T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "UNDER_INVESTIGATION",
+    "risk_assessment": {
+      "composite_risk_score": 67,
+      "is_flagged": true,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [
+        "AI Predicted Level 3",
+        "Maynilad > 25 cu.m",
+        "Sangla-ATM cluster detected"
+      ],
+      "trigger_badges": [
+        {
+          "code": "TIER_INVERSION",
+          "label": "AI Predicted Level 3",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "WATER_LIFELINE_BREACH",
+          "label": "Maynilad > 25 cu.m",
+          "severity": "MEDIUM"
+        },
+        {
+          "code": "SANGLA_ATM_PATTERN",
+          "label": "Sangla-ATM cluster detected",
+          "severity": "CRITICAL"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0031",
+    "head_of_household": {
+      "first_name": "Mercedes",
+      "last_name": "Ramos",
+      "national_id": "SEED-NID-0031",
+      "contact_phone": "+639177568388"
+    },
+    "address": {
+      "street": "Purok 3",
+      "barangay": "Palingon",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1641,
+          14.2157
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 18,
+      "dependents_ratio": 0.42,
+      "head_education_level": 0,
+      "wall_score": 2,
+      "roof_score": 2,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2019-10-05T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2016-03-06T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2016-11-17T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2013-09-09T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 11,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0032",
+    "head_of_household": {
+      "first_name": "Andres",
+      "last_name": "Domingo",
+      "national_id": "SEED-NID-0032",
+      "contact_phone": "+639178569084"
+    },
+    "address": {
+      "street": "Purok 2",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1717,
+          14.2114
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 15,
+      "dependents_ratio": 0.22,
+      "head_education_level": 2,
+      "wall_score": 1,
+      "roof_score": 1,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2014-09-26T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2008-12-15T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2016-08-15T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2020-07-27T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 11,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0033",
+    "head_of_household": {
+      "first_name": "Carmen",
+      "last_name": "Fernandez",
+      "national_id": "SEED-NID-0033",
+      "contact_phone": "+639175605075"
+    },
+    "address": {
+      "street": "Purok 4",
+      "barangay": "Palingon",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1643,
+          14.2095
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 19,
+      "dependents_ratio": 0.46,
+      "head_education_level": 3,
+      "wall_score": 2,
+      "roof_score": 3,
+      "water_access_level": 2
+    },
+    "children_registry": [],
+    "enrolled_swdi_level": 1,
+    "program_status": "FLAGGED_FOR_REVIEW",
+    "risk_assessment": {
+      "composite_risk_score": 95,
+      "is_flagged": true,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [
+        "AI Predicted Level 3",
+        "Sangla-ATM cluster detected"
+      ],
+      "trigger_badges": [
+        {
+          "code": "TIER_INVERSION",
+          "label": "AI Predicted Level 3",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "SANGLA_ATM_PATTERN",
+          "label": "Sangla-ATM cluster detected",
+          "severity": "CRITICAL"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0034",
+    "head_of_household": {
+      "first_name": "Amelia",
+      "last_name": "Reyes",
+      "national_id": "SEED-NID-0034",
+      "contact_phone": "+639178341440"
+    },
+    "address": {
+      "street": "Purok 1",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1864,
+          14.2174
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 13,
+      "dependents_ratio": 0.47,
+      "head_education_level": 3,
+      "wall_score": 2,
+      "roof_score": 1,
+      "water_access_level": 3
+    },
+    "children_registry": [
+      {
+        "birthdate": "2012-07-16T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2009-02-10T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2019-10-02T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "FLAGGED_FOR_REVIEW",
+    "risk_assessment": {
+      "composite_risk_score": 84,
+      "is_flagged": true,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [
+        "Registered Motorcycle",
+        "Maynilad > 25 cu.m"
+      ],
+      "trigger_badges": [
+        {
+          "code": "LTO_VEHICLE_MATCH",
+          "label": "Registered Motorcycle",
+          "severity": "MEDIUM"
+        },
+        {
+          "code": "WATER_LIFELINE_BREACH",
+          "label": "Maynilad > 25 cu.m",
+          "severity": "MEDIUM"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0035",
+    "head_of_household": {
+      "first_name": "Sergio",
+      "last_name": "Gonzales",
+      "national_id": "SEED-NID-0035",
+      "contact_phone": "+639177274479"
+    },
+    "address": {
+      "street": "Purok 3",
+      "barangay": "Palingon",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1692,
+          14.209
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 14,
+      "dependents_ratio": 0.41,
+      "head_education_level": 4,
+      "wall_score": 1,
+      "roof_score": 3,
+      "water_access_level": 3
+    },
+    "children_registry": [
+      {
+        "birthdate": "2010-05-20T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2020-06-22T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "CALAMITY_SUSPENDED",
+    "risk_assessment": {
+      "composite_risk_score": 18,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0036",
+    "head_of_household": {
+      "first_name": "Arturo",
+      "last_name": "Ramos",
+      "national_id": "SEED-NID-0036",
+      "contact_phone": "+639172866735"
+    },
+    "address": {
+      "street": "Purok 4",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1786,
+          14.2142
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 16,
+      "dependents_ratio": 0.25,
+      "head_education_level": 2,
+      "wall_score": 3,
+      "roof_score": 1,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2014-08-11T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2014-10-05T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2011-10-13T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 10,
+      "is_flagged": false,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0037",
+    "head_of_household": {
+      "first_name": "Oscar",
+      "last_name": "Reyes",
+      "national_id": "SEED-NID-0037",
+      "contact_phone": "+639174021441"
+    },
+    "address": {
+      "street": "Purok 7",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1779,
+          14.2127
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 10,
+      "dependents_ratio": 0.73,
+      "head_education_level": 4,
+      "wall_score": 2,
+      "roof_score": 1,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2012-08-01T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 28,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0038",
+    "head_of_household": {
+      "first_name": "Pedro",
+      "last_name": "Mendoza",
+      "national_id": "SEED-NID-0038",
+      "contact_phone": "+639174436704"
+    },
+    "address": {
+      "street": "Purok 1",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1753,
+          14.2186
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 16,
+      "dependents_ratio": 0.12,
+      "head_education_level": 4,
+      "wall_score": 2,
+      "roof_score": 3,
+      "water_access_level": 3
+    },
+    "children_registry": [
+      {
+        "birthdate": "2010-05-13T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2013-07-03T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 23,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0039",
+    "head_of_household": {
+      "first_name": "Emilio",
+      "last_name": "Roxas",
+      "national_id": "SEED-NID-0039",
+      "contact_phone": "+639172183677"
+    },
+    "address": {
+      "street": "Purok 9",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1705,
+          14.2166
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 15,
+      "dependents_ratio": 0.17,
+      "head_education_level": 1,
+      "wall_score": 2,
+      "roof_score": 1,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2011-09-04T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2009-12-23T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2011-01-17T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 9,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0040",
+    "head_of_household": {
+      "first_name": "Fernando",
+      "last_name": "Reyes",
+      "national_id": "SEED-NID-0040",
+      "contact_phone": "+639179013102"
+    },
+    "address": {
+      "street": "Purok 3",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1881,
+          14.2188
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 6,
+      "dependents_ratio": 0.22,
+      "head_education_level": 2,
+      "wall_score": 1,
+      "roof_score": 1,
+      "water_access_level": 3
+    },
+    "children_registry": [
+      {
+        "birthdate": "2018-03-09T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2008-06-02T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2010-11-18T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2019-03-01T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 36,
+      "is_flagged": false,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0041",
+    "head_of_household": {
+      "first_name": "Angela",
+      "last_name": "Castillo",
+      "national_id": "SEED-NID-0041",
+      "contact_phone": "+639172019141"
+    },
+    "address": {
+      "street": "Purok 3",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1709,
+          14.2124
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 14,
+      "dependents_ratio": 0.17,
+      "head_education_level": 0,
+      "wall_score": 1,
+      "roof_score": 3,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2015-01-11T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 29,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0042",
+    "head_of_household": {
+      "first_name": "Enrique",
+      "last_name": "Villanueva",
+      "national_id": "SEED-NID-0042",
+      "contact_phone": "+639171403476"
+    },
+    "address": {
+      "street": "Purok 7",
+      "barangay": "Palingon",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1632,
+          14.2156
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 16,
+      "dependents_ratio": 0.1,
+      "head_education_level": 1,
+      "wall_score": 3,
+      "roof_score": 1,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2008-09-13T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2008-04-06T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 11,
+      "is_flagged": false,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0043",
+    "head_of_household": {
+      "first_name": "Rosa",
+      "last_name": "Cruz",
+      "national_id": "SEED-NID-0043",
+      "contact_phone": "+639172708430"
+    },
+    "address": {
+      "street": "Purok 4",
+      "barangay": "Palingon",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1647,
+          14.2083
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 9,
+      "dependents_ratio": 0.11,
+      "head_education_level": 1,
+      "wall_score": 2,
+      "roof_score": 3,
+      "water_access_level": 2
+    },
+    "children_registry": [],
+    "enrolled_swdi_level": 3,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 21,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0044",
+    "head_of_household": {
+      "first_name": "Maria",
+      "last_name": "Salazar",
+      "national_id": "SEED-NID-0044",
+      "contact_phone": "+639177550296"
+    },
+    "address": {
+      "street": "Purok 9",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1893,
+          14.2231
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 19,
+      "dependents_ratio": 0.12,
+      "head_education_level": 3,
+      "wall_score": 1,
+      "roof_score": 3,
+      "water_access_level": 3
+    },
+    "children_registry": [
+      {
+        "birthdate": "2020-07-26T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2011-08-21T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2010-01-15T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2019-11-10T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 37,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0045",
+    "head_of_household": {
+      "first_name": "Gloria",
+      "last_name": "Mendoza",
+      "national_id": "SEED-NID-0045",
+      "contact_phone": "+639174531274"
+    },
+    "address": {
+      "street": "Purok 6",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1884,
+          14.2211
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 16,
+      "dependents_ratio": 0.13,
+      "head_education_level": 4,
+      "wall_score": 1,
+      "roof_score": 3,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2016-10-17T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2013-01-03T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "UNDER_INVESTIGATION",
+    "risk_assessment": {
+      "composite_risk_score": 74,
+      "is_flagged": true,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [
+        "AI Predicted Level 3"
+      ],
+      "trigger_badges": [
+        {
+          "code": "TIER_INVERSION",
+          "label": "AI Predicted Level 3",
+          "severity": "CRITICAL"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0046",
+    "head_of_household": {
+      "first_name": "Josefa",
+      "last_name": "Lim",
+      "national_id": "SEED-NID-0046",
+      "contact_phone": "+639171321521"
+    },
+    "address": {
+      "street": "Purok 7",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1862,
+          14.2243
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 20,
+      "dependents_ratio": 0.06,
+      "head_education_level": 4,
+      "wall_score": 3,
+      "roof_score": 2,
+      "water_access_level": 3
+    },
+    "children_registry": [
+      {
+        "birthdate": "2017-03-07T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2010-10-16T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 6,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0047",
+    "head_of_household": {
+      "first_name": "Patricia",
+      "last_name": "Lim",
+      "national_id": "SEED-NID-0047",
+      "contact_phone": "+639179058286"
+    },
+    "address": {
+      "street": "Purok 4",
+      "barangay": "Lecheria",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.179,
+          14.2164
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 5,
+      "dependents_ratio": 0.08,
+      "head_education_level": 3,
+      "wall_score": 2,
+      "roof_score": 1,
+      "water_access_level": 2
+    },
+    "children_registry": [],
+    "enrolled_swdi_level": 3,
+    "program_status": "UNDER_INVESTIGATION",
+    "risk_assessment": {
+      "composite_risk_score": 87,
+      "is_flagged": true,
+      "predicted_swdi_level": 1,
+      "flag_reasons": [
+        "Sangla-ATM cluster detected",
+        "Registered Motorcycle"
+      ],
+      "trigger_badges": [
+        {
+          "code": "SANGLA_ATM_PATTERN",
+          "label": "Sangla-ATM cluster detected",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "LTO_VEHICLE_MATCH",
+          "label": "Registered Motorcycle",
+          "severity": "MEDIUM"
+        }
+      ],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0048",
+    "head_of_household": {
+      "first_name": "Angela",
+      "last_name": "Lopez",
+      "national_id": "SEED-NID-0048",
+      "contact_phone": "+639173874476"
+    },
+    "address": {
+      "street": "Purok 9",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1893,
+          14.2185
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 4,
+      "dependents_ratio": 0.36,
+      "head_education_level": 1,
+      "wall_score": 1,
+      "roof_score": 2,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2009-01-20T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 2,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 6,
+      "is_flagged": false,
+      "predicted_swdi_level": 2,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0049",
+    "head_of_household": {
+      "first_name": "Carmen",
+      "last_name": "Navarro",
+      "national_id": "SEED-NID-0049",
+      "contact_phone": "+639174897350"
+    },
+    "address": {
+      "street": "Purok 6",
+      "barangay": "Palingon",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1644,
+          14.2155
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 3,
+      "dependents_ratio": 0.47,
+      "head_education_level": 1,
+      "wall_score": 2,
+      "roof_score": 1,
+      "water_access_level": 1
+    },
+    "children_registry": [
+      {
+        "birthdate": "2009-12-15T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2017-07-16T00:00:00.000Z",
+        "is_eligible": true
+      },
+      {
+        "birthdate": "2012-09-06T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 1,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 28,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  },
+  {
+    "household_id": "SEED-4PS-0050",
+    "head_of_household": {
+      "first_name": "Victor",
+      "last_name": "Rivera",
+      "national_id": "SEED-NID-0050",
+      "contact_phone": "+639173802620"
+    },
+    "address": {
+      "street": "Purok 10",
+      "barangay": "Real",
+      "municipality": "Calamba",
+      "province": "Laguna",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          121.1875,
+          14.2227
+        ]
+      }
+    },
+    "demographics": {
+      "household_size": 11,
+      "dependents_ratio": 0.38,
+      "head_education_level": 1,
+      "wall_score": 2,
+      "roof_score": 3,
+      "water_access_level": 2
+    },
+    "children_registry": [
+      {
+        "birthdate": "2019-02-28T00:00:00.000Z",
+        "is_eligible": true
+      }
+    ],
+    "enrolled_swdi_level": 3,
+    "program_status": "ACTIVE_COMPLIANT",
+    "risk_assessment": {
+      "composite_risk_score": 29,
+      "is_flagged": false,
+      "predicted_swdi_level": 3,
+      "flag_reasons": [],
+      "trigger_badges": [],
+      "evaluated_at": "2026-10-07T20:31:55.000Z"
+    }
+  }
+]
