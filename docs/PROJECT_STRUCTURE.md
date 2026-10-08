@@ -164,6 +164,11 @@ kilos-unlad/
 │   │   ├── features_swdi_clean.parquet # Clean training matrix for Charles (ML)
 │   │   ├── seed_beneficiaries.json     # 5,000 synthetic household profiles
 │   │   └── seed_external_records.json  # Mock Meralco, LTO, Maynilad data
+│   │   └── demo/                       # Phase 5 live-demo seed data
+│   │       ├── graduation_beneficiary.json
+│   │       ├── graduation_external.json
+│   │       ├── graduation_swdi_payload.json
+│   │       └── sangla_atm_payload.json
 │   ├── scripts/                        # Database Management & Seeding Scripts
 │   │   ├── seed_db.py                  # Ingests JSON seed files into MongoDB
 │   │   └── reset_demo.sh               # One-click database reset for live defense
@@ -339,6 +344,7 @@ kilos-unlad/
 - **`seeds/`:** Output JSON files.
   - **`seed_beneficiaries.json`:** 5,000 synthetic household profiles ready for database ingestion.
   - **`seed_external_records.json`:** Matching simulated utility, vehicle, and telecom records.
+  - **`demo/`:** Curated seed data for Phase 5 live demonstration scenarios (Case A: Graduation; Case B: Sangla-ATM).
 
 - **`scripts/`:** Ingestion tooling.
   - **`seed_db.py`:** Connects directly to MongoDB and populates collections with generated seed data.
