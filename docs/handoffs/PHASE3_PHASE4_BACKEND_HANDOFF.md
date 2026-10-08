@@ -1,0 +1,287 @@
+# Phase 3 and Phase 4 backend handoff
+
+## Markie-reported local acceptance (recorded 2026-10-04)
+
+Markie's message, relayed by Mae, reports testing frontend integration against
+backend `1b185d9` with a fresh isolated database and seed from
+`database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
+were disabled. Reported results:
+
+- All four roles logged in successfully; invalid login was rejected.
+- API role restrictions passed.
+- The actual frontend displayed `TEST-TSK-0001` linked to the Palingon household
+  and excluded the out-of-scope samples.
+- The director's triage displayed two flagged records.
+
+This records Markie's independent local acceptance of login and read feeds.
+It is teammate-reported evidence, not a new test run by this documentation review.
+His frontend commit, execution date and raw test artifacts were not supplied.
+Dispatch, submission, chain-verifier UI and other workflows were not included.
+Shared deployment/migration and existing-volume repair remain unverified.
+Earlier statements that Markie's login/read-feed acceptance is pending are
+superseded within this reported scope. Task 1.3's literal mock-client DoD still
+needs PM reconciliation with the accepted real-API integration; its original
+checkbox is not changed by this report.
+
+
+**Author:** Mae Santos — Backend Engineering Lead
+
+**Date:** 2026-09-30
+
+**Reviewed:** 2026-10-02
+
+**Recipients:** Renz and Charles
+
+**Status:** Placeholder handoff prepared under Renz's September 30 instruction;
+full workflow acceptance remains outstanding.
+
+## Direction and scope
+
+October 2 continuation supersedes the original Task 4.1 placeholder handoff:
+`hashChain.service.js` and the mounted authenticated audit route now implement
+range validation, snapshot reads, canonical rehashing and predecessor linkage.
+Unit/HTTP tests and a disposable MongoDB test verify 1000 blocks and tampering;
+real auditor login also verifies the persisted dispatch ledger. See
+[current results](../reports/PHASE1_TO_PHASE4_STATUS.md) and
+[behavior/limits](../../server/README.md#audit-chain-verification).
+Only Task 4.1 is closed within local backend scope; Task 4.2 remains unmounted.
+The current handoff contains four integration placeholders; the audit verifier
+is implemented and mounted. Historical test runs below retain their original dates.
+
+Renz requested backend work through Phase 4 with placeholders for the data/ML
+and remaining testing integrations, then a comprehensive Markdown handoff for
+continuation by Renz and Charles. This supersedes waiting for every integration
+decision before preparing a handoff. It does not make a stub a completed workflow.
+
+Base: `backend-mae` after merge `4640351`, including main `c030c77`. This document
+describes the handoff changes following that merge. Use the commit containing
+this document as the handoff revision when reporting integration results.
+Existing authentication, read feeds and transactional dispatch remain the live
+implementation. Phase 3 integration controllers and the Phase 4 mutation guard
+remain unmounted; the Task 4.1 audit verifier is mounted.
+
+Documentation review on October 4: `backend-mae` at `4d0f5bc`, matching
+`origin/backend-mae` after fetch. This includes the verifier and the earlier
+`19c9997` merge of Dustin's seed fix and test-data handoff. No new runtime tests
+were run for this documentation correction. The original handoff baseline was
+`dcfd67f`;
+[PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10) is the historical
+review reference; its current review/merge status was not checked in this update.
+Start with this guide, then [Phase 1–4 status](../reports/PHASE1_TO_PHASE4_STATUS.md)
+and [live verification](../reports/LIVE_AUTH_FEED_VERIFICATION.md).
+
+## Component map
+
+Paths below are relative to `server/`.
+
+| Task | Available implementation | Continuation boundary |
+| --- | --- | --- |
+| 3.1 | `src/services/mlClient.service.js`: `createMlClient().predict({ household_id, demographics })` | Supply live ML service; implement fallback using approved external-data rules, tagging and persistence |
+| 3.2 | `src/services/sync.service.js`: `prepareSubmission`, `createSubmissionAuthorizer`, `verifyEvidenceHash`; `src/utils/geoFence.js` | Acquire trusted attachment bytes; atomically recheck authorization and write submission plus audit; mount controller |
+| 3.3 | `src/services/discrepancy.service.js`: `calculateRiskScore` | Map real ML/ExternalRecord inputs, apply moratorium and lifecycle policies, persist with audit |
+| 3.4 | `src/services/calamity.service.js`: `hasActiveCalamityMoratorium` | Approve toggle request/response and date rules; load correct SystemConfig, authorize and audit mutations |
+| 4.1 | `src/services/hashChain.service.js` and mounted `createVerifyChain` controller | Locally verified; shared deployment and frontend acceptance remain |
+| 4.2 | `src/middleware/audit.middleware.js`: unmounted mutation-blocking placeholder | Integrate transactional audit recording into each mutation workflow |
+| 4.3 | Strict Joi body validation; sanitized JSON, Mongoose and size errors; HTTP error-boundary tests | Supply schemas and async error forwarding for each future route; repeat acceptance as workflows are mounted |
+
+`src/services/integrationPlaceholders.service.js` exposes async
+`evaluateHousehold`, `submitTask`, `applyRiskAssessment` and `toggleCalamity`
+(four remaining placeholders; `verifyChain` was replaced). Each throws a
+sanitized WorkflowError with status 503 and code
+ENDPOINT_NOT_READY. They do not implement inputs/outputs or pretend success.
+These internal names are replacement seams, not new public contracts. Callers
+must catch/forward failures. The existing Express error middleware handles them.
+
+## Inputs, outputs and continuation order
+
+These are existing internal interfaces, not approvals for new public endpoints.
+
+| Interface | Input | Current output / failure |
+| --- | --- | --- |
+| `createMlClient().predict` | Household ID and six demographic features in the ML contract | Validated contract prediction body; typed INVALID_FEATURE_VECTOR, ML_TIMEOUT, ML_UNAVAILABLE or INVALID_ML_RESPONSE errors |
+| `prepareSubmission` | Contract submission body and route task ID | `{ task_id, household_id, field_findings }`; validation failure stops processing |
+| Authorizer returned by `createSubmissionAuthorizer` | `{ input, routeTaskId, actorId, session }` | Prepared submission after current database authorization checks; no writes |
+| `verifyEvidenceHash` | Actual byte Buffer and expected SHA-256 hex string | Normalized matching hash; invalid input or mismatch fails |
+| `calculateRiskScore` | Explicit level gap and four Boolean indicators | `{ score, meetsFlagThreshold, contributions }`; invalid inputs throw |
+| `hasActiveCalamityMoratorium` | `{ zones, address, now }`, with Date objects | Boolean hold decision; invalid configuration throws |
+| Four integration placeholders | No implemented input contract | Always reject with 503 ENDPOINT_NOT_READY; no prediction, receipt or success output |
+
+Recommended continuation:
+
+1. Charles supplies the ML endpoint using the frozen request/response contract;
+   Renz confirms external-data mapping and fallback policy. Exercise the internal
+   client against that service before persisting predictions.
+2. Renz/Charles connect risk and calamity helpers to approved data and policies.
+   Agree missing/stale-data behavior and record provenance before enabling writes.
+3. Complete trusted evidence acquisition and transactional submission, including
+   authorization rechecks and a single atomic audit entry. Mount routes only with
+   approved contracts, role checks and replay/concurrency tests.
+4. Integrate workflow-level audit writes and verify the existing chain endpoint
+   in the agreed shared deployment and frontend. The generic mutation guard
+   remains a placeholder, not a working interceptor.
+5. Repeat end-to-end acceptance for each connected workflow. Record the exact
+   commits, data setup and remaining failures before marking its original DoD done.
+
+## Contracts and integration responsibilities
+
+- ML: preserve `docs/contracts/ml/ml-swdi-inference.json`. The client accepts six
+  demographic features, rejects coercion/unknown fields, validates returned household
+  identity and response shape, and enforces a 2500 ms total deadline. It has no retries
+  or redirects. The 1 MiB response cap and probability-sum tolerance are documented
+  in the backend README. Outage errors require explicit workflow fallback handling.
+- Submission: preserve `docs/contracts/field-tablet/field-task-submission.json`.
+  Preparation maps flat fields to existing `field_findings`; it is not persistence.
+  Authorization reloads active worker, assignment, household and scope; only
+  PENDING_DISPATCH/CACHED_OFFLINE are eligible. Repeat inside the eventual transaction
+  and condition writes to prevent concurrent reassignment or duplicate submission.
+- Evidence: `verifyEvidenceHash(Buffer, hexDigest)` returns normalized SHA-256 on
+  match and the exact contract's 422 EVIDENCE_HASH_MISMATCH on altered bytes. Storage
+  URLs are not downloaded by the helper. An authorized, size-limited upload/storage
+  adapter must bind actual bytes to attachments. Image decoding, ownership, minimum
+  evidence, replay handling and submitted_at persistence/response need completion.
+- Risk: inputs are `{ swdiDifference, power, water, telecom, vehicle }`; explicit
+  booleans and an integer gap 0–2 are required. Output contains score, threshold
+  Boolean and uncapped contributions. Weights are 40/20/15/25/30; cap 100, flag at
+  70. Real gap direction, telecom/vehicle categories and missing/stale-data behavior
+  remain policy choices. Vehicle alone gives 30, power alone 20, not 70.
+- Geofence: raw distance decides the inclusive 250 m boundary; display is rounded.
+  The task list says `< 250 m`, while the backend prompt says `<= 250 m`; confirm.
+- Calamity: exact province/municipality matching. Provisional interval is
+  declared_at <= now < expires_at; omitted expiry means open-ended, null is invalid.
+  Dates must be stored Date objects. Any matching active zone holds; invalid data
+  throws and callers must stop processing rather than interpret failure as no hold.
+- Audit verification: preserve `docs/contracts/admin-web/audit-chain-verification.json`.
+  The mounted endpoint recomputes hashes with `computeEntryHash`, preserves the
+  established colon-separated format, and uses snapshot reads with predecessor
+  linkage. Missing ranges fail rather than report success. Partial ranges trust
+  the predecessor's recorded hash; they do not verify the entire earlier history.
+  See the backend README for range limits, errors and integrity limitations.
+- Audit writes: reuse the atomicity pattern in `workflowPersistence.service.js`.
+  Mutation and audit must share one transaction. Do not append on response finish
+  or audit successful dispatch twice. Determine trusted actor/IP and before/after
+  state in the workflow. Placeholder audit middleware blocks mutations if installed;
+  it is intentionally not global middleware.
+- Validation: `validateBody(JoiSchema)` sets `req.validatedBody` on success, rejects
+  invalid input with sanitized 400 INVALID_REQUEST, and does not coerce types.
+  Controller errors and async rejections must reach the central handler. Mongoose
+  validation/cast failures return sanitized 400 INVALID_REQUEST; oversized JSON
+  returns 413 PAYLOAD_TOO_LARGE. Unknown errors remain sanitized 503. HTTP tests
+  cover malformed JSON, Joi/Mongoose errors, forwarded async failures and continued
+  availability. Internal errors are not additions to frozen contracts.
+
+## Environment and verification
+
+Use Node 20, install dependencies from `server/package-lock.json`, and follow
+`server/README.md`. Real auth requires PHASE1_MOCK_MODE=false and a private JWT
+secret of at least 32 characters. Never commit test credentials or signing keys.
+
+Run `node --test` from `server/`. Optional suites require TEST_MONGO_URI,
+RUN_WORKFLOW_MONGO_TESTS/MONGOD_PATH, RUN_DB_RECOVERY_TESTS and
+RUN_AUDIT_ROLE_TESTS/DOCKER_PATH. Use disposable databases for destructive cases.
+
+Prior evidence: September 28 combined run 87 passed/3 skipped, then all skipped
+suites passed separately (Docker follow-up 4, database login/feeds 12). September
+29 calamity/risk tests passed 10. Counts overlap and are not additive. See
+`docs/reports/PHASE3_BACKEND_CHECKPOINT.md` for limitations.
+
+New placeholder/validation tests cover failure propagation, no false audit success,
+mutation blocking and strict request validation. Final run results are recorded
+below. These tests do not verify a 1,000-block chain or complete
+automatic audit interception.
+
+September 30 verification:
+`node --test test/handoffPlaceholders.test.js test/app.test.js` — **10 passed,
+0 failed, 0 skipped**. `git diff --check` passed.
+
+## Acceptance and handoff checklist
+
+September 30 follow-up: complete backend regression with all database/Docker
+options enabled passed **101 tests, 0 failures, 0 skips**, including HTTP
+validation/error handling. This supersedes earlier partial test-run counts for
+the current working tree, not the outstanding live integration requirements.
+
+- Renz/Charles: replace the named placeholder boundaries with approved implementations.
+- Confirm pending scoring, upload, geofence and calamity decisions before mounting routes.
+- Add route-level authentication/RBAC and exact contract responses; placeholders
+  are currently unmounted and do not expose new endpoints.
+- Run live ML, submission, risk and moratorium workflows with real test records.
+- Repeat audit verification in the agreed shared deployment and frontend. Local
+  evidence already covers 1,000 persisted blocks and tampering; deployment
+  acceptance and audit coverage for future mutations remain open.
+- Verify failed mutations cannot commit without their audit entry.
+- Existing HTTP error-boundary tests already pass; extend them for newly mounted routes.
+- The merged fresh-start deployment and actual dispatch were verified on September
+  30. Shared-environment acceptance and existing-volume migration remain separate;
+  see [deployment evidence](../reports/PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
+
+## Recorded verification and remaining dependencies
+
+The October 2 regression recorded 104 passed, 0 failed and 3 optional-suite
+skips; a subsequent affected-suite run passed 24 with no failures/skips. Counts
+overlap and are not additive. See [current status](../reports/PHASE1_TO_PHASE4_STATUS.md)
+for environments and limitations. The October 4 documentation review ran no tests.
+
+- Historical complete backend regression: **101 passed, 0 failed, 0 skipped** on
+  September 30. This review changes documentation only; that count is not a new run.
+- Four seeded accounts passed live login and backend role-access checks. Eleven
+  additional API cases passed pagination, filters, invalid-query handling, worker
+  override rejection and correctly signed expired-token rejection.
+- Director/worker browser checks were independently observed on September 30.
+  SUPER_ADMIN/COA_AUDITOR basic login and triage checks were user-confirmed on
+  October 1. Markie's later local login/read-feed acceptance is recorded above.
+- Fresh seed `d47af57` now links the worker's pending task to Palingon household
+  `TEST-4PS-0004`. Its API feed passed and Mae confirmed browser display on
+  October 2. Current seed counts are 4 households/2 tasks versus Decision 007's
+  approved 5/3. Existing databases retain old links on reseeding; Dustin's
+  [repair instructions](https://github.com/renzv-compsci/KilosUnlad/blob/database-phase3/docs/handoffs/TEST_DATA_SEED_HANDOFF.md) are merged, but execution and
+  verification in the shared environment remain outstanding.
+- Phase 2 notice/graduation and persistent appeal contracts/policies remain open.
+  They are not silently implemented by the Phase 3–4 placeholder direction.
+
+At the `dcfd67f` review baseline, the PR diff against main `c030c77` contains
+backend code/tests, backend documentation and task/status notes. Continuation
+requires coordination with data/ML and database owners at the boundaries above.
+
+Tasks 3.1 through 3.4 and 4.2 remain incomplete; Task 4.1 is complete within
+verified local backend scope. Task 4.3 has implemented reusable validation/error
+handling; future controllers still need schemas and error forwarding. Shared
+deployment and frontend acceptance are separate from local implementation evidence.
+
+## Historical acceptance requests prepared - October 1
+
+These retain the original requests. The Palingon seed and positive local task
+display were subsequently verified on October 2. Markie's reported local
+login/read-feed acceptance is recorded above; shared repair and broader workflow
+acceptance remain outstanding.
+
+These requests are prepared for coordination; they do not claim delivery,
+agreement or completion by another team member.
+
+| Recipient | Requested action | Evidence needed to close |
+| --- | --- | --- |
+| Markie | Run the agreed frontend against this backend with fallback disabled; confirm login, invalid login, role handling, triage and assigned-feed behavior | Exact frontend/backend commits, date, expected/actual results and redacted errors; record positive task display separately if blocked |
+| Dustin | Provide a PENDING_DISPATCH sample task assigned to the actual case_worker_test user ID and linked to a Palingon household | Sample task/household identifiers and seed revision; the worker should see that task while the Lecheria task remains excluded |
+| Renz/Charles | Review PR #10 and the continuation order above | Review feedback and confirmation of who continues each integration; handoff acceptance is separate from original full phase completion |
+| Renz | Resolve notice/appeal requirements below with the relevant owners | Recorded decision and approved contracts/storage ownership before backend implementation |
+
+### Phase 2 decision questions for Renz
+
+Use case: after an authorized review enters notice, the backend must calculate
+and preserve the appeal window, record appeals, and prevent graduation while a
+deadline or unresolved hold applies. Current helpers cannot persist this workflow.
+
+1. Which approved storage holds the notice/service timestamp, deadline, appeal
+   docket and resolution? Assign its schema owner and contract owner explicitly.
+2. What starts the 15-day clock: administrative approval or actual notice service?
+   Confirm elapsed-time/calendar handling and what happens exactly at the deadline.
+3. Does an appeal or calamity pause the remaining time, restart it, or apply another
+   rule? Define the authoritative resolution/resumption trigger.
+4. Which roles may issue notice, file/resolve appeals and authorize graduation?
+   Define jurisdiction restrictions and late/duplicate appeal handling.
+5. Approve request/response/error contracts and the audit action for notice;
+   notice must not be logged as completed graduation.
+
+Backend recommendation, pending approval: read trusted stored notice/appeal state
+inside the transaction, enforce holds and current authorization, and commit each
+mutation with its audit entry atomically. Do not introduce a new schema or public
+endpoint until the responsible owners settle these questions.
