@@ -1,5 +1,13 @@
 # Engineering Task Roadmap: Backend Engineering & API
 
+**Lead:** Mae Santos
+
+**Primary Domain:** `/server/` (Excluding `/server/src/models/`)
+
+**Core Technologies:** Node.js 18/20 LTS, Express.js, JWT, Mongoose (Consumer), Axios, Crypto, Canonical JSON
+
+**Container:** `kilosunlad-server` (Port `5000`)
+
 ## Backend turnover (2026-10-07)
 
 As requested by Renz, I'm handing over the current backend implementation and
@@ -49,10 +57,6 @@ unchecked because its completion criteria specify mock-client integration. Renz
 needs to confirm whether the accepted real-API integration satisfies those
 criteria.
 
-**Lead:** Mae Santos  
-**Primary Domain:** `/server/` (Excluding `/server/src/models/`)  
-**Core Technologies:** Node.js 18/20 LTS, Express.js, JWT, Mongoose (Consumer), Axios, Crypto, Canonical JSON  
-**Container:** `kilosunlad-server` (Port `5000`)  
 
 ---
 

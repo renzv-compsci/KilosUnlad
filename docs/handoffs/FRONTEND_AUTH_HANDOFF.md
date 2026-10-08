@@ -1,5 +1,7 @@
 # Backend authentication handoff for Markie
 
+**Author:** Mae Santos — Backend Engineering Lead
+
 ## Backend turnover (2026-10-07)
 
 As requested by Renz, I'm handing over the current backend implementation and
@@ -60,7 +62,6 @@ needs to confirm whether the accepted real-API integration satisfies those
 criteria.
 
 
-**Author:** Mae Santos — Backend Engineering Lead
 
 Prepared 2026-09-24. Updated 2026-10-02. Completed local checks and remaining
 acceptance cases are distinguished below.

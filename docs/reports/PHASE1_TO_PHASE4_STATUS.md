@@ -1,5 +1,11 @@
 # Phase 1–4 backend completion status
 
+**Author:** Mae Santos — Backend Engineering Lead
+
+**Date:** 2026-09-30
+
+**Reviewed:** 2026-10-02
+
 ## Backend turnover (2026-10-07)
 
 As requested by Renz, I'm handing over the current backend implementation and
@@ -50,11 +56,6 @@ needs to confirm whether the accepted real-API integration satisfies those
 criteria.
 
 
-**Author:** Mae Santos — Backend Engineering Lead
-
-**Date:** 2026-09-30
-
-**Reviewed:** 2026-10-02
 
 Latest documentation review baseline: `19c9997`; main `c030c77`. The historical
 101-test run below is supplemented by four-role live API checks, 11 additional

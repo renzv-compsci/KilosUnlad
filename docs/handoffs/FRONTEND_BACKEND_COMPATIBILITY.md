@@ -1,5 +1,11 @@
 # Frontend/backend compatibility review
 
+**Author:** Mae Santos - Backend Engineering Lead
+**Date:** 2026-10-07
+**Backend:** `9e9e3a3` on backend-mae; merged into main at `dc55600`.
+**Frontend:** `b36361c` on origin/frontend-markie.
+**Scope:** Static source review. No new frontend/runtime tests or live acceptance.
+
 ## Verification follow-up (2026-10-07)
 
 The [independent verification report](../reports/FRONTEND_BACKEND_VERIFICATION_2026-10-07.md)
@@ -11,11 +17,6 @@ documentation review did not run tests; the results above come from the later
 verification session.
 
 
-**Author:** Mae Santos - Backend Engineering Lead
-**Date:** 2026-10-07
-**Backend:** `9e9e3a3` on backend-mae; merged into main at `dc55600`.
-**Frontend:** `b36361c` on origin/frontend-markie.
-**Scope:** Static source review. No new frontend/runtime tests or live acceptance.
 
 The frontend includes main through `c030c77`, not the newer PR #10 merge.
 Its historical acceptance report describes that older backend. Use the current

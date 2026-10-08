@@ -1,5 +1,7 @@
 # Historical backend verification status - September 25
 
+**Author:** Mae Santos — Backend Engineering Lead
+
 Superseded for current status by [Phase 1-4 status](PHASE1_TO_PHASE4_STATUS.md)
 and [merged deployment verification](PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
 The counts, uncommitted-work description, PR references and deployment blockers
@@ -7,7 +9,6 @@ below describe September 25 only. Decision 006 is now accepted; fresh isolated
 deployment verified index permissions and dispatch on September 30. Shared
 deployment acceptance remains open. This October 4 annotation ran no new tests.
 
-**Author:** Mae Santos — Backend Engineering Lead
 
 Reviewed 2026-09-25 on backend-mae at d8c7b9b, with the existing uncommitted
 backend ML client and six ML tests retained locally. At that review date this

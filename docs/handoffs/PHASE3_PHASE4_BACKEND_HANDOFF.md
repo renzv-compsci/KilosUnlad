@@ -1,5 +1,15 @@
 # Phase 3 and Phase 4 backend handoff
 
+**Author:** Mae Santos — Backend Engineering Lead
+
+**Date:** 2026-09-30
+
+**Reviewed:** 2026-10-02
+
+**Recipients:** Renz and Charles
+
+**Status:** Superseded as the main entry point by the complete backend turnover
+
 ## Backend turnover (2026-10-07)
 
 As requested by Renz, I'm handing over the current backend implementation and
@@ -60,15 +70,6 @@ needs to confirm whether the accepted real-API integration satisfies those
 criteria.
 
 
-**Author:** Mae Santos — Backend Engineering Lead
-
-**Date:** 2026-09-30
-
-**Reviewed:** 2026-10-02
-
-**Recipients:** Renz and Charles
-
-**Status:** Superseded as the main entry point by the complete backend turnover
 above; retained for detailed helper interfaces. Full workflow acceptance remains
 outstanding.
 

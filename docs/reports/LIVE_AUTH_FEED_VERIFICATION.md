@@ -1,5 +1,11 @@
 # Live authentication and feed verification
 
+**Author:** Mae Santos — Backend Engineering Lead
+
+**Date:** 2026-09-30
+
+**Updated:** 2026-10-02
+
 ## Markie-reported local acceptance (recorded 2026-10-04)
 
 Markie reported testing frontend integration against
@@ -24,11 +30,6 @@ needs to confirm whether the accepted real-API integration satisfies those
 criteria.
 
 
-**Author:** Mae Santos — Backend Engineering Lead
-
-**Date:** 2026-09-30
-
-**Updated:** 2026-10-02
 
 ## October 2: updated sample-task verification
 

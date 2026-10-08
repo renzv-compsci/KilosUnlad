@@ -1,5 +1,11 @@
 # Backend turnover to Renz and Charles
 
+**Prepared by:** Mae Santos - Backend Engineering Lead
+**Date:** 2026-10-07
+**Recipients / continuation owners:** Renz and Charles, per Renz's announcement
+**Branch:** backend-mae
+**Status:** Backend turnover prepared for repository review; recipient acknowledgement pending.
+
 ## Merged-stack verification follow-up (2026-10-09)
 
 The [Docker backend acceptance report](../reports/BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
@@ -22,11 +28,6 @@ documentation review did not run tests; the results above come from the later
 verification session.
 
 
-**Prepared by:** Mae Santos - Backend Engineering Lead
-**Date:** 2026-10-07
-**Recipients / continuation owners:** Renz and Charles, per Renz's announcement
-**Branch:** backend-mae
-**Status:** Backend turnover prepared for repository review; recipient acknowledgement pending.
 
 ## Direction and delivery scope
 
