@@ -17,9 +17,9 @@ The [independent verification report](../reports/FRONTEND_BACKEND_VERIFICATION_2
 records 40 passing frontend tests, successful TypeScript/build, and 15 passing
 real API/adapter and static component-render checks against backend `4dcba9a`.
 Interactive browser acceptance remains unverified: no browser was connected.
-Dispatch, submission and audit UI workflows remain pending. Earlier statements
-about no tests being run apply to the original documentation review/turnover,
-not this later verification follow-up.
+Dispatch, submission and audit UI workflows remain pending. The original
+documentation review did not run tests; the results above come from the later
+verification session.
 
 
 **Prepared by:** Mae Santos - Backend Engineering Lead
@@ -32,15 +32,14 @@ not this later verification follow-up.
 
 Renz requested turnover of backend tasks so he and Charles can continue remaining
 development and finalization. Mae is handing over the current implementation and
-all remaining backend tasks; no phase is being retained for further development.
-This document does not claim that unfinished workflows are complete or that the
-recipients have already reviewed/accepted the handoff.
+all remaining backend tasks to Renz and Charles. Unfinished workflows are listed
+below. Recipient review and acceptance are still pending.
 
 The announcement targets system and video finalization before October 14, with
 presentation on October 15 or 19 still unconfirmed. The paper is separately due
 October 21. The Friday mentioned in the announcement is October 9 in the current
-week. Record any revised schedule with Renz; these are reported planning dates,
-not independently verified institutional deadlines.
+week. These dates come from Renz's announcement; confirm any schedule changes
+with him.
 
 Implementation baseline: backend `9e9e3a3`, merged through PR #10 into main at
 `dc55600` on October 6 at 23:36 Manila time. Those commits have identical file
@@ -82,7 +81,7 @@ workflow, nor a worker directory or audit-list/head discovery endpoint.
 
 | Task | Available work | Renz/Charles continuation requirement |
 | --- | --- | --- |
-| 1.3 Mock integration | Mock handlers/contract tests; Markie reports real login/read-feed acceptance | Reconcile literal mock-client DoD with accepted real integration; no new backend implementation required for that distinction |
+| 1.3 Mock integration | Mock handlers/contract tests; Markie reports real login/read-feed acceptance | Confirm whether the accepted real-API integration satisfies the mock-client completion criteria |
 | 2.2 State machine | Transition guard and atomic workflow persistence | Approved notice/graduation prerequisites, controllers, current-state checks and audit actions |
 | 2.3 Appeals | Pure 15-day timing and hold checks | Approved storage ownership, docket contract, roles, deadline start/pause/resume, duplicates/resolution; transactional persistence |
 | 2.4 Dispatch | Mounted transactional endpoint, local concurrency/rollback evidence | Shared deployment/migration and actual frontend acceptance using eligible synthetic fixtures |

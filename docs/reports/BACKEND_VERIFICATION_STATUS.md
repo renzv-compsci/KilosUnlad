@@ -91,5 +91,5 @@ dispatch/persistence, associated tests, task status, README, handoff and gap/rec
 reports against the available contracts and decisions. Corrected stale document
 paths/status/ownership and the handoff's worker_id query expectation (400
 INVALID_QUERY). No runtime, shared model, frozen contract, frontend or infrastructure
-changes were needed for this documentation refresh. This is not a claim that all
-future tasks or production/security acceptance criteria are complete.
+changes were needed for this documentation refresh. Remaining tasks and
+production/security acceptance still need to be completed.

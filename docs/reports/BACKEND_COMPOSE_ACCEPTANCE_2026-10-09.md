@@ -84,7 +84,7 @@ will continue the remaining backend tasks listed in the
 - Submission, notice/appeal, calamity and other unmounted workflows remain
   unfinished. Passing helper tests does not complete them.
 - The documented direct-ingest validation gap remains a database-owner decision.
-- No cold-start timing target, load benchmark or production acceptance is claimed.
+- Cold-start timing, load benchmarks and production acceptance were not tested.
 - Range 1..3 existed only in this disposable run. Discover actual sequences in
   the recipient's database before choosing a verification range.
 

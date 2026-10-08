@@ -101,5 +101,5 @@ integration remain pending.
 - Task 3.1: agree fallback tagging/reprocessing and provide a live implemented
   ML endpoint. The local inference schema and endpoint files are empty.
 
-These items are ready for coordination with Renz and the relevant owners; this
-checkpoint does not record their approval.
+These items need review with Renz and the relevant owners. Their approval is
+still pending.

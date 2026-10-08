@@ -2,12 +2,11 @@
 
 ## Backend turnover (2026-10-07)
 
-Per Renz's fast-track announcement, Mae is handing over the current backend
-and all remaining tasks to Renz and Charles. No phase is retained for further
-development. Start with the [complete backend turnover](BACKEND_TURNOVER.md).
-This transfers continuation responsibility; unfinished task checkboxes and
-shared/frontend acceptance requirements remain unchanged. Recipient review
-and acknowledgement are pending.
+At Renz's request, the current backend and remaining tasks are being handed
+over to Renz and Charles. The [backend turnover](BACKEND_TURNOVER.md)
+lists the implemented work and what still needs to be finished. Incomplete tasks
+stay unchecked. Recipient review, shared-deployment testing and frontend
+acceptance are still pending.
 
 
 ## Latest compatibility review (2026-10-07)
@@ -25,15 +24,16 @@ presentation limits. It is a static review, not new live acceptance.
 [PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10) merged
 `backend-mae` commit `9e9e3a3` into main at `dc55600` on October 6 at
 23:36 Manila time. Remote history was fetched and verified on October 7.
-The two commits have identical file trees. Merge acceptance does not close
-remaining workflow or shared-deployment acceptance.
+The two commits have identical file trees. The merge publishes the backend
+changes; remaining workflows and shared-deployment testing still need to be completed.
 
-The [dispatch acceptance checklist](BACKEND_DISPATCH_ACCEPTANCE.md) is prepared
-for the next test session, including fixture prerequisites, API dispatch,
-frontend task visibility, audit evidence, rejection/concurrency and rollback
-checks. It has not been executed. No runtime tests were run for this update.
-Earlier PR-review requests below are historical; remaining coordination concerns
-continuation ownership and workflow acceptance.
+The [dispatch acceptance checklist](BACKEND_DISPATCH_ACCEPTANCE.md) covers test
+fixtures, API dispatch, frontend task display, audit records and rejected requests.
+It had not been executed when this section was published on October 7. The
+[October 9 verification](../reports/BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
+subsequently passed the isolated Docker API checks. Browser acceptance and
+shared-deployment testing are still pending. Earlier PR-review requests below
+are kept as historical notes.
 
 
 ## Markie-reported local acceptance (recorded 2026-10-04)
@@ -54,10 +54,10 @@ It is teammate-reported evidence, not a new test run by this documentation revie
 His frontend commit, execution date and raw test artifacts were not supplied.
 Dispatch, submission, chain-verifier UI and other workflows were not included.
 Shared deployment/migration and existing-volume repair remain unverified.
-Earlier statements that Markie's login/read-feed acceptance is pending are
-superseded within this reported scope. Task 1.3's literal mock-client DoD still
-needs PM reconciliation with the accepted real-API integration; its original
-checkbox is not changed by this report.
+Markie's reported results cover local login and read feeds. Task 1.3 remains
+unchecked because its completion criteria specify mock-client integration. Renz
+needs to confirm whether the accepted real-API integration satisfies those
+criteria.
 
 
 **Author:** Mae Santos — Backend Engineering Lead

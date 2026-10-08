@@ -18,10 +18,10 @@ It is teammate-reported evidence, not a new test run by this documentation revie
 His frontend commit, execution date and raw test artifacts were not supplied.
 Dispatch, submission, chain-verifier UI and other workflows were not included.
 Shared deployment/migration and existing-volume repair remain unverified.
-Earlier statements that Markie's login/read-feed acceptance is pending are
-superseded within this reported scope. Task 1.3's literal mock-client DoD still
-needs PM reconciliation with the accepted real-API integration; its original
-checkbox is not changed by this report.
+Markie's reported results cover local login and read feeds. Task 1.3 remains
+unchecked because its completion criteria specify mock-client integration. Renz
+needs to confirm whether the accepted real-API integration satisfies those
+criteria.
 
 
 **Author:** Mae Santos — Backend Engineering Lead
