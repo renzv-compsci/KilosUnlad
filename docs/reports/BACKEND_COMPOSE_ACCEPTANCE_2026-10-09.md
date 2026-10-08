@@ -1,4 +1,4 @@
-﻿# Backend acceptance against merged main — 2026-10-09
+# Backend acceptance against merged main — 2026-10-09
 
 **Owner:** Mae Santos (backend verification)
 **Baseline:** main `6e3c958`; backend-mae `bca7e2e` before this report.
@@ -10,6 +10,10 @@ Backend-mae was one commit ahead and 13 commits behind main. The server, client
 and docker trees were identical between those heads. Incoming changes include
 database tooling and merge history; the behind count does not indicate newer
 backend API code. No merge or change to another owner's branch was performed.
+
+After verification, main was merged into backend-mae at `d574834` and pushed
+to origin. At that update, backend-mae was zero commits behind main. The results
+below still refer to the tested main baseline `6e3c958`.
 
 ## Isolated deployment
 
@@ -69,9 +73,9 @@ persisted 1,000-block tamper detection.
 
 ## Handoff limits and ownership
 
-No backend defect requiring a code change was found. Evidence/reporting are
-Mae's contribution; remaining development remains transferred to Renz and Charles
-under the [backend turnover](../handoffs/BACKEND_TURNOVER.md).
+The backend checks passed without changes to the backend code. Renz and Charles
+will continue the remaining backend tasks listed in the
+[backend turnover](../handoffs/BACKEND_TURNOVER.md).
 
 - Main's client is still a scaffold: App.jsx is empty. Serving its shell does not
   verify Markie's screens, buttons, offline behavior or browser CORS behavior.

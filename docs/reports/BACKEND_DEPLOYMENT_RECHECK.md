@@ -2,6 +2,11 @@
 
 **Author:** Mae Santos — Backend Engineering Lead
 
+October 9 update: the [merged-stack acceptance report](BACKEND_COMPOSE_ACCEPTANCE_2026-10-09.md)
+records successful fresh Docker startup, restricted-account dispatch and audit
+verification against main `6e3c958`. The September 28 failures below are historical;
+shared-deployment and interactive browser acceptance are still pending.
+
 October 2 reading note: the failures below describe the September 28 baseline.
 Subsequent fixes and the successful September 30 isolated fresh-start/dispatch
 check are recorded in [merged deployment verification](PHASE2_MERGED_DEPLOYMENT_VERIFICATION.md).
