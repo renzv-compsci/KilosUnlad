@@ -2,8 +2,8 @@
 
 ## Backend turnover (2026-10-07)
 
-At Renz's request, the current backend and remaining tasks are being handed
-over to Renz and Charles. The [backend turnover](BACKEND_TURNOVER.md)
+As requested by Renz, I'm handing over the current backend implementation and
+remaining tasks to Renz and Charles. The [backend turnover](BACKEND_TURNOVER.md)
 lists the implemented work and what still needs to be finished. Incomplete tasks
 stay unchecked. Recipient review, shared-deployment testing and frontend
 acceptance are still pending.
@@ -38,7 +38,7 @@ are kept as historical notes.
 
 ## Markie-reported local acceptance (recorded 2026-10-04)
 
-Markie's message, relayed by Mae, reports testing frontend integration against
+Markie reported testing frontend integration against
 backend `1b185d9` with a fresh isolated database and seed from
 `database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
 were disabled. Reported results:
@@ -50,7 +50,7 @@ were disabled. Reported results:
 - The director's triage displayed two flagged records.
 
 This records Markie's independent local acceptance of login and read feeds.
-It is teammate-reported evidence, not a new test run by this documentation review.
+I recorded Markie's results here; I did not rerun these checks during this update.
 His frontend commit, execution date and raw test artifacts were not supplied.
 Dispatch, submission, chain-verifier UI and other workflows were not included.
 Shared deployment/migration and existing-volume repair remain unverified.
@@ -264,10 +264,10 @@ for environments and limitations. The October 4 documentation review ran no test
   additional API cases passed pagination, filters, invalid-query handling, worker
   override rejection and correctly signed expired-token rejection.
 - Director/worker browser checks were independently observed on September 30.
-  SUPER_ADMIN/COA_AUDITOR basic login and triage checks were user-confirmed on
+  I manually confirmed SUPER_ADMIN/COA_AUDITOR login and triage checks on
   October 1. Markie's later local login/read-feed acceptance is recorded above.
 - Fresh seed `d47af57` now links the worker's pending task to Palingon household
-  `TEST-4PS-0004`. Its API feed passed and Mae confirmed browser display on
+  `TEST-4PS-0004`. Its API feed passed and I confirmed browser display on
   October 2. Current seed counts are 4 households/2 tasks versus Decision 007's
   approved 5/3. Existing databases retain old links on reseeding; Dustin's
   [repair instructions](https://github.com/renzv-compsci/KilosUnlad/blob/database-phase3/docs/handoffs/TEST_DATA_SEED_HANDOFF.md) are merged, but execution and

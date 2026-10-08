@@ -97,12 +97,12 @@ See [verifier behavior and limits](../../server/README.md#audit-chain-verificati
 Source reviewed: frontend services/api.ts, App.tsx, useOfflineSync.ts, dispatch,
 field-task and audit screens; backend v1 router, readFeeds, dispatcher,
 audit controller and hashChain service. Markie's notes report 40 frontend tests
-and successful typecheck/build; this review did not rerun or independently
-validate those results.
+and successful typecheck/build. I did not rerun those checks during the source
+review; the later verification results are linked above.
 
 1. Confirm the frontend and backend commits for the next acceptance session.
 2. Complete real dispatch UI/worker selection and audit range integration with
-   Markie; do not change his branch as part of Mae's documentation work.
+   Markie. Changes to his frontend should be handled on his branch by its owner.
 3. Execute isolated API/persistence checks and record actual frontend acceptance
    separately. Keep submission/appeal workflows pending until implemented.
 

@@ -2,7 +2,7 @@
 
 ## Markie-reported local acceptance (recorded 2026-10-04)
 
-Markie's message, relayed by Mae, reports testing frontend integration against
+Markie reported testing frontend integration against
 backend `1b185d9` with a fresh isolated database and seed from
 `database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
 were disabled. Reported results:
@@ -14,7 +14,7 @@ were disabled. Reported results:
 - The director's triage displayed two flagged records.
 
 This records Markie's independent local acceptance of login and read feeds.
-It is teammate-reported evidence, not a new test run by this documentation review.
+I recorded Markie's results here; I did not rerun these checks during this update.
 His frontend commit, execution date and raw test artifacts were not supplied.
 Dispatch, submission, chain-verifier UI and other workflows were not included.
 Shared deployment/migration and existing-volume repair remain unverified.
@@ -47,7 +47,7 @@ MongoDB without authentication and is not a replica-set/deployment-permission te
   old link unchanged because the task was skipped. Existing installations need
   an owner-approved targeted data update; rerunning this seed is insufficient.
 - Browser automation was unavailable during the API run. A subsequent manual
-  browser check was confirmed by Mae, as recorded below.
+  browser check was completed manually, as recorded below.
 
 The disposable container and its anonymous volumes were removed after the test.
 The dated sections below preserve earlier results and their then-current gaps.
@@ -57,9 +57,9 @@ The dated sections below preserve earlier results and their then-current gaps.
 On October 2, a second disposable database was seeded from `d47af57`. Backend
 `58eb523` ran on port 5002 with mock mode disabled; the previously reviewed
 isolated frontend copy (`7cc3dd7`) ran on port 3002 against that API.
-Mae confirmed the requested worker login and Assigned Field Tasks check worked,
-including `TEST-TSK-0001`, Rosa Villanueva, Palingon. This is user-reported browser
-evidence, not an independently automated observation; no screenshot was supplied.
+I manually confirmed that worker login and the Assigned Field Tasks screen worked,
+including `TEST-TSK-0001`, Rosa Villanueva, Palingon. This was a manual browser
+check. No automated browser run or screenshot was recorded.
 
 Positive task display is now confirmed for this fresh local setup. Markie's
 independent acceptance and existing-database repair verification remain pending.
@@ -138,13 +138,11 @@ These local browser checks cover two roles and the current sample data. They do
 not replace Markie's acceptance of his own checkout, full role/browser coverage,
 or positive assigned-task rendering with an in-scope sample.
 
-### User-confirmed browser checks — 2026-10-01
+### Manual browser checks — 2026-10-01
 
-Mae confirmed that the requested SUPER_ADMIN and COA_AUDITOR manual checks
-worked: login, opening the triage queue and viewing `TEST-4PS-0002`, with logout
-between accounts. These results are user-reported; browser automation was
-unavailable for independent observation during this session. No additional
-HTTP status codes or screenshots were supplied for these manual checks.
+I manually confirmed SUPER_ADMIN and COA_AUDITOR login, opening the triage
+queue and viewing `TEST-4PS-0002`, with logout between accounts. Browser automation was unavailable during this session.
+I did not record HTTP status codes or screenshots for these manual checks.
 
 Together with the September 30 director/worker observations, basic local login
 and screen checks now cover all four roles. This does not establish complete
@@ -153,7 +151,7 @@ browser authorization coverage or Markie's independent acceptance.
 ## Remaining acceptance (updated October 4)
 
 - Fresh seed `d47af57` links the Palingon worker's task to `TEST-4PS-0004`;
-  positive API visibility and user-confirmed browser display passed. Existing
+  positive API visibility and manual browser confirmation passed. Existing
   databases can retain the old Lecheria link. Dustin's repair instructions are
   available; shared-environment execution and verification remain outstanding.
 - The current script provides 4 households and 2 tasks versus Decision 007's

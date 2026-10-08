@@ -8,8 +8,8 @@
 
 ## Isolation and commands
 
-Frontend source was extracted with git archive into a temporary directory;
-Markie's branch and repository files were not modified. Official Node 20.20.0
+I extracted the frontend source with git archive into a temporary directory.
+I did not modify Markie's branch or repository files. Official Node 20.20.0
 was downloaded from nodejs.org after the old cached npm runtime proved incomplete.
 Dependencies were installed from the frontend lockfile with npm ci --no-audit
 --no-fund. This did not perform a dependency security audit. Installation warned

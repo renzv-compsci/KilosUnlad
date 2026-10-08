@@ -2,8 +2,8 @@
 
 ## Backend turnover (2026-10-07)
 
-At Renz's request, the current backend and remaining tasks are being handed
-over to Renz and Charles. The [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+As requested by Renz, I'm handing over the current backend implementation and
+remaining tasks to Renz and Charles. The [backend turnover](../handoffs/BACKEND_TURNOVER.md)
 lists the implemented work and what still needs to be finished. Incomplete tasks
 stay unchecked. Recipient review, shared-deployment testing and frontend
 acceptance are still pending.
@@ -28,7 +28,7 @@ are kept as historical notes.
 
 ## Markie-reported local acceptance (recorded 2026-10-04)
 
-Markie's message, relayed by Mae, reports testing frontend integration against
+Markie reported testing frontend integration against
 backend `1b185d9` with a fresh isolated database and seed from
 `database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
 were disabled. Reported results:
@@ -40,7 +40,7 @@ were disabled. Reported results:
 - The director's triage displayed two flagged records.
 
 This records Markie's independent local acceptance of login and read feeds.
-It is teammate-reported evidence, not a new test run by this documentation review.
+I recorded Markie's results here; I did not rerun these checks during this update.
 His frontend commit, execution date and raw test artifacts were not supplied.
 Dispatch, submission, chain-verifier UI and other workflows were not included.
 Shared deployment/migration and existing-volume repair remain unverified.
@@ -58,10 +58,10 @@ criteria.
 
 Latest documentation review baseline: `19c9997`; main `c030c77`. The historical
 101-test run below is supplemented by four-role live API checks, 11 additional
-API cases, observed director/worker browser checks and user-confirmed
+API cases, observed director/worker browser checks and manually confirmed
 SUPER_ADMIN/COA_AUDITOR browser checks. See
 [live verification](LIVE_AUTH_FEED_VERIFICATION.md) for evidence and limits.
-Positive assigned-task display was confirmed manually by Mae on October 2 in a
+I manually confirmed positive assigned-task display on October 2 in a
 fresh local setup. Markie's later reported login/read-feed acceptance is recorded above. Dustin's
 seed and existing-data repair instructions are now merged; applying and verifying
 the repair in an agreed existing environment remains outstanding.

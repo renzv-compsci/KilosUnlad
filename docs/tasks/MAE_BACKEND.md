@@ -2,8 +2,8 @@
 
 ## Backend turnover (2026-10-07)
 
-At Renz's request, the current backend and remaining tasks are being handed
-over to Renz and Charles. The [backend turnover](../handoffs/BACKEND_TURNOVER.md)
+As requested by Renz, I'm handing over the current backend implementation and
+remaining tasks to Renz and Charles. The [backend turnover](../handoffs/BACKEND_TURNOVER.md)
 lists the implemented work and what still needs to be finished. Incomplete tasks
 stay unchecked. Recipient review, shared-deployment testing and frontend
 acceptance are still pending.
@@ -28,7 +28,7 @@ are kept as historical notes.
 
 ## Markie-reported local acceptance (recorded 2026-10-04)
 
-Markie's message, relayed by Mae, reports testing frontend integration against
+Markie reported testing frontend integration against
 backend `1b185d9` with a fresh isolated database and seed from
 `database-phase3` at `697f6bb`. Backend mock mode and frontend login fallback
 were disabled. Reported results:
@@ -40,7 +40,7 @@ were disabled. Reported results:
 - The director's triage displayed two flagged records.
 
 This records Markie's independent local acceptance of login and read feeds.
-It is teammate-reported evidence, not a new test run by this documentation review.
+I recorded Markie's results here; I did not rerun these checks during this update.
 His frontend commit, execution date and raw test artifacts were not supplied.
 Dispatch, submission, chain-verifier UI and other workflows were not included.
 Shared deployment/migration and existing-volume repair remain unverified.
@@ -70,7 +70,7 @@ merge and the subsequent verifier/documentation changes. Frontend remains on its
 separate branch at `7cc3dd7`.
 
 All four roles have documented local login/screen evidence. Fresh-seed assigned
-task visibility passed via API, and Mae confirmed browser display on October 2.
+task visibility passed via API, and I confirmed browser display on October 2.
 Markie's later local login/read-feed acceptance is recorded above. Dustin's existing-data repair
 procedure is now merged; shared-environment repair execution is not verified.
 The seed contains 4 households/2 tasks against the approved 5/3 target.

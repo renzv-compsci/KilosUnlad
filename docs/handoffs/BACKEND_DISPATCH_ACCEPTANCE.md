@@ -101,7 +101,7 @@ commits and redacted errors. Exclude passwords, tokens, signing secrets and
 credential-bearing connection strings. Capture frontend display evidence and
 API/persistence evidence separately.
 
-- [ ] Mae records backend results and remaining deployment limitations.
+- [ ] Record my backend test results and remaining deployment limitations.
 - [ ] Markie records actual frontend dispatch/task-display results and any UI
   preview limitation. This document prepares that request; it sends no message.
 - [ ] The team records acceptance against the agreed environment before Task

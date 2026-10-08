@@ -38,7 +38,7 @@ ordinary configuration edits as calamity declarations merely to satisfy validati
 - Dustin: after Renz's approval, add persisted `assignment_notes`, `priority`, and
   `due_date` to VerificationTask. Confirm allowed priority values and required/default
   behavior; the contract example's `HIGH` alone does not specify the entire enum.
-- Mae: map stored `assignment_notes` to response `dispatch_instructions`; preserve
+- I will map stored `assignment_notes` to response `dispatch_instructions` and preserve
   the flat API submission while storing verification findings under `field_findings`.
 - Renz/Dustin: approve a new audit action such as `SYSTEM_CONFIG_UPDATED` and its
   target/state-delta requirements before adding it to the enum.

@@ -30,10 +30,10 @@ verification session.
 
 ## Direction and delivery scope
 
-Renz requested turnover of backend tasks so he and Charles can continue remaining
-development and finalization. Mae is handing over the current implementation and
-all remaining backend tasks to Renz and Charles. Unfinished workflows are listed
-below. Recipient review and acceptance are still pending.
+As requested by Renz, I'm handing over the current backend implementation and
+remaining tasks to Renz and Charles for continued development and finalization.
+The unfinished workflows are listed below. Their review and acceptance of the
+handoff are still pending.
 
 The announcement targets system and video finalization before October 14, with
 presentation on October 15 or 19 still unconfirmed. The paper is separately due
@@ -159,6 +159,5 @@ deployment or a reproducible readiness guarantee.
 4. Run current regression plus required optional integrations, clean deployment,
    offline/device checks and the recorded video scenarios before finalization.
 
-The repository handoff is ready for recipient review. No teammate message was
-sent by this update. Mae can post the short update supplied alongside this file;
-recipient acknowledgement and final system acceptance remain separate steps.
+I've prepared the repository handoff for Renz and Charles to review. Their
+acknowledgement and final system acceptance are still pending.

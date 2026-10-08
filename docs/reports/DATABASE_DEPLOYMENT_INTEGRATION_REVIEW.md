@@ -16,7 +16,7 @@ these findings. This report does not assess completion of Phase 3 backend tasks.
 
 Source review used Git objects. Docker was initially unavailable; the subsequent
 targeted permission and command-exit checks are recorded in the Docker follow-up
-below. The complete Compose setup and seeder were not executed in this review.
+below. I did not run the complete Compose setup or seeder during this review.
 
 ## Findings and requested follow-up
 

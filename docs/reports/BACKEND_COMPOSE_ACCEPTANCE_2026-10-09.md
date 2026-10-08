@@ -17,7 +17,7 @@ below still refer to the tested main baseline `6e3c958`.
 
 ## Isolated deployment
 
-An archive of main `6e3c958` was built and started with Docker Compose project
+I built an archive of main `6e3c958` and started it with Docker Compose project
 `mae-main-acceptance-20261009`. Gateway, client, backend, ML service, MongoDB 6.0
 and the replica-set initializer started successfully. The initializer completed
 before backend startup.

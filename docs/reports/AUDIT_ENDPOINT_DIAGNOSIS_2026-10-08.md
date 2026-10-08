@@ -3,7 +3,7 @@
 **Author:** Mae Santos - Backend Engineering Lead
 **Backend tested:** `86f7977` on backend-mae
 **Scope:** Targeted audit/workflow regression and isolated mode/CORS reproduction.
-Markie's running process, container and browser were not accessible to this review.
+I could not inspect Markie's running backend, container or browser.
 
 ## Results
 

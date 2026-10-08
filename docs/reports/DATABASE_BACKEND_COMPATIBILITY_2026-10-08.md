@@ -21,7 +21,7 @@ seed audit entries separately in an approved demo/test environment before
 verification. It does not establish live model/graduation acceptance.
 
 The first container invocation failed due to CRLF line endings introduced by
-this review's Windows temporary-file retargeting. The harness restored LF endings
+my Windows edits to the temporary reset script. The harness restored LF endings
 and the rerun passed. This was a harness issue, not a finding against the committed
 reset script. An obsolete Compose version warning was non-fatal.
 
