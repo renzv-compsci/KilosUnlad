@@ -1,5 +1,31 @@
 # Phase 1–4 backend completion status
 
+## Backend turnover (2026-10-07)
+
+Per Renz's fast-track announcement, Mae is handing over the current backend
+and all remaining tasks to Renz and Charles. No phase is retained for further
+development. Start with the [complete backend turnover](../handoffs/BACKEND_TURNOVER.md).
+This transfers continuation responsibility; unfinished task checkboxes and
+shared/frontend acceptance requirements remain unchanged. Recipient review
+and acknowledgement are pending.
+
+
+## Publication and next acceptance (2026-10-07)
+
+[PR #10](https://github.com/renzv-compsci/KilosUnlad/pull/10) merged
+`backend-mae` commit `9e9e3a3` into main at `dc55600` on October 6 at
+23:36 Manila time. Remote history was fetched and verified on October 7.
+The two commits have identical file trees. Merge acceptance does not close
+remaining workflow or shared-deployment acceptance.
+
+The [dispatch acceptance checklist](../handoffs/BACKEND_DISPATCH_ACCEPTANCE.md) is prepared
+for the next test session, including fixture prerequisites, API dispatch,
+frontend task visibility, audit evidence, rejection/concurrency and rollback
+checks. It has not been executed. No runtime tests were run for this update.
+Earlier PR-review requests below are historical; remaining coordination concerns
+continuation ownership and workflow acceptance.
+
+
 ## Markie-reported local acceptance (recorded 2026-10-04)
 
 Markie's message, relayed by Mae, reports testing frontend integration against
