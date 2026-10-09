@@ -10,7 +10,7 @@ interface RoleConfig {
 export const ROLE_CONFIG: Record<UserRole, RoleConfig> = {
   SUPER_ADMIN: {
     defaultScreen: 'dashboard',
-    allowedScreens: ['dashboard', 'triage', 'dispatch_manager', 'dispatch_modal', 'due_process', 'admin_settings'],
+    allowedScreens: ['dashboard', 'triage', 'dispatch_manager', 'dispatch_modal', 'due_process', 'admin_settings', 'audit_ledger'],
     roleTitle: 'Super Admin',
   },
   REGIONAL_DIRECTOR: {

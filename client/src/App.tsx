@@ -3,12 +3,13 @@ import './styles/workspace.css';
 import './styles/modules.css';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
+import { DataSourceNotice } from './components/common/DataSourceNotice';
 import { Screen1Login } from './components/screens/Screen1Login';
 import { Screen2Dashboard } from './components/screens/Screen2Dashboard';
 import { Screen3TriageQueue } from './components/screens/Screen3TriageQueue';
 import { Screen4TaskDispatchModal } from './components/screens/Screen4TaskDispatchModal';
 import { Screen5DueProcessManager } from './components/screens/Screen5DueProcessManager';
-import { Screen6AuditLedger } from './components/screens/Screen6AuditLedger';
+import { AuditChainVerification } from './components/screens/AuditChainVerification';
 import { Screen7FieldTasksList } from './components/screens/Screen7FieldTasksList';
 import { Screen8FieldAssessmentForm } from './components/screens/Screen8FieldAssessmentForm';
 import { Screen9OfflineSyncDrawer } from './components/screens/Screen9OfflineSyncDrawer';
@@ -26,11 +27,12 @@ import {
   TriagePagination,
 } from './types/contracts';
 import type { ScreenId } from './types/navigation';
-import { apiErrorMessage, fetchAssignedTasks, fetchTriagePage } from './services/api';
+import { apiErrorMessage, fetchTriagePage } from './services/api';
+import { loadWorkerAssignments } from './services/workerAssignments';
+import type { TriageSummary } from './services/api';
 import { clearStoredSession, isUserRole, readStoredSession } from './services/authSession';
 import { ROLE_CONFIG, canReadTriage, canDispatch } from './types/permissions';
 import {
-  cacheAssignedTasks,
   getQueuedSubmissions,
   queueSubmission,
 } from './services/indexedDB';
@@ -110,7 +112,9 @@ export default function App() {
   const [triageItems, setTriageItems] = useState<BeneficiaryTriageItem[]>([]);
   const [triagePage, setTriagePage] = useState(1);
   const [triagePagination, setTriagePagination] = useState<TriagePagination | null>(null);
+  const [triageSummary, setTriageSummary] = useState<TriageSummary | null>(null);
   const [fieldTasks, setFieldTasks] = useState<FieldTaskItem[]>([]);
+  const [assignmentSource, setAssignmentSource] = useState<'server' | 'device'>('server');
   const [dataState, setDataState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [dataError, setDataError] = useState<string | null>(null);
   const [reloadCounter, setReloadCounter] = useState(0);
@@ -135,6 +139,7 @@ export default function App() {
     setSession(null);
     setTriagePage(1);
     setTriagePagination(null);
+    setTriageSummary(null);
     setSidebarCollapsed(true);
     setCurrentScreen('login');
     setTriageItems([]);
@@ -170,6 +175,7 @@ export default function App() {
   useEffect(() => {
     if (!session) return;
     const controller = new AbortController();
+    setTriageSummary(null);
     setTriageItems([]);
     setFieldTasks([]);
     setSelectedFieldTask(null);
@@ -180,24 +186,25 @@ export default function App() {
     async function loadOperationalData() {
       try {
         if (canReadTriage(session!.user.role)) {
-          const { items, pagination } = await fetchTriagePage(triagePage, controller.signal);
+          const { items, pagination, summary } = await fetchTriagePage(triagePage, controller.signal);
           if (controller.signal.aborted) return;
           setTriageItems(items);
           setTriagePagination(pagination);
+          setTriageSummary(summary);
         } else if (session!.user.role === 'CASE_WORKER') {
-          const tasks = await fetchAssignedTasks(controller.signal);
-          if (controller.signal.aborted) return;
-          setFieldTasks(tasks);
-          setSelectedFieldTask(tasks[0] ?? null);
+          const ownerId = session!.user.user_id;
           try {
-            const ownerId = session!.user.user_id;
-            await cacheAssignedTasks(ownerId, tasks);
-            if (!controller.signal.aborted) setFieldTasks(tasks.map((task) => ({ ...task, cached_offline: true })));
             const drafts = await getQueuedSubmissions(ownerId);
             if (!controller.signal.aborted) setSubmissions(drafts);
           } catch {
-            if (!controller.signal.aborted) setToastMessage('API data loaded, but local draft storage is unavailable.');
+            if (!controller.signal.aborted) setToastMessage('Saved drafts could not be read from this device.');
           }
+          const result = await loadWorkerAssignments(ownerId, navigator.onLine, controller.signal);
+          if (controller.signal.aborted) return;
+          setFieldTasks(result.tasks);
+          setSelectedFieldTask(result.tasks[0] ?? null);
+          setAssignmentSource(result.source);
+          if (result.storageError) setToastMessage('Assignments loaded, but an offline copy could not be saved.');
         }
         if (!controller.signal.aborted) setDataState('ready');
       } catch (error) {
@@ -258,8 +265,11 @@ export default function App() {
 
   const handleSubmitVerification = async (submission: FieldTaskSubmission) => {
     if (session?.user.role !== 'CASE_WORKER') return;
-    await queueSubmission(session.user.user_id, submission);
-    setSubmissions((prev) => [submission, ...prev]);
+    const ownerId = session.user.user_id;
+    if (readStoredSession()?.user.user_id !== ownerId) throw new Error('Sign in again before saving.');
+    await queueSubmission(ownerId, submission);
+    if (readStoredSession()?.user.user_id !== ownerId) return;
+    setSubmissions((prev) => [submission, ...prev.filter(item => item.task_id !== submission.task_id)]);
     setCurrentScreen('field_sync');
     setIsSyncDrawerOpen(true);
     showToast(`Report for ${submission.household_id} saved on this device. Not submitted to the server.`);
@@ -308,7 +318,7 @@ export default function App() {
       case 'login':
         return <Screen1Login onLoginSuccess={handleLoginSuccess} />;
       case 'dashboard':
-        return <Screen2Dashboard onNavigateToScreen={navigateToScreen} triageCount={dataState === 'ready' ? triagePagination?.total_records : undefined} triageItems={dataState === 'ready' ? triageItems : []} triageLoading={dataState === 'loading'} />;
+        return <Screen2Dashboard onNavigateToScreen={navigateToScreen} triageSummary={dataState === 'ready' ? triageSummary : null} triageCount={dataState === 'ready' ? triagePagination?.total_records : undefined} triageItems={dataState === 'ready' ? triageItems : []} triageLoading={dataState === 'loading'} />;
       case 'triage':
         return <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} readOnly={!canDispatch(session.user.role)} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} />;
       case 'dispatch_manager':
@@ -366,13 +376,13 @@ export default function App() {
         return (
           <div className="field-screen-wrapper">
             <div className="mx-auto mb-4 flex max-w-3xl items-center justify-between rounded-xl border border-stone-200 bg-stone-100 p-3">
-              <span className="text-xs font-medium text-stone-700">Offline reports pending synchronization</span>
+              <span className="text-xs font-medium text-stone-700">Drafts saved on this device; not submitted</span>
               <button
                 type="button"
                 onClick={() => setIsSyncDrawerOpen(true)}
                 className="rounded-lg bg-emerald-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-900"
               >
-                Open Sync Drawer
+                Open Saved Drafts
               </button>
             </div>
             <Screen7FieldTasksList
@@ -393,12 +403,13 @@ export default function App() {
       case 'coa_dashboard':
         return (
           <CoaAuditDashboard
+            auditorName={session.user.full_name}
             onNavigateToLedger={() => setCurrentScreen('audit_ledger')}
             onNavigateToSampling={() => setCurrentScreen('coa_sampling')}
           />
         );
       case 'audit_ledger':
-        return <Screen6AuditLedger />;
+        return <AuditChainVerification key={session.user.user_id} />;
       case 'coa_sampling':
         return <CoaEvidentiarySampling />;
       default:
@@ -443,9 +454,13 @@ export default function App() {
               onLogout={clearSession}
             />
             <main className="app-workspace">
-              <div className="data-source-note">
-                Triage and assigned tasks use API records. Other modules are previews; changes are not submitted.
-              </div>
+              <DataSourceNotice screen={currentScreen} />
+              {session.user.role === 'CASE_WORKER' && assignmentSource === 'device' && dataState === 'ready' && (
+                <div className="mx-6 mb-3 flex flex-wrap items-center gap-3 text-sm text-stone-700" role="status">
+                  <p>{fieldTasks.length ? 'Showing saved assignments. Current assignment status has not been checked with the server.' : 'No saved assignments for this account. Connect to load your tasks.'}</p>
+                  <button type="button" className="record-action" style={{ width: 'auto' }} onClick={() => setReloadCounter(count => count + 1)}><RefreshCw size={16} aria-hidden="true" /> Check server</button>
+                </div>
+              )}
               {dataError && !['triage', 'field_tasks', 'field_dashboard', 'field_verify', 'dispatch_manager', 'dispatch_modal'].includes(currentScreen) && (
                 <div className="mx-6 mb-3 flex flex-wrap items-center gap-3 text-sm text-rose-700">
                   <p role="alert">{dataError}</p>

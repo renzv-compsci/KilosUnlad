@@ -23,6 +23,7 @@ interface Screen9OfflineSyncDrawerProps {
   submissions: FieldTaskSubmission[];
   onSyncAll: () => void;
   isSyncing: boolean;
+  submissionAvailable?: boolean;
   showSpecAnnotations?: boolean;
 }
 
@@ -34,11 +35,13 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
   submissions,
   onSyncAll,
   isSyncing,
+  submissionAvailable = false,
   showSpecAnnotations = false,
 }) => {
   if (!isOpen) return null;
 
   const handleForceSync = () => {
+    if (!submissionAvailable) return;
     if (isOffline) {
       alert('Wi-Fi or cellular connection required to sync with central DSWD GovCloud. Please connect to a network.');
       return;
@@ -63,18 +66,18 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
             <div>
               <div className="flex items-center space-x-2">
                 <h3 id="sync-dialog-title" className="text-sm font-bold text-slate-900">
-                  Offline Reports
+                  Saved Drafts
                 </h3>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Local cache queue manager for field evaluations
+                Assessments saved on this device; not submitted
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            aria-label="Close sync drawer"
+            aria-label="Close saved drafts"
             className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -98,7 +101,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
           <div className="flex items-center space-x-2">
             {isOffline ? <WifiOff className="w-3.5 h-3.5 text-amber-600" /> : <Wifi className="w-3.5 h-3.5 text-emerald-600" />}
             <span className="font-medium">
-              {isOffline ? 'Offline — Local cache enabled' : 'Connected to GovCloud — Ready to sync'}
+              {isOffline ? 'Offline mode' : 'Online mode'}
             </span>
           </div>
 
@@ -106,7 +109,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
             onClick={onToggleOffline}
             className="text-[11px] font-semibold text-slate-600 hover:text-slate-900 underline cursor-pointer"
           >
-            {isOffline ? 'Go Online' : 'Simulate Offline'}
+            {isOffline ? 'Use online mode' : 'Use offline mode'}
           </button>
         </div>
 
@@ -121,7 +124,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
           {submissions.length === 0 ? (
             <div className="p-8 text-center text-slate-400 border border-dashed border-slate-200 rounded-lg">
               <HardDrive className="w-6 h-6 mx-auto mb-1.5 text-slate-300" />
-              <p className="text-xs">No offline reports currently queued in IndexedDB.</p>
+              <p className="text-xs">No assessment drafts saved on this device.</p>
             </div>
           ) : (
             submissions.map((sub, idx) => {
@@ -165,7 +168,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
                     <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                       isPending ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-emerald-100 text-emerald-900 border border-emerald-200'
                     }`}>
-                      {isPending ? 'Pending Upload' : 'Synced'}
+                      {isPending ? 'Not submitted' : 'Synced'}
                     </span>
                   </div>
                 </div>
@@ -185,7 +188,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
           <button
             id="force-sync-now-btn"
             type="button"
-            disabled={isSyncing || pendingCount === 0}
+            disabled={!submissionAvailable || isOffline || isSyncing || pendingCount === 0}
             aria-describedby="sync-action-status"
             onClick={handleForceSync}
             className={`w-full min-h-[42px] py-2 px-4 rounded-lg font-semibold text-xs shadow-xs transition flex items-center justify-center space-x-2 cursor-pointer ${
@@ -203,7 +206,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
               <>
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>
-                  {isOffline
+                  {!submissionAvailable ? 'Submission unavailable' : isOffline
                     ? 'Connect Wi-Fi to Push Data'
                     : `Sync Now (${pendingCount} Pending)`}
                 </span>
@@ -214,7 +217,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
         </div>
 
       </div>
-      <span id="sync-action-status" className="sr-only" role="status">{isSyncing ? 'Sync in progress.' : pendingCount === 0 ? 'No pending reports to sync.' : isOffline ? 'Network connection required.' : `${pendingCount} reports ready to sync.`}</span>
+      <span id="sync-action-status" className="sr-only" role="status">{!submissionAvailable ? 'Server submission is not available. Drafts remain on this device.' : isSyncing ? 'Sync in progress.' : pendingCount === 0 ? 'No pending reports to sync.' : isOffline ? 'Network connection required.' : `${pendingCount} reports ready to sync.`}</span>
     </AccessibleDialog>
   );
 };

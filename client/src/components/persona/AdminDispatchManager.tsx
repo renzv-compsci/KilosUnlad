@@ -36,6 +36,7 @@ export const AdminDispatchManager: React.FC<AdminDispatchManagerProps> = ({
           <Plus size={18} aria-hidden="true" /> Select Household
         </button>
       </header>
+      <p id="dispatch-preview-note" className="preview-note">Sample assignments. Dispatch and reassignment are not submitted.</p>
 
       <section aria-labelledby="dispatch-list-heading">
         <div className="operations-toolbar">
@@ -65,8 +66,7 @@ export const AdminDispatchManager: React.FC<AdminDispatchManagerProps> = ({
                 <span className="record-date-label">Due <time dateTime={task.due_date} title={task.due_date}>{displayDate(task.due_date)}</time></span>
               </div>
               <div className="record-action-area">
-                <button disabled aria-describedby={`reassign-status-${task.task_id}`} className="record-action">Reassign</button>
-                <p id={`reassign-status-${task.task_id}`} className="action-availability">Not connected</p>
+                <button disabled aria-describedby="dispatch-preview-note" className="record-action">Reassign</button>
               </div>
             </article>
           ))}

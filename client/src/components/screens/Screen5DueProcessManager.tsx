@@ -143,7 +143,7 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
       {/* 2. Appeal Docket Modal */}
       {isAppealModalOpen && selectedNoticeForAppeal && (
         <AccessibleDialog titleId="appeal-dialog-title" onClose={() => setIsAppealModalOpen(false)} className="workspace-dialog fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-stone-200/90 w-full max-w-lg overflow-hidden transition-all">
+          <div className="dialog-sheet bg-white rounded-xl shadow-xl border border-stone-200/90 w-full max-w-lg">
             
             <div className="bg-stone-50/70 border-b border-stone-200/90 p-5 flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -169,7 +169,8 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
               </button>
             </div>
 
-            <form onSubmit={handleConfirmAppeal} className="p-6 space-y-4 text-xs text-stone-800">
+            <form onSubmit={handleConfirmAppeal} className="dialog-form text-sm text-stone-800">
+              <div className="dialog-body space-y-4">
               
               <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200/80 space-y-1">
                 <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Appellant Beneficiary</span>
@@ -222,7 +223,8 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                 <span className="font-semibold">Preview only:</span> This updates the sample on this page. It does not file an appeal, change an official deadline, or affect grant payments.
               </div>
 
-              <div className="pt-3 border-t border-stone-100 flex justify-end space-x-3">
+              </div>
+              <footer className="dialog-footer">
                 <button
                   type="button"
                   onClick={() => setIsAppealModalOpen(false)}
@@ -238,7 +240,7 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Preview Appeal Status</span>
                 </button>
-              </div>
+              </footer>
 
             </form>
 

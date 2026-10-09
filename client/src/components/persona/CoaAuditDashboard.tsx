@@ -19,18 +19,20 @@ import {
 } from 'lucide-react';
 
 interface CoaAuditDashboardProps {
+  auditorName: string;
   onNavigateToLedger: () => void;
   onNavigateToSampling: () => void;
   showSpecAnnotations?: boolean;
 }
 
 export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
+  auditorName,
   onNavigateToLedger,
   onNavigateToSampling,
   showSpecAnnotations = false,
 }) => {
   const [aomModalOpen, setAomModalOpen] = useState(false);
-  const [aomSubmitted, setAomSubmitted] = useState(false);
+  const [aomPreviewed, setAomPreviewed] = useState(false);
 
   const lguComplianceData = [
     { name: 'Santa Rosa City', compliance: 98.2, questionedFunds: '₱24,000', sampled: 8, status: 'Compliant' },
@@ -40,13 +42,9 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
     { name: 'San Pedro City', compliance: 91.8, questionedFunds: '₱122,000', sampled: 9, status: 'Review Needed' },
   ];
 
-  const handleGenerateAOM = (e: React.FormEvent) => {
+  const handlePreviewAOM = (e: React.FormEvent) => {
     e.preventDefault();
-    setAomSubmitted(true);
-    setTimeout(() => {
-      setAomModalOpen(false);
-      setAomSubmitted(false);
-    }, 1200);
+    setAomPreviewed(true);
   };
 
   return (
@@ -81,7 +79,7 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
               </span>
             </div>
             <p className="text-xs text-stone-500 mt-0.5">
-              Auditor: <span className="font-semibold text-stone-800">Engr. Roberto Santos, CPA, CISA</span> · Legal Authority: 1987 Constitution Art. IX-D & COA 2024-008
+              Auditor: <span className="font-semibold text-stone-800">{auditorName}</span>
             </p>
           </div>
         </div>
@@ -89,11 +87,11 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
         {/* Global Action: Generate AOM */}
         <div className="flex items-center space-x-3 self-start md:self-auto shrink-0">
           <button
-            onClick={() => setAomModalOpen(true)}
+            onClick={() => { setAomPreviewed(false); setAomModalOpen(true); }}
             className="px-3.5 py-2 bg-amber-700 hover:bg-amber-800 text-white font-semibold rounded-lg text-xs shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
           >
             <FileText className="w-3.5 h-3.5" />
-            <span>Draft Audit Observation (AOM)</span>
+            <span>Preview Audit Observation</span>
           </button>
         </div>
       </div>
@@ -132,9 +130,9 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
         </div>
 
         {/* KPI 3: Evidentiary Audit Sampling */}
-        <div 
+        <button type="button"
           onClick={onNavigateToSampling}
-          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#132e4f] transition cursor-pointer"
+          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#132e4f] transition cursor-pointer text-left"
         >
           <div className="flex items-center justify-between text-stone-500 text-xs">
             <span className="font-semibold uppercase tracking-wider text-[10px]">Sampling Coverage</span>
@@ -148,26 +146,26 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
             <span>Independent verification</span>
             <span className="text-stone-700 font-semibold underline">Inspect &rarr;</span>
           </div>
-        </div>
+        </button>
 
         {/* KPI 4: Cryptographic Ledger Integrity */}
-        <div 
+        <button type="button"
           onClick={onNavigateToLedger}
-          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#132e4f] transition cursor-pointer"
+          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#132e4f] transition cursor-pointer text-left"
         >
           <div className="flex items-center justify-between text-stone-500 text-xs">
-            <span className="font-semibold uppercase tracking-wider text-[10px]">Merkle Hash Chain</span>
+            <span className="font-semibold uppercase tracking-wider text-[10px]">Audit Hash Chain</span>
             <Link2 className="w-4 h-4 text-emerald-700" />
           </div>
           <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-emerald-900">100%</span>
-            <span className="text-[11px] font-medium text-emerald-800">Tamper-Proof</span>
+            <span className="text-lg font-bold text-[#132e4f]">Verify range</span>
+            <span className="text-[11px] font-medium text-stone-600">Read-only API</span>
           </div>
           <div className="mt-2 text-[11px] text-stone-500 flex items-center justify-between">
-            <span>1,000 sequential blocks</span>
+            <span>Up to 1,000 blocks per request</span>
             <span className="text-stone-700 font-semibold underline">Verify &rarr;</span>
           </div>
-        </div>
+        </button>
 
       </div>
 
@@ -187,32 +185,15 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
                 </h3>
               </div>
               <span className="text-[10px] font-mono bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200/80">
-                Continuous Hash Lineage Verified
+                Verification on request
               </span>
             </div>
 
             <div className="pt-4 space-y-3.5">
               <p className="text-xs text-stone-600 leading-relaxed">
-                Under COA Circular 2024-008, all beneficiary state transitions, SWDI scores, and notice expirations are cryptographically signed with immutable SHA-256 Merkle hashes.
+                Verify an existing sequence range against the backend audit ledger. Integrity results are shown only after a successful verification request.
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                <div className="bg-stone-50 p-3 rounded-lg border border-stone-200/80 text-xs">
-                  <span className="text-[10px] uppercase text-stone-500 font-semibold block">Latest Sealed Block</span>
-                  <span className="font-mono font-bold text-[#132e4f] text-sm mt-0.5 block">#10452</span>
-                  <span className="text-[10px] text-stone-400 font-mono">2026-09-21 10:35 PHT</span>
-                </div>
-                <div className="bg-stone-50 p-3 rounded-lg border border-stone-200/80 text-xs">
-                  <span className="text-[10px] uppercase text-stone-500 font-semibold block">Audit Authority PubKey</span>
-                  <span className="font-mono font-bold text-stone-800 text-xs mt-0.5 truncate block">COA-REG4A-PUB-7718</span>
-                  <span className="text-[10px] text-emerald-700">Hardware Token Valid</span>
-                </div>
-                <div className="bg-stone-50 p-3 rounded-lg border border-stone-200/80 text-xs">
-                  <span className="text-[10px] uppercase text-stone-500 font-semibold block">State Transition Delta</span>
-                  <span className="font-mono font-bold text-stone-800 text-xs mt-0.5 block">0 Anomalies</span>
-                  <span className="text-[10px] text-emerald-700">100% Sequence Reconciled</span>
-                </div>
-              </div>
 
               <div className="pt-2 flex items-center justify-end">
                 <button
@@ -221,7 +202,7 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
                   className="px-4 py-2 bg-[#132e4f] hover:bg-[#0c2340] text-white font-semibold text-xs rounded-lg shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
                 >
                   <Link2 className="w-3.5 h-3.5" />
-                  <span>Open Full Cryptographic Block Lineage Inspector</span>
+                  <span>Open audit verification</span>
                   <ArrowRight className="w-3.5 h-3.5 ml-1" />
                 </button>
               </div>
@@ -333,8 +314,8 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
 
       {/* Modal: Draft Audit Observation Memorandum (AOM) */}
       {aomModalOpen && (
-        <AccessibleDialog titleId="aom-dialog-title" onClose={() => setAomModalOpen(false)} busy={aomSubmitted} className="workspace-dialog fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl border border-stone-200/90 w-full max-w-lg overflow-hidden transition-all">
+        <AccessibleDialog titleId="aom-dialog-title" onClose={() => setAomModalOpen(false)} className="workspace-dialog fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="dialog-sheet bg-white rounded-xl shadow-xl border border-stone-200/90 w-full max-w-lg">
             
             <div className="bg-stone-50/70 border-b border-stone-200/90 p-5 flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -343,10 +324,10 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
                 </div>
                 <div>
                   <h3 id="aom-dialog-title" className="text-base font-bold text-stone-900 font-display">
-                    Issue Audit Observation Memorandum (AOM)
+                    Audit Observation Preview
                   </h3>
                   <p className="text-xs text-stone-500 mt-0.5">
-                    Formal finding served to DSWD Region IV-A Regional Director
+                    Sample AOM; no official issuance
                   </p>
                 </div>
               </div>
@@ -360,7 +341,9 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
               </button>
             </div>
 
-            <form onSubmit={handleGenerateAOM} className="p-6 space-y-4 text-xs text-stone-800">
+            <form onSubmit={handlePreviewAOM} onChange={() => setAomPreviewed(false)} className="dialog-form text-sm text-stone-800">
+              <div className="dialog-body space-y-4">
+              <p className="preview-note">Preview only. This document is not saved, sent, or certified.</p>
               
               <div>
                 <label htmlFor="aom-reference" className="block font-semibold text-stone-700 mb-1.5 text-xs">
@@ -399,7 +382,9 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
                 />
               </div>
 
-              <div className="pt-3 border-t border-stone-100 flex justify-end space-x-3">
+              </div>
+              <footer className="dialog-footer">
+                {aomPreviewed && <p role="status" className="dialog-feedback">Preview checked. Nothing was saved, sent, or certified.</p>}
                 <button
                   type="button"
                   onClick={() => setAomModalOpen(false)}
@@ -410,19 +395,12 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
                 <button
                   id="confirm-submit-aom-btn"
                   type="submit"
-                  disabled={aomSubmitted}
                   className="px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white font-semibold rounded-lg text-xs shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
                 >
-                  {aomSubmitted ? (
-                    <span>AOM Served to Management...</span>
-                  ) : (
-                    <>
-                      <FileCheck2 className="w-3.5 h-3.5" />
-                      <span>Issue & Certify AOM</span>
-                    </>
-                  )}
+                  <FileText className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>Check Preview</span>
                 </button>
-              </div>
+              </footer>
 
             </form>
 

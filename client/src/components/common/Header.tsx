@@ -25,6 +25,10 @@ export const Header: React.FC<HeaderProps> = ({
     COA_AUDITOR: 'COA State Auditor',
   };
   const roleLabel = roleLabels[session.user.role] ?? session.user.role;
+  const jurisdictionLabel = [
+    session.user.jurisdiction.municipality,
+    session.user.jurisdiction.region,
+  ].filter(Boolean).join(', ');
 
   React.useEffect(() => {
     if (!dropdownOpen) return;
@@ -85,10 +89,10 @@ export const Header: React.FC<HeaderProps> = ({
           <div id="officer-profile-menu" className="profile-dropdown">
             <strong>{session.user.full_name}</strong>
             <span>{session.user.username}</span>
-            <span className="profile-jurisdiction">
+            {jurisdictionLabel && <span className="profile-jurisdiction">
               <MapPin size={14} aria-hidden="true" />
-              {session.user.jurisdiction.municipality} ({session.user.jurisdiction.region})
-            </span>
+              {jurisdictionLabel}
+            </span>}
             <button id="header-logout-btn" type="button" onClick={() => {
               setDropdownOpen(false);
               onLogout();
