@@ -59,7 +59,20 @@ export async function fetchTriageQueue(signal?: AbortSignal): Promise<Beneficiar
   return (await fetchTriagePage(1, signal)).items;
 }
 
-export async function fetchTriagePage(page = 1, signal?: AbortSignal): Promise<{ items: BeneficiaryTriageItem[]; pagination: TriagePagination }> {
+export interface TriageSummary {
+  high_risk_count: number;
+  under_investigation_count: number;
+  notice_of_ineligibility_count: number;
+}
+
+export function parseTriageSummary(value: unknown): TriageSummary | null {
+  if (!value || typeof value !== 'object') return null;
+  const summary = value as TriageSummary;
+  return [summary.high_risk_count, summary.under_investigation_count, summary.notice_of_ineligibility_count]
+    .every(count => Number.isSafeInteger(count) && count >= 0) ? summary : null;
+}
+
+export async function fetchTriagePage(page = 1, signal?: AbortSignal): Promise<{ items: BeneficiaryTriageItem[]; pagination: TriagePagination; summary: TriageSummary | null }> {
   const response = await api.get('/beneficiaries/triage-queue', {
     signal, params: { page, limit: 10, status: 'FLAGGED_FOR_REVIEW' },
   });
@@ -77,7 +90,7 @@ export async function fetchTriagePage(page = 1, signal?: AbortSignal): Promise<{
       !Number.isSafeInteger(pagination.limit) || pagination.limit < 1) {
     throw new Error('Triage queue response did not include valid pagination.');
   }
-  return { items: items.map(normalizeTriageItem), pagination };
+  return { items: items.map(normalizeTriageItem), pagination, summary: parseTriageSummary(payload.summary_metrics) };
 }
 
 export async function fetchAssignedTasks(signal?: AbortSignal): Promise<FieldTaskItem[]> {
@@ -105,6 +118,10 @@ export function apiErrorMessage(error: unknown): string {
   if (code === 'OUT_OF_JURISDICTION') return 'Access denied: this request is outside your assigned jurisdiction.';
   if (error.response.status === 403) return 'Access denied for your role or jurisdiction.';
   if (code === 'ENDPOINT_NOT_READY') return 'This backend endpoint is not available yet.';
+  if (code === 'AUDIT_RANGE_INCOMPLETE') return 'The requested range or its preceding block is missing. Confirm an existing range with the backend team.';
+  if (code === 'AUDIT_ENTRY_INVALID') return 'An audit entry could not be verified. Ask the backend team to inspect the entry.';
+  if (code === 'INVALID_QUERY') return 'Enter a valid inclusive sequence range of up to 1,000 blocks.';
+  if (error.response.status === 404) return 'This endpoint is unavailable on the running backend version.';
   if (error.response.status >= 500) return 'The backend service is unavailable. Please try again later.';
   return 'The request could not be completed. Please try again.';
 }

@@ -1,10 +1,6 @@
 import { useCallback, useState } from 'react';
-
-export interface GeolocationReading {
-  latitude: number;
-  longitude: number;
-  accuracy_m: number;
-}
+import { readDeviceLocation, type GeolocationReading } from '../utils/deviceLocation';
+export type { GeolocationReading } from '../utils/deviceLocation';
 
 export function useGeolocation() {
   const [position, setPosition] = useState<GeolocationReading | null>(null);
@@ -12,17 +8,11 @@ export function useGeolocation() {
   const [isLocating, setIsLocating] = useState(false);
 
   const capturePosition = useCallback(async (): Promise<GeolocationReading> => {
-    if (!navigator.geolocation) throw new Error('Geolocation is not supported by this device.');
     setIsLocating(true);
     setError(null);
+    setPosition(null);
     try {
-      const reading = await new Promise<GeolocationReading>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-          ({ coords }) => resolve({ latitude: coords.latitude, longitude: coords.longitude, accuracy_m: coords.accuracy }),
-          (reason) => reject(new Error(reason.message || 'Unable to acquire GPS coordinates.')),
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
-        );
-      });
+      const reading = await readDeviceLocation(navigator.geolocation);
       setPosition(reading);
       return reading;
     } catch (reason) {

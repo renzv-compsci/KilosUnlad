@@ -8,8 +8,13 @@ const bundled = await build({
   stdin: { contents: `
     export * from './src/services/authSession';
     export * from './src/services/api';
+    export * from './src/services/auditVerification';
+    export { AuditChainVerification } from './src/components/screens/AuditChainVerification';
     export * from './src/types/permissions';
     export * from './src/services/indexedDB';
+    export * from './src/services/workerAssignments';
+    export * from './src/utils/deviceLocation';
+    export * from './src/utils/photoHasher';
     export { Screen3TriageQueue } from './src/components/screens/Screen3TriageQueue';
     export { Screen7FieldTasksList } from './src/components/screens/Screen7FieldTasksList';
     export { Screen8FieldAssessmentForm } from './src/components/screens/Screen8FieldAssessmentForm';
@@ -22,6 +27,8 @@ const bundled = await build({
     export { Screen2Dashboard } from './src/components/screens/Screen2Dashboard';
     export { AdminSettingsView } from './src/components/persona/AdminSettingsView';
     export { Sidebar } from './src/components/common/Sidebar';
+    export { CoaAuditDashboard } from './src/components/persona/CoaAuditDashboard';
+    export { DataSourceNotice } from './src/components/common/DataSourceNotice';
     export { createElement } from 'react';
     export { renderToStaticMarkup } from 'react-dom/server.browser';
   `, resolveDir: process.cwd(), loader: 'ts' },
@@ -46,7 +53,8 @@ test('dispatch puts assignments before collapsed staff details and identifies sa
   assert.match(html, /<summary>Assignment details<\/summary>/);
   assert.doesNotMatch(html, /Manage \/ Reassign/);
   assert.match(html, /Select Household/);
-  assert.equal((html.match(/disabled="" aria-describedby="reassign-status-/g) ?? []).length, 3);
+  assert.equal((html.match(/disabled="" aria-describedby="dispatch-preview-note"/g) ?? []).length, 3);
+  assert.doesNotMatch(html, /Not connected/);
 });
 
 test('due process preserves notices, protected grants and appeal actions while collapsing details', () => {
@@ -99,6 +107,39 @@ test('dashboard separates live workload from samples and has one analytics selec
   assert.match(html, /<section class="sample-analytics-section"/);
   assert.doesNotMatch(html, /sample-analytics-disclosure/);
   assert.ok(html.indexOf('live-workload-title') < html.indexOf('sample-analytics-section'));
+  assert.ok(html.indexOf('live-list-title') < html.indexOf('sample-analytics-section'));
+});
+
+test('audit navigation does not claim verification or present sample percentages as live', () => {
+  const html = app.renderToStaticMarkup(app.createElement(app.Sidebar, { collapsed: false, onToggleCollapse() {}, userRole: 'COA_AUDITOR', jurisdiction: 'National', currentScreen: 'audit_ledger', onSelectScreen() {} }));
+  assert.match(html, /Audit Verification/);
+  assert.doesNotMatch(html, /100% Valid|94\.2%|68\.4%/);
+});
+
+test('audit overview identifies the authenticated reviewer and keeps AOM explicitly preview-only', () => {
+  const html = app.renderToStaticMarkup(app.createElement(app.CoaAuditDashboard, { auditorName: 'Authenticated Auditor', onNavigateToLedger() {}, onNavigateToSampling() {} }));
+  assert.match(html, /Authenticated Auditor/);
+  assert.match(html, /Preview Audit Observation/);
+  assert.doesNotMatch(html, /Engr\. Roberto|Tamper-Proof|Continuous Hash Lineage Verified/);
+});
+
+test('data notices are compact disclosures and never imply successful verification', () => {
+  const render = screen => app.renderToStaticMarkup(app.createElement(app.DataSourceNotice, {screen}));
+  assert.match(render('audit_ledger'), /Read-only verification/);
+  assert.doesNotMatch(render('audit_ledger'), /Verified|100%/);
+  assert.match(render('dashboard'), /Server records \+ sample analytics/);
+  assert.match(render('field_verify'), /Local drafts only/);
+  assert.match(render('due_process'), /Preview only/);
+  assert.match(render('due_process'), /not submitted/);
+  assert.doesNotMatch(render('dashboard'), /<details[^>]*open/);
+});
+
+test('field tasks use plain-language titles and distinguish local copies from submissions', () => {
+  const user = fixture('CASE_WORKER').user;
+  const html = app.renderToStaticMarkup(app.createElement(app.Screen7FieldTasksList, { user, isOffline: false, onToggleOffline() {}, onStartVerification() {}, onOpenSyncDrawer() {}, tasks: [] }));
+  assert.match(html, /<h2>Assigned Tasks<\/h2>/);
+  assert.match(html, /Saved Drafts/);
+  assert.doesNotMatch(html, /Field Dockets|Offline Assignment|Sync Drawer/);
 });
 
 test('notice deadlines are concise, timezone-aware, and never imply an eligibility decision', () => {
@@ -137,7 +178,7 @@ test('dashboard renders API households only when counts are available and exclud
   }));
   assert.match(render({ triageCount: 5 }), /3 shown from the current page/);
   const html = render({ triageCount: 5 });
-  assert.ok(html.indexOf('metric-visual-deck') < html.indexOf('live-queue-preview'));
+  assert.ok(html.indexOf('live-queue-preview') < html.indexOf('metric-visual-deck'));
   assert.ok(html.indexOf('live-queue-preview') < html.indexOf('geography-section'));
   assert.doesNotMatch(render({ triageCount: undefined }), /class="live-households"/);
   assert.doesNotMatch(render({ triageCount: 0 }), /class="live-households"/);
@@ -207,6 +248,71 @@ function respond(data, headers = {}) {
 function triageResponse(items = [], page = 1, total = items.length) {
   return { items, pagination: { current_page: page, total_records: total, total_pages: Math.ceil(total / 10), limit: 10 } };
 }
+
+test('workload summary preserves zeros and rejects missing, partial or invalid counts', async () => {
+  const summary = { high_risk_count: 0, under_investigation_count: 2, notice_of_ineligibility_count: 1 };
+  assert.deepEqual(app.parseTriageSummary(summary), summary);
+  for (const invalid of [null, {}, { ...summary, high_risk_count: -1 }, { ...summary, high_risk_count: '2' }]) assert.equal(app.parseTriageSummary(invalid), null);
+  app.saveSession(app.parseSession(fixture()));
+  respond({ ...triageResponse(), summary_metrics: summary });
+  assert.deepEqual((await app.fetchTriagePage()).summary, summary);
+  respond(triageResponse());
+  assert.equal((await app.fetchTriagePage()).summary, null);
+});
+
+test('dashboard separates API workload semantics from sample chart metrics', () => {
+  const render = props => app.renderToStaticMarkup(app.createElement(app.Screen2Dashboard, { onNavigateToScreen() {}, ...props }));
+  const html = render({ triageSummary: { high_risk_count: 0, under_investigation_count: 12, notice_of_ineligibility_count: 3 } });
+  assert.match(html, /High-risk beneficiaries<\/dt><dd>0/);
+  assert.match(html, /Notices of ineligibility<\/dt><dd>3/);
+  assert.match(html, /Categories may overlap/);
+  assert.match(html, /Sample data/);
+  assert.match(render({}), /High-risk beneficiaries<\/dt><dd>Unavailable/);
+});
+
+function verifiedFixture() {
+  return { is_chain_valid: true, total_blocks_verified: 2, verification_timestamp: '2026-10-08T00:00:00Z', genesis_hash: '0'.repeat(64), head_hash: 'a'.repeat(64), broken_blocks: [] };
+}
+
+test('audit ranges enforce inclusive 1000-block limit and positive safe integers', () => {
+  assert.deepEqual(app.parseAuditRange('1', '1000'), { start: 1, end: 1000 });
+  assert.deepEqual(app.parseAuditRange('10', '10'), { start: 10, end: 10 });
+  for (const [start, end] of [['', '2'], ['0', '2'], ['2', '1'], ['1', '1001'], ['1.5', '2'], ['1e2', '200'], [' 1', '2'], ['1', '9007199254740992']]) assert.throws(() => app.parseAuditRange(start, end));
+});
+
+test('audit transport sends authenticated read-only range and handles broken HTTP 200', async () => {
+  const session = app.parseSession(fixture('COA_AUDITOR')); app.saveSession(session);
+  const broken = { ...verifiedFixture(), is_chain_valid: false, head_hash: 'INVALID_HASH_AT_SEQUENCE_2', broken_blocks: [{ sequence_index: 2, recorded_hash: '', calculated_hash: 'b'.repeat(64), target_entity: 'beneficiaries', entity_id: 'TEST', tamper_detected_at: '2026-10-08T00:00:00Z' }] };
+  app.api.defaults.adapter = async config => {
+    assert.equal(config.method, 'get');
+    assert.equal(config.url, '/audit/verify-chain');
+    assert.equal(config.headers.Authorization, `Bearer ${session.access_token}`);
+    assert.deepEqual(config.params, { start_sequence: 1, end_sequence: 2 });
+    return { config, data: broken, headers: {}, status: 200 };
+  };
+  assert.equal((await app.verifyAuditChain({ start: 1, end: 2 })).is_chain_valid, false);
+  respond(verifiedFixture());
+  assert.equal((await app.verifyAuditChain({ start: 1, end: 2 })).is_chain_valid, true);
+  respond(verifiedFixture(), { 'x-kilosunlad-mock': 'true' });
+  await assert.rejects(app.verifyAuditChain({ start: 1, end: 2 }), /mock mode/);
+});
+
+test('audit malformed results cannot report verified and unavailable responses stay errors', async () => {
+  for (const value of [null, {}, { ...verifiedFixture(), total_blocks_verified: 0 }, { ...verifiedFixture(), is_chain_valid: false }, { ...verifiedFixture(), head_hash: 'invalid' }]) assert.throws(() => app.parseAuditVerification(value, { start: 1, end: 2 }));
+  app.saveSession(app.parseSession(fixture('COA_AUDITOR')));
+  for (const [status, code, message] of [[409, 'AUDIT_RANGE_INCOMPLETE', /missing/], [409, 'AUDIT_ENTRY_INVALID', /could not be verified/], [403, 'FORBIDDEN', /Access denied/], [503, 'UNAVAILABLE', /unavailable/], [404, '', /backend version/]]) {
+    reject(status, code);
+    await assert.rejects(app.verifyAuditChain({ start: 1, end: 2 }), error => { assert.match(app.apiErrorMessage(error), message); return true; });
+  }
+});
+
+test('audit starts unverified with no simulated blocks and role access matches contract', () => {
+  const html = app.renderToStaticMarkup(app.createElement(app.AuditChainVerification));
+  assert.match(html, /No verification has been run/);
+  assert.doesNotMatch(html, /Tamper-Proof|Simulate|Requested range verified/);
+  for (const role of ['SUPER_ADMIN', 'COA_AUDITOR']) assert.ok(app.ROLE_CONFIG[role].allowedScreens.includes('audit_ledger'));
+  for (const role of ['REGIONAL_DIRECTOR', 'CASE_WORKER']) assert.ok(!app.ROLE_CONFIG[role].allowedScreens.includes('audit_ledger'));
+});
 function reject(status, code) {
   app.api.defaults.adapter = async (config) => {
     throw { isAxiosError: true, config, response: { status, data: { error: { code } } } };
@@ -449,4 +555,87 @@ test('assigned-task API failures reject instead of manufacturing a successful em
     reject(status, code);
     await assert.rejects(app.fetchAssignedTasks(), (error) => error.response.status === status);
   }
+});
+
+test('saved drafts and exact evidence survive database reopen; resave replaces only the same owner/task', async () => {
+  const bytes = 'device-only-photo';
+  const draft = { task_id: 'persist-task', household_id: 'persist-household', timestamp: '2026-10-09T00:00:00Z', sync_status: 'PENDING_SYNC', narrative_report: 'Original', evidence_attachments: [{ photo_url: bytes, client_side_hash: 'a'.repeat(64), gps_readout: { latitude: 14.2, longitude: 121.1, accuracy_m: 8 } }] };
+  await app.queueSubmission('persistence-owner', draft);
+  await app.queueSubmission('persistence-other', { ...draft, narrative_report: 'Other account' });
+  app.fieldDatabase.close();
+  await app.fieldDatabase.open();
+  assert.deepEqual(await app.getQueuedSubmissions('persistence-owner'), [draft]);
+  await app.queueSubmission('persistence-owner', { ...draft, narrative_report: 'Updated' });
+  const saved = await app.getQueuedSubmissions('persistence-owner');
+  assert.equal(saved.length, 1);
+  assert.equal(saved[0].narrative_report, 'Updated');
+  assert.equal((await app.getQueuedSubmissions('persistence-other'))[0].narrative_report, 'Other account');
+});
+
+test('offline assignments restore only an authenticated worker cache without a network request', async () => {
+  const session = app.parseSession(fixture('CASE_WORKER')); app.saveSession(session);
+  await app.cacheAssignedTasks(session.user.user_id, [{ task_id: 'offline-task', household_id: 'offline-household' }]);
+  const result = await app.loadWorkerAssignments(session.user.user_id, false, new AbortController().signal);
+  assert.equal(result.source, 'device');
+  assert.equal(result.tasks[0].task_id, 'offline-task');
+  assert.equal(result.tasks[0].cached_offline, true);
+  await assert.rejects(app.loadWorkerAssignments('another-worker', false, new AbortController().signal), /sign in/);
+  app.clearStoredSession();
+  await assert.rejects(app.loadWorkerAssignments(session.user.user_id, false, new AbortController().signal), /sign in/);
+});
+
+test('network-only failure can restore cache; 401/403/503 and cancellation never do', async () => {
+  const session = app.parseSession(fixture('CASE_WORKER')); app.saveSession(session);
+  await app.cacheAssignedTasks(session.user.user_id, [{ task_id: 'network-cache' }]);
+  app.api.defaults.adapter = async config => { throw { isAxiosError: true, config, code: 'ERR_NETWORK' }; };
+  assert.equal((await app.loadWorkerAssignments(session.user.user_id, true, new AbortController().signal)).source, 'device');
+  for (const status of [403, 503, 401]) {
+    app.saveSession(session); reject(status, 'REJECTED');
+    await assert.rejects(app.loadWorkerAssignments(session.user.user_id, true, new AbortController().signal), error => error.response.status === status);
+  }
+  app.saveSession(session);
+  const controller = new AbortController(); controller.abort();
+  await assert.rejects(app.loadWorkerAssignments(session.user.user_id, true, controller.signal));
+});
+
+test('a successful empty assignment response clears stale tasks without deleting saved drafts', async () => {
+  const session = app.parseSession(fixture('CASE_WORKER')); app.saveSession(session);
+  await app.cacheAssignedTasks(session.user.user_id, [{ task_id: 'stale-assignment' }]);
+  const draft = { task_id: 'unsubmitted', timestamp: '2026-10-09T00:00:00Z', sync_status: 'PENDING_SYNC' };
+  await app.queueSubmission(session.user.user_id, draft);
+  respond({ tasks: [] });
+  const result = await app.loadWorkerAssignments(session.user.user_id, true, new AbortController().signal);
+  assert.equal(result.source, 'server'); assert.deepEqual(result.tasks, []);
+  assert.deepEqual(await app.getCachedAssignedTasks(session.user.user_id), []);
+  assert.ok((await app.getQueuedSubmissions(session.user.user_id)).some(item => item.task_id === draft.task_id));
+});
+
+test('SHA-256 matches a known vector and fingerprints original bytes', async () => {
+  assert.equal(await app.calculateSha256(new Blob(['abc'])), 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+  assert.notEqual(await app.calculateSha256(new Blob(['abc'])), await app.calculateSha256(new Blob(['abcd'])));
+});
+
+test('evidence photo validation rejects empty, oversized, unsupported and disguised files', async () => {
+  for (const file of [new Blob([], { type: 'image/png' }), new Blob([new Uint8Array(10 * 1024 * 1024 + 1)], { type: 'image/png' }), new Blob(['<svg/>'], { type: 'image/svg+xml' }), new Blob(['not an image'], { type: 'image/jpeg' })]) {
+    await assert.rejects(app.validateEvidencePhoto(file));
+  }
+  await app.validateEvidencePhoto(new Blob([Uint8Array.from([137,80,78,71,13,10,26,10])], { type: 'image/png' }));
+  await app.validateEvidencePhoto(new Blob([Uint8Array.from([255,216,255,224])], { type: 'image/jpeg' }));
+  await app.validateEvidencePhoto(new Blob(['RIFF0000WEBP'], { type: 'image/webp' }));
+});
+
+test('location preserves device accuracy and requests a fresh high-accuracy reading', async () => {
+  const result = await app.readDeviceLocation({ getCurrentPosition(success, failure, options) {
+    assert.deepEqual(options, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+    success({ coords: { latitude: 14.2, longitude: 121.1, accuracy: 17.5 } });
+  } });
+  assert.deepEqual(result, { latitude: 14.2, longitude: 121.1, accuracy_m: 17.5 });
+});
+
+test('location denial, timeout, unavailable hardware and invalid coordinates have actionable errors', async () => {
+  await assert.rejects(app.readDeviceLocation(undefined), /not supported/);
+  for (const [code, message] of [[1, /permission was denied/], [2, /unavailable/], [3, /timed out/]]) {
+    await assert.rejects(app.readDeviceLocation({ getCurrentPosition(success, failure) { failure({ code }); } }), message);
+  }
+  await assert.rejects(app.readDeviceLocation({ getCurrentPosition(success) { success({ coords: { latitude: 91, longitude: 121, accuracy: 1 } }); } }), /invalid coordinates/);
 });

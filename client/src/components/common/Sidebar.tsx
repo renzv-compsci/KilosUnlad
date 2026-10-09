@@ -76,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             label: '15-Day Due Process',
             sublabel: 'Statutory appeals dockets',
             icon: Clock,
-            badge: `${dueProcessCount}`,
+            badge: 'Preview',
             badgeColor: 'bg-amber-50 text-amber-900 border-amber-200'
           },
           {
@@ -85,7 +85,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             sublabel: 'Cross-match sensitivity',
             icon: Sliders,
             badge: null
-          }
+          },
+          ...(userRole === 'SUPER_ADMIN' ? [{ id: 'audit_ledger' as ScreenId, label: 'Audit Verification', sublabel: 'Read-only chain check', icon: ShieldCheck, badge: null }] : [])
         ];
 
       case 'CASE_WORKER':
@@ -95,11 +96,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             label: 'Field Overview',
             sublabel: 'Calamba assigned caseload',
             icon: LayoutDashboard,
-            badge: `${assignedTasksCount} Cases`
+            badge: `${assignedTasksCount} ${assignedTasksCount === 1 ? 'task' : 'tasks'}`
           },
           {
             id: 'field_tasks' as ScreenId,
-            label: 'Assigned Field Tasks',
+            label: 'Assigned Tasks',
             sublabel: 'Priority on-site visits',
             icon: ClipboardList,
             badge: `${assignedTasksCount}`,
@@ -114,10 +115,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           },
           {
             id: 'field_sync' as ScreenId,
-            label: 'Offline Sync Queue',
-            sublabel: 'IndexedDB local storage',
+            label: 'Saved Drafts',
+            sublabel: 'Stored on this device',
             icon: RefreshCw,
-            badge: `${offlineSyncCount} Draft`,
+            badge: `${offlineSyncCount} ${offlineSyncCount === 1 ? 'draft' : 'drafts'}`,
             badgeColor: 'bg-stone-100 text-stone-700 border-stone-200'
           }
         ];
@@ -136,22 +137,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
             label: 'Audit Overview',
             sublabel: 'RA 11310 compliance metrics',
             icon: Scale,
-            badge: '94.2%'
+            badge: 'Preview'
           },
           {
             id: 'audit_ledger' as ScreenId,
-            label: 'Audit Ledger',
-            sublabel: 'SHA-256 Merkle chain',
+            label: 'Audit Verification',
+            sublabel: 'Read-only chain check',
             icon: ShieldCheck,
-            badge: '100% Valid',
-            badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200'
+            badge: null
           },
           {
             id: 'coa_sampling' as ScreenId,
             label: 'Audit Sampling',
             sublabel: 'Cross-match audit ledger',
             icon: FileCheck2,
-            badge: '68.4%'
+            badge: 'Preview'
           }
         ];
 

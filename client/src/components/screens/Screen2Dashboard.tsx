@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SampleDataLabel } from '../common/SampleDataLabel';
 import type { ScreenId } from '../../types/navigation';
 import type { BeneficiaryTriageItem } from '../../types/contracts';
+import type { TriageSummary } from '../../services/api';
 import { 
   Users, 
   AlertOctagon, 
@@ -21,6 +22,7 @@ interface Screen2DashboardProps {
   triageCount?: number;
   triageItems?: BeneficiaryTriageItem[];
   triageLoading?: boolean;
+  triageSummary?: TriageSummary | null;
   showSpecAnnotations?: boolean;
 }
 
@@ -31,6 +33,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
   triageCount,
   triageItems = [],
   triageLoading = false,
+  triageSummary = null,
   showSpecAnnotations = false,
 }) => {
   // Metric counts from admin-triage-feed.json
@@ -205,6 +208,29 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
           </button>
         </div>
       </section>
+      </div>
+
+      <div className="live-overview-grid">
+      <section className="api-workload-summary" aria-labelledby="api-summary-title" aria-busy={triageLoading}>
+        <header><h3 id="api-summary-title">Current workload</h3><span>Assigned geographic scope</span></header>
+        <dl>
+          {([
+            ['high_risk_count', 'High-risk beneficiaries'],
+            ['under_investigation_count', 'Under investigation'],
+            ['notice_of_ineligibility_count', 'Notices of ineligibility'],
+          ] as const).map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{triageLoading ? 'Loading...' : triageSummary ? triageSummary[key].toLocaleString() : 'Unavailable'}</dd></div>)}
+        </dl>
+        <details className="context-details"><summary>Count scope</summary><p>Counts cover all program statuses in your scope, not only the flagged queue. Categories may overlap.</p></details>
+      </section>
+
+      {triageCount !== undefined && !triageLoading && <section className="live-queue-preview" aria-labelledby="live-list-title">
+        <div className="live-list-heading"><h3 id="live-list-title">Households in the queue</h3><span>{Math.min(3, triageItems.length)} shown from the current page</span></div>
+        {triageCount === 0 ? <p className="live-workload-empty">No flagged cases in the current API response.</p> : triageItems.length > 0 && <ul className="live-households">{triageItems.slice(0, 3).map((item) => <li key={item.household_id}>
+          <div><strong>{item.head_of_household.full_name}</strong><span>{item.household_id}</span></div>
+          <div><strong>{item.address.municipality}</strong><span>{item.address.barangay}</span></div>
+          <div className="live-household-risk"><span>Risk score</span><strong>{item.composite_risk_score.toFixed(1)} <small>/ 100</small></strong></div>
+        </li>)}</ul>}
+      </section>}
       </div>
 
       <section className="sample-analytics-section" aria-labelledby="sample-analytics-title">
@@ -814,15 +840,6 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
         <button type="button" onClick={() => onNavigateToScreen('due_process')}>Review Appeals <ChevronRight size={15} aria-hidden="true" /></button>
       </div>
       </section>
-
-      {triageCount !== undefined && !triageLoading && <section className="live-queue-preview" aria-labelledby="live-list-title">
-        <div className="live-list-heading"><h3 id="live-list-title">Households in the queue <span>API records</span></h3><span>{Math.min(3, triageItems.length)} shown from the current page</span></div>
-        {triageCount === 0 ? <p className="live-workload-empty">No flagged cases in the current API response.</p> : triageItems.length > 0 && <ul className="live-households">{triageItems.slice(0, 3).map((item) => <li key={item.household_id}>
-          <div><strong>{item.head_of_household.full_name}</strong><span>{item.household_id}</span></div>
-          <div><strong>{item.address.municipality}</strong><span>{item.address.barangay}</span></div>
-          <div className="live-household-risk"><span>Risk score</span><strong>{item.composite_risk_score.toFixed(1)} <small>/ 100</small></strong></div>
-        </li>)}</ul>}
-      </section>}
 
       {/* 3. Regional Map & Cluster Explorer with Minimal Philippine Map & Jurisdiction Inspector */}
       <div className="geography-section">

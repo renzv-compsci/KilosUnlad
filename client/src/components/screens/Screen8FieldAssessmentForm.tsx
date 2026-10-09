@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { FieldTaskItem, FieldTaskSubmission } from '../../types/contracts';
 import { useGeolocation } from '../../hooks/useGeolocation';
-import { calculateSha256, readPhotoAsDataUrl } from '../../utils/photoHasher';
+import { calculateSha256, readPhotoAsDataUrl, validateEvidencePhoto } from '../../utils/photoHasher';
 import { assessmentProgress } from '../../utils/assessmentProgress';
 import { 
   Camera, 
@@ -59,6 +59,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
   const [photoCaptured, setPhotoCaptured] = useState(false);
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [clientSideHash, setClientSideHash] = useState('');
+  const [capturedAt, setCapturedAt] = useState('');
   const [captureError, setCaptureError] = useState<string | null>(null);
   const [isProcessingPhoto, setIsProcessingPhoto] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -76,27 +77,40 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
     wall: wallConstruction, roof: roofConstruction, water: waterAccess,
     motorcycle: isMotorcyclePresent, productive: isProductiveAsset, proof: proofType,
     cardPresented: physicalCardPresented, cardMatches: cardMatchesBeneficiary, pawning: pawningSuspected,
-    evidenceReady: photoCaptured && Boolean(gpsData) && Boolean(clientSideHash),
+    evidenceReady: !isProcessingPhoto && photoCaptured && Boolean(gpsData) && Boolean(clientSideHash),
     recommendation: workerRecommendation, narrative: narrativeReport,
   });
 
   const handleCapturePhoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    const input = event.target;
     setIsProcessingPhoto(true);
     setCaptureError(null);
+    setPhotoCaptured(false);
+    setPhotoDataUrl(null);
+    setClientSideHash('');
+    setCapturedAt('');
     try {
+      await validateEvidencePhoto(file);
       const [hash, dataUrl] = await Promise.all([calculateSha256(file), readPhotoAsDataUrl(file)]);
+      await new Promise<void>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve();
+        image.onerror = () => reject(new Error('This photo could not be opened. Choose another image.'));
+        image.src = dataUrl;
+      });
       await capturePosition();
       setClientSideHash(hash);
       setPhotoDataUrl(dataUrl);
       setPhotoCaptured(true);
+      setCapturedAt(new Date().toISOString());
     } catch (reason) {
       setPhotoCaptured(false);
       setCaptureError(reason instanceof Error ? reason.message : 'Unable to capture geotagged evidence.');
     } finally {
       setIsProcessingPhoto(false);
-      event.target.value = '';
+      input.value = '';
     }
   };
 
@@ -124,7 +138,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
         ? [
             {
               photo_url: photoDataUrl ?? '',
-              captured_at: new Date().toISOString(),
+              captured_at: capturedAt,
               gps_readout: gpsData!,
               client_side_hash: clientSideHash
             }
@@ -544,10 +558,10 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                   <span>GPS Coordinates</span>
                 </div>
                 <div className="font-mono text-xs font-semibold text-slate-900">
-                  {gpsData ? `Lat: ${gpsData.latitude.toFixed(6)}, Lon: ${gpsData.longitude.toFixed(6)}` : 'Waiting for device location'}
+                  {photoCaptured && gpsData ? `Lat: ${gpsData.latitude.toFixed(6)}, Lon: ${gpsData.longitude.toFixed(6)}` : 'Waiting for device location'}
                 </div>
                 <div className="text-[10px] text-emerald-700 mt-0.5">
-                  {gpsData ? `Accuracy: +/-${gpsData.accuracy_m.toFixed(1)}m` : 'High-accuracy GPS will be requested with the photo'}
+                  {photoCaptured && gpsData ? `Accuracy: +/-${gpsData.accuracy_m.toFixed(1)}m` : 'High-accuracy GPS will be requested with the photo'}
                 </div>
               </div>
 
@@ -572,7 +586,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <input
                 ref={photoInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 capture="environment"
                 onChange={handleCapturePhoto}
                 className="hidden"
