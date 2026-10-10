@@ -480,6 +480,10 @@ export default function App() {
         isOpen={isDispatchModalOpen}
         onClose={() => setIsDispatchModalOpen(false)}
         targetHousehold={targetHouseholdForDispatch}
+        onDispatched={() => {
+          setTriagePage(1);
+          setReloadCounter(count => count + 1);
+        }}
       />
 
       <Screen9OfflineSyncDrawer

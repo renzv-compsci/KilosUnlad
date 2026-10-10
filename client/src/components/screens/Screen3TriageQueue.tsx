@@ -85,7 +85,7 @@ export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
                   <td role="cell" className="triage-location"><span className="triage-mobile-label">Location</span><strong>{item.address.municipality}</strong><span>{item.address.barangay}, {item.address.province}</span></td>
                   <td role="cell" className="triage-risk"><span className="triage-mobile-label">Risk</span><strong>{item.composite_risk_score.toFixed(1)}<small> / 100</small></strong><span className={`triage-severity severity-${item.severity.toLowerCase()}`}>{item.severity.charAt(0) + item.severity.slice(1).toLowerCase()}</span></td>
                   <td role="cell" className="triage-actions">
-                    {readOnly ? <span className="triage-read-only">Read-only</span> : <button type="button" id={`dispatch-task-btn-${item.household_id}`} className="triage-dispatch" onClick={() => onDispatchTask(item)}><Send size={15} aria-hidden="true" />Preview Dispatch</button>}
+                    {readOnly ? <span className="triage-read-only">Read-only</span> : <button type="button" id={`dispatch-task-btn-${item.household_id}`} className="triage-dispatch" onClick={() => onDispatchTask(item)}><Send size={15} aria-hidden="true" />Dispatch</button>}
                     <button type="button" className="triage-details-toggle" aria-expanded={expanded} aria-controls={detailsId} aria-label={`${expanded ? 'Hide' : 'View'} details for ${item.head_of_household.full_name}`} onClick={() => setExpandedHousehold(expanded ? null : item.household_id)}>Details <ChevronDown size={16} aria-hidden="true" /></button>
                   </td>
                 </tr>

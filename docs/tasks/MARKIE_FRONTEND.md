@@ -1,4 +1,11 @@
 # Engineering Task Roadmap: Frontend Engineering & Tablet PWA
+
+> Current evidence and task-by-task status (October 11, 2026):
+> [Frontend phase status and handoff](../../client/FRONTEND_PHASE_STATUS_2026-10-11.md).
+> The original unchecked roadmap below remains the target specification; it is not
+> a current completion report. Live submission, appeals, positive dispatch fixture
+> and physical-device acceptance remain dependencies.
+
 **Lead:** Markie Angelo (Supported by Renz on UI Wireframes)  
 **Primary Domain:** `/client/`  
 **Core Technologies:** React 18, Vite, TailwindCSS, Dexie.js (IndexedDB), Service Workers, Lucide React, Axios  
