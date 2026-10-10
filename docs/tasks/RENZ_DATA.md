@@ -21,12 +21,12 @@
     3. COA Audit Chain Viewer.
   - *DoD:* Markie has clear visual designs to follow for Component Phase 1.
 
-- [ ] **Task 1.3: Sourcing Real PSA FIES Microdata**
+- [x] **Task 1.3: Sourcing Real PSA FIES Microdata**
   - Download the official Kaggle Philippine Family Income and Expenditure Survey (41,544 rows).
   - Store raw data in `/data-pipeline/data/raw/fies_raw.csv` (git-ignored).
   - *DoD:* Dataset loaded and verified in Jupyter notebook environment.
 
-- [ ] **Task 1.4: Conceptual Data Mapping (CDM) & Vehicle/External Record Modeling**
+- [x] **Task 1.4: Conceptual Data Mapping (CDM) & Vehicle/External Record Modeling**
   - Draft the CDM document mapping real FIES variables to synthetic 4Ps administrative variables.
   - Define the LTO Vehicle Validation layer as an external record payload (not a database schema change): `NONE`, `MOTORCYCLE`, `FOUR_WHEEL_PASSENGER`, `FOUR_WHEEL_COMMERCIAL`.
   - Define the 5 noise injection points (Label, Feature, Cohort, Temporal, Geographic).
@@ -45,7 +45,7 @@
 ## Phase 2: PSA FIES Pipeline, Synthetic Augmentation & Noise Architecture (Sprint Block 2)
 *Goal: Clean real PSA FIES data, perform EDA, engineer SWDI features, and generate the 100,000-record master dataset with realistic noise.*
 
-- [ ] **Task 2.1: Data Cleaning & FIES Exploratory Data Analysis (EDA)**
+- [x] **Task 2.1: Data Cleaning & FIES Exploratory Data Analysis (EDA)**
   - Path: `/data-pipeline/notebooks/01_fies_cleaning_and_eda.ipynb`
   - Filter columns, impute missing values, and encode Roof and Wall materials into ordinal scores (1 to 3).
   - Plot correlation heatmaps between appliance counts and total household income.
@@ -124,30 +124,6 @@
 - *Hastie, T., et al. (2009). The Elements of Statistical Learning.* (ML evaluation methodology; bias-variance tradeoff).
 
 *Standup Deliverable (Phase 3):* "100k dataset successfully partitioned (80k App / 20k Test); ML matrices handed to Charles; offline DB seeds exported without altering Dustin's architecture."
-
----
-
-## Phase 4: Sprint Facilitation & Cross-Domain Integration (Sprint Block 4)
-*Goal: Ensure services connect cleanly, resolve cross-domain blockers, and define ML acceptance criteria.*
-
-- [ ] **Task 4.1: Facilitate Daily Stand-Up Meetings**
-  - Run daily 15-minute syncs using the 3 standard questions:
-    1. *What contract task did you finish yesterday?*
-    2. *What contract task are you shipping today?*
-    3. *Are you blocked by any contract mismatches?*
-
-- [ ] **Task 4.2: Verify End-to-End Container Network Integration**
-  - Test communication flow: Client (3000) $\to$ Gateway (80/443) $\to$ Backend (5000) $\to$ ML (8000) & Database (27017).
-  - *DoD:* An assessment submitted on Markie's frontend successfully triggers Mae's backend, invokes Charles's model, writes to Dustin's database, and generates an audit log entry.
-
-- [ ] **Task 4.3: ML Model Acceptance Gate Definition**
-  - Coordinate with Charles to define strict acceptance metrics before deployment:
-    - Macro F1 score, Precision/Recall per SWDI level.
-    - False positive rate for compliant households.
-    - Inference latency (must satisfy the 2500 ms ML client deadline).
-  - *DoD:* Acceptance criteria documented in `/docs/architecture/ml_acceptance_criteria.md`.
-
-*Standup Deliverable (Phase 4):* "End-to-end integration verified: flagged household dispatches a task, triggers appeal timer, and ML acceptance gates are defined."
 
 ---
 

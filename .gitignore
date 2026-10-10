@@ -34,6 +34,7 @@ docker/data/
 # Raw Large Datasets (Keep heavy raw CSVs local)
 data-pipeline/data/raw/*.csv
 data-pipeline/seeds/*.parquet
+data-pipeline/data/intermediate
 
 # Logs & Debugging
 logs/
