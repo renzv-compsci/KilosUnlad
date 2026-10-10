@@ -1,228 +1,82 @@
+import React, { useRef, useState } from 'react';
+import { X, Send, CheckCircle2 } from 'lucide-react';
 import { AccessibleDialog } from '../common/AccessibleDialog';
-import React, { useState } from 'react';
 import { BeneficiaryTriageItem } from '../../types/contracts';
-import { MOCK_MUNICIPAL_LINKS } from '../../data/mockContracts';
-import { X, Send, Calendar, User, ShieldCheck } from 'lucide-react';
+import { apiErrorMessage } from '../../services/api';
+import { dispatchDeadline, dispatchErrorMessage, dispatchTask, DispatchReceipt } from '../../services/taskDispatch';
 
 interface Screen4TaskDispatchModalProps {
   isOpen: boolean;
   onClose: () => void;
   targetHousehold: BeneficiaryTriageItem | null;
   showSpecAnnotations?: boolean;
+  onDispatched?: (receipt: DispatchReceipt) => void;
 }
 
-export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> = ({
-  isOpen,
-  onClose,
-  targetHousehold,
-  showSpecAnnotations = false,
-}) => {
-  // Default due date: +14 days
-  const defaultDueDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split('T')[0];
-
-  const [selectedWorkerId, setSelectedWorkerId] = useState('');
-  const [assignmentNotes, setAssignmentNotes] = useState('');
-  const [dueDate, setDueDate] = useState(defaultDueDate);
-  const [priority, setPriority] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | ''>('');
-
+export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> = ({ isOpen, onClose, targetHousehold, onDispatched }) => {
+  const [worker, setWorker] = useState('');
+  const [notes, setNotes] = useState('');
+  const [deadline, setDeadline] = useState('');
+  const [priority, setPriority] = useState('HIGH');
+  const [pending, setPending] = useState(false);
+  const inFlight = useRef(false);
+  const [error, setError] = useState('');
+  const [receipt, setReceipt] = useState<DispatchReceipt | null>(null);
+  const close = () => { if (!inFlight.current) onClose(); };
   if (!isOpen || !targetHousehold) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Preview only: no dispatch integration is connected in this frontend.
+  const live = Boolean(onDispatched);
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (inFlight.current || receipt || !live) return;
+    inFlight.current = true;
+    setPending(true);
+    setError('');
+    try {
+      const result = await dispatchTask({ household_id: targetHousehold.household_id,
+        assigned_worker_id: worker.trim().toLowerCase(), assignment_notes: notes.trim(),
+        priority: priority as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL', due_date: dispatchDeadline(deadline) });
+      setReceipt(result);
+      onDispatched?.(result);
+    } catch (failure) {
+      setError(dispatchErrorMessage(failure) || `${apiErrorMessage(failure)} If the request reached the server, check the assignment before retrying.`);
+    } finally {
+      inFlight.current = false;
+      setPending(false);
+    }
   };
-
-  return (
-    <AccessibleDialog titleId="dispatch-dialog-title" onClose={onClose} className="workspace-dialog fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-xl border border-stone-200/90 w-full max-w-xl overflow-hidden transition-all">
-        
-        {/* Modal Header */}
-        <div className="bg-stone-50/70 border-b border-stone-200/90 p-5 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-[#132e4f] text-white rounded-lg shadow-2xs">
-              <Send className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 id="dispatch-dialog-title" className="text-base font-bold text-stone-900 font-display">
-                Dispatch Preview
-              </h3>
-              <p className="text-xs text-stone-500 mt-0.5">
-                Statutory On-Site SWDI Verification (DSWD Field Operations)
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={onClose}
-            aria-label="Close dispatch dialog"
-            className="text-stone-400 hover:text-stone-700 p-1.5 rounded-lg hover:bg-stone-100 transition cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
+  return <AccessibleDialog titleId="dispatch-dialog-title" onClose={close} className="workspace-dialog fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 flex items-center justify-center p-4">
+    <div className="dispatch-dialog bg-white rounded-lg shadow-xl border border-stone-200 w-full max-w-xl overflow-hidden">
+      <header className="flex items-center justify-between gap-4 p-5 border-b border-stone-200">
+        <h3 id="dispatch-dialog-title" className="text-lg font-semibold text-[#132e4f]">{receipt ? 'Task dispatched' : live ? 'Dispatch investigation' : 'Dispatch preview'}</h3>
+        <button type="button" onClick={close} disabled={pending} aria-label="Close dispatch dialog" className="p-2 rounded hover:bg-stone-100"><X size={20} /></button>
+      </header>
+      {receipt ? <div className="p-6 space-y-4">
+        <p role="status" className="flex items-center gap-2 text-emerald-800"><CheckCircle2 size={20} />Assignment confirmed by the server.</p>
+        <dl className="dispatch-receipt"><dt>Task</dt><dd>{receipt.task_id}</dd><dt>Household</dt><dd>{receipt.household_id}</dd><dt>Audit sequence</dt><dd>{receipt.audit_receipt.sequence_index}</dd></dl>
+        <p className="text-sm text-stone-600">The triage queue is refreshing. The assigned caseworker can load the new task from the server.</p>
+        <button type="button" onClick={close} className="primary-triage-action">Done</button>
+      </div> : <form onSubmit={submit} className="p-6 space-y-4" aria-busy={pending}>
+        {!live && <p className="preview-note">Design preview only. No assignments are submitted.</p>}
+        <div className="border-b border-stone-200 pb-4">
+          <p className="font-semibold text-[#132e4f]">{targetHousehold.head_of_household.full_name}</p>
+          <p className="text-sm text-stone-600">{targetHousehold.household_id}</p>
+          <p className="text-sm text-stone-600">{targetHousehold.address.barangay}, {targetHousehold.address.municipality}</p>
         </div>
-
-        {/* Spec Annotation Banner */}
-        {showSpecAnnotations && (
-          <div className="bg-stone-100/80 border-b border-stone-200 px-4 py-1 text-[10px] font-mono text-stone-600 flex justify-between">
-            <span>POST /api/v1/tasks/dispatch</span>
-            <span>Contract: admin-task-dispatch.json</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs text-stone-800">
-          <p id="dispatch-preview-status" className="preview-note">Preview only. Staff choices are sample data. Dispatch is not connected; no task will be created.</p>
-          
-          {/* Target Display: Shows household_id and family name */}
-          <div className="bg-stone-50 p-4 rounded-xl border border-stone-200/80 space-y-1.5">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 block">
-              Target Beneficiary Household
-            </span>
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <div>
-                <span className="font-mono font-bold text-[#132e4f] text-sm">
-                  {targetHousehold.household_id}
-                </span>
-                <span className="text-stone-300 mx-2">·</span>
-                <span className="font-bold text-stone-900 text-sm font-display">
-                  {targetHousehold.head_of_household.full_name}
-                </span>
-              </div>
-              <span className="text-[11px] font-mono text-stone-500">
-                PhilSys: {targetHousehold.head_of_household.national_id}
-              </span>
-            </div>
-            <div className="text-xs text-stone-600">
-              Jurisdiction: {targetHousehold.address.barangay}, {targetHousehold.address.municipality} ({targetHousehold.address.province})
-            </div>
-          </div>
-
-          {/* Worker Selector: Municipal Links assigned to that barangay */}
-          <div>
-            <label htmlFor="dispatch-worker-select" className="block font-semibold text-stone-700 mb-1.5 text-xs flex items-center justify-between">
-              <span>Assigned Municipal Link Caseworker</span>
-              {showSpecAnnotations && <span className="text-[9px] font-mono text-stone-400">assigned_worker_id</span>}
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-4 w-4 text-stone-400" />
-              </div>
-              <select
-                id="dispatch-worker-select"
-                value={selectedWorkerId}
-                onChange={(e) => setSelectedWorkerId(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-[#132e4f] outline-none bg-white cursor-pointer"
-              >
-                <option value="" disabled>Select a sample caseworker</option>
-                {MOCK_MUNICIPAL_LINKS.map((worker) => (
-                  <option key={worker.id} value={worker.id}>
-                    {worker.name} — Area: {worker.area} ({worker.id})
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Input: assignment_notes (Textarea) */}
-          <div>
-            <label htmlFor="dispatch-notes-input" className="block font-semibold text-stone-700 mb-1.5 text-xs flex items-center justify-between">
-              <span>Inspection Instructions <span className="required-label">(required)</span></span>
-              {showSpecAnnotations && <span className="text-[9px] font-mono text-stone-400">assignment_notes</span>}
-            </label>
-            <textarea
-              id="dispatch-notes-input"
-              rows={3}
-              required
-              value={assignmentNotes}
-              onChange={(e) => setAssignmentNotes(e.target.value)}
-              placeholder="Verify whether registered vehicle is a productive livelihood asset or personal property..."
-              className="w-full p-3 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-[#132e4f] outline-none leading-relaxed"
-            />
-          </div>
-
-          {/* Grid: due_date and priority */}
+        <fieldset disabled={pending} className="dispatch-fields space-y-4">
+          <label htmlFor="dispatch-worker-id">Caseworker account ID<input id="dispatch-worker-id" required value={worker} onChange={event => setWorker(event.target.value)} pattern="[a-fA-F0-9]{24}" maxLength={24} autoComplete="off" spellCheck={false} aria-describedby="dispatch-worker-help" /></label>
+          <p id="dispatch-worker-help" className="text-sm text-stone-600">Use the 24-character ID provided by your administrator. A staff directory is not available yet.</p>
+          <label htmlFor="dispatch-instructions">Inspection instructions<textarea id="dispatch-instructions" required rows={3} value={notes} onChange={event => setNotes(event.target.value)} /></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
-            {/* Input: due_date */}
-            <div>
-              <label htmlFor="dispatch-due-date-input" className="block font-semibold text-stone-700 mb-1.5 text-xs flex items-center justify-between">
-                <span>Deadline <span className="required-label">(required)</span></span>
-                {showSpecAnnotations && <span className="text-[9px] font-mono text-stone-400">due_date (+14d)</span>}
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-4 w-4 text-stone-400" />
-                </div>
-                <input
-                  id="dispatch-due-date-input"
-                  type="date"
-                  required
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 border border-stone-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-[#132e4f] outline-none bg-white"
-                />
-              </div>
-            </div>
-
-            {/* Radio selector: priority */}
-            <div>
-              <label className="block font-semibold text-stone-700 mb-1.5 text-xs flex items-center justify-between">
-                <span>Priority Level</span>
-                {showSpecAnnotations && <span className="text-[9px] font-mono text-stone-400">priority</span>}
-              </label>
-              <div className="grid grid-cols-4 gap-1 p-1 bg-stone-100 rounded-lg border border-stone-200 text-center font-medium text-[11px]">
-                {(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const).map((lvl) => (
-                  <label
-                    key={lvl}
-                    className={`py-1.5 rounded cursor-pointer transition ${
-                      priority === lvl
-                        ? lvl === 'CRITICAL' ? 'bg-rose-700 text-white shadow-2xs font-semibold'
-                        : lvl === 'HIGH' ? 'bg-amber-700 text-white shadow-2xs font-semibold'
-                        : 'bg-[#132e4f] text-white shadow-2xs font-semibold'
-                        : 'text-stone-600 hover:bg-stone-200/70'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="priority"
-                      value={lvl}
-                      checked={priority === lvl}
-                      onChange={() => setPriority(lvl)}
-                      className="sr-only"
-                    />
-                    {lvl}
-                  </label>
-                ))}
-              </div>
-            </div>
-
+            <label htmlFor="dispatch-deadline">Deadline (Philippine time)<input id="dispatch-deadline" type="date" required value={deadline} onChange={event => setDeadline(event.target.value)} /></label>
+            <label htmlFor="dispatch-priority">Priority<select id="dispatch-priority" value={priority} onChange={event => setPriority(event.target.value)}>{['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].map(value => <option key={value} value={value}>{value}</option>)}</select></label>
           </div>
-
-          {/* Action: Button Confirm Dispatch */}
-          <div className="pt-4 border-t border-stone-100 flex items-center justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-stone-600 hover:text-stone-800 font-medium rounded-lg text-xs hover:bg-stone-100 transition cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              id="confirm-dispatch-submit-btn"
-              type="submit"
-              disabled
-              aria-describedby="dispatch-preview-status"
-              className="px-4 py-2 bg-[#132e4f] hover:bg-[#0c2340] text-white font-semibold rounded-lg text-xs shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>Dispatch unavailable</span>
-            </button>
-          </div>
-
-        </form>
-
-      </div>
-    </AccessibleDialog>
-  );
+        </fieldset>
+        {error && <p role="alert" className="text-sm text-rose-800">{error}</p>}
+        <footer className="flex flex-wrap justify-end gap-3 border-t border-stone-200 pt-4">
+          <button type="button" onClick={close} disabled={pending} className="px-4 py-2 rounded hover:bg-stone-100">Cancel</button>
+          <button id="confirm-dispatch-submit-btn" type="submit" disabled={pending || !live} className="primary-triage-action disabled:opacity-50"><Send size={16} />{pending ? 'Dispatching...' : 'Confirm dispatch'}</button>
+        </footer>
+      </form>}
+    </div>
+  </AccessibleDialog>;
 };

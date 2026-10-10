@@ -36,7 +36,7 @@ export const AdminDispatchManager: React.FC<AdminDispatchManagerProps> = ({
           <Plus size={18} aria-hidden="true" /> Select Household
         </button>
       </header>
-      <p id="dispatch-preview-note" className="preview-note">Sample assignments. Dispatch and reassignment are not submitted.</p>
+      <p id="dispatch-preview-note" className="preview-note">Sample assignments. Reassignment is unavailable. New dispatches are created from the live triage queue.</p>
 
       <section aria-labelledby="dispatch-list-heading">
         <div className="operations-toolbar">

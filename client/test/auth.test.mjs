@@ -1,5 +1,6 @@
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { build } from 'esbuild';
 import 'fake-indexeddb/auto';
 
@@ -9,6 +10,8 @@ const bundled = await build({
     export * from './src/services/authSession';
     export * from './src/services/api';
     export * from './src/services/auditVerification';
+    export * from './src/services/taskDispatch';
+    export { Screen4TaskDispatchModal } from './src/components/screens/Screen4TaskDispatchModal';
     export { AuditChainVerification } from './src/components/screens/AuditChainVerification';
     export * from './src/types/permissions';
     export * from './src/services/indexedDB';
@@ -198,7 +201,7 @@ test('triage keeps four primary columns with complete, collapsed evidence and ba
   assert.match(html, /Predicted SWDI/);
   assert.doesNotMatch(html, /min-w-\[1100px\]|Calamity Freeze|Critical \(Score/);
   assert.match(render(true), /Read-only/);
-  assert.doesNotMatch(render(true), /Preview Dispatch/);
+  assert.doesNotMatch(render(true), /class="triage-dispatch"/);
 });
 
 test('policy settings clearly identifies non-persistent previews', () => {
@@ -318,6 +321,46 @@ function reject(status, code) {
     throw { isAxiosError: true, config, response: { status, data: { error: { code } } } };
   };
 }
+
+const dispatchInput = () => ({ household_id: 'TEST-DISPATCH', assigned_worker_id: 'a'.repeat(24), assignment_notes: 'Synthetic inspection', priority: 'HIGH', due_date: '2099-10-12T23:59:59+08:00' });
+const dispatchReceipt = () => ({ task_id: 'TSK-TEST', household_id: 'TEST-DISPATCH', assigned_worker_id: 'a'.repeat(24), task_status: 'PENDING_DISPATCH', household_status: 'UNDER_INVESTIGATION', dispatched_at: '2026-10-11T08:00:00Z', audit_receipt: { sequence_index: 1, entry_hash: 'b'.repeat(64) } });
+test('dispatch dates use Philippine end-of-day and reject invalid fields', () => {
+  assert.equal(app.dispatchDeadline('2099-10-12'), '2099-10-12T23:59:59+08:00');
+  for (const day of ['2026-02-30', '', '12/10/2026']) assert.throws(() => app.dispatchDeadline(day));
+  for (const invalid of [{ assigned_worker_id: 'sample-worker' }, { priority: 'URGENT' }, { assignment_notes: ' ' }, { due_date: '2020-01-01T00:00:00Z' }, { household_id: '' }]) assert.throws(() => app.validateDispatch({ ...dispatchInput(), ...invalid }));
+});
+test('dispatch posts exact authenticated contract and requires a matching 201 receipt', async () => {
+  const session = app.parseSession(fixture('REGIONAL_DIRECTOR')); app.saveSession(session);
+  app.api.defaults.adapter = async config => {
+    assert.equal(config.method, 'post'); assert.equal(config.url, '/tasks/dispatch');
+    assert.equal(config.headers.Authorization, `Bearer ${session.access_token}`);
+    assert.deepEqual(JSON.parse(config.data), dispatchInput());
+    return { config, status: 201, headers: {}, data: dispatchReceipt() };
+  };
+  assert.equal((await app.dispatchTask(dispatchInput())).task_id, 'TSK-TEST');
+  for (const [status, data, headers] of [[200, dispatchReceipt(), {}], [201, { ...dispatchReceipt(), household_id: 'other' }, {}], [201, { ...dispatchReceipt(), audit_receipt: null }, {}], [201, dispatchReceipt(), { 'x-kilosunlad-mock': 'true' }]]) {
+    app.api.defaults.adapter = async config => ({ config, status, data, headers });
+    await assert.rejects(app.dispatchTask(dispatchInput()), /valid dispatch receipt/);
+  }
+});
+test('dispatch rejects forbidden roles before transport and explains backend conflicts', async () => {
+  for (const role of ['CASE_WORKER', 'COA_AUDITOR']) {
+    app.saveSession(app.parseSession(fixture(role)));
+    await assert.rejects(app.dispatchTask(dispatchInput()), /Only administrators/);
+  }
+  app.saveSession(app.parseSession(fixture('SUPER_ADMIN')));
+  for (const [code, message] of [['ACTIVE_TASK_EXISTS', /active task/], ['INVALID_ASSIGNED_WORKER', /active caseworker/], ['OUT_OF_JURISDICTION', /jurisdiction/]]) {
+    reject(409, code);
+    await assert.rejects(app.dispatchTask(dispatchInput()), error => { assert.match(app.dispatchErrorMessage(error), message); return true; });
+  }
+});
+test('dispatch source keeps QA writes disabled and does not import fabricated staff', () => {
+  // Dialog portals require a browser; verify the static safety guards here, UI separately.
+  const source = readFileSync('src/components/screens/Screen4TaskDispatchModal.tsx', 'utf8');
+  assert.match(source, /inFlight.current \|\| receipt \|\| !live/);
+  assert.match(source, /disabled=\{pending \|\| !live\}/);
+  assert.doesNotMatch(source, /MOCK_MUNICIPAL_LINKS/);
+});
 beforeEach(() => {
   values.clear(); unauthorized = 0;
   app.api.defaults.adapter = async () => { throw new Error('Unexpected request'); };
@@ -436,9 +479,9 @@ test('COA triage renders without dispatch controls', async () => {
   respond(triageResponse([{ household_id: 'synthetic-household', composite_risk_score: 75 }]));
   const items = await app.fetchTriageQueue();
   const render = (readOnly) => app.renderToStaticMarkup(app.createElement(app.Screen3TriageQueue, { items, readOnly, onDispatchTask() {} }));
-  assert.doesNotMatch(render(true), /Preview Dispatch/);
+  assert.doesNotMatch(render(true), /class="triage-dispatch"/);
   assert.match(render(true), /Read-only/);
-  assert.match(render(false), /Preview Dispatch/);
+  assert.match(render(false), /class="triage-dispatch"/);
 });
 test('empty assigned tasks renders empty state and authenticated worker identity', () => {
   const html = app.renderToStaticMarkup(app.createElement(app.Screen7FieldTasksList, {

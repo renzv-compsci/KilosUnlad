@@ -365,30 +365,42 @@
 @media (prefers-reduced-motion: reduce) {
   .module-page *, .state-spinner { animation: none; transition: none; }
 }
-.live-overview-grid { display: grid; grid-template-columns: minmax(220px, .85fr) minmax(0, 1.5fr); gap: 32px; }
+.live-overview-grid { display: grid; grid-template-columns: minmax(260px, .85fr) minmax(0, 1.6fr); gap: 16px; align-items: stretch; }
 .live-overview-grid > :only-child { grid-column: 1 / -1; }
-.live-overview-grid .live-queue-preview { padding-top: 0; border: 0; }
-.live-overview-grid .live-list-heading { min-height: 48px; align-content: start; margin-bottom: 12px; }
-.live-overview-grid .live-list-heading h3 { font-size: 15px; }
-.live-overview-grid .live-households li { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 86px; gap: 16px; padding: 12px 0; }
+.live-overview-grid > :is(.api-workload-summary, .live-queue-preview) { min-width: 0; padding: 20px; border: 1px solid #e5ebf2; border-radius: 8px; background: #fff; box-shadow: 0 4px 16px #132e4f05; }
+.live-overview-grid .live-list-heading { min-height: 28px; align-content: start; margin-bottom: 20px; }
+.live-overview-grid .live-list-heading h3 { margin: 0; color: #132e4f; font-size: 16px; font-weight: 650; }
+.live-overview-grid .live-households { margin: 0; padding: 0; list-style: none; border-color: #e5ebf2; }
+.live-overview-grid .live-households li { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 92px; align-items: center; gap: 20px; padding: 16px 0; border-color: #e5ebf2; }
+.live-overview-grid .live-households strong { color: #132e4f; }
+.live-overview-grid .live-household-risk strong { white-space: nowrap; }
 .api-workload-summary { padding: 0; }
-.api-workload-summary header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
-.api-workload-summary h3 { margin: 0; font-size: 15px; font-weight: 650; color: #132e4f; }
+.api-workload-summary header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; min-height: 28px; }
+.api-workload-summary h3 { margin: 0; font-size: 16px; font-weight: 650; color: #132e4f; }
 .api-workload-summary header span, .api-workload-summary p { font-size: 13px; color: #526171; }
-.api-workload-summary dl { display: grid; gap: 12px; margin: 16px 0 8px; }
-.api-workload-summary dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
-.api-workload-summary dt { font-size: 13px; color: #526171; }
-.api-workload-summary dd { margin: 0; font-size: 21px; font-weight: 650; color: #132e4f; overflow-wrap: anywhere; }
+.api-workload-summary dl { display: grid; gap: 12px; margin: 20px 0 8px; }
+.api-workload-summary dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; min-height: 28px; }
+.api-workload-summary dt { min-width: 0; font-size: 14px; color: #526171; }
+.api-workload-summary dd { margin: 0; font-size: 23px; line-height: 1.3; font-weight: 650; color: #132e4f; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; text-align: right; }
+.api-workload-summary[aria-busy="true"] dd { font-size: 14px; }
 .api-workload-summary .context-details { margin-top: 0; }
 .sample-analytics-section { border-top: 1px solid #dce3ea; padding-top: 24px; }
 @container (max-width: 740px) {
-  .live-overview-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .live-overview-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .live-overview-grid .live-households li { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 86px; }
 }
 @container (max-width: 460px) {
+  .live-overview-grid > :is(.api-workload-summary, .live-queue-preview) { padding: 16px; }
   .live-overview-grid .live-households li { grid-template-columns: minmax(0, 1fr) 85px; }
 }
 .audit-verification { max-width: 1040px; }
+.dispatch-dialog { max-height: calc(100dvh - 32px); overflow-y: auto; }
+.dispatch-fields label { display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 600; }
+.dispatch-fields :is(input, textarea, select) { width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid #aab5c0; border-radius: 6px; background: white; font-size: 16px; font-weight: 400; }
+.dispatch-fields :is(input, textarea, select):focus-visible { outline: 2px solid #315d86; outline-offset: 2px; }
+.dispatch-receipt { display: grid; gap: 8px; overflow-wrap: anywhere; }
+.dispatch-receipt dt { color: #526171; font-size: 13px; }
+.dispatch-receipt dd { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
 .audit-range-form { display: flex; align-items: end; flex-wrap: wrap; gap: 16px; }
 .audit-range-form label { display: grid; gap: 8px; flex: 1 1 180px; font-size: 14px; font-weight: 600; }
 .audit-range-form input { width: 100%; min-width: 0; padding: 12px; border: 1px solid #aab5c0; border-radius: 6px; background: white; }

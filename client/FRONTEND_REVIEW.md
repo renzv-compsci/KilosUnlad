@@ -1,5 +1,10 @@
 # Frontend UI Review
 
+Current status: see [October 11 phase handoff](FRONTEND_PHASE_STATUS_2026-10-11.md).
+Main `f082bea` is now incorporated. Dispatch is connected with manual worker-ID
+entry; positive acceptance awaits Dustin's fixture. Audit range 1..4 passed live.
+The remainder below records the earlier PR #16 handoff and its historical limits.
+
 Branch: `frontend-markie`. This handoff contains frontend UI, accessibility,
 preview-state, and regression-test changes. No custom backend or database changes
 are part of the UI commit. The branch already includes main through `c030c77`
