@@ -1,8 +1,14 @@
 # Frontend UI Review
 
-Current status: see [October 11 phase handoff](FRONTEND_PHASE_STATUS_2026-10-11.md).
-Main `f082bea` is now incorporated. Dispatch is connected with manual worker-ID
-entry; positive acceptance awaits Dustin's fixture. Audit range 1..4 passed live.
+Runtime follow-up: [latest-main compatibility](FRONTEND_MAIN_COMPATIBILITY_2026-10-12.md).
+Main `fcde07a` is now merged and running locally; core API checks passed again.
+Submission and appeals routes remain unmounted on this verified baseline.
+
+Latest evidence: [October 12 dispatch acceptance](FRONTEND_DISPATCH_ACCEPTANCE_2026-10-12.md).
+Real frontend dispatch returned 201 with Dustin's fixture; the new task appeared
+in the worker feed and actual audit range 1..5 passed verification locally.
+See the [October 11 phase handoff](FRONTEND_PHASE_STATUS_2026-10-11.md) for the
+earlier phase snapshot and runtime limitations.
 The remainder below records the earlier PR #16 handoff and its historical limits.
 
 Branch: `frontend-markie`. This handoff contains frontend UI, accessibility,
