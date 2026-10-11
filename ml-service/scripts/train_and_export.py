@@ -30,12 +30,32 @@ TARGET_COL = 'true_swdi_level'
 
 def load_data():
     print("--- Loading Parquet Data ---")
-    train_path = DATA_DIR / "train_features_70k.parquet"
-    val_path = DATA_DIR / "val_features_10k.parquet"
+    
+    # DYNAMIC FILE DISCOVERY (Fixes the filename mismatch automatically)
+    files = os.listdir(DATA_DIR)
+    train_file = next((f for f in files if 'train' in f.lower()), None)
+    val_file = next((f for f in files if 'val' in f.lower()), None)
+    
+    if not train_file or not val_file:
+        print(f"ERROR: Could not find train/val parquet files in {DATA_DIR}")
+        print(f"Files found: {files}")
+        sys.exit(1)
+        
+    print(f"Found Train: {train_file}")
+    print(f"Found Val:   {val_file}")
+    
+    train_path = DATA_DIR / train_file
+    val_path = DATA_DIR / val_file
     
     train_df = pd.read_parquet(train_path)
     val_df = pd.read_parquet(val_path)
     
+    # Safety Check: Ensure all features exist
+    missing = [col for col in FEATURE_COLS if col not in train_df.columns]
+    if missing:
+        print(f"ERROR: Missing columns in dataset: {missing}")
+        sys.exit(1)
+        
     X_train = train_df[FEATURE_COLS]
     y_train = train_df[TARGET_COL]
     X_val = val_df[FEATURE_COLS]
@@ -46,9 +66,14 @@ def load_data():
 def train_and_evaluate():
     X_train, X_val, y_train, y_val = load_data()
     
+    # FIX: XGBoost requires 0-indexed classes (0, 1, 2).
+    # We temporarily shift 1,2,3 -> 0,1,2 for training.
+    y_train_adj = y_train - 1
+    y_val_adj = y_val - 1
+    
     models = {
         "LightGBM": lgb.LGBMClassifier(objective='multiclass', num_class=3, random_state=42, n_estimators=100, verbose=-1),
-        "XGBoost": xgb.XGBClassifier(objective='multi:softprob', num_class=3, random_state=42, n_estimators=100, use_label_encoder=False, eval_metric='mlogloss', verbosity=0),
+        "XGBoost": xgb.XGBClassifier(objective='multi:softprob', num_class=3, random_state=42, n_estimators=100, eval_metric='mlogloss', verbosity=0),
         "RandomForest": RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
     }
     
@@ -59,8 +84,12 @@ def train_and_evaluate():
     print("--- Training Models ---")
     for name, model in models.items():
         print(f"Training {name}...")
-        model.fit(X_train, y_train)
-        preds = model.predict(X_val)
+        model.fit(X_train, y_train_adj)
+        
+        # Predict and shift back to 1,2,3 for evaluation
+        preds_adj = model.predict(X_val)
+        preds = preds_adj + 1
+        
         score = f1_score(y_val, preds, average='macro')
         
         if score > best_score:
@@ -76,12 +105,23 @@ def extract_shap_and_export(model, model_name, X_val):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_val)
     
-    # Robust SHAP extraction for multiclass (list of arrays)
+    # Bulletproof extraction for LightGBM multiclass (handles list OR 3D array)
     if isinstance(shap_values, list):
-        feature_importance = np.mean([np.abs(sv).mean(axis=0) for sv in shap_values], axis=0)
+        # Format: [array_class0, array_class1, array_class2]
+        class_imps = [np.abs(sv).mean(axis=0) for sv in shap_values]
+        feature_importance = np.mean(class_imps, axis=0)
     else:
-        feature_importance = np.abs(shap_values).mean(axis=0)
-        
+        shap_arr = np.array(shap_values)
+        if shap_arr.ndim == 3:
+            # Format: (samples, features, classes)
+            feature_importance = np.abs(shap_arr).mean(axis=(0, 2))
+        else:
+            # Format: (samples, features)
+            feature_importance = np.abs(shap_arr).mean(axis=0)
+            
+    # Force to flat 1D array to prevent TypeError
+    feature_importance = np.array(feature_importance).flatten()
+    
     shap_dict = {feat: float(imp) for feat, imp in zip(FEATURE_COLS, feature_importance)}
     
     ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -101,7 +141,7 @@ def extract_shap_and_export(model, model_name, X_val):
         json.dump(metadata, f, indent=2)
         
     print(f"💾 Model saved to: {ARTIFACTS_DIR / model_filename}")
-    print("✅ Export Complete.")
+    print("✅ Export Complete. Ready for API Integration.")
 
 if __name__ == "__main__":
     sys.path.append(str(BASE_DIR))
