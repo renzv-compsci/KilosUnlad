@@ -35,6 +35,8 @@ docker/data/
 data-pipeline/data/raw/*.csv
 data-pipeline/seeds/*.parquet
 data-pipeline/data/intermediate
+data-pipeline/exports 
+data-pipeline/partitions
 
 # Logs & Debugging
 logs/

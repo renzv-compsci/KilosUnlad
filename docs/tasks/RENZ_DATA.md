@@ -51,19 +51,19 @@
   - Plot correlation heatmaps between appliance counts and total household income.
   - *DoD:* Clean notebook exported with correlation plots saved to `/docs/architecture/eda_correlations.png`.
 
-- [ ] **Task 2.2: SWDI Feature Engineering & Poverty Threshold Mapping**
+- [x] **Task 2.2: SWDI Feature Engineering & Poverty Threshold Mapping**
   - Path: `/data-pipeline/notebooks/02_swdi_feature_engineering.ipynb`
   - Calculate Per Capita Monthly Income and Dependency Ratio.
   - Assign ground-truth SWDI tiers (Level 1, 2, 3) using official PSA Laguna poverty thresholds.
   - Export training matrix: `/data-pipeline/seeds/features_swdi_clean.parquet`.
   - *DoD:* File handed to Charles for LightGBM model training.
 
-- [ ] **Task 2.3: Mathematical Formulation Engine**
+- [x] **Task 2.3: Mathematical Formulation Engine**
   - Path: `/data-pipeline/generator/distributions.py` & `latent_wealth.py`
   - Implement vectorized NumPy formulas for Household Size (Poisson), Dependency Ratio, Electricity (LogNormal based on RA 11552), and Continuous Latent Wealth Score ($W_i$).
   - *DoD:* All formulas produce statistically valid distributions; unit tests pass for edge cases.
 
-- [ ] **Task 2.4: Synthetic Operational Augmentation (100,000 Scale + Vehicle Layer)**
+- [x] **Task 2.4: Synthetic Operational Augmentation (100,000 Scale + Vehicle Layer)**
   - Path: `/data-pipeline/generator/generator.py` & `external_records.py`
   - Sample 100,000 households preserving empirical distributions.
   - Add Filipino names, Laguna GPS coordinates, PhilSys IDs, and LandBank PANs.
@@ -71,7 +71,7 @@
   - Inject the 4 operational audit cohorts (60% Compliant, 15% Graduation, 10% Asset, 15% Sinking).
   - *DoD:* 100,000 master records generated offline with correct cohort proportions and deterministic seed (42).
 
-- [ ] **Task 2.5: Noise Injection Architecture**
+- [x] **Task 2.5: Noise Injection Architecture**
   - Path: `/data-pipeline/generator/noise_engine.py`
   - Inject controlled noise to prevent ML memorization:
     1. *Label Noise (3-5%):* Simulate graduation lag/data entry errors.
@@ -93,7 +93,7 @@
 ## Phase 3: Stratified Partitioning, ML Handoff & Offline Export (Sprint Block 3)
 *Goal: Split the 100k dataset into App/Test/Validation partitions and export deliverables without altering the live database architecture.*
 
-- [ ] **Task 3.1: Stratified Partition Engine**
+- [x] **Task 3.1: Stratified Partition Engine**
   - Path: `/data-pipeline/generator/partition_engine.py`
   - Apply a stratified split across the 100,000 master records:
     - **Application Partition (80,000):** 70,000 Training Pool + 10,000 Validation Pool.
@@ -101,21 +101,21 @@
   - Stratify by Cohort, SWDI level, Geographic cluster, and `source_fies_id` (to prevent data leakage).
   - *DoD:* Partition manifest generated with exact counts; distribution equivalence validated.
 
-- [ ] **Task 3.2: ML Feature Export for Charles**
+- [x] **Task 3.2: ML Feature Export for Charles**
   - Export Parquet files for the ML microservice:
     - `train_features_70k.parquet`
     - `validation_features_10k.parquet`
     - `test_features_20k.parquet`
   - *DoD:* Files handed to Charles; schema validated against the `ml-swdi-inference.json` frozen contract.
 
-- [ ] **Task 3.3: Database-Ready Seed Export (Offline Isolation)**
+- [x] **Task 3.3: Database-Ready Seed Export (Offline Isolation)**
   - Export JSON files compatible with Dustin's *existing* Mongoose schemas:
     - `seed_beneficiaries_app_80k.json` & `seed_external_records_app_80k.json`
     - `seed_beneficiaries_test_20k.json` & `seed_external_records_test_20k.json`
   - **CRITICAL CONSTRAINT:** Do NOT overwrite existing `seed_beneficiaries.json`. Do NOT trigger automatic ingestion. Do NOT require schema changes.
   - *DoD:* JSON files pass offline schema validation; referential integrity verified; Dustin's live DB remains untouched.
 
-- [ ] **Task 3.4: Partition Quality & Leakage Validation Report**
+- [x] **Task 3.4: Partition Quality & Leakage Validation Report**
   - Generate reports verifying exact counts, cohort preservation, and zero `source_fies_id` leakage across partitions.
   - *DoD:* Reports generated and reviewed in `/data-pipeline/reports/`.
 

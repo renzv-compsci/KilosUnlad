@@ -1,7 +1,7 @@
 # Engineering Task Roadmap: Machine Learning & Analytics
 **Lead:** Charles Cabatian  
 **Primary Domain:** `/ml-service/`  
-**Core Technologies:** Python 3.10, FastAPI, LightGBM, SHAP, Scikit-Learn, Pydantic, Uvicorn  
+**Core Technologies:** Python 3.10, FastAPI, LightGBM, XGBoost, Scikit-Learn, SHAP, Pydantic, Uvicorn  
 **Container:** `kilosunlad-ml` (Internal Port `8000`)  
 
 ---
@@ -11,12 +11,13 @@
 You are building the **AI & Analytics Engine** for **KilosUnlad**, a decision-support system for the DSWD 4Ps program. 
 
 Your service runs as an isolated FastAPI microservice inside Docker. It has two analytical responsibilities:
-1. **Proxy-Means Testing (PMT):** Predict a household's true well-being level (DSWD SWDI: *Level 1: Survival*, *Level 2: Subsistence*, *Level 3: Self-Sufficiency*) using LightGBM and explain the prediction using SHAP values.
+1. **Proxy-Means Testing (PMT):** Predict a household's true well-being level (DSWD SWDI: *Level 1: Survival*, *Level 2: Subsistence*, *Level 3: Self-Sufficiency*) and explain the prediction using SHAP values.
 2. **ATM Telemetry Anomaly Detection:** Detect illegal card-pawning rings (*Sangla-ATM*) by analyzing LandBank ATM transaction velocities and batch patterns.
 
 **Your Boundaries:**
 * You do **not** touch the database directly; Mae’s Node.js backend sends you HTTP requests and saves your outputs.
 * Your endpoints must strictly match `/docs/contracts/ml/ml-swdi-inference.json` and `/docs/contracts/ml/ml-atm-telemetry.json`.
+* **CRITICAL CONSTRAINT:** The system enforces a strict **2500ms total inference deadline** and a **1 MiB response cap**. You must optimize for low-latency, single-model inference in production.
 
 ---
 
@@ -25,11 +26,11 @@ Your service runs as an isolated FastAPI microservice inside Docker. It has two 
 
 - [ ] **Task 1.1: Local Virtual Environment & Dependency Installation**
   - Path: `/ml-service/requirements.txt`
-  - Create a local Python 3.10 virtual environment (`python -m venv .venv`) and install dependencies:
+  - Create a local Python 3.10 virtual environment and install dependencies:
     ```bash
     pip install -r requirements.txt
     ```
-  - *Definition of Done (DoD):* All packages (`fastapi`, `lightgbm`, `shap`, `pydantic`, `joblib`) install with zero wheel compilation errors.
+  - *Definition of Done (DoD):* All packages (`fastapi`, `lightgbm`, `xgboost`, `scikit-learn`, `shap`, `pydantic`, `joblib`, `pyarrow`) install with zero wheel compilation errors.
 
 - [ ] **Task 1.2: Boot Microservice & Validate Swagger Documentation**
   - Paths: `/ml-service/app/main.py`, `/ml-service/app/core/config.py`
@@ -42,9 +43,7 @@ Your service runs as an isolated FastAPI microservice inside Docker. It has two 
 
 - [ ] **Task 1.3: Contract Compliance Verification**
   - Paths: `/ml-service/app/schemas/inference.py`, `/ml-service/app/schemas/telemetry.py`
-  - Execute test requests via Swagger UI or `curl` using the sample payloads from:
-    - `/docs/contracts/ml/ml-swdi-inference.json`
-    - `/docs/contracts/ml/ml-atm-telemetry.json`
+  - Execute test requests via Swagger UI or `curl` using the sample payloads from the frozen contracts in `/docs/contracts/ml/`.
   - *DoD:* Endpoints respond with HTTP `200 OK` and match the contract JSON structures 1:1.
 
 *Daily Standup Deliverable (Phase 1):*  
@@ -53,33 +52,40 @@ Your service runs as an isolated FastAPI microservice inside Docker. It has two 
 ---
 
 ## Phase 2: Core Machine Learning & Anomaly Engineering (Days 4–8)
-*Goal: Train the LightGBM classifier on real PSA FIES data, integrate SHAP, and code the ATM velocity algorithm.*
+*Goal: Train models on the stratified partition matrices, integrate SHAP, and code the ATM velocity algorithm.*
 
-- [ ] **Task 2.1: Ingest Clean Training Matrix from Renz**
-  - Source: `/data-pipeline/seeds/features_swdi_clean.parquet`
-  - Load the feature matrix into a training script (`train_pipeline.py`).
-  - Verify feature columns: `household_size`, `dependents_ratio`, `head_education_level`, `wall_score`, `roof_score`, `water_access_level`.
-  - Verify target column: `swdi_level` (integers 1, 2, 3).
-  - *DoD:* 80/20 train-test split created with stratified class balance.
+- [ ] **Task 2.1: Acquire Stratified Partition Matrices from Renz**
+  - **Do NOT use the raw JSON seeds or CSVs.** 
+  - Source: `/data-pipeline/partitions/`
+  - Run Renz's partition script to generate the 70/10/20 split Parquet files:
+    ```bash
+    cd data-pipeline
+    python scripts/stratified_partition.py
+    ```
+  - Load `train_features_70k.parquet`, `validation_features_10k.parquet`, and `test_features_20k.parquet` using `pandas.read_parquet`.
+  - Consult `/docs/ml_feature_dictionary.md` for the exact list of columns to drop (PII/Admin) and the 6 core proxy features to keep.
+  - *DoD:* Data loaded cleanly with correct data types preserved via PyArrow.
 
-- [ ] **Task 2.2: Train & Serialize LightGBM Classifier**
-  - Path: `/ml-service/app/services/classifier.py`
-  - Train `LGBMClassifier(objective='multiclass', num_class=3, n_estimators=100, learning_rate=0.05)`.
-  - Target metrics: Macro F1-score $\ge 85\%$ across all 3 tiers.
-  - Save trained model weights to `/ml-service/artifacts/lightgbm_swdi_v1.joblib`.
-  - Update `/ml-service/artifacts/model_metadata.json` with accuracy and training date.
-  - *DoD:* Model serializes cleanly and achieves $\ge 85\%$ F1-score on test split.
+- [ ] **Task 2.2: Multi-Model Training & Selection**
+  - Path: `/ml-service/app/services/training_pipeline.py`
+  - Train and evaluate **three** tree-based ensemble classifiers on the training set:
+    1. LightGBM (`LGBMClassifier`)
+    2. XGBoost (`XGBClassifier`)
+    3. Random Forest (`RandomForestClassifier`)
+  - **Evaluation Metric:** Optimize for **Macro F1-Score** and **ROC-AUC (One-vs-Rest)** due to class imbalances.
+  - Select the **single best-performing model** based on the validation/test set Macro F1-Score.
+  - *DoD:* Model selection justified by metrics $\ge 85\%$ Macro F1-Score.
 
 - [ ] **Task 2.3: In-Memory Lifespan Model Loader**
   - Path: `/ml-service/app/main.py`
-  - In the `@asynccontextmanager lifespan(app)` function, load `lightgbm_swdi_v1.joblib` into `ml_models["swdi_classifier"]`.
+  - In the `@asynccontextmanager lifespan(app)` function, load **only the winning model** (e.g., `lightgbm_swdi_v1.joblib`) into `ml_models["swdi_classifier"]`.
   - *DoD:* Model is loaded once on server startup; per-request inference time is under 15 milliseconds.
 
 - [ ] **Task 2.4: Implement SHAP Explainability Engine**
   - Path: `/ml-service/app/services/explainer.py`
-  - Initialize `shap.TreeExplainer(model)`.
+  - Initialize `shap.TreeExplainer` on the winning model.
   - For incoming predictions, extract the top 2 positive and top 2 negative contributing indicators.
-  - Attach human-readable explanations (e.g., *"Educational attainment strongly correlates with Level 3 transition"*).
+  - Attach human-readable explanations to the response payload (e.g., *"Formal employment status strongly correlates with Level 3 transition"*).
   - *DoD:* `predict-swdi` endpoint returns real SHAP weights matching the contract schema.
 
 - [ ] **Task 2.5: Implement Sangla-ATM Sliding-Window Algorithm**
@@ -92,7 +98,7 @@ Your service runs as an isolated FastAPI microservice inside Docker. It has two 
   - *DoD:* Automated unit test flags suspicious test clusters correctly.
 
 *Daily Standup Deliverable (Phase 2):*  
-> "LightGBM classifier trained on PSA data with $\ge 85\%$ F1-score; SHAP explainability and Sangla-ATM detection algorithms implemented."
+> "Multi-model evaluation complete; winning model serialized with $\ge 85\%$ Macro F1-Score. SHAP explainability and Sangla-ATM detection algorithms implemented."
 
 ---
 
@@ -100,7 +106,7 @@ Your service runs as an isolated FastAPI microservice inside Docker. It has two 
 *Goal: Connect with Mae's Node.js backend over Docker network and profile latency.*
 
 - [ ] **Task 3.1: Connect Route Handlers to Real Services**
-  - Update `/ml-service/app/api/v1/predict.py`: Replace dummy logic with calls to `classifier.py` and `explainer.py`.
+  - Update `/ml-service/app/api/v1/predict.py`: Replace dummy logic with calls to your trained classifier and explainer.
   - Update `/ml-service/app/api/v1/telemetry.py`: Replace dummy logic with calls to `anomaly.py`.
   - *DoD:* Endpoints execute real calculations and return live predictions.
 
@@ -111,7 +117,7 @@ Your service runs as an isolated FastAPI microservice inside Docker. It has two 
   - *DoD:* Node.js receives real ML predictions and writes risk scores to MongoDB.
 
 - [ ] **Task 3.3: Graceful Error Handling & Boundary Defense**
-  - Verify that invalid inputs (e.g., negative household size or out-of-bounds wall score) return clean `422 Unprocessable Entity` responses without crashing the Uvicorn worker.
+  - Verify that invalid inputs (e.g., negative household size or out-of-bounds wall score) return clean `422 Unprocessable Entity` responses via Pydantic validation without crashing the Uvicorn worker.
   - *DoD:* Zero unhandled 500 crashes during malformed payload tests.
 
 *Daily Standup Deliverable (Phase 3):*  
@@ -146,8 +152,8 @@ Your service runs as an isolated FastAPI microservice inside Docker. It has two 
 - [ ] **Task 5.1: Container Build Optimization**
   - Path: `/ml-service/Dockerfile`
   - Ensure `.dockerignore` excludes unnecessary virtual environment files and caches.
-  - Verify that `docker build -t kilosunlad-ml .` completes in under 2 minutes.
-  - *DoD:* Final container image is under 500MB.
+  - Verify that `docker build -t kilosunlad-ml .` completes efficiently.
+  - *DoD:* Final container image is optimized and loads the `.joblib` model seamlessly on startup.
 
 - [ ] **Task 5.2: Live Demo Test Case Scripting**
   - Prepare 2 specific test cases for the live panel presentation:
@@ -157,3 +163,13 @@ Your service runs as an isolated FastAPI microservice inside Docker. It has two 
 
 *Daily Standup Deliverable (Phase 5):*  
 > "ML microservice fully packaged, image size optimized, and live demo scenarios rehearsed."
+
+---
+
+## ⚠️ CRITICAL ENGINEERING NOTE: Handling Synthetic Noise
+The training data provided by Renz has been **intentionally corrupted** by the `noise_engine.py` (Task 2.5) to bridge the Sim-to-Real gap. 
+*   **Label Noise (4%):** `enrolled_level` does not always match `true_swdi_level`. **Always train on `true_swdi_level`.**
+*   **Feature Noise (10%):** Utility readings have $\pm 15\%$ skew.
+*   **GPS Jitter:** Coordinates are offset by up to 200m.
+
+**DO NOT attempt to "clean" or filter out this noise.** It is mathematically necessary to prevent your tree-based models from overfitting to perfect synthetic boundaries. The noise forces the models to learn robust, generalized splits that will survive contact with messy, real-world DSWD data.
