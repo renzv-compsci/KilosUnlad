@@ -1,19 +1,26 @@
 {
-  "model_name": "LightGBM_SWDI_Classifier",
-  "version": "1.0.0",
-  "trained_dataset": "PSA_FIES_2015_2018_Microdata",
+  "model_name": "LightGBM",
+  "model_file": "lightgbm_swdi_v1.joblib",
+  "training_date": "2026-10-11T21:58:26.078305",
+  "feature_names": [
+    "demographics.head_education_level",
+    "demographics.head_formal_employment",
+    "demographics.remittance_income_flag",
+    "demographics.housing_material_score",
+    "demographics.appliance_density_index",
+    "demographics.dependency_ratio"
+  ],
+  "shap_importance": {
+    "demographics.head_education_level": 0.616437362480836,
+    "demographics.head_formal_employment": 1.045182731268136,
+    "demographics.remittance_income_flag": 0.5154680314845191,
+    "demographics.housing_material_score": 1.107264846797502,
+    "demographics.appliance_density_index": 0.17386526437326552,
+    "demographics.dependency_ratio": 0.24855301611646852
+  },
   "target_classes": [
-    "1: Survival",
-    "2: Subsistence",
-    "3: Self-Sufficiency"
-  ],
-  "feature_order": [
-    "household_size",
-    "dependents_ratio",
-    "head_education_level",
-    "wall_score",
-    "roof_score",
-    "water_access_level"
-  ],
-  "status": "baseline_uninitialized"
+    1,
+    2,
+    3
+  ]
 }

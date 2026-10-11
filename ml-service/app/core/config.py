@@ -1,22 +1,23 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
+import os
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "KilosUnlad AI & Analytics Microservice"
-    VERSION: str = "1.0.0"
+    APP_NAME: str = "KilosUnlad ML Service"
     API_V1_STR: str = "/api/v1"
     
-    # Environment mode
-    ML_ENV: str = "development"
+    # Paths (Using artifacts/ as agreed)
+    BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ARTIFACTS_DIR: str = os.path.join(os.path.dirname(BASE_DIR), "artifacts")
     
-    # Path to pre-trained LightGBM model weights
-    MODEL_ARTIFACT_PATH: str = "artifacts/lightgbm_swdi_v1.joblib"
+    SWDI_MODEL_PATH: str = os.path.join(ARTIFACTS_DIR, "lightgbm_swdi_v1.joblib")
+    MODEL_METADATA_PATH: str = os.path.join(ARTIFACTS_DIR, "model_metadata.json")
     
-    # Logging
-    LOG_LEVEL: str = "info"
+    # Constraints (From Master Turnover)
+    MAX_INFERENCE_TIME_MS: int = 2500
+    MAX_RESPONSE_SIZE_BYTES: int = 1048576  # 1 MiB
 
     class Config:
-        case_sensitive = True
         env_file = ".env"
+        case_sensitive = True
 
 settings = Settings()

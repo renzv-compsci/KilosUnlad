@@ -2,16 +2,23 @@ const axios = require('axios');
 const Joi = require('joi');
 const environment = require('../config/environment');
 const TIMEOUT_MS = 2500;
+
+// updated feature objects to match data dictionary and added validation for shap_explainability description field
 const features = {
-  household_size: Joi.number().integer().min(1).max(20).required(),
-  dependents_ratio: Joi.number().min(0).required(),
-  head_education_level: Joi.number().integer().min(0).max(4).required(),
-  wall_score: Joi.number().integer().min(1).max(3).required(),
-  roof_score: Joi.number().integer().min(1).max(3).required(),
-  water_access_level: Joi.number().integer().min(1).max(3).required()
+  head_education_level: Joi.number().integer().min(0).max(3).required(),
+  head_formal_employment: Joi.number().integer().min(0).max(1).required(),
+  remittance_income_flag: Joi.number().integer().min(0).max(1).required(),
+  housing_material_score: Joi.number().integer().min(1).max(3).required(),
+  appliance_density_index: Joi.number().min(0).max(3).required(),
+  dependency_ratio: Joi.number().min(0).required()
 };
-const requestSchema = Joi.object({ household_id: Joi.string().trim().required(),
-  demographics: Joi.object(features).required() }).required();
+
+const requestSchema = Joi.object({ 
+  household_id: Joi.string().trim().required(),
+  household_size: Joi.number().integer().min(1).max(20).required(),
+  demographics: Joi.object(features).required() 
+}).required();
+
 const responseSchema = Joi.object({
   household_id: Joi.string().required(),
   ml_evaluation: Joi.object({
@@ -22,7 +29,7 @@ const responseSchema = Joi.object({
       level_3_self_sufficiency: Joi.number().min(0).max(1).required()
     }).required(),
     shap_explainability: Joi.array().items(Joi.object({
-      indicator: Joi.string().valid(...Object.keys(features)).required(),
+      indicator: Joi.string().required(),
       contribution_weight: Joi.number().required(), description: Joi.string().required()
     })).required()
   }).required(),
