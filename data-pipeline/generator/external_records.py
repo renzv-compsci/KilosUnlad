@@ -363,6 +363,8 @@ def build_external_records(df: pd.DataFrame) -> list:
 
     NONE vehicle households omit the 'vehicle' block entirely,
     satisfying the Task 2.4 no-bloat rule.
+    FIX: Maps generated household_id to matched_household_id to satisfy 
+    Dustin's unique database index for external records.
     """
     missing = [c for c in _REQUIRED_RECORD_COLUMNS if c not in df.columns]
     if missing:
@@ -377,7 +379,8 @@ def build_external_records(df: pd.DataFrame) -> list:
     records = []
     for row in df.itertuples(index=False):
         record = {
-            "household_id": row.household_id,
+            "matched_household_id": str(row.household_id), # Maps to Dustin's unique index
+            "household_id": str(row.household_id),
             "power": {"kwh_monthly": float(row.electricity_kwh_monthly)},
             "water": {"cubic_meters_monthly": float(row.water_cum_monthly)},
             "telecom": {"plan_type": row.telecom_plan_type},
