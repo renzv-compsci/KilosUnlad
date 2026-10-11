@@ -1,5 +1,9 @@
 # Frontend UI Review
 
+Runtime follow-up: [latest-main compatibility](FRONTEND_MAIN_COMPATIBILITY_2026-10-12.md).
+Main `fcde07a` is now merged and running locally; core API checks passed again.
+Submission and appeals routes remain unmounted on this verified baseline.
+
 Latest evidence: [October 12 dispatch acceptance](FRONTEND_DISPATCH_ACCEPTANCE_2026-10-12.md).
 Real frontend dispatch returned 201 with Dustin's fixture; the new task appeared
 in the worker feed and actual audit range 1..5 passed verification locally.

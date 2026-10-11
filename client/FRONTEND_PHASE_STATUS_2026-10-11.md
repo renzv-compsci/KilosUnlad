@@ -1,5 +1,8 @@
 # Frontend Phase Status and Integration Handoff
 
+Latest runtime assessment: [October 12 main compatibility](FRONTEND_MAIN_COMPATIBILITY_2026-10-12.md).
+Main `fcde07a` is merged and running; remaining route gaps were rechecked.
+
 Follow-up, October 12: positive frontend dispatch acceptance has now passed with
 Dustin's fixture, including worker-feed visibility and valid audit range 1..5.
 See [dispatch acceptance results](FRONTEND_DISPATCH_ACCEPTANCE_2026-10-12.md).
