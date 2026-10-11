@@ -174,7 +174,8 @@ def augment_pii(df: pd.DataFrame, first_pool: list, last_pool: list) -> pd.DataF
     out["gps_coordinates"] = [
         {"latitude": float(a), "longitude": float(b)} for a, b in zip(lats, lngs)
     ]
-    out["philsys_id"] = [f"PH-NID-{v:08d}" for v in np.random.randint(0, PHILSYS_SPACE, n)]
+    philsys_ids = np.random.choice(PHILSYS_SPACE, size=n, replace=False)
+    out["philsys_id"] = [f"PH-NID-{v:08d}" for v in philsys_ids]
     pan_a = np.random.randint(0, PAN_GROUP_SPACE, n)
     pan_b = np.random.randint(0, PAN_GROUP_SPACE, n)
     pan_c = np.random.randint(0, PAN_GROUP_SPACE, n)
@@ -188,14 +189,19 @@ def build_beneficiary_records(df: pd.DataFrame) -> list:
     """
     Explicit native-type casts keep json.dump free of numpy scalars.
     The nested demographics block mirrors ml-swdi-inference.json feature names.
+    FIX: Maps generated philsys_id to head_of_household.national_id to satisfy 
+    Dustin's unique database index.
     """
     records = []
     for row in df.itertuples(index=False):
         records.append({
             "household_id": str(row.household_id),
-            "philsys_id": str(row.philsys_id),
-            "landbank_card_pan": str(row.landbank_card_pan),
+            "head_of_household": {
+                "national_id": str(row.philsys_id),  # Maps to Dustin's unique index
+                "name": row.names.get("head", "")
+            },
             "names": row.names,
+            "landbank_card_pan": str(row.landbank_card_pan),
             "gps_coordinates": row.gps_coordinates,
             "household_size": int(row.household_size),
             "enrolled_level": int(row.enrolled_level),
