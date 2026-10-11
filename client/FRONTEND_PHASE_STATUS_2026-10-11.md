@@ -1,5 +1,11 @@
 # Frontend Phase Status and Integration Handoff
 
+Follow-up, October 12: positive frontend dispatch acceptance has now passed with
+Dustin's fixture, including worker-feed visibility and valid audit range 1..5.
+See [dispatch acceptance results](FRONTEND_DISPATCH_ACCEPTANCE_2026-10-12.md).
+The status table below is the historical October 11 snapshot, not a current
+assessment of newly merged backend functionality.
+
 Owner: Markie Angelo. Evidence date: October 11, 2026 (Asia/Manila).
 Source baseline: main `f082bea`, including frontend PR #16 and database PRs #11-13.
 Local API runtime: isolated `kilosunlad-markie-server:main-dc55600`, real auth,
