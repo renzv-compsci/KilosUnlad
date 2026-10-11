@@ -1,0 +1,61 @@
+{
+  "validation_timestamp": "2026-10-11T11:35:28.684271Z",
+  "file_hashes": {
+    "seed_beneficiaries_app_80k.json": "62e128927b124048f76474903c6a4cbd0fde68ff90d6a86bb8ccd09b74097eb6",
+    "seed_external_records_app_80k.json": "1208b5340e08e7e7386733881ae95d74bbee7990eccb8b32b735dd15c6c637bc",
+    "seed_beneficiaries_test_20k.json": "5a12bbd0deb3b0a628f19fe70a3df04bacc2c2c6a6d0d6f4062b297440cde143",
+    "seed_external_records_test_20k.json": "1e5720469cede03d3302056deed9123c0b627f0bd7efb94ce6064f04ed4842c8"
+  },
+  "count_validation": {
+    "app_beneficiaries": 80000,
+    "app_external": 80000,
+    "test_beneficiaries": 20000,
+    "test_external": 20000,
+    "total_beneficiaries": 100000,
+    "total_external": 100000,
+    "counts_valid": true
+  },
+  "cohort_preservation": {
+    "app_cohorts": {
+      "A_Compliant": 19882,
+      "D_Sinking_Vulnerable": 40368,
+      "C_Asset_Inconsistency": 6338,
+      "B_Unreported_Graduation": 13412
+    },
+    "test_cohorts": {
+      "A_Compliant": 4966,
+      "C_Asset_Inconsistency": 1636,
+      "B_Unreported_Graduation": 3266,
+      "D_Sinking_Vulnerable": 10132
+    },
+    "app_percentages": {
+      "A_Compliant": 24.85,
+      "D_Sinking_Vulnerable": 50.46,
+      "C_Asset_Inconsistency": 7.92,
+      "B_Unreported_Graduation": 16.77
+    },
+    "test_percentages": {
+      "A_Compliant": 24.83,
+      "C_Asset_Inconsistency": 8.18,
+      "B_Unreported_Graduation": 16.33,
+      "D_Sinking_Vulnerable": 50.66
+    },
+    "distribution_preserved": true
+  },
+  "leakage_validation": {
+    "beneficiary_id_leakage": 0,
+    "external_id_leakage": 0,
+    "source_fies_id_leakage": 0,
+    "app_referential_integrity": true,
+    "test_referential_integrity": true,
+    "zero_leakage": true
+  },
+  "data_quality": {
+    "app_issues_count": 0,
+    "test_issues_count": 0,
+    "app_sample_issues": [],
+    "test_sample_issues": [],
+    "quality_valid": true
+  },
+  "overall_status": "PASS"
+}

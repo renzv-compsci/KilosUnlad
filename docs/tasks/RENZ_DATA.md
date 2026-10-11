@@ -108,14 +108,14 @@
     - `test_features_20k.parquet`
   - *DoD:* Files handed to Charles; schema validated against the `ml-swdi-inference.json` frozen contract.
 
-- [ ] **Task 3.3: Database-Ready Seed Export (Offline Isolation)**
+- [x] **Task 3.3: Database-Ready Seed Export (Offline Isolation)**
   - Export JSON files compatible with Dustin's *existing* Mongoose schemas:
     - `seed_beneficiaries_app_80k.json` & `seed_external_records_app_80k.json`
     - `seed_beneficiaries_test_20k.json` & `seed_external_records_test_20k.json`
   - **CRITICAL CONSTRAINT:** Do NOT overwrite existing `seed_beneficiaries.json`. Do NOT trigger automatic ingestion. Do NOT require schema changes.
   - *DoD:* JSON files pass offline schema validation; referential integrity verified; Dustin's live DB remains untouched.
 
-- [ ] **Task 3.4: Partition Quality & Leakage Validation Report**
+- [x] **Task 3.4: Partition Quality & Leakage Validation Report**
   - Generate reports verifying exact counts, cohort preservation, and zero `source_fies_id` leakage across partitions.
   - *DoD:* Reports generated and reviewed in `/data-pipeline/reports/`.
 
