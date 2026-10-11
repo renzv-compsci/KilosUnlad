@@ -93,7 +93,7 @@
 ## Phase 3: Stratified Partitioning, ML Handoff & Offline Export (Sprint Block 3)
 *Goal: Split the 100k dataset into App/Test/Validation partitions and export deliverables without altering the live database architecture.*
 
-- [ ] **Task 3.1: Stratified Partition Engine**
+- [x] **Task 3.1: Stratified Partition Engine**
   - Path: `/data-pipeline/generator/partition_engine.py`
   - Apply a stratified split across the 100,000 master records:
     - **Application Partition (80,000):** 70,000 Training Pool + 10,000 Validation Pool.
@@ -101,7 +101,7 @@
   - Stratify by Cohort, SWDI level, Geographic cluster, and `source_fies_id` (to prevent data leakage).
   - *DoD:* Partition manifest generated with exact counts; distribution equivalence validated.
 
-- [ ] **Task 3.2: ML Feature Export for Charles**
+- [x] **Task 3.2: ML Feature Export for Charles**
   - Export Parquet files for the ML microservice:
     - `train_features_70k.parquet`
     - `validation_features_10k.parquet`
