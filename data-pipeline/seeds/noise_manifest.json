@@ -1,0 +1,27 @@
+{
+  "total_records": 100000,
+  "label_noise": {
+    "count": 4065,
+    "ceiling": 0.05,
+    "target_rate": 0.04
+  },
+  "feature_noise": {
+    "count": 10015,
+    "ceiling": 0.12,
+    "target_rate": 0.1
+  },
+  "ambiguity_noise": {
+    "count": 3904,
+    "ceiling": 0.07,
+    "target_rate": 0.06
+  },
+  "temporal_noise": {
+    "count": 2658,
+    "ceiling": 0.06,
+    "target_rate": 0.05
+  },
+  "gps_jitter": {
+    "applied": 100000,
+    "max_distance_meters": 200.0
+  }
+}
