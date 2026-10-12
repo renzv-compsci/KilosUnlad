@@ -7,7 +7,8 @@ const { allowRoles, scopeJurisdiction } = require('../../middleware/rbac.middlew
 const R = require('../../constants/roles');
 const { createReadFeeds } = require('../../services/readFeeds.service');
 const { createTaskDispatcher } = require('../../services/taskDispatcher.service');
-const { createDispatch, createSubmit } = require('../../controllers/task.controller'); // Added createSubmit
+const { createDispatch, createSubmit } = require('../../controllers/task.controller');
+const { createTaskSubmission } = require('../../services/taskSubmission.service');
 const { createVerifyChain } = require('../../controllers/audit.controller');
 const validateBody = require('../../middleware/validation.middleware');
 const { createAppealDocket, docketSchema } = require('../../services/appealDocket.service');
@@ -23,7 +24,8 @@ const upload = multer({
 
 module.exports = function createRouter({ mockMode, production, authService = createAuthService(),
   taskDispatcher = createTaskDispatcher(), readFeeds = createReadFeeds(), chainVerifier,
-  appealDocket = createAppealDocket(), calamityToggle = createCalamityToggle() }) {
+  appealDocket = createAppealDocket(), calamityToggle = createCalamityToggle(),
+  taskSubmission = createTaskSubmission() }) {
   
   const router = Router();
   
@@ -53,7 +55,7 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   // NEW: Task Submission (Case Worker only, with multipart upload)
   // This wires the INT-02 integration seam to the live API surface.
   router.post('/tasks/:id/submit', authenticate, allowRoles(R.CASE_WORKER), 
-    upload.array('evidence_files', 10), createSubmit());
+    upload.array('evidence_files', 10), createSubmit(taskSubmission));
 
   // INT-03: Appeals Docket (Admin/Director only). Registers a formal appeal and
   // pauses the 15-day countdown; household status is unchanged (frozen enum).
