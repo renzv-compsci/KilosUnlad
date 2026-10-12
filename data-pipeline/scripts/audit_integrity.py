@@ -16,6 +16,7 @@ Environment:
   over the kilosunlad-network with ?replicaSet=rs0 (per DECISION-006).
 """
 
+import os
 import sys
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
@@ -24,7 +25,7 @@ from pymongo.errors import ConnectionFailure
 # Configuration
 # ---------------------------------------------------------------
 
-MONGO_URI = (
+MONGO_URI = os.getenv("MONGO_URI") or (
     "mongodb://app_user:AppUserPassword2026!@db:27017/"
     "kilosunlad?replicaSet=rs0&authSource=kilosunlad"
 )

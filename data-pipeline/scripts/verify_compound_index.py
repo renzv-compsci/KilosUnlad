@@ -16,6 +16,7 @@ Connection:
   the kilosunlad-network with ?replicaSet=rs0 (per DECISION-006).
 """
 
+import os
 import sys
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
@@ -24,7 +25,7 @@ from pymongo.errors import ConnectionFailure
 # Configuration
 # ---------------------------------------------------------------
 
-MONGO_URI = (
+MONGO_URI = os.getenv("MONGO_URI") or (
     "mongodb://app_user:AppUserPassword2026!@db:27017/"
     "kilosunlad?replicaSet=rs0&authSource=kilosunlad"
 )
@@ -36,6 +37,12 @@ QUERY = {
     "risk_assessment.is_flagged": True,
     "address.municipality": "Calamba",
 }
+VOLUME_QUERY = {
+    "risk_assessment.is_flagged": False,
+    "address.municipality": "Calamba",
+}
+# ADR-001 baseline; set VOLUME_MIN=0 to skip the volume floor.
+VOLUME_MIN = int(os.getenv("VOLUME_MIN", "80000"))
 
 
 # ---------------------------------------------------------------
@@ -83,13 +90,34 @@ def main() -> int:
     db = client[DB_NAME]
 
     # --- 2. Run explain via raw command ---
-    log("[2] Running explain on the triage query...")
-    log(f"    Query: {QUERY}\n")
+    # Sprint 3 DAT-03: the flagged query alone can be vacuous right after
+    # ingestion (0 flagged = 0 examined), so the unflagged Calamba roster is
+    # also explained to prove the same plan holds at full volume.
+    all_passed = True
+    for label, query in (("triage (flagged)", QUERY), ("at volume (unflagged roster)", VOLUME_QUERY)):
+        all_passed = explain_and_assert(db, label, query) and all_passed
+    if VOLUME_MIN and db[COLLECTION].count_documents(VOLUME_QUERY) < VOLUME_MIN:
+        log(f"    [FAIL] Volume query returned fewer than {VOLUME_MIN:,} documents")
+        all_passed = False
+
+    # --- 5. Result ---
+    if all_passed:
+        log("=== RESULT: ALL PASS ===")
+    else:
+        log("=== RESULT: SOME ASSERTIONS FAILED ===")
+
+    client.close()
+    return 0 if all_passed else 1
+
+
+def explain_and_assert(db, label, query) -> bool:
+    log(f"[2] Running explain on the {label} query...")
+    log(f"    Query: {query}\n")
 
     explain_output = db.command({
         "explain": {
             "find": COLLECTION,
-            "filter": QUERY,
+            "filter": query,
         },
         "verbosity": "executionStats",
     })
@@ -133,22 +161,14 @@ def main() -> int:
         },
     ]
 
-    all_passed = True
+    passed = True
     for a in assertions:
         marker = "PASS" if a["pass"] else "FAIL"
         log(f"    [{marker}] {a['name']}")
         if not a["pass"]:
-            all_passed = False
+            passed = False
     log("")
-
-    # --- 5. Result ---
-    if all_passed:
-        log("=== RESULT: ALL PASS ===")
-    else:
-        log("=== RESULT: SOME ASSERTIONS FAILED ===")
-
-    client.close()
-    return 0 if all_passed else 1
+    return passed
 
 
 if __name__ == "__main__":
