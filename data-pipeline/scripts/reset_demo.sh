@@ -110,6 +110,9 @@ docker exec -i "${DB_CONTAINER}" mongosh "${ADMIN_URI}" --quiet --eval "
 
   db.audit_logs.createIndex({ sequence_index: 1 }, { unique: true });
   db.audit_logs.createIndex({ entry_hash: 1 }, { unique: true });
+  // Declared by the frozen models (AuditLog.js, SystemConfig.js); the drop above removes them.
+  db.audit_logs.createIndex({ 'target_entity.entity_id': 1 });
+  db.system_configs.createIndex({ config_key: 1 }, { unique: true });
 
   print('      Collections + indexes rebuilt.');
 "

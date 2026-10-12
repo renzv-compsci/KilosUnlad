@@ -16,6 +16,8 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '../..');
 const mongoose = require(path.join(ROOT, 'server/node_modules/mongoose'));
+// Observe the database as the reset left it: loading models must not build indexes.
+mongoose.set('autoIndex', false);
 const Beneficiary = require(path.join(ROOT, 'server/src/models/Beneficiary'));
 const ExternalRecord = require(path.join(ROOT, 'server/src/models/ExternalRecord'));
 const { requestSchema } = require(path.join(ROOT, 'server/src/services/mlClient.service'));
@@ -89,6 +91,16 @@ async function run() {
   }
   check('all LandBank PANs masked', (await ext.countDocuments({ matched_household_id: SYN,
     'landbank_telemetry.card_masked_pan': { $not: /^\d{4}-xxxx-xxxx-\d{4}$/ } })) === 0);
+  console.log('');
+
+  console.log('[4] Every index declared by the frozen models exists (reset must not drop any)...');
+  for (const name of ['User', 'Beneficiary', 'ExternalRecord', 'VerificationTask', 'AuditLog', 'SystemConfig']) {
+    const Model = require(path.join(ROOT, `server/src/models/${name}`));
+    const existing = (await db.collection(Model.collection.collectionName).indexes().catch(() => []))
+      .map(i => JSON.stringify(i.key));
+    const missing = Model.schema.indexes().map(([key]) => JSON.stringify(key)).filter(k => !existing.includes(k));
+    check(`${Model.collection.collectionName}: declared indexes present`, missing.length === 0, { missing });
+  }
   console.log('');
 
   await mongoose.disconnect();
