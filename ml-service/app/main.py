@@ -1,6 +1,9 @@
 import joblib
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from fastapi.exception_handlers import request_validation_exception_handler
 from contextlib import asynccontextmanager
 from app.api.router import api_router
 from app.core.config import settings
@@ -43,6 +46,16 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+# Contract error body (ml-swdi-inference.json): never echo the rejected input.
+@app.exception_handler(RequestValidationError)
+async def invalid_feature_vector(request: Request, exc: RequestValidationError):
+    if not request.url.path.endswith("/predict-swdi"):
+        return await request_validation_exception_handler(request, exc)
+    return JSONResponse(status_code=422, content={"error": {
+        "code": "INVALID_FEATURE_VECTOR",
+        "message": "One or more demographic features are missing or outside valid bounds."
+    }})
 
 # Mount the v1 API routes (predict-swdi, score-atm-stream)
 app.include_router(api_router, prefix=settings.API_V1_STR)

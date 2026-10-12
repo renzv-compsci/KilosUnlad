@@ -1,6 +1,7 @@
 {
   "contract_name": "ml-swdi-inference",
-  "version": "1.0.0",
+  "version": "1.1.0",
+  "revision_note": "2026-10-12 (PM decision, Sprint 1 INT-01): request aligned to the 6-feature PMT vector mandated by MASTER_TURNOVER.md (Critical Notice; Domain 6 Step 1). household_size moves to the top level. v1.0 request shape is rejected with 422. Response and error shapes unchanged; SHAP indicator names are the model feature names (demographics.<feature>).",
   "endpoint": "/api/v1/predict-swdi",
   "method": "POST",
   "headers": {
@@ -8,13 +9,14 @@
   },
   "request": {
     "household_id": "4PS-04A-2026-00129",
+    "household_size": 6,
     "demographics": {
-      "household_size": 6,
-      "dependents_ratio": 2.0,
       "head_education_level": 1,
-      "wall_score": 1,
-      "roof_score": 2,
-      "water_access_level": 1
+      "head_formal_employment": 0,
+      "remittance_income_flag": 1,
+      "housing_material_score": 2,
+      "appliance_density_index": 1.5,
+      "dependency_ratio": 2.0
     }
   },
   "response": {
@@ -30,14 +32,19 @@
         },
         "shap_explainability": [
           {
-            "indicator": "head_education_level",
+            "indicator": "demographics.head_education_level",
             "contribution_weight": 0.42,
-            "description": "Educational attainment strongly correlates with Level 3 transition."
+            "description": "Educational attainment strongly correlates with socioeconomic transition."
           },
           {
-            "indicator": "dependents_ratio",
+            "indicator": "demographics.dependency_ratio",
             "contribution_weight": -0.25,
-            "description": "High dependency ratio reduces economic sufficiency score."
+            "description": "High dependency ratio strains household resources."
+          },
+          {
+            "indicator": "demographics.housing_material_score",
+            "contribution_weight": 0.18,
+            "description": "Stronger housing materials indicate accumulated asset wealth."
           }
         ]
       },
