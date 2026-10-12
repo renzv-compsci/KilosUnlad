@@ -12,6 +12,8 @@ const { createVerifyChain } = require('../../controllers/audit.controller');
 const validateBody = require('../../middleware/validation.middleware');
 const { createAppealDocket, docketSchema } = require('../../services/appealDocket.service');
 const { createFileAppeal } = require('../../controllers/appeal.controller');
+const { createCalamityToggle, toggleSchema } = require('../../services/calamityToggle.service');
+const { createToggleCalamity } = require('../../controllers/calamity.controller');
 
 // Configure multer for in-memory file buffering (required for SHA-256 hash verification)
 const upload = multer({ 
@@ -21,7 +23,7 @@ const upload = multer({
 
 module.exports = function createRouter({ mockMode, production, authService = createAuthService(),
   taskDispatcher = createTaskDispatcher(), readFeeds = createReadFeeds(), chainVerifier,
-  appealDocket = createAppealDocket() }) {
+  appealDocket = createAppealDocket(), calamityToggle = createCalamityToggle() }) {
   
   const router = Router();
   
@@ -57,6 +59,11 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   // pauses the 15-day countdown; household status is unchanged (frozen enum).
   router.post('/appeals/docket', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
     scopeJurisdiction, validateBody(docketSchema), createFileAppeal(appealDocket));
+
+  // INT-04: Calamity Moratorium Toggle (Super Admin only; RA 10121 declarations
+  // are municipality-wide and exceed a barangay-scoped director's jurisdiction).
+  router.post('/calamity/toggle', authenticate, allowRoles(R.SUPER_ADMIN),
+    scopeJurisdiction, validateBody(toggleSchema), createToggleCalamity(calamityToggle));
 
   // Feed Helpers
   const feed = operation => async (req, res, next) => {
