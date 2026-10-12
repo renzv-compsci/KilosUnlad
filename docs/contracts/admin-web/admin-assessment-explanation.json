@@ -1,0 +1,46 @@
+{
+  "contract_name": "admin-assessment-explanation",
+  "version": "1.0.0",
+  "revision_note": "2026-10-12 (Sprint 4 E2E-04): read-only source for the triage drawer's SHAP explanation. Serves the latest MODEL_FLAG_RAISED audit block for the household after recomputing its SHA-256 entry hash, so the values shown are exactly the sealed ML response payload. No query parameters.",
+  "endpoint": "/api/v1/beneficiaries/DEMO-4PS-GRAD-0001/assessment",
+  "method": "GET",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>"
+  },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR, COA_AUDITOR (jurisdiction-scoped). CASE_WORKER is rejected.",
+  "response": {
+    "status": 200,
+    "data": {
+      "household_id": "DEMO-4PS-GRAD-0001",
+      "evaluation_mode": "ML_MODEL",
+      "fallback_reason": null,
+      "predicted_swdi_level": 3,
+      "class_probabilities": {
+        "level_1_survival": 0.0,
+        "level_2_subsistence": 0.1,
+        "level_3_self_sufficiency": 0.9
+      },
+      "shap_explainability": [
+        {
+          "indicator": "demographics.head_formal_employment",
+          "contribution_weight": 1.21,
+          "description": "Formal employment provides stable income, increasing self-sufficiency."
+        }
+      ],
+      "composite_risk_score": 100,
+      "contributions": { "swdi": 80, "power": 20, "water": 15, "telecom": 25, "vehicle": 30 },
+      "evaluated_at": "2026-10-12T08:00:00.000Z",
+      "sealed_at": "2026-10-12T08:00:00.012Z",
+      "audit_receipt": {
+        "sequence_index": 1,
+        "entry_hash": "3d9a1f2e4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e"
+      }
+    }
+  },
+  "error_responses": [
+    { "status": 400, "error": { "code": "INVALID_QUERY", "message": "This endpoint does not accept query parameters." } },
+    { "status": 404, "error": { "code": "HOUSEHOLD_NOT_FOUND", "message": "Specified household ID does not exist." } },
+    { "status": 404, "error": { "code": "ASSESSMENT_NOT_FOUND", "message": "No sealed assessment exists for this household." } },
+    { "status": 409, "error": { "code": "AUDIT_ENTRY_INVALID", "message": "An audit entry cannot be verified." } }
+  ]
+}

@@ -8,6 +8,7 @@ import {
   UserSession,
   FieldTaskSubmission,
   TriagePagination,
+  AssessmentExplanation,
 } from '../types/contracts';
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
@@ -93,6 +94,21 @@ export async function fetchTriagePage(page = 1, signal?: AbortSignal): Promise<{
   return { items: items.map(normalizeTriageItem), pagination, summary: parseTriageSummary(payload.summary_metrics) };
 }
 
+// Sealed model explanation for the triage drawer; null when none is sealed yet.
+export async function fetchAssessmentExplanation(householdId: string, signal?: AbortSignal): Promise<AssessmentExplanation | null> {
+  try {
+    const response = await api.get(`/beneficiaries/${encodeURIComponent(householdId)}/assessment`, { signal });
+    const data = response.data;
+    if (!data || data.household_id !== householdId || !Array.isArray(data.shap_explainability)) {
+      throw new Error('Assessment explanation response did not match the contract.');
+    }
+    return data as AssessmentExplanation;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.error?.code === 'ASSESSMENT_NOT_FOUND') return null;
+    throw error;
+  }
+}
+
 export async function fetchAssignedTasks(signal?: AbortSignal): Promise<FieldTaskItem[]> {
   const response = await api.get('/tasks/assigned', { signal });
   const payload = response.data?.data ?? response.data;
@@ -120,6 +136,7 @@ export function apiErrorMessage(error: unknown): string {
   if (code === 'ENDPOINT_NOT_READY') return 'This backend endpoint is not available yet.';
   if (code === 'AUDIT_RANGE_INCOMPLETE') return 'The requested range or its preceding block is missing. Confirm an existing range with the backend team.';
   if (code === 'AUDIT_ENTRY_INVALID') return 'An audit entry could not be verified. Ask the backend team to inspect the entry.';
+  if (code === 'ASSESSMENT_NOT_FOUND') return 'No sealed model assessment exists for this household yet.';
   if (code === 'INVALID_QUERY') return 'Enter a valid inclusive sequence range of up to 1,000 blocks.';
   if (error.response.status === 404) return 'This endpoint is unavailable on the running backend version.';
   if (error.response.status >= 500) return 'The backend service is unavailable. Please try again later.';

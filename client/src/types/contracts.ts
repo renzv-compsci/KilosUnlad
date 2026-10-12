@@ -26,6 +26,27 @@ export interface TriagePagination {
   limit: number;
 }
 
+// GET /api/v1/beneficiaries/:household_id/assessment (admin-assessment-explanation.json)
+export interface ShapIndicator {
+  indicator: string;
+  contribution_weight: number;
+  description: string;
+}
+
+export interface AssessmentExplanation {
+  household_id: string;
+  evaluation_mode: 'ML_MODEL' | 'EVALUATED_VIA_FALLBACK';
+  fallback_reason: string | null;
+  predicted_swdi_level: number | null;
+  class_probabilities: Record<string, number> | null;
+  shap_explainability: ShapIndicator[];
+  composite_risk_score: number | null;
+  contributions: Record<string, number>;
+  evaluated_at: string | null;
+  sealed_at: string;
+  audit_receipt: { sequence_index: number; entry_hash: string };
+}
+
 export type TriggerBadgeType = 
   | 'POWER_LIFELINE_BREACH' 
   | 'LTO_VEHICLE_MATCH' 

@@ -27,7 +27,7 @@ import {
   TriagePagination,
 } from './types/contracts';
 import type { ScreenId } from './types/navigation';
-import { apiErrorMessage, fetchTriagePage } from './services/api';
+import { apiErrorMessage, fetchAssessmentExplanation, fetchTriagePage } from './services/api';
 import { loadWorkerAssignments } from './services/workerAssignments';
 import type { TriageSummary } from './services/api';
 import { clearStoredSession, isUserRole, readStoredSession } from './services/authSession';
@@ -320,7 +320,7 @@ export default function App() {
       case 'dashboard':
         return <Screen2Dashboard onNavigateToScreen={navigateToScreen} triageSummary={dataState === 'ready' ? triageSummary : null} triageCount={dataState === 'ready' ? triagePagination?.total_records : undefined} triageItems={dataState === 'ready' ? triageItems : []} triageLoading={dataState === 'loading'} />;
       case 'triage':
-        return <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} readOnly={!canDispatch(session.user.role)} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} />;
+        return <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} readOnly={!canDispatch(session.user.role)} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} loadExplanation={fetchAssessmentExplanation} />;
       case 'dispatch_manager':
         return (
           <AdminDispatchManager
@@ -330,7 +330,7 @@ export default function App() {
       case 'dispatch_modal':
         return (
           <div className="p-6">
-            <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} />
+            <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} loadExplanation={fetchAssessmentExplanation} />
           </div>
         );
       case 'admin_settings':

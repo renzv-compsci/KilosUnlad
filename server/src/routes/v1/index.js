@@ -16,7 +16,7 @@ const { createFileAppeal } = require('../../controllers/appeal.controller');
 const { createCalamityToggle, toggleSchema } = require('../../services/calamityToggle.service');
 const { createToggleCalamity } = require('../../controllers/calamity.controller');
 const { createRiskAssessment, assessSchema } = require('../../services/riskAssessment.service');
-const { createAssess } = require('../../controllers/beneficiary.controller');
+const { createAssess, createExplain } = require('../../controllers/beneficiary.controller');
 
 // Configure multer for in-memory file buffering (required for SHA-256 hash verification)
 const upload = multer({ 
@@ -74,6 +74,10 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   router.post('/beneficiaries/:household_id/assess', authenticate,
     allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR), scopeJurisdiction, validateBody(assessSchema),
     createAssess(riskAssessment));
+
+  // E2E-04: Triage drawer explanation (read-only; sealed MODEL_FLAG_RAISED block).
+  router.get('/beneficiaries/:household_id/assessment', authenticate,
+    allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR), scopeJurisdiction, createExplain(riskAssessment));
 
   // Feed Helpers
   const feed = operation => async (req, res, next) => {

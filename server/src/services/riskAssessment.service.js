@@ -14,8 +14,10 @@ const { createMlClient, MlClientError } = require('./mlClient.service');
 const { calculateRiskScore } = require('./discrepancy.service');
 const { evaluateAgeOut } = require('./ageOut.service');
 const { createWorkflowPersistence, WorkflowError, runGuard } = require('./workflowPersistence.service');
+const { computeEntryHash } = require('../utils/cryptoHelper');
 
 const ROLES = [R.SUPER_ADMIN, R.REGIONAL_DIRECTOR];
+const READ_ROLES = [R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR];
 // ml-swdi-inference v1.1 feature vector, stored beside the declared demographics.
 const PMT_FEATURES = ['head_education_level', 'head_formal_employment', 'remittance_income_flag',
   'housing_material_score', 'appliance_density_index', 'dependency_ratio'];
@@ -149,7 +151,44 @@ function createRiskAssessment({ beneficiaries = Beneficiary, users = User, audit
     return { ...result, program_status: persisted.program_status, audit_receipt: persisted.audit_receipt };
   }
 
-  return { assess };
+  const authorizeRead = allowRoles(...READ_ROLES);
+
+  // E2E-04: the triage drawer's explanation is the latest sealed MODEL_FLAG_RAISED
+  // block, served only after its entry hash recomputes (admin-assessment-explanation.json).
+  async function explain(householdIdInput, actorId, query = {}) {
+    if (Object.keys(query || {}).length) {
+      throw new WorkflowError(400, 'INVALID_QUERY', 'This endpoint does not accept query parameters.');
+    }
+    const { value: householdId, error } = householdIdSchema.validate(householdIdInput, { convert: false });
+    if (error) throw new WorkflowError(400, 'INVALID_REQUEST', 'Request fields are missing or invalid.');
+    const actor = await users.findById(actorId).select('_id role jurisdiction is_active').lean();
+    if (!actor || actor.is_active !== true) throw new WorkflowError(403, 'FORBIDDEN', 'Access is not permitted.');
+    const req = { method: 'GET', query: {}, user: { ...actor, userId: String(actor._id) } };
+    runGuard(authorizeRead, req);
+    const household = await beneficiaries.findOne({ household_id: householdId }).select('household_id address').lean();
+    if (!household) throw new WorkflowError(404, 'HOUSEHOLD_NOT_FOUND', 'Specified household ID does not exist.');
+    runGuard(requireJurisdiction(() => household.address), req);
+    const block = await audits.findOne({ action: 'MODEL_FLAG_RAISED', 'target_entity.entity_id': householdId })
+      .sort({ sequence_index: -1 }).lean();
+    if (!block) throw new WorkflowError(404, 'ASSESSMENT_NOT_FOUND', 'No sealed assessment exists for this household.');
+    let recomputed;
+    try {
+      recomputed = computeEntryHash({ sequenceIndex: block.sequence_index, previousEntryHash: block.previous_entry_hash,
+        timestamp: block.timestamp, actorId: block.actor.user_id, action: block.action, stateDelta: block.state_delta });
+    } catch { recomputed = null; }
+    const sealed = block.state_delta?.after?.related;
+    if (!sealed || recomputed !== block.entry_hash) {
+      throw new WorkflowError(409, 'AUDIT_ENTRY_INVALID', 'An audit entry cannot be verified.');
+    }
+    return { household_id: householdId, evaluation_mode: sealed.evaluation_mode, fallback_reason: sealed.fallback_reason ?? null,
+      predicted_swdi_level: sealed.risk_assessment?.predicted_swdi_level ?? null,
+      class_probabilities: sealed.class_probabilities ?? null, shap_explainability: sealed.shap_explainability || [],
+      composite_risk_score: sealed.risk_assessment?.composite_risk_score ?? null, contributions: sealed.contributions,
+      evaluated_at: sealed.risk_assessment?.evaluated_at ?? null, sealed_at: new Date(block.timestamp).toISOString(),
+      audit_receipt: { sequence_index: block.sequence_index, entry_hash: block.entry_hash } };
+  }
+
+  return { assess, explain };
 }
 
 module.exports = { createRiskAssessment, assessSchema, indicatorsFor, PMT_FEATURES };

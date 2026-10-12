@@ -160,6 +160,7 @@
 .triage-detail-content ul { display: grid; gap: 12px; }
 .triage-detail-content li strong { font-size: 13px; font-weight: 600; }
 .triage-detail-content p { color: #596779; font-size: 13px; margin-top: 3px; }
+.triage-explanation { grid-column: 1 / -1; }
 .triage-empty td { padding: 40px 16px; text-align: center; }
 .triage-empty strong { display: block; font-size: 14px; font-weight: 500; color: #596779; }
 .triage-empty button { margin-top: 12px; }

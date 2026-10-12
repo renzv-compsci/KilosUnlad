@@ -11,6 +11,7 @@ const { createRiskAssessment } = require('../src/services/riskAssessment.service
 const { computeEntryHash } = require('../src/utils/cryptoHelper');
 const { startReplicaSet } = require('./support/replicaSet');
 const contract = require('../../docs/contracts/admin-web/admin-risk-assessment.json');
+const explainContract = require('../../docs/contracts/admin-web/admin-assessment-explanation.json');
 
 const PMT = { head_education_level: 3, head_formal_employment: 1, remittance_income_flag: 0,
   housing_material_score: 3, appliance_density_index: 2.0, dependency_ratio: 2.0 };
@@ -241,6 +242,35 @@ test('INT-05 POST /api/v1/beneficiaries/:household_id/assess against a disposabl
     assert.equal(f.children_eligibility.unknown, 1); assert.equal(f.is_flagged, true);
     assert.deepEqual((await beneficiaries.findOne({ household_id: 'HH-AGE-BAD' }).lean()).children_registry
       .map(c => c.is_eligible), [true, true], 'unevaluable registry is left untouched');
+  });
+
+  await t.test('E2E-04 GET /assessment serves the sealed explanation and rejects tampering', async () => {
+    const explain = (as, id, query = '') => fetch(`${base}/beneficiaries/${encodeURIComponent(id)}/assessment${query}`,
+      { headers: as ? { Authorization: `Bearer ${tokens[as]}` } : {} });
+    await seed('HH-EXPLAIN', { external: richExternal });
+    levels['HH-EXPLAIN'] = 3;
+    await rejected(await explain('director', 'HH-EXPLAIN'), 404, 'ASSESSMENT_NOT_FOUND');
+    const a = await (await assess('director', 'HH-EXPLAIN')).json();
+    const r = await explain('director', 'HH-EXPLAIN');
+    assert.equal(r.status, 200);
+    assert.equal(r.headers.get('cache-control'), 'no-store');
+    const d = await r.json();
+    assert.deepEqual(Object.keys(d).sort(), Object.keys(explainContract.response.data).sort());
+    assert.deepEqual(d.shap_explainability, a.shap_explainability);
+    assert.deepEqual(d.class_probabilities, a.class_probabilities);
+    assert.deepEqual(d.contributions, a.contributions);
+    assert.deepEqual(d.audit_receipt, a.audit_receipt);
+    assert.equal((await explain('auditor', 'HH-EXPLAIN')).status, 200);
+    await rejected(await explain(null, 'HH-EXPLAIN'), 401, 'UNAUTHORIZED');
+    await rejected(await explain('worker', 'HH-EXPLAIN'), 403, 'FORBIDDEN');
+    await rejected(await explain('director', 'HH-NOPE'), 404, 'HOUSEHOLD_NOT_FOUND');
+    await rejected(await explain('director', 'HH-EXPLAIN', '?x=1'), 400, 'INVALID_QUERY');
+    await seed('HH-REAL-X', { barangay: 'Real' });
+    await rejected(await explain('director', 'HH-REAL-X'), 403, 'OUT_OF_JURISDICTION');
+    // Tamper with the sealed SHAP weight: the drawer must refuse to show it.
+    await audits.collection.updateOne({ sequence_index: a.audit_receipt.sequence_index },
+      { $set: { 'state_delta.after.related.shap_explainability.0.contribution_weight': 99 } });
+    await rejected(await explain('director', 'HH-EXPLAIN'), 409, 'AUDIT_ENTRY_INVALID');
   });
 
   await t.test('simultaneous assessments of one household flag it exactly once', async () => {
