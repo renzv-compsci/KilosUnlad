@@ -9,6 +9,9 @@ const { createReadFeeds } = require('../../services/readFeeds.service');
 const { createTaskDispatcher } = require('../../services/taskDispatcher.service');
 const { createDispatch, createSubmit } = require('../../controllers/task.controller'); // Added createSubmit
 const { createVerifyChain } = require('../../controllers/audit.controller');
+const validateBody = require('../../middleware/validation.middleware');
+const { createAppealDocket, docketSchema } = require('../../services/appealDocket.service');
+const { createFileAppeal } = require('../../controllers/appeal.controller');
 
 // Configure multer for in-memory file buffering (required for SHA-256 hash verification)
 const upload = multer({ 
@@ -17,7 +20,8 @@ const upload = multer({
 });
 
 module.exports = function createRouter({ mockMode, production, authService = createAuthService(),
-  taskDispatcher = createTaskDispatcher(), readFeeds = createReadFeeds(), chainVerifier }) {
+  taskDispatcher = createTaskDispatcher(), readFeeds = createReadFeeds(), chainVerifier,
+  appealDocket = createAppealDocket() }) {
   
   const router = Router();
   
@@ -48,6 +52,11 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   // This wires the INT-02 integration seam to the live API surface.
   router.post('/tasks/:id/submit', authenticate, allowRoles(R.CASE_WORKER), 
     upload.array('evidence_files', 10), createSubmit());
+
+  // INT-03: Appeals Docket (Admin/Director only). Registers a formal appeal and
+  // pauses the 15-day countdown; household status is unchanged (frozen enum).
+  router.post('/appeals/docket', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
+    scopeJurisdiction, validateBody(docketSchema), createFileAppeal(appealDocket));
 
   // Feed Helpers
   const feed = operation => async (req, res, next) => {
