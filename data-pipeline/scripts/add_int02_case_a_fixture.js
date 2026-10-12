@@ -1,9 +1,9 @@
 // ============================================================
 // KilosUnlad — INT-02 Demo Case A Fixture
 // ============================================================
-// Replaces the manual patch test_int02_submission.js used to require:
-//   1. DEMO-4PS-GRAD-0001 -> FLAGGED_FOR_REVIEW (dispatchable).
-//   2. case_worker_test also covers barangay 'Real', where Case A lives.
+// Test-account fixture for Case A scenarios (INT-02, E2E-01):
+//   case_worker_test also covers barangay 'Real', where Case A lives.
+//   Case A is flagged through the audited INT-05 assessment, not here.
 //      Without this, dispatch correctly returns 403 OUT_OF_JURISDICTION for
 //      the assigned worker. The jurisdiction guard itself is not changed.
 // Existing fields only; idempotent. Run after reset_demo.sh:
@@ -17,12 +17,10 @@
 const appDb = db.getSiblingDB('kilosunlad');
 print('=== KilosUnlad INT-02 Case A Fixture ===\n');
 
-const flagged = appDb.beneficiaries.updateOne(
-  { household_id: 'DEMO-4PS-GRAD-0001', program_status: 'ACTIVE_COMPLIANT' },
-  { $set: { program_status: 'FLAGGED_FOR_REVIEW', updatedAt: new Date() } });
 const current = appDb.beneficiaries.findOne({ household_id: 'DEMO-4PS-GRAD-0001' }, { program_status: 1 });
 if (!current) { print('[FAIL] DEMO-4PS-GRAD-0001 missing. Run reset_demo.sh first.'); quit(1); }
-print((flagged.modifiedCount ? '[OK]   ' : '[SKIP] ') + 'DEMO-4PS-GRAD-0001 status: ' + current.program_status);
+print('[INFO] DEMO-4PS-GRAD-0001 status: ' + current.program_status +
+  ' (flagging is done by POST /beneficiaries/:id/assess, never by a patch)');
 
 const worker = appDb.users.updateOne({ username: 'case_worker_test' },
   { $addToSet: { 'jurisdiction.assigned_barangays': 'Real' } });

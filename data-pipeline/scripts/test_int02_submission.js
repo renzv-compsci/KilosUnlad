@@ -4,8 +4,8 @@
  * 
  * Prerequisites: 
  * 1. Docker containers are running (db, server, ml-service).
- * 2. reset-demo.sh has been run, then add_int02_case_a_fixture.js (flags
- *    DEMO-4PS-GRAD-0001 and gives case_worker_test barangay Real).
+ * 2. reset-demo.sh has been run, then add_int02_case_a_fixture.js (gives
+ *    case_worker_test barangay Real). Case A is flagged in step 2b via INT-05.
  * 3. npm install axios form-data has been run in this directory.
  */
 
@@ -46,6 +46,16 @@ async function runTest() {
       process.exit(1);
     }
     console.log(`   [OK] Worker ID extracted: ${workerId}\n`);
+
+    // 2b. Flag Case A through the audited assessment (INT-05) if still ACTIVE_COMPLIANT
+    try {
+      const assessed = await axios.post(`${BASE_URL}/beneficiaries/${TARGET_HOUSEHOLD}/assess`, {},
+        { headers: { Authorization: `Bearer ${directorToken}` } });
+      console.log(`   [OK] Case A assessed: score ${assessed.data.composite_risk_score}, ${assessed.data.program_status}\n`);
+    } catch (err) {
+      if (err.response?.data?.error?.code !== 'HOUSEHOLD_NOT_ASSESSABLE') throw err;
+      console.log('   [OK] Case A already past ACTIVE_COMPLIANT\n');
+    }
 
     // 3. Director Dispatches Task
     console.log(`[3] Dispatching task for ${TARGET_HOUSEHOLD} to worker ${workerId}...`);
