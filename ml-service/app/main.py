@@ -50,6 +50,13 @@ app = FastAPI(
 # Contract error body (ml-swdi-inference.json): never echo the rejected input.
 @app.exception_handler(RequestValidationError)
 async def invalid_feature_vector(request: Request, exc: RequestValidationError):
+    if request.url.path.endswith("/score-atm-stream") and any(
+            e.get("type") == "too_short" and tuple(e.get("loc", ()))[-1:] == ("transactions",) for e in exc.errors()):
+        # ml-atm-telemetry.json: fewer than 3 transactions cannot yield velocity metrics.
+        return JSONResponse(status_code=400, content={"error": {
+            "code": "INSUFFICIENT_TRANSACTION_SAMPLE",
+            "message": "Sliding window requires at least 3 transactions to calculate velocity metrics."
+        }})
     if not request.url.path.endswith("/predict-swdi"):
         return await request_validation_exception_handler(request, exc)
     return JSONResponse(status_code=422, content={"error": {

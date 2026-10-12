@@ -1,0 +1,27 @@
+# E2E-04 SHAP drawer (API) — 2026-10-12T19:05:21Z
+[reset] done
+[START] E2E-04 SHAP Drawer Test
+
+[1] Before any assessment...
+   [OK]   No sealed assessment yet -> 404 ASSESSMENT_NOT_FOUND
+
+[2] Assess Case A, then read the drawer source...
+   [OK]   assessment 200 (ML_MODEL)
+   [OK]   200 OK
+   [OK]   response keys match contract
+   [OK]   drawer SHAP === assessment SHAP
+   [OK]   drawer probabilities === assessment probabilities
+   [OK]   receipt is the MODEL_FLAG_RAISED block
+   [OK]   COA auditor can read the explanation (read-only role)
+
+[3] Same features straight to the ML service...
+   [OK]   ML 200
+   [OK]   drawer SHAP matches the ML response payload (indicator, weight)
+   [OK]   predicted level matches
+
+[4] Guards...
+   [OK]   CASE_WORKER -> 403 FORBIDDEN
+   [OK]   Unknown household -> 404 HOUSEHOLD_NOT_FOUND
+   [OK]   Query parameters rejected -> 400 INVALID_QUERY
+
+[SUCCESS] E2E-04 TEST PASSED!

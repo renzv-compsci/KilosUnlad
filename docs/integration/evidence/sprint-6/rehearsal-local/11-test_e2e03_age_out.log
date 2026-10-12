@@ -1,0 +1,29 @@
+# E2E-03 age-out (RA 11310) — 2026-10-12T19:05:15Z
+[reset] done
+=== KilosUnlad E2E-03 Age-Out Fixture ===
+
+[OK]   TEST-4PS-AGEOUT-0001 children born 2005-10-13, 2007-10-13, 2007-10-14
+[OK]   TEST-4PS-AGEOUT-0002 children born 2006-10-13, 2004-10-13
+[OK]   external record for TEST-4PS-AGEOUT-0001 (power, postpaid, 4-wheel)
+[START] E2E-03 Age-Out (RA 11310) Test
+
+[1] Mixed household: 21 y, 19 today, 19 tomorrow...
+   [OK]   200 OK
+   [OK]   children_eligibility {total 3, eligible 1, aged_out 2}
+   [OK]   CHILD_AGE_OUT badge
+   [OK]   age-out does not change the published risk weights
+   [OK]   flagged -> FLAGGED_FOR_REVIEW
+   [OK]   stored is_eligible corrected to [false, false, true]
+   [OK]   stored birthdates are Dates
+   [OK]   correction sealed in MODEL_FLAG_RAISED delta
+   [OK]   verify-chain valid
+
+[2] Every child aged out, not flagged (result only, no write)...
+   [OK]   200 with eligible 0 of 2
+   [OK]   reason: no eligible children (RA 11310 Sec. 6)
+   [OK]   not persisted (no receipt, still ACTIVE_COMPLIANT)
+
+[3] Demo Case A (children 16 and 12) unaffected...
+   [OK]   Case A: 2 eligible, no CHILD_AGE_OUT
+
+[SUCCESS] E2E-03 TEST PASSED!

@@ -1,0 +1,11 @@
+# E2E-04 SHAP drawer (browser) — 2026-10-12T19:05:26Z
+[reset] done
+[START] E2E-04 Triage Drawer UI Test
+
+   [OK]   Case A assessed or already flagged
+   [OK]   drawer renders 3 SHAP attributions
+   [OK]   rendered SHAP weights === ML response payload
+   [OK]   drawer cites the sealed audit block
+   [INFO] screenshot: /home/user/KilosUnlad/docs/integration/evidence/sprint-6/rehearsal-local/e2e04-drawer.png
+
+[SUCCESS] E2E-04 UI TEST PASSED!
