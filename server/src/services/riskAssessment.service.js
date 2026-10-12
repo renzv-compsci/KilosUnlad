@@ -3,6 +3,9 @@ const Beneficiary = require('../models/Beneficiary');
 const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
 const ExternalRecord = require('../models/ExternalRecord');
+const SystemConfig = require('../models/SystemConfig');
+const { sameConnection } = require('../utils/sameConnection');
+const { assertNoCalamityHold } = require('./calamityToggle.service');
 const R = require('../constants/roles');
 const T = require('../constants/thresholds');
 const { PROGRAM_STATUSES: S } = require('../constants/statuses');
@@ -48,8 +51,8 @@ function indicatorsFor(external) {
 // moves ACTIVE_COMPLIANT -> FLAGGED_FOR_REVIEW, writes risk_assessment and seals
 // MODEL_FLAG_RAISED. Unflagged results are returned without any write.
 function createRiskAssessment({ beneficiaries = Beneficiary, users = User, audits = AuditLog,
-  externals = ExternalRecord, mlClient = createMlClient() } = {}) {
-  if (externals.db !== beneficiaries.db) throw new TypeError('Assessment models must use the same database connection.');
+  externals = ExternalRecord, configs = sameConnection(beneficiaries, SystemConfig), mlClient = createMlClient() } = {}) {
+  if (externals.db !== beneficiaries.db || configs.db !== beneficiaries.db) throw new TypeError('Assessment models must use the same database connection.');
   const authorize = allowRoles(...ROLES);
 
   async function assess(householdIdInput, actorId) {
@@ -70,6 +73,8 @@ function createRiskAssessment({ beneficiaries = Beneficiary, users = User, audit
     if (household.program_status !== S.ACTIVE_COMPLIANT) {
       throw new WorkflowError(409, 'HOUSEHOLD_NOT_ASSESSABLE', 'Only ACTIVE_COMPLIANT households can be assessed.');
     }
+    // RA 10121: compliance flagging is frozen in a declared calamity zone.
+    await assertNoCalamityHold({ configs, address: household.address });
 
     const demographics = household.demographics || {};
     const features = Object.fromEntries(PMT_FEATURES.filter(k => demographics[k] !== undefined)
@@ -109,6 +114,7 @@ function createRiskAssessment({ beneficiaries = Beneficiary, users = User, audit
     let previous;
     const transition = createWorkflowPersistence({ beneficiaries, users, audits, policy: {
       from: S.ACTIVE_COMPLIANT, to: S.FLAGGED_FOR_REVIEW, action: 'MODEL_FLAG_RAISED', roles: ROLES,
+      precheck: ({ record, session }) => assertNoCalamityHold({ configs, address: record.address, session }),
       perform: async ({ record, session }) => {
         previous = record.risk_assessment || {};
         const set = Object.fromEntries(Object.entries(assessment).map(([k, v]) => [`risk_assessment.${k}`, v]));

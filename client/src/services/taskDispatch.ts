@@ -65,6 +65,7 @@ export function dispatchErrorMessage(error: unknown): string {
     WORKFLOW_CONFLICT: 'This household is no longer eligible for dispatch. Refresh the queue.',
     WORKFLOW_PREREQUISITE_FAILED: 'The household does not meet the dispatch prerequisites. Ask the backend team to check its status.',
     OUT_OF_JURISDICTION: 'The household must be within both your scope and the assigned caseworker\'s jurisdiction.',
+    CALAMITY_MORATORIUM_ACTIVE: 'Dispatch is frozen: this municipality is under a declared calamity moratorium (RA 10121).',
   };
   return code && messages[code] ? messages[code] : '';
 }

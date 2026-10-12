@@ -38,14 +38,40 @@
         }
       ],
       "composite_risk_score": 100,
-      "contributions": { "swdi": 80, "power": 20, "water": 15, "telecom": 25, "vehicle": 30 },
+      "contributions": {
+        "swdi": 80,
+        "power": 20,
+        "water": 15,
+        "telecom": 25,
+        "vehicle": 30
+      },
       "is_flagged": true,
       "trigger_badges": [
-        { "code": "TIER_INVERSION", "label": "AI Predicted Level 3", "severity": "CRITICAL" },
-        { "code": "POWER_LIFELINE_BREACH", "label": "Meralco > 200 kWh", "severity": "HIGH" },
-        { "code": "WATER_LIFELINE_BREACH", "label": "Water > 25 cu.m", "severity": "MEDIUM" },
-        { "code": "TELECOM_POSTPAID_PLAN", "label": "Postpaid telecom plan", "severity": "MEDIUM" },
-        { "code": "LTO_VEHICLE_MATCH", "label": "Registered 4-Wheel Vehicle", "severity": "HIGH" }
+        {
+          "code": "TIER_INVERSION",
+          "label": "AI Predicted Level 3",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "POWER_LIFELINE_BREACH",
+          "label": "Meralco > 200 kWh",
+          "severity": "HIGH"
+        },
+        {
+          "code": "WATER_LIFELINE_BREACH",
+          "label": "Water > 25 cu.m",
+          "severity": "MEDIUM"
+        },
+        {
+          "code": "TELECOM_POSTPAID_PLAN",
+          "label": "Postpaid telecom plan",
+          "severity": "MEDIUM"
+        },
+        {
+          "code": "LTO_VEHICLE_MATCH",
+          "label": "Registered 4-Wheel Vehicle",
+          "severity": "HIGH"
+        }
       ],
       "flag_reasons": [
         "AI Predicted Level 3",
@@ -72,9 +98,40 @@
     "note": "Utility indicators still score; the SWDI term is 0. audit_receipt is null when not flagged."
   },
   "error_responses": [
-    { "status": 400, "error": { "code": "INVALID_REQUEST", "message": "Request fields are missing or invalid." } },
-    { "status": 404, "error": { "code": "HOUSEHOLD_NOT_FOUND", "message": "Specified household ID does not exist." } },
-    { "status": 409, "error": { "code": "HOUSEHOLD_NOT_ASSESSABLE", "message": "Only ACTIVE_COMPLIANT households can be assessed." } },
-    { "status": 409, "error": { "code": "WORKFLOW_CONFLICT", "message": "Household status changed; reload before retrying." } }
+    {
+      "status": 400,
+      "error": {
+        "code": "INVALID_REQUEST",
+        "message": "Request fields are missing or invalid."
+      }
+    },
+    {
+      "status": 404,
+      "error": {
+        "code": "HOUSEHOLD_NOT_FOUND",
+        "message": "Specified household ID does not exist."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "HOUSEHOLD_NOT_ASSESSABLE",
+        "message": "Only ACTIVE_COMPLIANT households can be assessed."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "CALAMITY_MORATORIUM_ACTIVE",
+        "message": "A declared calamity moratorium (RA 10121) freezes this action for the household municipality."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "WORKFLOW_CONFLICT",
+        "message": "Household status changed; reload before retrying."
+      }
+    }
   ]
 }

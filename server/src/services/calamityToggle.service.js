@@ -135,4 +135,15 @@ function holdFor(zones, address, now) {
   }
 }
 
-module.exports = { createCalamityToggle, toggleSchema, CONFIG_KEY };
+// E2E-02: dispatch and compliance flagging call this with the stored household
+// address, inside their transaction where one exists. No configuration = no hold.
+async function assertNoCalamityHold({ configs = SystemConfig, address, session = null, now = new Date() } = {}) {
+  const config = await configs.findOne({ config_key: CONFIG_KEY }).session(session).lean();
+  if (!config) return;
+  if (holdFor(config.calamity_moratorium_zones || [], address, now)) {
+    throw new WorkflowError(409, 'CALAMITY_MORATORIUM_ACTIVE',
+      'A declared calamity moratorium (RA 10121) freezes this action for the household municipality.');
+  }
+}
+
+module.exports = { createCalamityToggle, toggleSchema, CONFIG_KEY, assertNoCalamityHold };
