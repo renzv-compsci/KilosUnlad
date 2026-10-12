@@ -67,7 +67,6 @@ print('');
 
 // ------------------------------------------------------------
 // 3. Check for any active task on this household
-//    (shouldn't exist yet, but defensive check)
 // ------------------------------------------------------------
 print('[3] Confirming no active task exists for this household...');
 const activeTask = appDb.verification_tasks.findOne({
@@ -138,7 +137,7 @@ print('    [OK] Inserted ' + TEST_HOUSEHOLD_ID);
 print('');
 
 // ------------------------------------------------------------
-// 5. Summary + dispatch info for Markie
+// 5. Summary + dispatch info
 // ------------------------------------------------------------
 print('=== Setup Complete ===\n');
 print('Household ready for dispatch:');
