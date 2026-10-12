@@ -1,0 +1,27 @@
+[START] DAT-01 Seed Conformance Test
+
+[1] Counts and 1:1 invariant...
+   [OK]   80,000 SYN beneficiaries
+   [OK]   80,000 SYN external records
+   [OK]   zero orphan external records
+
+[2] Every document validates against the frozen Mongoose models...
+   [OK]   beneficiaries valid (80,000 checked)
+   [OK]   external records valid (80,000 checked)
+
+[3] Visibility, ML readiness, and excluded fields...
+   [OK]   all SYN households inside director_test jurisdiction scope
+   [OK]   every household has a valid ml-swdi-inference v1.1 vector
+   [OK]   no beneficiary stores true_swdi_level
+   [OK]   no beneficiary stores names
+   [OK]   no beneficiary stores landbank_card_pan
+   [OK]   no beneficiary stores gps_coordinates
+   [OK]   no beneficiary stores school_attendance
+   [OK]   no external record stores raw power
+   [OK]   no external record stores raw water
+   [OK]   no external record stores raw telecom
+   [OK]   no external record stores raw vehicle
+   [OK]   no external record stores raw household_id
+   [OK]   all LandBank PANs masked
+
+[SUCCESS] DAT-01 TEST PASSED!
