@@ -59,7 +59,8 @@ async function startReplicaSet(t, dbName) {
   const model = name => connection.model(name, require(`../../src/models/${name}`).schema);
   const models = {
     users: model('User'), beneficiaries: model('Beneficiary'), audits: model('AuditLog'),
-    tasks: model('VerificationTask'), configs: model('SystemConfig')
+    tasks: model('VerificationTask'), configs: model('SystemConfig'),
+    externals: model('ExternalRecord')
   };
   await Promise.all(Object.values(models).map(m => m.init()));
   return { connection, models };
