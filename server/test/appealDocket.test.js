@@ -2,6 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { createApp } = require('../src/app');
 const { createAuthService } = require('../src/services/auth.service');
 const { createAppealDocket } = require('../src/services/appealDocket.service');
@@ -35,6 +36,8 @@ test('INT-03 POST /api/v1/appeals/docket against a disposable MongoDB replica se
   t.after(() => new Promise(resolve => server.close(resolve)));
   const base = `http://127.0.0.1:${server.address().port}/api/v1`;
   const tokens = {};
+  const expiredToken = user => jwt.sign({ userId: String(user._id), role: user.role,
+    exp: Math.floor(Date.now() / 1000) - 60 }, secret, { algorithm: 'HS256' });
   for (const username of ['director', 'admin', 'auditor', 'worker', 'outsider']) {
     const r = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }) });
@@ -139,6 +142,8 @@ test('INT-03 POST /api/v1/appeals/docket against a disposable MongoDB replica se
     await seed('HH-SEC');
     await noWrites(async () => {
       await rejected(await post(null, payload('HH-SEC')), 401, 'UNAUTHORIZED');
+      tokens.expired = expiredToken(director);
+      await rejected(await post('expired', payload('HH-SEC')), 401, 'TOKEN_EXPIRED');
       await rejected(await post('worker', payload('HH-SEC')), 403, 'FORBIDDEN');
       await rejected(await post('auditor', payload('HH-SEC')), 403, 'FORBIDDEN');
       await rejected(await post('outsider', payload('HH-SEC')), 403, 'OUT_OF_JURISDICTION');

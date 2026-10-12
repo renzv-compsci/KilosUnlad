@@ -1,12 +1,12 @@
 # KilosUnlad Integration Backlog (Board of Record)
 
-Owner: Renz Viloria | Revision: 3 | Date: 2026-10-12
+Owner: Renz Viloria | Revision: 4 | Date: 2026-10-12
 Plan reference: docs/integration/SCRUM_INTEGRATION_PLAN.md (Revision 2)
 Legend: DONE | IN REVIEW | OPEN | BLOCKED
 
 ## Sprint 0 — Integration Readiness Gate
 - [x] RDY-01 Placeholder enumeration — **DONE** — evidence: `PLACEHOLDER_ENUMERATION.md`
-- [ ] RDY-01a Appeals route verification — **OPEN** — Sprint 1 pre-check (awaiting PM grep output)
+- [x] RDY-01a Appeals route verification — **DONE** — Route and controller files were empty (not registered); INT-03 scope expanded to register + wire.
 - [x] RDY-02 ADR-001 production seed baseline — **DONE** — Approved by PM. 80k baseline selected.
 - [x] RDY-03 F1 disposition memo — **DONE** — Opened; transferred to Sprint 2 as ML-01 (`F1_DISPOSITION_MEMO.md`)
 - [x] RDY-04 Age-out rule status — **DONE** — Memo filed with statutory basis; E2E-03/E2E-03a pre-scheduled (`AGE_OUT_RULE_STATUS.md`)
@@ -22,13 +22,13 @@ Legend: DONE | IN REVIEW | OPEN | BLOCKED
 ---
 
 ## Sprint 1 — Backend Integration Seams
-- INT-01 mlClient 6-feature payload — **OPEN** — acceptance: live prediction plus SHAP through backend; fallback tagged when ML down.
-- INT-02 Mount POST /api/v1/tasks/:id/submit — **OPEN** — acceptance: multipart accepted; 422 EVIDENCE_HASH_MISMATCH on altered bytes; geofence enforced.
-- INT-03 Mount POST /api/v1/appeals/docket — **OPEN** (scope pending RDY-01a) — acceptance: notice created, 15-day countdown starts.
-- INT-04 Mount POST /api/v1/calamity/toggle — **OPEN** — acceptance: hold decision for matching declared zone.
-- INT-05 Wire discrepancy.service.js into live assessment — **OPEN** — acceptance: score persisted with contributions.
-- INT-06 Verify audit.middleware appends on submission and status change — **OPEN** — acceptance: verify-chain passes expanded range.
-- INT-07 Regression matrix for new routes — **OPEN** — acceptance: all rejection paths write nothing.
+- INT-01 mlClient 6-feature payload — **BLOCKED** (contract file `ml-swdi-inference.json` and Beneficiary `demographics` model still use the old vector; 7 `mlClient` tests fail against it) — acceptance: live prediction plus SHAP through backend; fallback tagged when ML down.
+- INT-02 Mount POST /api/v1/tasks/:id/submit — **IN REVIEW** (transactional write, geofence, contract response) — acceptance: multipart accepted; 422 EVIDENCE_HASH_MISMATCH on altered bytes; geofence enforced.
+- INT-03 Mount POST /api/v1/appeals/docket — **IN REVIEW** — acceptance: notice created, 15-day countdown starts.
+- INT-04 Mount POST /api/v1/calamity/toggle — **IN REVIEW** — acceptance: hold decision for matching declared zone.
+- INT-05 Wire discrepancy.service.js into live assessment — **BLOCKED** (feature source, trigger route, indicator mapping undecided) — acceptance: score persisted with contributions.
+- INT-06 Verify audit appends on submission and status change — **IN REVIEW** (in-transaction sealing; verify-chain 1..5 valid) — acceptance: verify-chain passes expanded range.
+- INT-07 Regression matrix for new routes — **IN REVIEW** (all five matrix rows covered for INT-02/03/04) — acceptance: all rejection paths write nothing.
 - INT-08 Notify Markie; enable sync and appeals UI — **OPEN** — acceptance: client flags flipped against mounted routes.
 
 ---

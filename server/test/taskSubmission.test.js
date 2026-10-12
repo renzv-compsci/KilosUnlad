@@ -2,6 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { createApp } = require('../src/app');
 const { createAuthService } = require('../src/services/auth.service');
 const { createTaskSubmission } = require('../src/services/taskSubmission.service');
@@ -36,6 +37,8 @@ test('INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals RE
   t.after(() => new Promise(resolve => server.close(resolve)));
   const base = `http://127.0.0.1:${server.address().port}/api/v1`;
   const tokens = {};
+  const expiredToken = user => jwt.sign({ userId: String(user._id), role: user.role,
+    exp: Math.floor(Date.now() / 1000) - 60 }, secret, { algorithm: 'HS256' });
   for (const username of ['worker', 'other', 'director', 'auditor']) {
     const r = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }) });
@@ -154,6 +157,8 @@ test('INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals RE
     await seed('SEC');
     await noWrites('SEC', async () => {
       await rejected(await asJson(null, 'TSK-SEC', findings('SEC')), 401, 'UNAUTHORIZED');
+      tokens.expired = expiredToken(worker);
+      await rejected(await asJson('expired', 'TSK-SEC', findings('SEC')), 401, 'TOKEN_EXPIRED');
       await rejected(await asJson('director', 'TSK-SEC', findings('SEC')), 403, 'FORBIDDEN');
       await rejected(await asJson('auditor', 'TSK-SEC', findings('SEC')), 403, 'FORBIDDEN');
       await rejected(await asJson('other', 'TSK-SEC', findings('SEC')), 404, 'TASK_NOT_FOUND');

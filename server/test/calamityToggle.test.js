@@ -2,6 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { createApp } = require('../src/app');
 const { createAuthService } = require('../src/services/auth.service');
 const { createCalamityToggle } = require('../src/services/calamityToggle.service');
@@ -40,6 +41,8 @@ test('INT-04 POST /api/v1/calamity/toggle against a disposable MongoDB replica s
   t.after(() => new Promise(resolve => server.close(resolve)));
   const base = `http://127.0.0.1:${server.address().port}/api/v1`;
   const tokens = {};
+  const expiredToken = user => jwt.sign({ userId: String(user._id), role: user.role,
+    exp: Math.floor(Date.now() / 1000) - 60 }, secret, { algorithm: 'HS256' });
   for (const username of ['admin', 'director', 'auditor', 'worker']) {
     const r = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }) });
@@ -70,6 +73,8 @@ test('INT-04 POST /api/v1/calamity/toggle against a disposable MongoDB replica s
   await t.test('security guards: 401, director 403, worker 403, auditor 403', async () => {
     await noWrites(async () => {
       await rejected(await post(null, declare()), 401, 'UNAUTHORIZED');
+      tokens.expired = expiredToken(admin);
+      await rejected(await post('expired', declare()), 401, 'TOKEN_EXPIRED');
       await rejected(await post('director', declare()), 403, 'FORBIDDEN');
       await rejected(await post('worker', declare()), 403, 'FORBIDDEN');
       await rejected(await post('auditor', declare()), 403, 'FORBIDDEN');

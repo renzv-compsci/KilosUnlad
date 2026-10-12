@@ -56,10 +56,13 @@ All four engineering leads have officially finalized and handed over their respe
 | `/beneficiaries/triage-queue` | `GET` | Admin / Director / Auditor | Enforces regional/municipal jurisdiction; provides pagination (`page`, `limit`) and status filtering. |
 | `/tasks/assigned` | `GET` | Case Worker Only | Returns only tasks assigned to the authenticated worker (`PENDING_DISPATCH` or `CACHED_OFFLINE`) in their jurisdiction. Rejects query overrides with 400. |
 | `/tasks/dispatch` | `POST` | Admin / Director Only | Executes multi-document ACID transaction: creates `VerificationTask`, sets `Beneficiary` to `UNDER_INVESTIGATION`, and appends `AuditLog`. |
+| `/tasks/:id/submit` | `POST` | Case Worker Only | INT-02/06: JSON or multipart (`evidence_files`). Re-authorizes in-transaction, verifies uploaded bytes (422 `EVIDENCE_HASH_MISMATCH`), enforces the 250 m geofence (422 `GEOFENCE_VIOLATION`), writes `field_findings` + `SUBMITTED`, appends `REPORT_SUBMITTED`. Returns the frozen `field-task-submission.json` 200 body. Duplicate: 409 `TASK_NOT_SUBMITTABLE`. |
+| `/appeals/docket` | `POST` | Admin / Director Only | INT-03: body `{household_id, appeal_docket_id, hearing_date (YYYY-MM-DD), appeal_grounds}`. Notice instant = stored `APPROVED_GRADUATION` resolution; 15-day deadline via `calculateAppealDeadline`. Appeal sealed as `APPEAL_FILED`; household stays `NOTICE_OF_INELIGIBILITY` (frozen enum). 409: `NOTICE_REQUIRED`, `NOTICE_RECORD_MISSING`, `APPEAL_WINDOW_CLOSED`, `APPEAL_ALREADY_FILED`, `DOCKET_ID_CONFLICT`. |
+| `/calamity/toggle` | `POST` | Super Admin Only | INT-04: body `{province, municipality, is_active, ndrrmc_reference?, expires_at?}`. Writes `SystemConfig` `CALAMITY_ZONES`; returns `hold_active` via `hasActiveCalamityMoratorium`. Declare = 201 + `CALAMITY_DECLARED`; lift = 200 + `SYSTEM_CONFIG_UPDATED`. 409: `CALAMITY_ALREADY_ACTIVE`, `CALAMITY_NOT_ACTIVE`. |
 | `/audit/verify-chain` | `GET` | Admin / Auditor Only | Traverses inclusive block sequence ranges (up to 1,000 blocks), recomputing canonical SHA-256 hashes against predecessor linkages. |
 | `/health` | `GET` | Public | Returns process liveness (`status: "online"`). Waits for MongoDB connection on startup. |
 
-*Note: Four integration helper modules are currently mapped to `integrationPlaceholders.service.js` returning HTTP 503 `ENDPOINT_NOT_READY` awaiting route mounting.*
+*Note (Sprint 1): `submitTask` and `toggleCalamity` placeholders are superseded by the mounted routes above. `evaluateHousehold` and `applyRiskAssessment` remain placeholders pending INT-05 (see `docs/integration/evidence/SPRINT1_EVIDENCE.md`). All mutations seal their audit block inside the same MongoDB transaction; `audit.middleware.js` stays unmounted by design.*
 
 ---
 
