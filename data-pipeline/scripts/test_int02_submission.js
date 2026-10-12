@@ -102,7 +102,7 @@ async function runTest() {
       })],
       ['evidence_attachments', JSON.stringify([{
         media_type: 'image/png',
-        storage_url: 'http://localhost:5000/uploads/mock-evidence.png',
+        storage_url: `${BASE_URL}/evidence/${realSha256Hash}`, // content address bound to the hash (upload adapter)
         sha256_hash: realSha256Hash,
         exif_metadata: {
           timestamp: new Date().toISOString(),

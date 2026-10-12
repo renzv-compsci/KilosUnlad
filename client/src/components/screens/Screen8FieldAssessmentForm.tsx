@@ -70,6 +70,8 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
     'RETAIN' | 'RECOMMEND_GRADUATION' | 'INVESTIGATE_FRAUD' | ''
   >('');
   const [narrativeReport, setNarrativeReport] = useState('');
+  // field-task-submission.json requires the worker-verified SWDI level.
+  const [verifiedSwdiLevel, setVerifiedSwdiLevel] = useState<1 | 2 | 3 | ''>('');
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -78,7 +80,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
     motorcycle: isMotorcyclePresent, productive: isProductiveAsset, proof: proofType,
     cardPresented: physicalCardPresented, cardMatches: cardMatchesBeneficiary, pawning: pawningSuspected,
     evidenceReady: !isProcessingPhoto && photoCaptured && Boolean(gpsData) && Boolean(clientSideHash),
-    recommendation: workerRecommendation, narrative: narrativeReport,
+    recommendation: verifiedSwdiLevel ? workerRecommendation : '', narrative: narrativeReport,
   });
 
   const handleCapturePhoto = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,7 +118,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
 
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSaving || !completedSteps.every(Boolean) || wallConstruction === null || roofConstruction === null || waterAccess === null || isMotorcyclePresent === null || physicalCardPresented === null || cardMatchesBeneficiary === null || pawningSuspected === null || !workerRecommendation || !gpsData) return;
+    if (isSaving || !completedSteps.every(Boolean) || wallConstruction === null || roofConstruction === null || waterAccess === null || isMotorcyclePresent === null || physicalCardPresented === null || cardMatchesBeneficiary === null || pawningSuspected === null || !workerRecommendation || !verifiedSwdiLevel || !gpsData) return;
     setIsSaving(true);
     setSaveError(null);
 
@@ -144,6 +146,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
             }
           ]
         : [],
+      verified_swdi_level: verifiedSwdiLevel,
       worker_recommendation: workerRecommendation,
       narrative_report: narrativeReport,
       sync_status: 'PENDING_SYNC'
@@ -622,6 +625,25 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <p className="text-xs text-slate-500 mt-0.5">
                 Field findings and recommendation for this household.
               </p>
+            </div>
+
+            {/* Select: verified_swdi_level */}
+            <div>
+              <label htmlFor="verified-swdi-level-select" className="block text-xs font-semibold text-slate-800 mb-1.5">
+                Verified SWDI level
+              </label>
+              <select
+                id="verified-swdi-level-select"
+                disabled={isSaving}
+                value={verifiedSwdiLevel}
+                onChange={(e) => setVerifiedSwdiLevel(Number(e.target.value) as 1 | 2 | 3)}
+                className="w-full min-h-[42px] px-3 border border-slate-200 rounded-lg text-xs font-medium bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-700"
+              >
+                <option value="" disabled>Select the level verified on site</option>
+                <option value="1">Level 1: Survival</option>
+                <option value="2">Level 2: Subsistence</option>
+                <option value="3">Level 3: Self-Sufficient</option>
+              </select>
             </div>
 
             {/* Select: worker_recommendation */}

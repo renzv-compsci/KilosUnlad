@@ -8,6 +8,9 @@ const { createAuthService } = require('../src/services/auth.service');
 const { createTaskSubmission } = require('../src/services/taskSubmission.service');
 const { computeEntryHash } = require('../src/utils/cryptoHelper');
 const { startReplicaSet } = require('./support/replicaSet');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
 // 1x1 PNG, matching the INT-02 integration script.
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
@@ -30,9 +33,11 @@ test('INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals RE
   await makeUser('director', 'REGIONAL_DIRECTOR');
   await makeUser('auditor', 'COA_AUDITOR', {});
 
+  const uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kilosunlad-evidence-'));
+  t.after(() => fs.rmSync(uploadDir, { recursive: true, force: true }));
   const secret = crypto.randomBytes(32).toString('hex');
   const app = createApp({ mockMode: false, production: true, authService: createAuthService({ users, secret }),
-    taskSubmission: createTaskSubmission(models) });
+    taskSubmission: createTaskSubmission({ ...models, uploadDir }) });
   const server = await new Promise(resolve => { const s = app.listen(0, '127.0.0.1', () => resolve(s)); });
   t.after(() => new Promise(resolve => server.close(resolve)));
   const base = `http://127.0.0.1:${server.address().port}/api/v1`;
@@ -63,7 +68,7 @@ test('INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals RE
     landbank_card_inspection: { physical_card_presented: true, card_matches_beneficiary: true, pawning_suspected: false },
     client_geolocation: { latitude: lat, longitude: lon, accuracy_meters: 12, captured_at: new Date().toISOString() },
     evidence_attachments: attachments.map(hash => ({ media_type: 'image/png',
-      storage_url: 'https://evidence.example.test/photo.png', sha256_hash: hash }))
+      storage_url: `https://api.example.test/api/v1/evidence/${hash}`, sha256_hash: hash }))
   });
   const asJson = (as, id, body) => fetch(`${base}/tasks/${id}/submit`, { method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(as ? { Authorization: `Bearer ${tokens[as]}` } : {}) },
@@ -116,17 +121,34 @@ test('INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals RE
       action: log.action, stateDelta: log.state_delta }));
   });
 
-  await t.test('multipart with matching bytes verifies evidence', async () => {
+  await t.test('multipart with matching bytes verifies evidence and stores it content-addressed', async () => {
     await seed('MP');
     const r = await asMultipart('worker', 'TSK-MP', findings('MP', { attachments: [sha(PNG)] }), [PNG]);
     assert.equal(r.status, 200);
     const log = await audits.findOne({ 'target_entity.entity_id': 'TSK-MP' }).lean();
     assert.equal(log.state_delta.after.evidence_bytes_verified, true);
+    const stored = path.join(uploadDir, 'evidence', sha(PNG));
+    assert.ok(fs.existsSync(stored), 'verified bytes must be persisted (STR-02 zero loss)');
+    assert.equal(sha(fs.readFileSync(stored)), sha(PNG));
+    // Same bytes for another task: idempotent, no error, file unchanged.
+    await seed('MP2');
+    assert.equal((await asMultipart('worker', 'TSK-MP2', findings('MP2', { attachments: [sha(PNG)] }), [PNG])).status, 200);
+    assert.equal(sha(fs.readFileSync(stored)), sha(PNG));
+  });
+
+  await t.test('uploaded evidence storage_url must be bound to the verified hash', async () => {
+    await seed('URL');
+    const body = findings('URL', { attachments: [sha(PNG)] });
+    body.evidence_attachments[0].storage_url = 'https://elsewhere.example.test/photo.png';
+    await noWrites('URL', async () => {
+      await rejected(await asMultipart('worker', 'TSK-URL', body, [PNG]), 400, 'INVALID_EVIDENCE_INPUT');
+    });
   });
 
   await t.test('evidence integrity: altered bytes 422, missing files 400, no writes', async () => {
     await seed('EVID');
     const altered = Buffer.concat([PNG, Buffer.from([0])]);
+    t.after(() => assert.ok(!fs.existsSync(path.join(uploadDir, 'evidence', sha(altered))), 'rejected bytes are never stored'));
     await noWrites('EVID', async () => {
       await rejected(await asMultipart('worker', 'TSK-EVID', findings('EVID', { attachments: [sha(PNG)] }), [altered]),
         422, 'EVIDENCE_HASH_MISMATCH');

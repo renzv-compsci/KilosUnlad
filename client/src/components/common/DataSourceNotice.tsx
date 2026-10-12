@@ -7,8 +7,8 @@ function sourceFor(screen: ScreenId) {
   if (screen === 'audit_ledger') return ['Read-only verification', 'Verification checks the requested range on the server. No audit records are changed.'];
   if (screen === 'triage') return ['Server records', 'Households come from the server. Authorized dispatch creates an assignment and returns an audit receipt.'];
   if (screen === 'dispatch_manager') return ['Sample assignment overview', 'This list and staff counts are previews. Select Household opens live triage for authorized dispatch; reassignment is unavailable.'];
-  if (screen === 'field_tasks' || screen === 'field_dashboard') return ['Server assignments', 'Tasks come from the server. Available offline means a copy is stored on this device; assessment drafts are not submitted.'];
-  if (screen === 'field_verify' || screen === 'field_sync') return ['Local drafts only', 'Assessment drafts are saved on this device. Server submission is not available yet.'];
+  if (screen === 'field_tasks' || screen === 'field_dashboard') return ['Server assignments', 'Tasks come from the server. Available offline means a copy is stored on this device; saved reports are submitted automatically when online.'];
+  if (screen === 'field_verify' || screen === 'field_sync') return ['Saved on device until synced', 'Reports are saved on this device first and submitted to the server when a connection is available.'];
   if (screen === 'coa_dashboard') return ['Sample overview', 'Overview figures and AOMs are previews. Audit-chain verification uses a separate read-only server request.'];
   return ['Preview only', 'Sample records. Changes are not submitted to the server or applied to official records.'];
 }

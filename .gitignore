@@ -56,3 +56,5 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+# Field evidence (beneficiary photos) written by the upload adapter: never commit
+server/uploads/

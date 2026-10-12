@@ -216,6 +216,8 @@ export interface FieldTaskSubmission {
   }[];
 
   // Section 5: Final Recommendation & Narrative
+  // Required by field-task-submission.json; optional only for legacy drafts.
+  verified_swdi_level?: 1 | 2 | 3;
   worker_recommendation: WorkerRecommendation;
   narrative_report: string;
   

@@ -130,8 +130,14 @@ export default function App() {
       item.task_id === taskId ? { ...item, sync_status: 'SYNCED' } : item
     )));
   }, []);
-  // Submission endpoints are not in the current backend handoff; keep drafts local.
-  const { isOnline, isSyncing, syncPending } = useOfflineSync(submissions, markSubmissionSynced, session?.user.user_id ?? null, false);
+  const markSubmissionRejected = React.useCallback((taskId: string) => {
+    setSubmissions((current) => current.map((item) => (
+      item.task_id === taskId ? { ...item, sync_status: 'ERROR' } : item
+    )));
+  }, []);
+  // INT-02/STR-02: POST /api/v1/tasks/:id/submit is mounted; queued reports sync when online.
+  const { isOnline, isSyncing, syncPending } = useOfflineSync(submissions, markSubmissionSynced,
+    session?.user.user_id ?? null, true, markSubmissionRejected);
   const isOffline = simulateOffline || !isOnline;
 
   const clearSession = React.useCallback(() => {
@@ -376,7 +382,7 @@ export default function App() {
         return (
           <div className="field-screen-wrapper">
             <div className="mx-auto mb-4 flex max-w-3xl items-center justify-between rounded-xl border border-stone-200 bg-stone-100 p-3">
-              <span className="text-xs font-medium text-stone-700">Drafts saved on this device; not submitted</span>
+              <span className="text-xs font-medium text-stone-700">Drafts saved on this device; submitted when online</span>
               <button
                 type="button"
                 onClick={() => setIsSyncDrawerOpen(true)}
@@ -494,6 +500,7 @@ export default function App() {
         submissions={submissions}
         onSyncAll={handleSyncAll}
         isSyncing={isSyncing}
+        submissionAvailable
       />
     </div>
   );

@@ -121,8 +121,63 @@ export async function fetchAssignedTasks(signal?: AbortSignal): Promise<FieldTas
   return tasks.map(normalizeFieldTask);
 }
 
+export class DraftIncompleteError extends Error {
+  code = 'DRAFT_INCOMPLETE';
+}
+
+// Maps a local draft to the frozen field-task-submission.json request. Local-only
+// fields (living-condition scores, sync status, data URLs) are never sent. Each
+// photo's storage_url is its content address, which the server binds to the hash.
+export function toSubmissionContract(draft: FieldTaskSubmission) {
+  const evidence = draft.evidence_attachments ?? [];
+  const first = evidence[0];
+  if (!draft.verified_swdi_level || !first) {
+    throw new DraftIncompleteError('This saved report is missing the verified SWDI level or geotagged evidence. Reopen and save it again.');
+  }
+  return {
+    task_id: draft.task_id,
+    household_id: draft.household_id,
+    verified_swdi_level: draft.verified_swdi_level,
+    worker_recommendation: draft.worker_recommendation,
+    narrative_report: draft.narrative_report,
+    livelihood_asset_verification: {
+      is_motorcycle_present: draft.is_motorcycle_present,
+      is_productive_asset: draft.is_productive_asset,
+      proof_type: draft.proof_type ?? 'NONE',
+      franchise_number: draft.franchise_number ?? '',
+    },
+    landbank_card_inspection: {
+      physical_card_presented: draft.physical_card_presented,
+      card_matches_beneficiary: draft.card_matches_beneficiary,
+      pawning_suspected: draft.pawning_suspected,
+    },
+    client_geolocation: {
+      latitude: first.gps_readout.latitude,
+      longitude: first.gps_readout.longitude,
+      accuracy_meters: first.gps_readout.accuracy_m,
+      captured_at: first.captured_at,
+    },
+    evidence_attachments: evidence.map((item) => ({
+      media_type: /^data:(image\/(?:jpeg|png|webp));/.exec(item.photo_url)?.[1] ?? 'image/jpeg',
+      storage_url: `${API_BASE_URL}/evidence/${item.client_side_hash}`,
+      sha256_hash: item.client_side_hash,
+      exif_metadata: { timestamp: item.captured_at, latitude: item.gps_readout.latitude, longitude: item.gps_readout.longitude },
+    })),
+  };
+}
+
+// Multipart so the server verifies (and stores) the original photo bytes.
 export async function submitFieldTask(submission: FieldTaskSubmission): Promise<void> {
-  await api.post(`/tasks/${encodeURIComponent(submission.task_id)}/submit`, submission);
+  const body = toSubmissionContract(submission);
+  const form = new FormData();
+  for (const [key, value] of Object.entries(body)) {
+    form.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+  }
+  for (const [index, item] of submission.evidence_attachments.entries()) {
+    const blob = await (await fetch(item.photo_url)).blob();
+    form.append('evidence_files', blob, `evidence-${index + 1}`);
+  }
+  await api.post(`/tasks/${encodeURIComponent(submission.task_id)}/submit`, form);
 }
 
 export function apiErrorMessage(error: unknown): string {
