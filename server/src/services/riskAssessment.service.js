@@ -12,6 +12,7 @@ const { PROGRAM_STATUSES: S } = require('../constants/statuses');
 const { allowRoles, requireJurisdiction } = require('../middleware/rbac.middleware');
 const { createMlClient, MlClientError } = require('./mlClient.service');
 const { calculateRiskScore } = require('./discrepancy.service');
+const { evaluateAgeOut } = require('./ageOut.service');
 const { createWorkflowPersistence, WorkflowError, runGuard } = require('./workflowPersistence.service');
 
 const ROLES = [R.SUPER_ADMIN, R.REGIONAL_DIRECTOR];
@@ -21,6 +22,7 @@ const PMT_FEATURES = ['head_education_level', 'head_formal_employment', 'remitta
 const OWNED = ['OWNED_OUTRIGHT', 'OWNED_WITH_ENCUMBRANCE'];
 const HOUSEHOLD_MEMBERS = ['HOUSEHOLD_HEAD', 'SPOUSE', 'OTHER_HOUSEHOLD_MEMBER'];
 const FALLBACK_TAG = 'EVALUATED_VIA_FALLBACK';
+const NO_ELIGIBLE_CHILDREN = 'No eligible children (RA 11310 Sec. 6)';
 
 const assessSchema = Joi.object({}).required();
 const householdIdSchema = Joi.string().trim().min(1).max(128).required();
@@ -94,18 +96,25 @@ function createRiskAssessment({ beneficiaries = Beneficiary, users = User, audit
     const swdiDifference = predicted === null ? 0
       : Math.min(2, Math.max(0, predicted - household.enrolled_swdi_level));
     const { score, meetsFlagThreshold, contributions } = calculateRiskScore({ swdiDifference, ...indicators });
+    const evaluatedAt = new Date();
+    // E2E-03a: RA 11310 age-out is reported, not scored (published weights unchanged).
+    const ageOut = evaluateAgeOut(household.children_registry, evaluatedAt);
+    const { aged_out: agedOut, eligible, total, unknown } = ageOut.summary;
     const trigger_badges = [
       ...(swdiDifference > 0 ? [BADGES.swdi(predicted)] : []),
-      ...['power', 'water', 'telecom', 'vehicle'].filter(k => indicators[k]).map(k => BADGES[k]())
+      ...['power', 'water', 'telecom', 'vehicle'].filter(k => indicators[k]).map(k => BADGES[k]()),
+      ...(agedOut ? [{ code: 'CHILD_AGE_OUT', label: `${agedOut} child${agedOut > 1 ? 'ren' : ''} aged out (RA 11310)`,
+        severity: 'LOW' }] : [])
     ];
-    const flag_reasons = [...trigger_badges.map(b => b.label), ...(evaluation ? [] : [FALLBACK_TAG])];
-    const evaluatedAt = new Date();
+    const flag_reasons = [...trigger_badges.map(b => b.label),
+      ...(total && !eligible && !unknown ? [NO_ELIGIBLE_CHILDREN] : []), ...(evaluation ? [] : [FALLBACK_TAG])];
     const result = { household_id: householdId,
       evaluation_mode: evaluation ? 'ML_MODEL' : FALLBACK_TAG, fallback_reason: fallbackReason,
       enrolled_swdi_level: household.enrolled_swdi_level, predicted_swdi_level: predicted,
       class_probabilities: evaluation ? evaluation.class_probabilities : null,
       shap_explainability: evaluation ? evaluation.shap_explainability : [],
       composite_risk_score: score, contributions, is_flagged: meetsFlagThreshold, trigger_badges, flag_reasons,
+      children_eligibility: ageOut.summary,
       program_status: household.program_status, evaluated_at: evaluatedAt.toISOString(), audit_receipt: null };
     if (!meetsFlagThreshold) return result;
 
@@ -118,6 +127,8 @@ function createRiskAssessment({ beneficiaries = Beneficiary, users = User, audit
       perform: async ({ record, session }) => {
         previous = record.risk_assessment || {};
         const set = Object.fromEntries(Object.entries(assessment).map(([k, v]) => [`risk_assessment.${k}`, v]));
+        // Correct stored eligibility only when every birthdate was evaluable.
+        if (!unknown) set.children_registry = ageOut.children.map(({ birthdate, is_eligible }) => ({ birthdate, is_eligible }));
         const unset = predicted === null ? { 'risk_assessment.predicted_swdi_level': '' } : {};
         const update = await beneficiaries.updateOne({ _id: record._id },
           { $set: set, ...(predicted === null ? { $unset: unset } : {}) }, { session, runValidators: true });
@@ -125,10 +136,13 @@ function createRiskAssessment({ beneficiaries = Beneficiary, users = User, audit
       },
       auditDelta: () => ({
         before: { risk_assessment: { composite_risk_score: previous.composite_risk_score ?? null,
-          is_flagged: previous.is_flagged ?? null, predicted_swdi_level: previous.predicted_swdi_level ?? null } },
+          is_flagged: previous.is_flagged ?? null, predicted_swdi_level: previous.predicted_swdi_level ?? null },
+        children_is_eligible: (household.children_registry || []).map(c => c?.is_eligible ?? null) },
         after: { risk_assessment: { ...assessment, evaluated_at: result.evaluated_at,
           predicted_swdi_level: predicted }, evaluation_mode: result.evaluation_mode, fallback_reason: fallbackReason,
-        contributions, class_probabilities: result.class_probabilities, shap_explainability: result.shap_explainability }
+        contributions, class_probabilities: result.class_probabilities, shap_explainability: result.shap_explainability,
+        children_eligibility: ageOut.summary,
+        children_is_eligible: ageOut.children.map(c => c.is_eligible) }
       })
     } });
     const persisted = await transition({ householdId, actorId });

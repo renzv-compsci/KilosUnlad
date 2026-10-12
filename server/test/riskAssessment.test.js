@@ -208,6 +208,41 @@ test('INT-05 POST /api/v1/beneficiaries/:household_id/assess against a disposabl
     assert.equal((await assess('director', 'HH-REAL')).status, 403);
   });
 
+  await t.test('E2E-03a age-out: reported, not scored; corrected and sealed only when flagged', async () => {
+    const today = new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10).split('-').map(Number);
+    const born = years => new Date(Date.UTC(today[0] - years, today[1] - 1, today[2]));
+    await seed('HH-AGE', { external: richExternal });
+    await beneficiaries.collection.updateOne({ household_id: 'HH-AGE' }, { $set: { children_registry: [
+      { birthdate: born(19), is_eligible: true }, { birthdate: born(10), is_eligible: true }] } });
+    const d = await (await assess('director', 'HH-AGE')).json();
+    assert.deepEqual(d.children_eligibility, { total: 2, eligible: 1, aged_out: 1, unknown: 0 });
+    assert.ok(d.trigger_badges.some(b => b.code === 'CHILD_AGE_OUT' && b.severity === 'LOW'));
+    assert.equal(d.composite_risk_score, 90);
+    const stored = await beneficiaries.findOne({ household_id: 'HH-AGE' }).lean();
+    assert.deepEqual(stored.children_registry.map(c => c.is_eligible), [false, true]);
+    const log = await audits.findOne({ sequence_index: d.audit_receipt.sequence_index }).lean();
+    assert.deepEqual(log.state_delta.before.related.children_is_eligible, [true, true]);
+    assert.deepEqual(log.state_delta.after.related.children_is_eligible, [false, true]);
+    assert.equal(log.entry_hash, sealed(log));
+
+    await seed('HH-AGE-ALL');
+    await beneficiaries.collection.updateOne({ household_id: 'HH-AGE-ALL' }, { $set: { children_registry: [
+      { birthdate: born(20), is_eligible: true }] } });
+    await noWrites('HH-AGE-ALL', async () => {
+      const e = await (await assess('director', 'HH-AGE-ALL')).json();
+      assert.ok(e.flag_reasons.includes('No eligible children (RA 11310 Sec. 6)'));
+      assert.equal(e.audit_receipt, null);
+    });
+
+    await seed('HH-AGE-BAD', { external: richExternal });
+    await beneficiaries.collection.updateOne({ household_id: 'HH-AGE-BAD' }, { $set: { children_registry: [
+      { birthdate: born(20), is_eligible: true }, { birthdate: 'garbage', is_eligible: true }] } });
+    const f = await (await assess('director', 'HH-AGE-BAD')).json();
+    assert.equal(f.children_eligibility.unknown, 1); assert.equal(f.is_flagged, true);
+    assert.deepEqual((await beneficiaries.findOne({ household_id: 'HH-AGE-BAD' }).lean()).children_registry
+      .map(c => c.is_eligible), [true, true], 'unevaluable registry is left untouched');
+  });
+
   await t.test('simultaneous assessments of one household flag it exactly once', async () => {
     await seed('HH-RACE', { external: richExternal });
     levels['HH-RACE'] = 3;

@@ -1,7 +1,7 @@
 {
   "contract_name": "admin-risk-assessment",
-  "version": "1.0.0",
-  "revision_note": "2026-10-12 (PM decision, Sprint 1 INT-05): new contract for the live assessment trigger. Calls ml-swdi-inference v1.1, scores with calculateRiskScore (40/20/15/25/30, flag at >= 70) and, when flagged, transitions ACTIVE_COMPLIANT -> FLAGGED_FOR_REVIEW with a MODEL_FLAG_RAISED audit block. Unflagged results are returned but not persisted.",
+  "version": "1.1.0",
+  "revision_note": "2026-10-12 (PM decision, Sprint 1 INT-05): new contract for the live assessment trigger. Calls ml-swdi-inference v1.1, scores with calculateRiskScore (40/20/15/25/30, flag at >= 70) and, when flagged, transitions ACTIVE_COMPLIANT -> FLAGGED_FOR_REVIEW with a MODEL_FLAG_RAISED audit block. Unflagged results are returned but not persisted. | 1.1.0 (Sprint 4 E2E-03a): adds children_eligibility {total, eligible, aged_out, unknown} per RA 11310 Sec. 6 (eligible until the 19th birthday, Asia/Manila date); CHILD_AGE_OUT badge (LOW) and 'No eligible children (RA 11310 Sec. 6)' reason. Risk weights unchanged. When flagged, children_registry[].is_eligible is corrected in the same audited transaction.",
   "endpoint": "/api/v1/beneficiaries/DEMO-4PS-GRAD-0001/assess",
   "method": "POST",
   "headers": {
@@ -80,6 +80,12 @@
         "Postpaid telecom plan",
         "Registered 4-Wheel Vehicle"
       ],
+      "children_eligibility": {
+        "total": 2,
+        "eligible": 2,
+        "aged_out": 0,
+        "unknown": 0
+      },
       "program_status": "FLAGGED_FOR_REVIEW",
       "evaluated_at": "2026-10-12T08:00:00.000Z",
       "audit_receipt": {
