@@ -32,3 +32,16 @@ that the comparison ran on the synthetic partition.
 ## 4. Communication Rule
 Until reconciliation completes, no slide, document, or verbal claim may cite an F1 figure
 without the qualifier: "synthetic-partition benchmark, pending empirical re-evaluation (Sprint 2)".
+## 5. Independent Measurement and ML-04 Gate (Renz, 2026-10-12)
+Evidence class: measured, reproducible. This is not the reconciliation itself (ML-01 remains Charles's).
+- **Live service measurement:** the deployed `lightgbm_swdi_v1.joblib`, called through the ML service,
+  scored 3,000 households sampled from the 20k synthetic QA partition (random seed 42).
+  Result: Macro F1 **0.766**; per-class F1 0.716 / 0.807 / 0.776 (Levels 1/2/3).
+  This agrees with the turnover's 0.7726 within sampling variation. It is still a
+  **synthetic-partition benchmark, pending empirical re-evaluation (Sprint 2)** and carries the
+  same qualifier (`docs/integration/evidence/sprint-3/SPRINT3_EVIDENCE.md`).
+- **ML-04 audit (`ml-service/scripts/audit_leakage.py`) on v1:** F1–F3 PASS. The fitted model and
+  metadata use exactly the frozen ml-swdi-inference v1.1 vector, in order, with classes [1, 2, 3].
+  P1–P3 FAIL: v1 metadata has no split hashes, no empirical-holdout exclusion assertion, and no
+  seed, library versions or row counts. The script exits non-zero until ML-06 writes these fields,
+  so it serves as the v2 release gate.
