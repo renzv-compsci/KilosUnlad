@@ -80,7 +80,10 @@ services:
       - "8000:8000"
     environment:
       - ML_ENV=development
-      - MODEL_ARTIFACT_PATH=/app/artifacts/lightgbm_swdi_v1.joblib
+      - SWDI_MODEL_PATH=/app/artifacts/v2/lightgbm_swdi_v2.joblib
+      - MODEL_METADATA_PATH=/app/artifacts/v2/model_metadata.json
+    volumes:
+      - ./ml-service/artifacts:/app/artifacts
     networks:
       - kilosunlad-network
 
