@@ -31,6 +31,7 @@ const CHROMIUM_PATH = process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium';
 const MONGO_URI = process.env.MONGO_URI ||
   'mongodb://app_user:AppUserPassword2026!@localhost:27017/kilosunlad?authSource=kilosunlad&directConnection=true';
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(ROOT, 'server/uploads');
+const SERVER_CONTAINER = process.env.SERVER_CONTAINER || 'kilosunlad-server';
 const CASE_A = 'DEMO-4PS-GRAD-0001';
 const HOME = { lat: 14.2215, lon: 121.1875 }; // Case A stored coordinates
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
@@ -247,9 +248,18 @@ async function run() {
 
     tc('TC-10', 'Offline Batch Sync Reconnection (server side)');
     const t2 = await db.collection('verification_tasks').findOne({ task_id: taskId });
-    const stored = path.join(UPLOAD_DIR, 'evidence', hash);
-    const storedHash = fs.existsSync(stored) && crypto.createHash('sha256').update(fs.readFileSync(stored)).digest('hex');
-    observe('database', { task_status: t2?.task_status, evidence_path: path.relative(ROOT, stored), stored_bytes_sha256: storedHash,
+    // Local stack: the upload dir is on this machine. Docker stack: it is the server
+    // container's volume (UPLOAD_DIR=/app/uploads), read through `docker exec`.
+    let stored = path.join(UPLOAD_DIR, 'evidence', hash);
+    let bytes = fs.existsSync(stored) ? fs.readFileSync(stored) : null;
+    if (!bytes) {
+      stored = `${SERVER_CONTAINER}:/app/uploads/evidence/${hash}`;
+      try {
+        bytes = require('child_process').execFileSync('docker', ['exec', SERVER_CONTAINER, 'cat', `/app/uploads/evidence/${hash}`]);
+      } catch { bytes = null; }
+    }
+    const storedHash = bytes && crypto.createHash('sha256').update(bytes).digest('hex');
+    observe('database', { task_status: t2?.task_status, evidence_path: stored.startsWith('/') ? path.relative(ROOT, stored) : stored, stored_bytes_sha256: storedHash,
       audit_receipt: ok.data?.audit_receipt });
     check('task status SUBMITTED', t2?.task_status === 'SUBMITTED', t2?.task_status);
     check('photo binary saved to persistent storage and still matches its hash', storedHash === hash, { stored, storedHash });

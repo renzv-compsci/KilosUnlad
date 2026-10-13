@@ -76,7 +76,7 @@ node_script() { node "$SCRIPTS/$1.js"; }
 echo "Evidence: $EVIDENCE_DIR"
 # 12.1.2 Unit tier
 step "Unit" "server node --test" none "" -- bash -c "cd '$ROOT/server' && env ${SERVER_TEST_ENV:-} npm test"
-step "Unit" "client node --test" none "" -- bash -c "cd '$ROOT/client' && npm test && npm run test:pwa"
+step "Unit" "client node --test" none "" -- bash -c "cd '$ROOT/client' && npm test && npm run build && npm run test:pwa"
 step "Unit" "ML pytest" none "" -- "$PYTHON" -m pytest -q "$SCRIPTS/test_section12_ml_unit.py"
 
 # 12.2 Test cases

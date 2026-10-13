@@ -24,7 +24,14 @@ frontend changes limited to wiring and copy; contract changes limited to DECISIO
 | `20085f0` | STR-02, INT-02 | Upload adapter (content-addressed evidence); client contract mapping, verified-level input, sync enabled. |
 | `792eb47` | DEF-01/02, STR-04 | Capstone runner; Proof 3 script; ML 400 for short ATM window; rehearsal evidence. |
 | `8e1b4c5` | ML-04, ML-07 | Leakage/provenance audit gate; independent F1 measurement. |
-| (this commit) | DEF-03, DEF-05 | Clean-clone verification; DECISION-009; this document; backlog and turnover closure. |
+| `a834bed` | DEF-03, DEF-05 | Clean-clone verification (local); DECISION-009; this document; backlog and turnover closure. |
+| `c811b66` | DAT-01 | `reset_demo.sh` rebuilds the two model-declared indexes it was dropping. |
+| `e3ae342` | INT-08 | Due Process screen lists the live docket and files real appeals. |
+| `54f6622` | ML-01, ML-02…06 prep | F1 reconciled (0.7771); Sprint 2 E1–E5 runner with provenance and leakage gate. |
+| `a727f40`, `738f4e1` | Section 12, diagrams | Section 12 plan executed; DIAGRAM_INTEGRATION figures; unit test report. |
+| `5f02a04` | DEF-03 | One-shot compose jobs moved to the `tools` profile: `docker compose up` no longer runs reset-demo or seed jobs. |
+| `23e6a9f` | DAT-05, DAT-01 | Baseline snapshot restore (`RESET_BASELINE=1`), 5.6–7.1 s on Docker; DAT-01 index check inspects as admin and fails loudly. |
+| (this commit) | DEF-02, DEF-03, DEF-04, DEF-05, E2E-05 | Docker evidence (rehearsal 16/16, clean clone, Section 12); TC-10 reads evidence from the server container; cadence log; deck; backlog rev 6; turnover validation guide. |
 
 ## 2. Traceability Matrix
 
@@ -41,11 +48,15 @@ frontend changes limited to wiring and copy; contract changes limited to DECISIO
 | E2E-02 | `assertNoCalamityHold` | `calamityHold.test.js` | `test_e2e02_calamity_freeze.js` | rehearsal 10 |
 | E2E-03 | `ageOut.service.js` | `ageOut.test.js`, `riskAssessment.test.js` | `test_e2e03_age_out.js` | rehearsal 11 |
 | E2E-04 | `explain()`, `Screen3TriageQueue.tsx` | `riskAssessment.test.js` | `test_e2e04_shap_drawer.js`, `test_e2e04_drawer_ui.js` | rehearsal 12–13, sprint-4 PNG |
-| DAT-01…06 | `seed_mapping.py`, `seed_db.py`, `verify_compound_index.py` | `test_seed_mapping.py` | `test_dat01_seed_conformance.js` | sprint-3/, rehearsal 14 |
+| DAT-01…06 | `seed_mapping.py`, `seed_db.py`, `verify_compound_index.py`, `snapshot_baseline.sh`, `reset_demo.sh` (`RESET_BASELINE=1`) | `test_seed_mapping.py` | `test_dat01_seed_conformance.js`, `test_dat05_reset_baseline.sh` | sprint-3/, rehearsal 15 |
 | STR-01 | hash chain + `explain()` hash check | — | `test_str01_tamper_detection.js` | rehearsal 04 |
 | STR-02 | upload adapter, `useOfflineSync`, `toSubmissionContract` | `taskSubmission.test.js`, `submissionContract.test.mjs` | `test_str02_airplane_sync.js` | rehearsal 02 |
 | STR-03 | snapshot transactions + sequence retry | concurrency subtests | `test_str03_concurrency.js` | rehearsal 15 |
-| DEF-01/02 | `run_capstone_proofs.sh` | — | runs all of the above | sprint-6/rehearsal-local/SUMMARY.md |
+| DEF-01/02 | `run_capstone_proofs.sh` | — | runs all of the above | sprint-6/rehearsal-docker/SUMMARY.md (16/16), rehearsal-local/ |
+| DEF-03 | `docker-compose.yml` (`tools` profile) | — | `docker compose up -d --build` on a fresh clone | sprint-6/clean-clone-docker/ |
+| DEF-04 | slide deck (14 slides) | — | — | private artifact link in turnover §6 Step 8 |
+| E2E-05 | git history | — | — | sprint-4/E2E05_CADENCE_LOG.md |
+| Section 12 | `test_section12_plan.js`, `test_section12_defects.js`, `test_section12_ml_unit.py` | all suites | `run_section12_plan.sh` | docs/testing/ |
 | ML-04 | `ml-service/scripts/audit_leakage.py` | — | — | F1_DISPOSITION_MEMO §5 |
 
 ## 3. Flag and Risk Register (updated)
@@ -62,11 +73,14 @@ frontend changes limited to wiring and copy; contract changes limited to DECISIO
 | Integrity counts 54 vs 50 | MINOR | CLOSED | Superseded: 0 issues across 160,012 documents. |
 | Metric discrepancy 0.7726 vs 0.7781 | MODERATE | CLOSED (ML-01, 54f6622) | 0.7726 validation, 0.7771 test-20k (reconciled), 0.7781 not reproducible. |
 | Synthetic-only training / Macro F1 < 0.85 | MAJOR | OPEN (Sprint 2) | ML-04 gate fails P1–P3 on v1 by design. |
-| Reset + 80k baseline exceeds the 10 s DoD | MINOR | OPEN | 17.5–19.3 s measured; reset alone 4.4–5.0 s. |
+| Reset + 80k baseline exceeds the 10 s DoD | MINOR | CLOSED (23e6a9f) | Snapshot restore: 5.6–7.1 s on Docker incl. start-up. |
 | Audit appends serialize globally | MINOR | ACCEPTED | 100 simultaneous flags: 100/100 succeed, burst 24 s. |
 | Notice issuance has no route or audit action | MODERATE | OPEN (decision) | Docket reads the stored approval instant. |
 | Evidence files have no authenticated read route | MINOR | OPEN | Stored content-addressed; viewing is future scope. |
+| `docker compose up` started reset-demo and seed jobs | MAJOR | CLOSED (5f02a04) | Found by the Docker clean clone; jobs moved to the `tools` profile. |
+| DAT-01 index check read `Unauthorized` as "missing" under auth | MINOR | CLOSED (23e6a9f) | Test fix only; app role unchanged. |
+| Empirical FIES input file absent | MAJOR | OPEN (input) | Blocks ML-02/03/06 and the program DoD's v2 clause. |
 | Appeals dialog still preview-only (INT-08) | MINOR | CLOSED (e3ae342) | Screen 5 uses live GET/POST /appeals/docket; `test_int08_appeals_ui.js`. |
-| Docker-stack runs of the rehearsal, clean clone and reset | — | PENDING | Local equivalents pass; record Docker logs. |
-| DEF-04 deck | — | BLOCKED | Needs the ML-01 reconciled F1 and the v2 provenance. |
-| E2E-05 standup cadence evidence | — | NOT PRODUCIBLE BY CODE | Needs team records. |
+| Docker-stack runs of the rehearsal, clean clone and reset | — | CLOSED | Rehearsal 16/16, clean clone boots, DAT-05 on Docker; foreign-hardware run is turnover §6 Step 1. |
+| DEF-04 deck | — | CLOSED (v1) | Built on the reconciled 0.7771; update the model slide after v2. |
+| E2E-05 standup cadence evidence | — | CLOSED (repository cadence) | Cadence log from git; standup notes table for the team. |

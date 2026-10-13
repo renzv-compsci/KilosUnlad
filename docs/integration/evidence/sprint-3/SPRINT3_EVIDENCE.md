@@ -54,9 +54,24 @@ unflagged Calamba roster (80,002/80,002). Both use IXSCAN on
 | + 80k baseline ingest | 14.28 s | 12.88 s | 13.90 s |
 | total | 19.30 s | 17.48 s | 18.34 s |
 
-The reset alone meets the 10 s DoD. **Reset + baseline does not meet it (17.5–19.3 s).**
-Recorded as measured, per ADR-001 ("re-measured, not assumed"). A performance task
-(streaming JSON load, parallel collection inserts) is optional because the result is under 60 s.
+The reset alone met the 10 s DoD; reset + re-ingest did not (17.5–19.3 s). Most of that time is spent
+reading and mapping 75 MB of seed JSON (about 8.5 s) before any insert.
+
+**Resolved 2026-10-13 (DAT-05 closed).** The baseline is ingested once (DAT-02 still measures that), snapshotted
+with `snapshot_baseline.sh` (two gzip `mongodump` archives of the SYN-4PS documents and their index definitions,
+8.7 MB, gitignored), and `reset-demo` restores it when run with `RESET_BASELINE=1`. The restore runs alongside
+the test-account seeding. Schema and indexes are unchanged; DAT-01 conformance and the declared-index check
+pass after every restore.
+
+Measured on the Docker Compose stack by `test_dat05_reset_baseline.sh` (`dat05-baseline-reset-docker.log`),
+timing the whole `docker-compose run --rm -e RESET_BASELINE=1 reset-demo` including container start-up:
+
+| | run 1 | run 2 | run 3 | run 4 (logged) |
+| --- | --- | --- | --- | --- |
+| reset + 80k baseline restored | 7.13 s | 5.61 s | 5.95 s | 5.77 s |
+
+Each run checked 80,000 SYN beneficiaries, 80,000 matching external records, test accounts, Demo Case A,
+an empty audit ledger, and DAT-01 conformance. **Meets the 10 s DoD.**
 
 ## DAT-06 — Documentation
 `MASTER_TURNOVER.md` Domain 2.2 and Domain 6 Step 2 now cite the 80k baseline and the measured

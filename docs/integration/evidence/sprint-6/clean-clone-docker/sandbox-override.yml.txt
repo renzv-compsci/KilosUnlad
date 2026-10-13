@@ -1,0 +1,20 @@
+# Sandbox-only build shim (NOT part of the repository): this sandbox blocks
+# Debian/Alpine mirrors and plain-HTTP egress, so builds use host networking
+# the images trust the sandbox CA, and the ML image takes libgomp from the host instead of apt.
+services:
+  gateway:   { build: { network: host } }
+  client:
+    build: { network: host, dockerfile: /tmp/claude-0/shim/client.Dockerfile, additional_contexts: { shim: /tmp/claude-0/shim } }
+  server:
+    build: { network: host, dockerfile: /tmp/claude-0/shim/server.Dockerfile, additional_contexts: { shim: /tmp/claude-0/shim } }
+  ml-service:
+    build:
+      network: host
+      dockerfile: /tmp/claude-0/shim/ml.Dockerfile
+      additional_contexts:
+        shim: /tmp/claude-0/shim
+  # Python one-shot jobs pip-install pymongo at run time: trust the sandbox CA.
+  seed-ingest:     { environment: [PIP_CERT=/sandbox-ca.crt], volumes: ["/tmp/claude-0/shim/ca-bundle.crt:/sandbox-ca.crt:ro"] }
+  seed-verify:     { environment: [PIP_CERT=/sandbox-ca.crt], volumes: ["/tmp/claude-0/shim/ca-bundle.crt:/sandbox-ca.crt:ro"] }
+  seed-audit:      { environment: [PIP_CERT=/sandbox-ca.crt], volumes: ["/tmp/claude-0/shim/ca-bundle.crt:/sandbox-ca.crt:ro"] }
+  audit-integrity: { environment: [PIP_CERT=/sandbox-ca.crt], volumes: ["/tmp/claude-0/shim/ca-bundle.crt:/sandbox-ca.crt:ro"] }

@@ -4,6 +4,7 @@
 **Executed:** 2026-10-13 (run `20261013T101137Z`), one scripted run of the whole plan from clean resets
 **Source of truth:** the Section 12 test plan (12.1 to 12.4). Every case below was executed as written. The *Expected Result* column is copied from the plan. The *Actual Result* column is what the system returned in this run.
 **Raw evidence:** [`evidence/section12-local/`](evidence/section12-local/) has one log per step, `SUMMARY.md`, `tc_api_cases.json` (every observed value) and `defects.json`.
+**Docker re-run (2026-10-13):** the whole plan was run again on the Docker Compose stack of a fresh clone. All 14 steps passed (`evidence/section12-docker/SUMMARY.md`), and DEF-02 was checked against the real `app_user` role created by `init-mongo.js`. In that run the server unit step ran without the opt-in replica-set suites; the full unit counts are in `UNIT_TEST_REPORT.md`.
 
 ## Summary
 
@@ -52,7 +53,7 @@ All five subsystems in the plan were exercised:
 | Postman, curl, Swagger UI | Scripted HTTP via Node `fetch` (repeatable, logged). These scripts replace manual Postman calls. |
 | MongoDB Compass, `mongosh` | `mongosh` (fixtures, tamper) and the Node MongoDB driver (database assertions). |
 | Chrome DevTools (offline, GPS, Web Crypto) | Chromium 141 driven by Playwright: `setOffline`, `setGeolocation`, real `crypto.subtle.digest`. |
-| Stack | **Local equivalent of the compose stack:** MongoDB 8.0.23 replica set `rs0` (conda-forge build; compose pins `mongo:6.0`), Node 22, FastAPI on Python 3.13 with LightGBM 4.7, Vite dev client, Nginx gateway. Docker is not available in this environment. Run `run_section12_plan.sh` on the compose stack for the Docker evidence. |
+| Stack | **Local equivalent of the compose stack:** MongoDB 8.0.23 replica set `rs0` (conda-forge build; compose pins `mongo:6.0`), Node 22, FastAPI on Python 3.13 with LightGBM 4.7, Vite dev client, Nginx gateway. The Docker re-run used `mongo:6.0` and the four images built from the repository. |
 
 ---
 
