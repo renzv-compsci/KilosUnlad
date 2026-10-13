@@ -1,0 +1,59 @@
+{
+  "contract_name": "admin-due-process-docket",
+  "version": "1.0.0",
+  "revision_note": "2026-10-12 (INT-08): read model for the Due Process screen. Lists households under NOTICE_OF_INELIGIBILITY in the caller's jurisdiction. notice_date is the stored APPROVED_GRADUATION instant and notice_expiry_date is +15 elapsed days (calculateAppealDeadline), so the countdown matches POST /appeals/docket. Appeal details come from the latest hash-verified APPEAL_FILED block for the current notice. Items use the client's DueProcessNoticeItem shape. notice_date and notice_expiry_date are null when no approved notice record exists.",
+  "endpoint": "/api/v1/appeals/docket?page=1&limit=50",
+  "method": "GET",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>"
+  },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR, COA_AUDITOR (jurisdiction-scoped). Query: page >= 1, limit 1-100; nothing else.",
+  "response": {
+    "status": 200,
+    "data": {
+      "items": [
+        {
+          "household_id": "TEST-4PS-NOTICE-0001",
+          "head_of_household": {
+            "full_name": "Lorna Bautista",
+            "national_id": "TEST-NID-NOTICE-0001"
+          },
+          "address": {
+            "barangay": "Palingon",
+            "municipality": "Calamba"
+          },
+          "notice_date": "2026-10-10T08:00:00.000Z",
+          "notice_expiry_date": "2026-10-25T08:00:00.000Z",
+          "status": "UNDER_APPEAL_HEARING",
+          "grant_continuation_active": true,
+          "appeal_docket_id": "APP-CAL-2026-0042",
+          "hearing_date": "2026-10-20",
+          "appeal_grounds": "Motorcycle is registered to a sibling living separately.",
+          "initial_ineligibility_cause": "INT-03 fixture approval."
+        }
+      ],
+      "pagination": {
+        "total_records": 1,
+        "current_page": 1,
+        "total_pages": 1,
+        "limit": 50
+      }
+    }
+  },
+  "error_responses": [
+    {
+      "status": 400,
+      "error": {
+        "code": "INVALID_QUERY",
+        "message": "Supply page >= 1 and limit between 1 and 100."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "AUDIT_ENTRY_INVALID",
+        "message": "An audit entry cannot be verified."
+      }
+    }
+  ]
+}

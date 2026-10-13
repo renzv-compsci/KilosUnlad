@@ -24,7 +24,11 @@ test('invalid feature vectors are rejected before network access', async t => {
   let calls = 0;
   const client = await serve(t, (req, res) => { calls++; res.end(); });
   for (const payload of [undefined, {}, { ...contract.request, extra: true },
-    ...[0, 21, 1.5, '6', null].map(household_size => ({ ...contract.request, demographics: { ...contract.request.demographics, household_size } })),
+    ...[0, 21, 1.5, '6', null].map(household_size => ({ ...contract.request, household_size })),
+    { ...contract.request, demographics: { ...contract.request.demographics, household_size: 6 } },
+    ...[['head_education_level', 4], ['head_formal_employment', 2], ['remittance_income_flag', -1],
+      ['housing_material_score', 0], ['appliance_density_index', 3.5], ['dependency_ratio', -0.1]]
+      .map(([key, value]) => ({ ...contract.request, demographics: { ...contract.request.demographics, [key]: value } })),
     ...Object.keys(contract.request.demographics).map(key => {
       const body = copy(contract.request); delete body.demographics[key]; return body;
     })]) await assert.rejects(() => client.predict(payload), { code: 'INVALID_FEATURE_VECTOR' });

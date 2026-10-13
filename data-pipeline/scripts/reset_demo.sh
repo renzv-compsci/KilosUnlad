@@ -110,6 +110,9 @@ docker exec -i "${DB_CONTAINER}" mongosh "${ADMIN_URI}" --quiet --eval "
 
   db.audit_logs.createIndex({ sequence_index: 1 }, { unique: true });
   db.audit_logs.createIndex({ entry_hash: 1 }, { unique: true });
+  // Declared by the frozen models (AuditLog.js, SystemConfig.js); the drop above removes them.
+  db.audit_logs.createIndex({ 'target_entity.entity_id': 1 });
+  db.system_configs.createIndex({ config_key: 1 }, { unique: true });
 
   print('      Collections + indexes rebuilt.');
 "
@@ -151,6 +154,12 @@ docker exec -i "${DB_CONTAINER}" mongosh "${ADMIN_URI}" --quiet --eval "
   // Insert demo Case A
   const ben = JSON.parse(fs.readFileSync('/tmp/graduation_beneficiary.json', 'utf8'));
   const ext = JSON.parse(fs.readFileSync('/tmp/graduation_external.json', 'utf8'));
+  // JSON has no date type: store the model's Date paths as BSON Dates (E2E-03 age-out).
+  (ben.children_registry || []).forEach(c => { c.birthdate = new Date(c.birthdate); });
+  if (ben.risk_assessment && ben.risk_assessment.evaluated_at) ben.risk_assessment.evaluated_at = new Date(ben.risk_assessment.evaluated_at);
+  if (ext.landbank_telemetry && ext.landbank_telemetry.last_withdrawal_timestamp) {
+    ext.landbank_telemetry.last_withdrawal_timestamp = new Date(ext.landbank_telemetry.last_withdrawal_timestamp);
+  }
   db.beneficiaries.insertOne(ben);
   db.external_records.insertOne(ext);
   print('      Demo Case A loaded.');

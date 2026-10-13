@@ -1,0 +1,27 @@
+# INT-01 ML contract v1.1 — 2026-10-12T19:04:38Z
+[reset] done
+[START] INT-01 ML contract test (contract v1.1.0)
+
+[1] Contract request accepted by the ML service...
+   [OK]   200 OK
+   [OK]   household_id echoed
+   [OK]   predicted_swdi_level in {1,2,3}
+   [OK]   class_probabilities keys match contract
+   [OK]   probabilities sum to 1 (+/-0.01)
+   [OK]   SHAP top-3 attributions with indicator/weight/description
+   [OK]   evaluated_at is ISO-8601 with zone
+
+[2] Contract error responses (422 INVALID_FEATURE_VECTOR)...
+   [OK]   v1.0 legacy vector -> 422 INVALID_FEATURE_VECTOR
+   [OK]   head_education_level out of bounds (4) -> 422 INVALID_FEATURE_VECTOR
+   [OK]   missing household_size -> 422 INVALID_FEATURE_VECTOR
+
+[3] Backend mlClient against the live ML service...
+   [OK]   mlClient validates the live response
+   [OK]   mlClient rejects legacy vector before network
+   [OK]   ML down -> ML_UNAVAILABLE (fallback trigger, no crash)
+
+[4] Latency (ML-05: sub-50 ms p95 over 50 sequential calls)...
+   [OK]   p95 19.2 ms < 50 ms
+
+[SUCCESS] INT-01 TEST PASSED!

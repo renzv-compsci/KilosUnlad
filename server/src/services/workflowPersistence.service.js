@@ -14,6 +14,34 @@ class WorkflowError extends Error {
   }
 }
 
+// Sequence uniqueness is the cross-process serialization guard. Do not append
+// without the existing model's unique index (autoIndex can be disabled).
+async function assertAuditReady(audits) {
+  const indexes = await audits.collection.indexes();
+  if (!indexes.some(i => i.unique && Object.keys(i.key).length === 1 && i.key.sequence_index === 1)) {
+    throw new WorkflowError(503, 'WORKFLOW_UNAVAILABLE', 'Workflow storage is not ready.');
+  }
+}
+
+// Appends one sealed block inside the caller's transaction. Callers must run
+// assertAuditReady first and retry on isSequenceContention in a fresh transaction.
+async function appendAuditEntry({ audits, session, actorId, actor, action, target, stateDelta,
+  timestamp = new Date() }) {
+  const head = await audits.findOne().sort({ sequence_index: -1 }).session(session).lean();
+  const sequenceIndex = head ? head.sequence_index + 1 : 1;
+  const previousEntryHash = head ? head.entry_hash : '0'.repeat(64);
+  const entryHash = computeEntryHash({ sequenceIndex, previousEntryHash,
+    timestamp, actorId, action, stateDelta });
+  await audits.create([{
+    sequence_index: sequenceIndex, previous_entry_hash: previousEntryHash, timestamp,
+    actor: { user_id: actorId, username: actor.username, role: actor.role }, action,
+    target_entity: target, state_delta: stateDelta, entry_hash: entryHash
+  }], { session });
+  return { sequence_index: sequenceIndex, entry_hash: entryHash };
+}
+
+const isSequenceContention = error => error.code === 11000 && Boolean(error.keyPattern?.sequence_index);
+
 function runGuard(guard, req) {
   let status;
   guard(req, {
@@ -46,12 +74,7 @@ function createWorkflowPersistence({ policy, beneficiaries = Beneficiary, users 
         typeof actorId !== 'string' || !/^[a-f0-9]{24}$/i.test(actorId)) {
       throw new WorkflowError(400, 'INVALID_WORKFLOW_INPUT', 'A valid household and authenticated actor are required.');
     }
-    // Sequence uniqueness is the cross-process serialization guard. Do not run
-    // without the existing model's unique index (autoIndex can be disabled).
-    const indexes = await audits.collection.indexes();
-    if (!indexes.some(i => i.unique && Object.keys(i.key).length === 1 && i.key.sequence_index === 1)) {
-      throw new WorkflowError(503, 'WORKFLOW_UNAVAILABLE', 'Workflow storage is not ready.');
-    }
+    await assertAuditReady(audits);
     const session = await beneficiaries.db.startSession();
     try {
       // Independent households can contend for the same audit sequence. Retry
@@ -85,10 +108,6 @@ function createWorkflowPersistence({ policy, beneficiaries = Beneficiary, users 
             if (update.modifiedCount !== 1) {
               throw new WorkflowError(409, 'WORKFLOW_CONFLICT', 'Household status changed; reload before retrying.');
             }
-            const head = await audits.findOne().sort({ sequence_index: -1 }).session(session).lean();
-            const sequenceIndex = head ? head.sequence_index + 1 : 1;
-            const previousEntryHash = head ? head.entry_hash : '0'.repeat(64);
-            const timestamp = new Date();
             // Include household identity inside the hashed delta as well as the
             // target field. Preserve the accepted hash input format unchanged.
             const stateDelta = {
@@ -101,19 +120,12 @@ function createWorkflowPersistence({ policy, beneficiaries = Beneficiary, users 
               stateDelta.before.related = related.before;
               stateDelta.after.related = related.after;
             }
-            const entryHash = computeEntryHash({ sequenceIndex, previousEntryHash,
-              timestamp, actorId, action, stateDelta });
-            await audits.create([{
-              sequence_index: sequenceIndex, previous_entry_hash: previousEntryHash, timestamp,
-              actor: { user_id: actorId, username: actor.username, role: actor.role }, action,
-              target_entity: { collection_name: 'beneficiaries', entity_id: householdId },
-              state_delta: stateDelta, entry_hash: entryHash
-            }], { session });
-            return { household_id: householdId, program_status: to,
-              audit_receipt: { sequence_index: sequenceIndex, entry_hash: entryHash } };
+            const audit_receipt = await appendAuditEntry({ audits, session, actorId, actor, action,
+              target: { collection_name: 'beneficiaries', entity_id: householdId }, stateDelta });
+            return { household_id: householdId, program_status: to, audit_receipt };
           }, { readConcern: { level: 'snapshot' }, writeConcern: { w: 'majority' }, readPreference: 'primary' });
         } catch (error) {
-          if (error.code === 11000 && error.keyPattern?.sequence_index && attempt < 2) continue;
+          if (isSequenceContention(error) && attempt < 2) continue;
           throw error;
         }
       }
@@ -123,4 +135,5 @@ function createWorkflowPersistence({ policy, beneficiaries = Beneficiary, users 
   };
 }
 
-module.exports = { createWorkflowPersistence, WorkflowError, runGuard };
+module.exports = { createWorkflowPersistence, WorkflowError, runGuard, assertAuditReady,
+  appendAuditEntry, isSequenceContention };

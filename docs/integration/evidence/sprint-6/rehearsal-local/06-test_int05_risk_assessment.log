@@ -1,0 +1,114 @@
+# INT-05 risk assessment — 2026-10-12T19:04:42Z
+[reset] done
+[START] INT-05 Risk Assessment Integration Test (ML UP)
+
+[1] Negative cases (expect zero writes)...
+   [OK]   No token -> 401 UNAUTHORIZED
+   [OK]   CASE_WORKER -> 403 FORBIDDEN
+   [OK]   COA_AUDITOR mutation -> 403 FORBIDDEN
+   [OK]   Client-supplied score -> 400 INVALID_REQUEST
+   [OK]   Unknown household -> 404 HOUSEHOLD_NOT_FOUND
+   [OK]   Already flagged household -> 409 HOUSEHOLD_NOT_ASSESSABLE
+
+[2] Assessing DEMO-4PS-GRAD-0001...
+   [OK]   200 OK
+   [OK]   response keys match contract
+   [OK]   ML_MODEL mode
+   [OK]   predicted Level 3 vs enrolled Level 1
+   [OK]   SHAP top-3 present
+   [OK]   contributions match contract example
+   [OK]   score 100, flagged, FLAGGED_FOR_REVIEW
+   [OK]   MODEL_FLAG_RAISED receipt
+
+[3] Triage queue reflects the persisted flag...
+   [OK]   Case A listed with persisted score and predicted level
+   [OK]   Re-assessing a flagged household -> 409 HOUSEHOLD_NOT_ASSESSABLE
+
+[4] COA verify-chain over 1..1...
+   [OK]   chain valid, head = MODEL_FLAG_RAISED block
+
+[SUCCESS] INT-05 TEST PASSED!
+Response Data: {
+  "household_id": "DEMO-4PS-GRAD-0001",
+  "evaluation_mode": "ML_MODEL",
+  "fallback_reason": null,
+  "enrolled_swdi_level": 1,
+  "predicted_swdi_level": 3,
+  "class_probabilities": {
+    "level_1_survival": 0.00013938781786420904,
+    "level_2_subsistence": 0.09967260048584685,
+    "level_3_self_sufficiency": 0.900188011696289
+  },
+  "shap_explainability": [
+    {
+      "indicator": "demographics.housing_material_score",
+      "contribution_weight": 1.9317763128135406,
+      "description": "Stronger housing materials indicate accumulated asset wealth."
+    },
+    {
+      "indicator": "demographics.head_formal_employment",
+      "contribution_weight": 1.1320696241315433,
+      "description": "Formal employment provides stable income, increasing self-sufficiency."
+    },
+    {
+      "indicator": "demographics.dependency_ratio",
+      "contribution_weight": -0.5501578001861511,
+      "description": "High dependency ratio strains household resources."
+    }
+  ],
+  "composite_risk_score": 100,
+  "contributions": {
+    "swdi": 80,
+    "power": 20,
+    "water": 15,
+    "telecom": 25,
+    "vehicle": 30
+  },
+  "is_flagged": true,
+  "trigger_badges": [
+    {
+      "code": "TIER_INVERSION",
+      "label": "AI Predicted Level 3",
+      "severity": "CRITICAL"
+    },
+    {
+      "code": "POWER_LIFELINE_BREACH",
+      "label": "Meralco > 200 kWh",
+      "severity": "HIGH"
+    },
+    {
+      "code": "WATER_LIFELINE_BREACH",
+      "label": "Water > 25 cu.m",
+      "severity": "MEDIUM"
+    },
+    {
+      "code": "TELECOM_POSTPAID_PLAN",
+      "label": "Postpaid telecom plan",
+      "severity": "MEDIUM"
+    },
+    {
+      "code": "LTO_VEHICLE_MATCH",
+      "label": "Registered 4-Wheel Vehicle",
+      "severity": "HIGH"
+    }
+  ],
+  "flag_reasons": [
+    "AI Predicted Level 3",
+    "Meralco > 200 kWh",
+    "Water > 25 cu.m",
+    "Postpaid telecom plan",
+    "Registered 4-Wheel Vehicle"
+  ],
+  "children_eligibility": {
+    "total": 2,
+    "eligible": 2,
+    "aged_out": 0,
+    "unknown": 0
+  },
+  "program_status": "FLAGGED_FOR_REVIEW",
+  "evaluated_at": "2026-10-12T19:04:46.638Z",
+  "audit_receipt": {
+    "sequence_index": 1,
+    "entry_hash": "a7f12222611efdf020636028737a54fef79d65d746b35db71f0f946d00d66cf9"
+  }
+}

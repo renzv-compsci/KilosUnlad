@@ -1,0 +1,143 @@
+{
+  "contract_name": "admin-risk-assessment",
+  "version": "1.1.0",
+  "revision_note": "2026-10-12 (PM decision, Sprint 1 INT-05): new contract for the live assessment trigger. Calls ml-swdi-inference v1.1, scores with calculateRiskScore (40/20/15/25/30, flag at >= 70) and, when flagged, transitions ACTIVE_COMPLIANT -> FLAGGED_FOR_REVIEW with a MODEL_FLAG_RAISED audit block. Unflagged results are returned but not persisted. | 1.1.0 (Sprint 4 E2E-03a): adds children_eligibility {total, eligible, aged_out, unknown} per RA 11310 Sec. 6 (eligible until the 19th birthday, Asia/Manila date); CHILD_AGE_OUT badge (LOW) and 'No eligible children (RA 11310 Sec. 6)' reason. Risk weights unchanged. When flagged, children_registry[].is_eligible is corrected in the same audited transaction.",
+  "endpoint": "/api/v1/beneficiaries/DEMO-4PS-GRAD-0001/assess",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>",
+    "Content-Type": "application/json"
+  },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR (jurisdiction-scoped). COA_AUDITOR and CASE_WORKER are rejected.",
+  "request": {},
+  "indicator_rules": {
+    "swdi": "ML mode: clamp(predicted_swdi_level - enrolled_swdi_level, 0, 2). Fallback mode: 0.",
+    "power": "external power_utility.avg_monthly_kwh > 200 (RA 11552 lifeline)",
+    "water": "external water_utility.avg_monthly_cu_m > 25",
+    "telecom": "external telecom_registry.contract_type starts with POSTPAID",
+    "vehicle": "any PASSENGER_4W vehicle that is not a commercial franchise and, where recorded, is owned (outright or encumbered) by a household member"
+  },
+  "response": {
+    "status": 200,
+    "data": {
+      "household_id": "DEMO-4PS-GRAD-0001",
+      "evaluation_mode": "ML_MODEL",
+      "fallback_reason": null,
+      "enrolled_swdi_level": 1,
+      "predicted_swdi_level": 3,
+      "class_probabilities": {
+        "level_1_survival": 0.0,
+        "level_2_subsistence": 0.1,
+        "level_3_self_sufficiency": 0.9
+      },
+      "shap_explainability": [
+        {
+          "indicator": "demographics.head_formal_employment",
+          "contribution_weight": 1.21,
+          "description": "Formal employment provides stable income, increasing self-sufficiency."
+        }
+      ],
+      "composite_risk_score": 100,
+      "contributions": {
+        "swdi": 80,
+        "power": 20,
+        "water": 15,
+        "telecom": 25,
+        "vehicle": 30
+      },
+      "is_flagged": true,
+      "trigger_badges": [
+        {
+          "code": "TIER_INVERSION",
+          "label": "AI Predicted Level 3",
+          "severity": "CRITICAL"
+        },
+        {
+          "code": "POWER_LIFELINE_BREACH",
+          "label": "Meralco > 200 kWh",
+          "severity": "HIGH"
+        },
+        {
+          "code": "WATER_LIFELINE_BREACH",
+          "label": "Water > 25 cu.m",
+          "severity": "MEDIUM"
+        },
+        {
+          "code": "TELECOM_POSTPAID_PLAN",
+          "label": "Postpaid telecom plan",
+          "severity": "MEDIUM"
+        },
+        {
+          "code": "LTO_VEHICLE_MATCH",
+          "label": "Registered 4-Wheel Vehicle",
+          "severity": "HIGH"
+        }
+      ],
+      "flag_reasons": [
+        "AI Predicted Level 3",
+        "Meralco > 200 kWh",
+        "Water > 25 cu.m",
+        "Postpaid telecom plan",
+        "Registered 4-Wheel Vehicle"
+      ],
+      "children_eligibility": {
+        "total": 2,
+        "eligible": 2,
+        "aged_out": 0,
+        "unknown": 0
+      },
+      "program_status": "FLAGGED_FOR_REVIEW",
+      "evaluated_at": "2026-10-12T08:00:00.000Z",
+      "audit_receipt": {
+        "sequence_index": 1,
+        "entry_hash": "3d9a1f2e4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e"
+      }
+    }
+  },
+  "fallback_example": {
+    "evaluation_mode": "EVALUATED_VIA_FALLBACK",
+    "fallback_reason": "ML_UNAVAILABLE",
+    "predicted_swdi_level": null,
+    "class_probabilities": null,
+    "shap_explainability": [],
+    "flag_reasons_includes": "EVALUATED_VIA_FALLBACK",
+    "note": "Utility indicators still score; the SWDI term is 0. audit_receipt is null when not flagged."
+  },
+  "error_responses": [
+    {
+      "status": 400,
+      "error": {
+        "code": "INVALID_REQUEST",
+        "message": "Request fields are missing or invalid."
+      }
+    },
+    {
+      "status": 404,
+      "error": {
+        "code": "HOUSEHOLD_NOT_FOUND",
+        "message": "Specified household ID does not exist."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "HOUSEHOLD_NOT_ASSESSABLE",
+        "message": "Only ACTIVE_COMPLIANT households can be assessed."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "CALAMITY_MORATORIUM_ACTIVE",
+        "message": "A declared calamity moratorium (RA 10121) freezes this action for the household municipality."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "WORKFLOW_CONFLICT",
+        "message": "Household status changed; reload before retrying."
+      }
+    }
+  ]
+}

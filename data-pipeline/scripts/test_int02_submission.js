@@ -4,8 +4,8 @@
  * 
  * Prerequisites: 
  * 1. Docker containers are running (db, server, ml-service).
- * 2. reset-demo.sh has been run, and the manual DB patch applied 
- *    to set DEMO-4PS-GRAD-0001 to FLAGGED_FOR_REVIEW.
+ * 2. reset-demo.sh has been run, then add_int02_case_a_fixture.js (gives
+ *    case_worker_test barangay Real). Case A is flagged in step 2b via INT-05.
  * 3. npm install axios form-data has been run in this directory.
  */
 
@@ -13,7 +13,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const crypto = require('crypto');
 
-const BASE_URL = 'http://localhost:5000/api/v1';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5000/api/v1';
 // Use director_test for dispatch as they have the exact matching jurisdiction (Region IV-A)
 const DIRECTOR_CREDS = { username: 'director_test', password: 'DirectorTest2026!' }; 
 const WORKER_CREDS = { username: 'case_worker_test', password: 'CaseWorkerTest2026!' };
@@ -47,6 +47,16 @@ async function runTest() {
     }
     console.log(`   [OK] Worker ID extracted: ${workerId}\n`);
 
+    // 2b. Flag Case A through the audited assessment (INT-05) if still ACTIVE_COMPLIANT
+    try {
+      const assessed = await axios.post(`${BASE_URL}/beneficiaries/${TARGET_HOUSEHOLD}/assess`, {},
+        { headers: { Authorization: `Bearer ${directorToken}` } });
+      console.log(`   [OK] Case A assessed: score ${assessed.data.composite_risk_score}, ${assessed.data.program_status}\n`);
+    } catch (err) {
+      if (err.response?.data?.error?.code !== 'HOUSEHOLD_NOT_ASSESSABLE') throw err;
+      console.log('   [OK] Case A already past ACTIVE_COMPLIANT\n');
+    }
+
     // 3. Director Dispatches Task
     console.log(`[3] Dispatching task for ${TARGET_HOUSEHOLD} to worker ${workerId}...`);
     const dispatchRes = await axios.post(`${BASE_URL}/tasks/dispatch`, {
@@ -67,39 +77,43 @@ async function runTest() {
     const dummyImageBuffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
     const realSha256Hash = hashFileBuffer(dummyImageBuffer);
     
+    const fields = latitude => [
+      ['task_id', taskId],
+      ['household_id', TARGET_HOUSEHOLD],
+      ['verified_swdi_level', '3'], // Matches Demo Case A
+      ['worker_recommendation', 'RECOMMEND_GRADUATION'],
+      ['narrative_report', 'Verified: Motorcycle is used for MoveIt delivery. LandBank card is in physical possession of the mother.'],
+      ['livelihood_asset_verification', JSON.stringify({
+        is_motorcycle_present: true,
+        is_productive_asset: true,
+        proof_type: 'MOVEIT',
+        franchise_number: ''
+      })],
+      ['landbank_card_inspection', JSON.stringify({
+        physical_card_presented: true,
+        card_matches_beneficiary: true,
+        pawning_suspected: false
+      })],
+      ['client_geolocation', JSON.stringify({
+        latitude, // Barangay Real, Calamba: Demo Case A stored coords [121.1875, 14.2215]
+        longitude: 121.1875,
+        accuracy_meters: 15.5,
+        captured_at: new Date().toISOString()
+      })],
+      ['evidence_attachments', JSON.stringify([{
+        media_type: 'image/png',
+        storage_url: `${BASE_URL}/evidence/${realSha256Hash}`, // content address bound to the hash (upload adapter)
+        sha256_hash: realSha256Hash,
+        exif_metadata: {
+          timestamp: new Date().toISOString(),
+          latitude: 14.2215,
+          longitude: 121.1875
+        }
+      }])]
+    ];
+
     const form = new FormData();
-    form.append('task_id', taskId);
-    form.append('household_id', TARGET_HOUSEHOLD);
-    form.append('verified_swdi_level', 3); // Matches Demo Case A
-    form.append('worker_recommendation', 'RECOMMEND_GRADUATION');
-    form.append('narrative_report', 'Verified: Motorcycle is used for MoveIt delivery. LandBank card is in physical possession of the mother.');
-    form.append('livelihood_asset_verification', JSON.stringify({
-      is_motorcycle_present: true,
-      is_productive_asset: true,
-      proof_type: 'MOVEIT',
-      franchise_number: ''
-    }));
-    form.append('landbank_card_inspection', JSON.stringify({
-      physical_card_presented: true,
-      card_matches_beneficiary: true,
-      pawning_suspected: false
-    }));
-    form.append('client_geolocation', JSON.stringify({
-      latitude: 14.2110, // Calamba, Laguna (Matches Demo Case A coords)
-      longitude: 121.1578,
-      accuracy_meters: 15.5,
-      captured_at: new Date().toISOString()
-    }));
-    form.append('evidence_attachments', JSON.stringify([{
-      media_type: 'image/png',
-      storage_url: 'http://localhost:5000/uploads/mock-evidence.png',
-      sha256_hash: realSha256Hash,
-      exif_metadata: {
-        timestamp: new Date().toISOString(),
-        latitude: 14.2110,
-        longitude: 121.1578
-      }
-    }]));
+    for (const [key, value] of fields(14.2215)) form.append(key, value);
     
     // Append the actual file buffer (this is what triggers verifyEvidenceHash)
     form.append('evidence_files', dummyImageBuffer, {
@@ -107,18 +121,51 @@ async function runTest() {
       contentType: 'image/png'
     });
 
-    // 5. Execute Submission
-    console.log('[5] Submitting task to POST /api/v1/tasks/:id/submit...');
+    // 5. INT-07 rejection paths (each must write nothing; task stays open)
+    console.log('[5] Negative cases: altered bytes, geofence breach...');
+    const expectReject = async (label, buildForm, status, code) => {
+      const bad = buildForm();
+      try {
+        await axios.post(`${BASE_URL}/tasks/${taskId}/submit`, bad,
+          { headers: { ...bad.getHeaders(), Authorization: `Bearer ${workerToken}` } });
+        throw new Error(`${label}: expected ${status} ${code} but the submission was accepted`);
+      } catch (err) {
+        if (!err.response || err.response.status !== status || err.response.data?.error?.code !== code) throw err;
+        console.log(`   [OK] ${label} -> ${status} ${code}`);
+      }
+    };
+    const rebuild = ({ bytes = dummyImageBuffer, latitude = 14.2215 } = {}) => {
+      const f = new FormData();
+      for (const [key, value] of fields(latitude)) f.append(key, value);
+      f.append('evidence_files', bytes, { filename: 'evidence.png', contentType: 'image/png' });
+      return f;
+    };
+    await expectReject('Altered photo bytes', () => rebuild({ bytes: Buffer.concat([dummyImageBuffer, Buffer.from([0])]) }),
+      422, 'EVIDENCE_HASH_MISMATCH');
+    await expectReject('Geofence breach (~333 m)', () => rebuild({ latitude: 14.2245 }), 422, 'GEOFENCE_VIOLATION');
+    console.log('');
+
+    // 6. Execute Submission
+    console.log('[6] Submitting task to POST /api/v1/tasks/:id/submit...');
     const submitRes = await axios.post(`${BASE_URL}/tasks/${taskId}/submit`, form, {
       headers: {
         ...form.getHeaders(),
         Authorization: `Bearer ${workerToken}`
       }
     });
+    const d = submitRes.data;
+    if (submitRes.status !== 200 || d.task_status !== 'SUBMITTED' || d.geofence_verification?.is_matched !== true ||
+        !/^[a-f0-9]{64}$/.test(d.audit_receipt?.entry_hash || '') || !d.submitted_at) {
+      throw new Error('Response does not match field-task-submission.json: ' + JSON.stringify(d));
+    }
+    console.log('   [OK] 200 matches field-task-submission.json\n');
+
+    // 7. Duplicate submission
+    await expectReject('Duplicate submission', () => rebuild(), 409, 'TASK_NOT_SUBMITTABLE');
 
     console.log('\n[SUCCESS] INT-02 TEST PASSED!');
     console.log('Response Status:', submitRes.status);
-    console.log('Response Data:', JSON.stringify(submitRes.data, null, 2));
+    console.log('Response Data:', JSON.stringify(d, null, 2));
 
   } catch (error) {
     console.error('\n[FAIL] INT-02 TEST FAILED!');

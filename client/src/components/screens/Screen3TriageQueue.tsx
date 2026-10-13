@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BeneficiaryTriageItem, TriagePagination } from '../../types/contracts';
+import React, { useEffect, useState } from 'react';
+import { AssessmentExplanation, BeneficiaryTriageItem, TriagePagination } from '../../types/contracts';
 import { Search, Send, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Screen3TriageQueueProps {
@@ -9,15 +9,51 @@ interface Screen3TriageQueueProps {
   readOnly?: boolean;
   pagination?: TriagePagination;
   onPageChange?: (page: number) => void;
+  // E2E-04: sealed SHAP explanation for the expanded row (null = none sealed yet).
+  loadExplanation?: (householdId: string, signal: AbortSignal) => Promise<AssessmentExplanation | null>;
 }
 
+type ExplanationState = { status: 'loading' } | { status: 'ready'; data: AssessmentExplanation | null } | { status: 'error' };
+
+const indicatorLabel = (indicator: string) => indicator.replace(/^demographics\./, '').replace(/_/g, ' ');
+
+const ExplanationSection: React.FC<{ state?: ExplanationState }> = ({ state }) => {
+  if (!state || state.status === 'loading') return <div><h3>Model explanation</h3><p>Loading sealed explanation…</p></div>;
+  if (state.status === 'error') return <div><h3>Model explanation</h3><p>The sealed explanation could not be loaded or failed hash verification.</p></div>;
+  const data = state.data;
+  if (!data) return <div><h3>Model explanation</h3><p>No sealed model assessment for this household yet.</p></div>;
+  if (data.evaluation_mode !== 'ML_MODEL') {
+    return <div><h3>Model explanation</h3><p>Evaluated via fallback ({data.fallback_reason ?? 'ML unavailable'}); no SHAP attribution.</p></div>;
+  }
+  return <div className="triage-explanation">
+    <h3>Model explanation (SHAP, predicted Level {data.predicted_swdi_level})</h3>
+    <ul>{data.shap_explainability.map(item => <li key={item.indicator}>
+      <strong>{indicatorLabel(item.indicator)}: <span data-shap-weight={item.contribution_weight}>{item.contribution_weight >= 0 ? '+' : ''}{item.contribution_weight.toFixed(3)}</span></strong>
+      <p>{item.description}</p>
+    </li>)}</ul>
+    <p>Sealed in audit block #{data.audit_receipt.sequence_index}.</p>
+  </div>;
+};
+
 export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
-  onDispatchTask, showSpecAnnotations = false, items = [], readOnly = false, pagination, onPageChange,
+  onDispatchTask, showSpecAnnotations = false, items = [], readOnly = false, pagination, onPageChange, loadExplanation,
 }) => {
+  const [explanations, setExplanations] = useState<Record<string, ExplanationState>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [municipalityFilter, setMunicipalityFilter] = useState('ALL');
   const [severityFilter, setSeverityFilter] = useState('ALL');
   const [expandedHousehold, setExpandedHousehold] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!loadExplanation || !expandedHousehold || explanations[expandedHousehold]) return;
+    const householdId = expandedHousehold;
+    const controller = new AbortController();
+    setExplanations(current => ({ ...current, [householdId]: { status: 'loading' } }));
+    loadExplanation(householdId, controller.signal)
+      .then(data => setExplanations(current => ({ ...current, [householdId]: { status: 'ready', data } })))
+      .catch(() => { if (!controller.signal.aborted) setExplanations(current => ({ ...current, [householdId]: { status: 'error' } })); });
+    return () => controller.abort();
+  }, [expandedHousehold, loadExplanation]);
   const query = searchQuery.trim().toLowerCase();
   const hasFilters = Boolean(query || municipalityFilter !== 'ALL' || severityFilter !== 'ALL');
   const municipalities = [...new Set(items.map((item) => item.address.municipality))].sort();
@@ -93,6 +129,7 @@ export const Screen3TriageQueue: React.FC<Screen3TriageQueueProps> = ({
                   <div className="triage-detail-content">
                     <dl><div><dt>PhilSys ID</dt><dd>{item.head_of_household.national_id}</dd></div><div><dt>Enrolled SWDI</dt><dd>{item.enrolled_swdi_level}</dd></div><div><dt>Predicted SWDI</dt><dd>{item.predicted_swdi_level}</dd></div></dl>
                     <div><h3>Cross-match findings</h3>{item.trigger_badges.length ? <ul>{item.trigger_badges.map((badge, index) => <li key={`${badge.type}-${index}`}><strong>{badge.label}</strong>{badge.detail !== badge.label && <p>{badge.detail}</p>}</li>)}</ul> : <p>No trigger details provided.</p>}</div>
+                    {loadExplanation && expanded && <ExplanationSection state={explanations[item.household_id]} />}
                   </div>
                 </td></tr>
               </React.Fragment>;

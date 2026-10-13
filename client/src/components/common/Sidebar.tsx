@@ -76,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             label: '15-Day Due Process',
             sublabel: 'Statutory appeals dockets',
             icon: Clock,
-            badge: 'Preview',
+            badge: 'Live',
             badgeColor: 'bg-amber-50 text-amber-900 border-amber-200'
           },
           {

@@ -7,8 +7,16 @@ const { allowRoles, scopeJurisdiction } = require('../../middleware/rbac.middlew
 const R = require('../../constants/roles');
 const { createReadFeeds } = require('../../services/readFeeds.service');
 const { createTaskDispatcher } = require('../../services/taskDispatcher.service');
-const { createDispatch, createSubmit } = require('../../controllers/task.controller'); // Added createSubmit
+const { createDispatch, createSubmit } = require('../../controllers/task.controller');
+const { createTaskSubmission } = require('../../services/taskSubmission.service');
 const { createVerifyChain } = require('../../controllers/audit.controller');
+const validateBody = require('../../middleware/validation.middleware');
+const { createAppealDocket, docketSchema } = require('../../services/appealDocket.service');
+const { createFileAppeal, createListDocket } = require('../../controllers/appeal.controller');
+const { createCalamityToggle, toggleSchema } = require('../../services/calamityToggle.service');
+const { createToggleCalamity } = require('../../controllers/calamity.controller');
+const { createRiskAssessment, assessSchema } = require('../../services/riskAssessment.service');
+const { createAssess, createExplain } = require('../../controllers/beneficiary.controller');
 
 // Configure multer for in-memory file buffering (required for SHA-256 hash verification)
 const upload = multer({ 
@@ -17,7 +25,9 @@ const upload = multer({
 });
 
 module.exports = function createRouter({ mockMode, production, authService = createAuthService(),
-  taskDispatcher = createTaskDispatcher(), readFeeds = createReadFeeds(), chainVerifier }) {
+  taskDispatcher = createTaskDispatcher(), readFeeds = createReadFeeds(), chainVerifier,
+  appealDocket = createAppealDocket(), calamityToggle = createCalamityToggle(),
+  taskSubmission = createTaskSubmission(), riskAssessment = createRiskAssessment() }) {
   
   const router = Router();
   
@@ -47,7 +57,30 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   // NEW: Task Submission (Case Worker only, with multipart upload)
   // This wires the INT-02 integration seam to the live API surface.
   router.post('/tasks/:id/submit', authenticate, allowRoles(R.CASE_WORKER), 
-    upload.array('evidence_files', 10), createSubmit());
+    upload.array('evidence_files', 10), createSubmit(taskSubmission));
+
+  // INT-03: Appeals Docket (Admin/Director only). Registers a formal appeal and
+  // pauses the 15-day countdown; household status is unchanged (frozen enum).
+  router.post('/appeals/docket', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
+    scopeJurisdiction, validateBody(docketSchema), createFileAppeal(appealDocket));
+  // INT-08: Due Process read model (Admin/Director/COA; jurisdiction-scoped).
+  router.get('/appeals/docket', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR),
+    scopeJurisdiction, createListDocket(appealDocket));
+
+  // INT-04: Calamity Moratorium Toggle (Super Admin only; RA 10121 declarations
+  // are municipality-wide and exceed a barangay-scoped director's jurisdiction).
+  router.post('/calamity/toggle', authenticate, allowRoles(R.SUPER_ADMIN),
+    scopeJurisdiction, validateBody(toggleSchema), createToggleCalamity(calamityToggle));
+
+  // INT-05: Live risk assessment (Admin/Director). ML or fallback -> risk score;
+  // when flagged, ACTIVE_COMPLIANT -> FLAGGED_FOR_REVIEW with MODEL_FLAG_RAISED.
+  router.post('/beneficiaries/:household_id/assess', authenticate,
+    allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR), scopeJurisdiction, validateBody(assessSchema),
+    createAssess(riskAssessment));
+
+  // E2E-04: Triage drawer explanation (read-only; sealed MODEL_FLAG_RAISED block).
+  router.get('/beneficiaries/:household_id/assessment', authenticate,
+    allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR), scopeJurisdiction, createExplain(riskAssessment));
 
   // Feed Helpers
   const feed = operation => async (req, res, next) => {

@@ -1,0 +1,133 @@
+# DAT-01 seed conformance (80k) — 2026-10-12T19:05:33Z
+[reset] done
+=================================================================
+KilosUnlad Seed Ingestion (Phase 3 Task 3.1; Sprint 3 DAT-01, ADR-001 80k baseline)
+=================================================================
+
+[1] Connecting to MongoDB...
+    Connected successfully.
+
+[2] Loading seed files...
+    Beneficiaries: 80,000 records
+    External records: 80,000 records
+
+[3] Ingesting in chunks (to avoid 16MB BSON limit)...
+    Clearing existing synthetic seed data (SYN-4PS-*)...
+
+    Inserting beneficiaries (chunk size: 2000)...
+      Progress: 2,000 / 80,000
+      Progress: 4,000 / 80,000
+      Progress: 6,000 / 80,000
+      Progress: 8,000 / 80,000
+      Progress: 10,000 / 80,000
+      Progress: 12,000 / 80,000
+      Progress: 14,000 / 80,000
+      Progress: 16,000 / 80,000
+      Progress: 18,000 / 80,000
+      Progress: 20,000 / 80,000
+      Progress: 22,000 / 80,000
+      Progress: 24,000 / 80,000
+      Progress: 26,000 / 80,000
+      Progress: 28,000 / 80,000
+      Progress: 30,000 / 80,000
+      Progress: 32,000 / 80,000
+      Progress: 34,000 / 80,000
+      Progress: 36,000 / 80,000
+      Progress: 38,000 / 80,000
+      Progress: 40,000 / 80,000
+      Progress: 42,000 / 80,000
+      Progress: 44,000 / 80,000
+      Progress: 46,000 / 80,000
+      Progress: 48,000 / 80,000
+      Progress: 50,000 / 80,000
+      Progress: 52,000 / 80,000
+      Progress: 54,000 / 80,000
+      Progress: 56,000 / 80,000
+      Progress: 58,000 / 80,000
+      Progress: 60,000 / 80,000
+      Progress: 62,000 / 80,000
+      Progress: 64,000 / 80,000
+      Progress: 66,000 / 80,000
+      Progress: 68,000 / 80,000
+      Progress: 70,000 / 80,000
+      Progress: 72,000 / 80,000
+      Progress: 74,000 / 80,000
+      Progress: 76,000 / 80,000
+      Progress: 78,000 / 80,000
+      Progress: 80,000 / 80,000
+
+    Inserting external records (chunk size: 2000)...
+      Progress: 2,000 / 80,000
+      Progress: 4,000 / 80,000
+      Progress: 6,000 / 80,000
+      Progress: 8,000 / 80,000
+      Progress: 10,000 / 80,000
+      Progress: 12,000 / 80,000
+      Progress: 14,000 / 80,000
+      Progress: 16,000 / 80,000
+      Progress: 18,000 / 80,000
+      Progress: 20,000 / 80,000
+      Progress: 22,000 / 80,000
+      Progress: 24,000 / 80,000
+      Progress: 26,000 / 80,000
+      Progress: 28,000 / 80,000
+      Progress: 30,000 / 80,000
+      Progress: 32,000 / 80,000
+      Progress: 34,000 / 80,000
+      Progress: 36,000 / 80,000
+      Progress: 38,000 / 80,000
+      Progress: 40,000 / 80,000
+      Progress: 42,000 / 80,000
+      Progress: 44,000 / 80,000
+      Progress: 46,000 / 80,000
+      Progress: 48,000 / 80,000
+      Progress: 50,000 / 80,000
+      Progress: 52,000 / 80,000
+      Progress: 54,000 / 80,000
+      Progress: 56,000 / 80,000
+      Progress: 58,000 / 80,000
+      Progress: 60,000 / 80,000
+      Progress: 62,000 / 80,000
+      Progress: 64,000 / 80,000
+      Progress: 66,000 / 80,000
+      Progress: 68,000 / 80,000
+      Progress: 70,000 / 80,000
+      Progress: 72,000 / 80,000
+      Progress: 74,000 / 80,000
+      Progress: 76,000 / 80,000
+      Progress: 78,000 / 80,000
+      Progress: 80,000 / 80,000
+
+=================================================================
+[SUCCESS] Ingestion complete.
+    Wall-clock time: 6.94 seconds
+    Total Beneficiaries in DB: 80,005
+    Total External Records in DB: 80,001
+=================================================================
+[START] DAT-01 Seed Conformance Test
+
+[1] Counts and 1:1 invariant...
+   [OK]   80,000 SYN beneficiaries
+   [OK]   80,000 SYN external records
+   [OK]   zero orphan external records
+
+[2] Every document validates against the frozen Mongoose models...
+   [OK]   beneficiaries valid (80,000 checked)
+   [OK]   external records valid (80,000 checked)
+
+[3] Visibility, ML readiness, and excluded fields...
+   [OK]   all SYN households inside director_test jurisdiction scope
+   [OK]   every household has a valid ml-swdi-inference v1.1 vector
+   [OK]   no beneficiary stores true_swdi_level
+   [OK]   no beneficiary stores names
+   [OK]   no beneficiary stores landbank_card_pan
+   [OK]   no beneficiary stores gps_coordinates
+   [OK]   no beneficiary stores school_attendance
+   [OK]   no external record stores raw power
+   [OK]   no external record stores raw water
+   [OK]   no external record stores raw telecom
+   [OK]   no external record stores raw vehicle
+   [OK]   no external record stores raw household_id
+   [OK]   all LandBank PANs masked
+
+[SUCCESS] DAT-01 TEST PASSED!

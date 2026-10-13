@@ -1,11 +1,12 @@
 {
   "household_id": "DEMO-4PS-GRAD-0001",
+  "household_size": 6,
   "demographics": {
-    "household_size": 6,
-    "dependents_ratio": 2.0,
-    "head_education_level": 4,
-    "wall_score": 3,
-    "roof_score": 3,
-    "water_access_level": 3
+    "head_education_level": 3,
+    "head_formal_employment": 1,
+    "remittance_income_flag": 0,
+    "housing_material_score": 3,
+    "appliance_density_index": 2.0,
+    "dependency_ratio": 2.0
   }
 }

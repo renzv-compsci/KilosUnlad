@@ -2,6 +2,8 @@
 
 ## Revision Change Log
 
+* 2026-10-12: Sprint 1–6 execution on branch `claude/clever-albattani-8ikzld`. Per-item status: `backlog.md` rev 5. Changes, traceability and flags: `CHANGELOG_TRACEABILITY.md`. Contract decisions: DECISION-009.
+
 ## Sprint 0 — Integration Readiness Gate (1 day)
 
 **Goal:** Close all documentation and scope flags before any build sprint starts.

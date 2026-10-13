@@ -1,0 +1,5 @@
+# DAT-05 baseline reset timing (reset = wipe + indexes + accounts + Demo Case A; ingest = seed_db.py 80k)
+# Local equivalent of reset_demo.sh without docker-exec spawn overhead.
+run 1: reset 5.02s  ingest 14.28s  total 19.30s
+run 2: reset 4.59s  ingest 12.88s  total 17.48s
+run 3: reset 4.43s  ingest 13.90s  total 18.34s

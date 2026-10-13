@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FieldTaskSubmission } from '../types/contracts';
-import { submitFieldTask } from '../services/api';
+import axios from 'axios';
+import { DraftIncompleteError, submitFieldTask } from '../services/api';
 import { updateSubmissionStatus } from '../services/indexedDB';
 import { readStoredSession } from '../services/authSession';
 
@@ -9,6 +10,7 @@ export function useOfflineSync(
   onSubmissionSynced: (taskId: string) => void,
   ownerId: string | null,
   enabled: boolean,
+  onSubmissionRejected?: (taskId: string) => void,
 ) {
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -27,15 +29,24 @@ export function useOfflineSync(
           await updateSubmissionStatus(ownerId, submission.task_id, 'SYNCED');
           if (readStoredSession()?.user.user_id === ownerId) onSubmissionSynced(submission.task_id);
           syncedCount += 1;
-        } catch {
-          // Keep the report pending until the backend endpoint is available.
+        } catch (error) {
+          // Network loss, 5xx, 401 (re-login) and 429 stay pending for the next attempt.
+          // A client error the server will repeat (400/403/404/409/413/422) is kept on the
+          // device as ERROR instead of being retried forever.
+          const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+          const permanent = error instanceof DraftIncompleteError ||
+            (status !== undefined && status >= 400 && status < 500 && ![401, 408, 429].includes(status));
+          if (permanent) {
+            await updateSubmissionStatus(ownerId, submission.task_id, 'ERROR');
+            if (readStoredSession()?.user.user_id === ownerId) onSubmissionRejected?.(submission.task_id);
+          }
         }
       }
       return syncedCount;
     } finally {
       setIsSyncing(false);
     }
-  }, [enabled, ownerId, isSyncing, onSubmissionSynced, submissions]);
+  }, [enabled, ownerId, isSyncing, onSubmissionSynced, onSubmissionRejected, submissions]);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);

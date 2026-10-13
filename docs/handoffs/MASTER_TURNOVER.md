@@ -56,10 +56,15 @@ All four engineering leads have officially finalized and handed over their respe
 | `/beneficiaries/triage-queue` | `GET` | Admin / Director / Auditor | Enforces regional/municipal jurisdiction; provides pagination (`page`, `limit`) and status filtering. |
 | `/tasks/assigned` | `GET` | Case Worker Only | Returns only tasks assigned to the authenticated worker (`PENDING_DISPATCH` or `CACHED_OFFLINE`) in their jurisdiction. Rejects query overrides with 400. |
 | `/tasks/dispatch` | `POST` | Admin / Director Only | Executes multi-document ACID transaction: creates `VerificationTask`, sets `Beneficiary` to `UNDER_INVESTIGATION`, and appends `AuditLog`. |
+| `/tasks/:id/submit` | `POST` | Case Worker Only | INT-02/06: JSON or multipart (`evidence_files`). Re-authorizes in-transaction, verifies uploaded bytes (422 `EVIDENCE_HASH_MISMATCH`), enforces the 250 m geofence (422 `GEOFENCE_VIOLATION`), writes `field_findings` + `SUBMITTED`, appends `REPORT_SUBMITTED`. Returns the frozen `field-task-submission.json` 200 body. Duplicate: 409 `TASK_NOT_SUBMITTABLE`. |
+| `/appeals/docket` | `POST` | Admin / Director Only | INT-03: body `{household_id, appeal_docket_id, hearing_date (YYYY-MM-DD), appeal_grounds}`. Notice instant = stored `APPROVED_GRADUATION` resolution; 15-day deadline via `calculateAppealDeadline`. Appeal sealed as `APPEAL_FILED`; household stays `NOTICE_OF_INELIGIBILITY` (frozen enum). 409: `NOTICE_REQUIRED`, `NOTICE_RECORD_MISSING`, `APPEAL_WINDOW_CLOSED`, `APPEAL_ALREADY_FILED`, `DOCKET_ID_CONFLICT`. |
+| `/calamity/toggle` | `POST` | Super Admin Only | INT-04: body `{province, municipality, is_active, ndrrmc_reference?, expires_at?}`. Writes `SystemConfig` `CALAMITY_ZONES`; returns `hold_active` via `hasActiveCalamityMoratorium`. Declare = 201 + `CALAMITY_DECLARED`; lift = 200 + `SYSTEM_CONFIG_UPDATED`. 409: `CALAMITY_ALREADY_ACTIVE`, `CALAMITY_NOT_ACTIVE`. |
+| `/beneficiaries/:household_id/assess` | `POST` | Admin / Director Only | INT-05 (`admin-risk-assessment.json`): ML v1.1 prediction or `EVALUATED_VIA_FALLBACK`, then `calculateRiskScore`; at score >= 70 moves `ACTIVE_COMPLIANT -> FLAGGED_FOR_REVIEW` and seals `MODEL_FLAG_RAISED`. Reports RA 11310 `children_eligibility`. 409 `CALAMITY_MORATORIUM_ACTIVE` in a declared zone. |
+| `/beneficiaries/:household_id/assessment` | `GET` | Admin / Director / Auditor | E2E-04 (`admin-assessment-explanation.json`): latest sealed assessment (SHAP, probabilities), served only after its entry hash recomputes. |
 | `/audit/verify-chain` | `GET` | Admin / Auditor Only | Traverses inclusive block sequence ranges (up to 1,000 blocks), recomputing canonical SHA-256 hashes against predecessor linkages. |
 | `/health` | `GET` | Public | Returns process liveness (`status: "online"`). Waits for MongoDB connection on startup. |
 
-*Note: Four integration helper modules are currently mapped to `integrationPlaceholders.service.js` returning HTTP 503 `ENDPOINT_NOT_READY` awaiting route mounting.*
+*Note (Sprints 1–6): all four `integrationPlaceholders.service.js` functions are superseded by mounted routes (INT-02, INT-04, INT-05). Every mutation seals its audit block inside the same MongoDB transaction; `audit.middleware.js` stays unmounted by design. Dispatch and assessment honour calamity holds (E2E-02). Verified field photos are stored content-addressed under `UPLOAD_DIR/evidence/<sha256>`. Change log and traceability: `docs/integration/CHANGELOG_TRACEABILITY.md`; decisions: DECISION-009.*
 
 ---
 
@@ -160,11 +165,10 @@ docker exec -it kilosunlad-db mongosh -u admin_user -p RootAdminSecret2026! --au
 ## 2.2 Phase 3 Ingest Tooling & Compound Index Verification
 
 ### Tooling Components:
-* `data-pipeline/scripts/seed_db.py`: Bulk-insert script using `pymongo.insert_many(ordered=False)`.
-* `data-pipeline/scripts/generate_placeholders.py`: Deterministically creates 50 placeholder records.
-* `data-pipeline/scripts/verify_compound_index.py`: Validates compound index hits via `explain("executionStats")`.
-* `data-pipeline/seeds/seed_beneficiaries.json`: 50 placeholder records with `SEED-4PS-` prefix.
-* `data-pipeline/seeds/seed_external_records.json`: 50 placeholder records with `SEED-` prefix.
+* `data-pipeline/scripts/seed_db.py`: Ingests the ADR-001 baseline (`seed_beneficiaries_app_80k.json` + `seed_external_records_app_80k.json`, 80,000 each) through `seed_mapping.py`, which adapts generator records to the frozen Mongoose models (address, model-declared demographics + the 6 PMT features, masked PAN; no `true_swdi_level`). `SEEDS_DIR` / `MONGO_URI` are env-overridable.
+* `data-pipeline/scripts/verify_compound_index.py`: Validates compound index hits via `explain("executionStats")` for the flagged triage query and the full unflagged roster.
+* `data-pipeline/scripts/test_dat01_seed_conformance.js`: Validates every ingested document against the Mongoose models, the 1:1 invariant, ML v1.1 readiness and excluded fields.
+* `data-pipeline/scripts/generate_placeholders.py`: Legacy 50-record placeholder generator (superseded by the 80k baseline; its barangay centroids are reused by `seed_mapping.py`).
 
 ### Execution Commands:
 ```bash
@@ -172,10 +176,12 @@ docker-compose run --rm seed-ingest   # Ingests seed data
 docker-compose run --rm seed-verify   # Verifies compound index
 ```
 
-### Verified Index Performance (Task 3.2):
+### Verified Index Performance (Sprint 3 DAT-03, 80k baseline, 2026-10-12):
 * **Target Index:** `risk_assessment.is_flagged_1_address.municipality_1`
-* **Result:** `totalKeysExamined: 18`, `totalDocsExamined: 18`, `nReturned: 18`.
-* **Assertions Passed:** `IXSCAN present: YES`, `COLLSCAN present: NO`, `No over-scan (totalDocsExamined == nReturned)`.
+* **Flagged triage query:** `totalDocsExamined: 3`, `nReturned: 3` (test fixtures; SYN households start unflagged).
+* **At volume (unflagged Calamba roster):** `totalDocsExamined: 80002`, `nReturned: 80002`.
+* **Assertions Passed (both):** `IXSCAN present: YES`, `COLLSCAN present: NO`, `No over-scan`.
+* **Ingestion (DAT-02):** 80,000 + 80,000 documents, zero insert errors; insert phase 8.13 s, end-to-end 12.9–14.3 s (local replica set; see `docs/integration/evidence/sprint-3/`). Integrity audit (DAT-04): 0 issues across 160,012 documents.
 
 ---
 
@@ -467,7 +473,7 @@ As Project Manager and Lead Integrator, here is your execution sequence to bring
                       │
                       ▼
 [ STEP 2: Ingest Real PSA FIES Dataset ]
-  Run `docker-compose run --rm seed-ingest` with the full 5,000-record seed.
+  Run `docker-compose run --rm seed-ingest` with the ADR-001 80,000-record baseline.
                       │
                       ▼
 [ STEP 3: Mount Remaining Express Routes ]
@@ -482,12 +488,12 @@ As Project Manager and Lead Integrator, here is your execution sequence to bring
 ### Step 1: Align Backend ML Client Schema
 In `server/src/services/mlClient.service.js`, update the demographic payload mapping to use Charles's verified 6-feature vector (`head_education_level`, `head_formal_employment`, `remittance_income_flag`, `housing_material_score`, `appliance_density_index`, `dependency_ratio`).
 
-### Step 2: Swap Real 5,000-Record PSA FIES Dataset
-Overwrite placeholder files in `data-pipeline/seeds/` with your final generated dataset:
+### Step 2: Ingest the ADR-001 80,000-Record Baseline
+`seed_db.py` reads the 80k application set from `data-pipeline/seeds/` and maps it onto the frozen models:
 ```bash
 docker-compose run --rm seed-ingest
 ```
-Verify that all 5,000 records ingest cleanly in under 15 seconds.
+Acceptance (ADR-001): zero insert errors, recorded timing, `seed-verify` IXSCAN at 80k, and `test_dat01_seed_conformance.js` passing. Measured 2026-10-12: insert 8.13 s; reset + baseline ingest 17.5–19.3 s, which exceeds the 10 s `reset-demo` DoD when the baseline is included (reset alone: 4.4–5.0 s). Under the ADR's 60 s performance-task trigger.
 
 ### Step 3: Mount Task Submission Route
 In `server/src/controllers/task.controller.js`, replace `integrationPlaceholders.submitTask` with the implemented `sync.service.js` logic and upload adapter. Once mounted, notify Markie to enable the tablet sync button.
