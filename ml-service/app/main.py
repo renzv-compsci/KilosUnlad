@@ -10,7 +10,8 @@ from app.core.config import settings
 
 # Resolve paths robustly regardless of the current working directory
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-MODEL_PATH = PROJECT_ROOT / "artifacts" / "lightgbm_swdi_v1.joblib"
+# Same artifact the classifier serves (SWDI_MODEL_PATH; v1 by default, v2 via env).
+MODEL_PATH = Path(settings.SWDI_MODEL_PATH)
 
 # Global dictionary to hold ML models in memory
 ml_models = {}
