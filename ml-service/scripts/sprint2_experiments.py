@@ -49,14 +49,22 @@ ROOT = Path(__file__).resolve().parents[2]
 CONTRACT = ROOT / "docs" / "contracts" / "ml" / "ml-swdi-inference.json"
 SEED = 42
 CLASSES = [1, 2, 3]
+# Bounded search for E3 (Sprint 2 plan's six parameters, plus the tree count and
+# regularisation that make a low learning rate usable). Tuned by stratified CV on
+# the training folds only; the validation and holdout splits are never seen.
 SEARCH_SPACE = {
-    "num_leaves": randint(8, 128),
-    "max_depth": randint(3, 12),
-    "learning_rate": loguniform(0.01, 0.3),
-    "min_child_samples": randint(10, 200),
-    "subsample": uniform(0.6, 0.4),
-    "colsample_bytree": uniform(0.6, 0.4),
+    "n_estimators": randint(150, 1200),
+    "num_leaves": randint(8, 256),
+    "max_depth": randint(3, 16),
+    "learning_rate": loguniform(0.01, 0.2),
+    "min_child_samples": randint(5, 300),
+    "subsample": uniform(0.5, 0.5),
+    "colsample_bytree": uniform(0.5, 0.5),
+    "reg_alpha": loguniform(1e-3, 10.0),
+    "reg_lambda": loguniform(1e-3, 10.0),
+    "min_split_gain": uniform(0.0, 0.5),
 }
+SEARCH_ITERATIONS = 80
 
 
 def frozen_features():
@@ -105,9 +113,13 @@ def evaluate(model, X, y):
 
 
 def classifier(balanced, params=None, n_estimators=200):
-    return lgb.LGBMClassifier(objective="multiclass", num_class=3, random_state=SEED, verbose=-1,
-                              n_estimators=n_estimators, subsample_freq=1 if params and "subsample" in params else 0,
-                              class_weight="balanced" if balanced else None, **(params or {}))
+    # subsample_freq=1 always: with 0, LightGBM ignores `subsample`, so the search
+    # would tune a parameter that has no effect (subsample defaults to 1.0 = off).
+    params = dict(params or {})
+    n_estimators = params.pop("n_estimators", n_estimators)
+    return lgb.LGBMClassifier(objective="multiclass", num_class=3, random_state=SEED, verbose=-1, n_jobs=1,
+                              n_estimators=n_estimators, subsample_freq=1,
+                              class_weight="balanced" if balanced else None, **params)
 
 
 def run(args):
@@ -135,18 +147,20 @@ def run(args):
         results[name] = {"training_rows": training_rows, "note": note,
                          "validation": evaluate(model, Xva, yva), "empirical_holdout": evaluate(model, Xte, yte)}
         models[name] = model
-        print(f"  {name:4s} holdout macroF1={results[name]['empirical_holdout']['macro_f1']:.4f} "
+        print(f"  {name:4s} val macroF1={results[name]['validation']['macro_f1']:.4f}  "
+              f"holdout macroF1={results[name]['empirical_holdout']['macro_f1']:.4f} "
               f"min-class={results[name]['empirical_holdout']['min_class_f1']:.4f}  ({note})")
 
     print("=== Sprint 2 experiments (empirical holdout = selection split) ===")
     record("E1", fit(classifier(False), Xtr, ytr), {"empirical": len(Xtr)}, "empirical, defaults")
     record("E2", fit(classifier(True), Xtr, ytr), {"empirical": len(Xtr)}, "empirical, balanced")
 
-    search = RandomizedSearchCV(classifier(True), SEARCH_SPACE, n_iter=4 if args.quick else 40,
-                                scoring="f1_macro", random_state=SEED, n_jobs=1, refit=True,
+    search = RandomizedSearchCV(classifier(True), SEARCH_SPACE, n_iter=4 if args.quick else SEARCH_ITERATIONS,
+                                scoring="f1_macro", random_state=SEED, n_jobs=-1, refit=True,
                                 cv=StratifiedKFold(3 if args.quick else 5, shuffle=True, random_state=SEED))
     search.fit(Xtr, ytr - 1)
     best = {k: (float(v) if isinstance(v, (np.floating, float)) else int(v)) for k, v in search.best_params_.items()}
+    print(f"  E3 search: best CV macro F1 on training folds = {search.best_score_:.4f}")
     record("E3", search.best_estimator_, {"empirical": len(Xtr)}, f"empirical, balanced, tuned (CV on train folds) {best}")
 
     emp_w = np.ones(len(Xtr))
@@ -157,7 +171,9 @@ def run(args):
                {"empirical": len(Xtr), "synthetic": len(Xs)}, f"blend, synthetic weight {w}")
 
     pre = fit(classifier(True, best), Xs, ys)
-    record("E5", fit(classifier(True, best, n_estimators=100), Xtr, ytr, init_model=pre.booster_),
+    # Fine-tune with half the tuned tree count on top of the synthetic pretraining.
+    fine = {**best, "n_estimators": max(50, best.get("n_estimators", 200) // 2)}
+    record("E5", fit(classifier(True, fine), Xtr, ytr, init_model=pre.booster_),
            {"empirical": len(Xtr), "synthetic_pretrain": len(Xs)}, "pretrain synthetic, fine-tune empirical")
 
     winner = max(results, key=lambda k: (round(results[k]["empirical_holdout"]["macro_f1"], 6),
