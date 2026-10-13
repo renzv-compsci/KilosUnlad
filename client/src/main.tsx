@@ -1,6 +1,8 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
+import '@fontsource-variable/plus-jakarta-sans';
+import 'leaflet/dist/leaflet.css';
 import './index.css';
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {

@@ -178,6 +178,14 @@ async function browserChecks(t, facts) {
       check(`${size} director dashboard: no sample labels or invented figures`, !/Sample data|Sample advisory|4,850|Municipal Link #ML-/.test(body));
       check(`${size} director dashboard: map/matrix lists the scoped municipality`, (await page.locator('.geography-section').count()) === 1 &&
         (await page.locator('.geography-section').innerText()).includes(facts.overview.municipalities[0]?.municipality ?? '?'));
+      let expectedDots = 0;
+      for (const status of ['FLAGGED_FOR_REVIEW', 'UNDER_INVESTIGATION', 'NOTICE_OF_INELIGIBILITY']) {
+        const r = await call('GET', `/beneficiaries/triage-queue?status=${status}&limit=100`, { token: t.director.token });
+        expectedDots += r.data.items.filter(i => Array.isArray(i.address?.coordinates)).length;
+      }
+      await page.locator('.live-map-canvas path.leaflet-interactive').first().waitFor({ timeout: 15000 });
+      const dots = await page.locator('.live-map-canvas path.leaflet-interactive').count();
+      check(`${size} director map: one dot per household under review (${expectedDots})`, dots === expectedDots, dots);
       await noOverflow(page, `${size} director dashboard`); await shot(page, `${size}-director-dashboard`);
       await nav(page, /Caseworker Dispatch/);
       await page.getByText('UI live-data check').first().waitFor({ state: 'attached', timeout: 10000 }).catch(() => {});
@@ -197,7 +205,7 @@ async function browserChecks(t, facts) {
 
       // COA: overview with ledger blocks, sampling.
       ({ context, page } = await session(ACCOUNTS.auditor));
-      await page.getByText('Latest ledger blocks').waitFor({ timeout: 15000 });
+      await page.getByRole('heading', { name: 'Latest ledger blocks' }).waitFor({ timeout: 15000 });
       const coaText = await page.locator('.audit-page').innerText();
       check(`${size} COA overview: shows the block count and the dispatch block`, coaText.includes(String(facts.blocks.total_blocks)) &&
         /TASK DISPATCHED/.test(coaText), coaText.slice(0, 300));

@@ -1,12 +1,16 @@
 import React from 'react';
 import { UserSession } from '../../types/contracts';
 import { MapPin, LogOut, ChevronDown, PanelLeftOpen } from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
+import type { ScreenId } from '../../types/navigation';
+import { SCREEN_GUIDE } from '../../utils/screenGuide';
 
 interface HeaderProps {
   session: UserSession;
   onLogout: () => void;
   onOpenSidebar: () => void;
   sidebarCollapsed: boolean;
+  currentScreen?: ScreenId;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -14,7 +18,9 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   onOpenSidebar,
   sidebarCollapsed,
+  currentScreen,
 }) => {
+  const guide = currentScreen ? SCREEN_GUIDE[currentScreen] : undefined;
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
   const profileRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
@@ -63,8 +69,10 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <PanelLeftOpen size={20} aria-hidden="true" />
         </button>
-        <span className="workspace-product-name">KilosUnlad</span>
-        <span className="workspace-product-description">Welfare Auditing MIS</span>
+        <BrandLogo size={30} className="workspace-product-name" />
+        {guide ? <span className="workspace-product-description workspace-page">
+          <strong>{guide.title}</strong><span>{guide.hint}</span>
+        </span> : <span className="workspace-product-description">Welfare Auditing MIS</span>}
       </div>
 
       <div className="profile-menu" ref={profileRef}>

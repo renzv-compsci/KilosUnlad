@@ -201,7 +201,7 @@
 .operations-empty { padding: 32px 20px; color: #657184; }
 .required-label { color: #657184; font-size: 12px; font-weight: 400; }
 .form-feedback { color: #526175; margin-top: 12px; font-size: 13px; line-height: 1.65; }
-.workspace-dialog { --navy: #132e4f; --line: #e3e8ee; font-family: 'Segoe UI', Arial, sans-serif; letter-spacing: 0; }
+.workspace-dialog { --navy: #132e4f; --line: #e3e8ee; font-family: var(--font-sans); letter-spacing: 0; }
 .workspace-dialog:focus { outline: none; }
 .workspace-dialog :is(input:not([type='radio']):not([type='checkbox']), select, textarea) { border-radius: 6px; line-height: 1.5; }
 .workspace-dialog :is(input, select, textarea):focus-visible, summary:focus-visible { outline: 2px solid #41678a; outline-offset: 3px; }
