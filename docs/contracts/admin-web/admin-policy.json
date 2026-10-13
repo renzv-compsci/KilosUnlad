@@ -1,0 +1,75 @@
+{
+  "contract_name": "admin-policy",
+  "version": "1.0.0",
+  "revision_note": "2026-10-13 (UI live data, DECISION-010): the effective rules the server enforces, read-only (Policy Settings screen). Values come from the server's constants and the stored calamity configuration; changing them is out of scope (no write route).",
+  "endpoint": "/api/v1/system/policy",
+  "method": "GET",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>"
+  },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR, COA_AUDITOR. No query parameters.",
+  "response": {
+    "status": 200,
+    "data": {
+      "risk_score": {
+        "flag_threshold": 70,
+        "weights": {
+          "swdi_per_level": 40,
+          "power": 20,
+          "water": 15,
+          "telecom": 25,
+          "vehicle": 30
+        },
+        "cap": 100
+      },
+      "lifeline_limits": {
+        "power_kwh_per_month": 200,
+        "water_cu_m_per_month": 25
+      },
+      "field_verification": {
+        "geofence_radius_m": 250
+      },
+      "due_process": {
+        "appeal_window_days": 15
+      },
+      "age_out": {
+        "eligible_until_age": 19,
+        "timezone": "Asia/Manila"
+      },
+      "sangla_atm": {
+        "max_swipe_interval_seconds": 45,
+        "nocturnal_start_hour": 1,
+        "nocturnal_end_hour": 4,
+        "cluster_repeat_ratio": 0.7
+      },
+      "calamity_zones": [
+        {
+          "province": "Laguna",
+          "municipality": "Calamba",
+          "declared_at": "2026-10-01T00:00:00.000Z",
+          "expires_at": null,
+          "ndrrmc_reference": "NDRRMC-2026-0001",
+          "is_active": true
+        }
+      ]
+    }
+  },
+  "errors": [
+    {
+      "status": 401,
+      "code": "UNAUTHORIZED"
+    },
+    {
+      "status": 403,
+      "code": "FORBIDDEN"
+    },
+    {
+      "status": 400,
+      "code": "INVALID_QUERY"
+    },
+    {
+      "status": 503,
+      "code": "SERVICE_UNAVAILABLE"
+    }
+  ]
+}

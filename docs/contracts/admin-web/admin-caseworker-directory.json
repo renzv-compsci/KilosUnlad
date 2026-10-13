@@ -1,0 +1,50 @@
+{
+  "contract_name": "admin-caseworker-directory",
+  "version": "1.0.0",
+  "revision_note": "2026-10-13 (UI live data, DECISION-010): active case workers a director may assign (dispatch modal picker). A REGIONAL_DIRECTOR sees workers whose jurisdiction is the same province and municipality and who cover at least one of the director's barangays; SUPER_ADMIN sees all active case workers. No credentials or contact details are returned.",
+  "endpoint": "/api/v1/users/caseworkers",
+  "method": "GET",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>"
+  },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR. No query parameters.",
+  "response": {
+    "status": 200,
+    "data": {
+      "items": [
+        {
+          "user_id": "64f1a2b3c4d5e6f7a8b9c0d1",
+          "full_name": "Test Case Worker",
+          "username": "case_worker_test",
+          "jurisdiction": {
+            "province": "Laguna",
+            "municipality": "Calamba",
+            "assigned_barangays": [
+              "Palingon",
+              "Real"
+            ]
+          },
+          "open_tasks": 1
+        }
+      ]
+    }
+  },
+  "errors": [
+    {
+      "status": 401,
+      "code": "UNAUTHORIZED"
+    },
+    {
+      "status": 403,
+      "code": "FORBIDDEN"
+    },
+    {
+      "status": 400,
+      "code": "INVALID_QUERY"
+    },
+    {
+      "status": 503,
+      "code": "SERVICE_UNAVAILABLE"
+    }
+  ]
+}

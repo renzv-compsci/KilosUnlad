@@ -1,0 +1,53 @@
+{
+  "contract_name": "audit-block-list",
+  "version": "1.0.0",
+  "revision_note": "2026-10-13 (UI live data, DECISION-010): newest-first page of audit block headers for the COA Audit Overview. Read-only; state deltas are not returned (use verify-chain and the sealed explanation routes). Verification remains GET /audit/verify-chain.",
+  "endpoint": "/api/v1/audit/blocks?limit=20&before=120",
+  "method": "GET",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>"
+  },
+  "access": "COA_AUDITOR, SUPER_ADMIN. Query: limit 1-100 (default 20), before = a sequence index (exclusive upper bound); nothing else.",
+  "response": {
+    "status": 200,
+    "data": {
+      "items": [
+        {
+          "sequence_index": 3,
+          "timestamp": "2026-10-13T09:05:00.000Z",
+          "action": "REPORT_SUBMITTED",
+          "actor": {
+            "username": "case_worker_test",
+            "role": "CASE_WORKER"
+          },
+          "target_entity": {
+            "collection_name": "verification_tasks",
+            "entity_id": "TSK-2026-0c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f"
+          },
+          "previous_entry_hash": "20e320577f188fb704baa0a30646ccc0964d48de66a36a01525be6be0f5429d4",
+          "entry_hash": "805deeeda86503386a5ac480147d1a88184ced4791809318754395094d70f649"
+        }
+      ],
+      "total_blocks": 3,
+      "next_before": null
+    }
+  },
+  "errors": [
+    {
+      "status": 401,
+      "code": "UNAUTHORIZED"
+    },
+    {
+      "status": 403,
+      "code": "FORBIDDEN"
+    },
+    {
+      "status": 400,
+      "code": "INVALID_QUERY"
+    },
+    {
+      "status": 503,
+      "code": "SERVICE_UNAVAILABLE"
+    }
+  ]
+}
