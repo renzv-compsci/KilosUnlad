@@ -1,0 +1,689 @@
+# Unit — server node --test — 2026-10-13T16:33:14Z
+
+> kilosunlad-server@1.0.0 test
+> node --test
+
+TAP version 13
+# Subtest: age is counted on the Asia/Manila calendar date
+ok 1 - age is counted on the Asia/Manila calendar date
+  ---
+  duration_ms: 1.085077
+  type: 'test'
+  ...
+# Subtest: RA 11310 Sec. 6: eligible until the 19th birthday
+ok 2 - RA 11310 Sec. 6: eligible until the 19th birthday
+  ---
+  duration_ms: 4.68074
+  type: 'test'
+  ...
+# Subtest: ISO strings from legacy inserts are accepted; invalid dates keep the stored flag as unknown
+ok 3 - ISO strings from legacy inserts are accepted; invalid dates keep the stored flag as unknown
+  ---
+  duration_ms: 0.381703
+  type: 'test'
+  ...
+# Subtest: future birthdates are unknown, never eligible-by-default changes
+ok 4 - future birthdates are unknown, never eligible-by-default changes
+  ---
+  duration_ms: 0.322486
+  type: 'test'
+  ...
+# Subtest: empty or missing registry
+ok 5 - empty or missing registry
+  ---
+  duration_ms: 0.185063
+  type: 'test'
+  ...
+# 127.0.0.1 - - [13/Oct/2026:16:33:15 +0000] "GET /health HTTP/1.1" 200 109 "-" "-"
+# 127.0.0.1 - - [13/Oct/2026:16:33:15 +0000] "GET /api/v1 HTTP/1.1" 200 82 "-" "-"
+# Subtest: health and API discovery respond successfully
+ok 6 - health and API discovery respond successfully
+  ---
+  duration_ms: 29.400075
+  type: 'test'
+  ...
+# 127.0.0.1 - - [13/Oct/2026:16:33:15 +0000] "POST /api/v1/auth/login HTTP/1.1" 200 674 "-" "-"
+# Subtest: POST /api/v1/auth/login matches the frozen response data
+ok 7 - POST /api/v1/auth/login matches the frozen response data
+  ---
+  duration_ms: 11.42093
+  type: 'test'
+  ...
+# 127.0.0.1 - - [13/Oct/2026:16:33:15 +0000] "GET /api/v1/beneficiaries/triage-queue?municipality=Calamba&status=FLAGGED_FOR_REVIEW&page=1&limit=10 HTTP/1.1" 200 836 "-" "-"
+# Subtest: GET /api/v1/beneficiaries/triage-queue?municipality=Calamba&status=FLAGGED_FOR_REVIEW&page=1&limit=10 matches the frozen response data
+ok 8 - GET /api/v1/beneficiaries/triage-queue?municipality=Calamba&status=FLAGGED_FOR_REVIEW&page=1&limit=10 matches the frozen response data
+  ---
+  duration_ms: 8.338518
+  type: 'test'
+  ...
+# 127.0.0.1 - - [13/Oct/2026:16:33:15 +0000] "GET /api/v1/tasks/assigned HTTP/1.1" 200 852 "-" "-"
+# Subtest: GET /api/v1/tasks/assigned matches the frozen response data
+ok 9 - GET /api/v1/tasks/assigned matches the frozen response data
+  ---
+  duration_ms: 3.764299
+  type: 'test'
+  ...
+# Subtest: browser login preflight allows JSON and authorization headers
+ok 10 - browser login preflight allows JSON and authorization headers
+  ---
+  duration_ms: 2.929491
+  type: 'test'
+  ...
+# Subtest: legacy unauthenticated mock mode is rejected in production
+ok 11 - legacy unauthenticated mock mode is rejected in production
+  ---
+  duration_ms: 1.173329
+  type: 'test'
+  ...
+# Subtest: INT-03 POST /api/v1/appeals/docket against a disposable MongoDB replica set
+ok 12 - INT-03 POST /api/v1/appeals/docket against a disposable MongoDB replica set # SKIP
+  ---
+  duration_ms: 0.840068
+  type: 'test'
+  ...
+# Subtest: deadline adds 15 elapsed days across month/year/leap-day boundaries without changing input
+ok 13 - deadline adds 15 elapsed days across month/year/leap-day boundaries without changing input
+  ---
+  duration_ms: 1.180961
+  type: 'test'
+  ...
+# Subtest: one millisecond before expiry is blocked; exact expiry and later satisfy timing only
+ok 14 - one millisecond before expiry is blocked; exact expiry and later satisfy timing only
+  ---
+  duration_ms: 1.444901
+  type: 'test'
+  ...
+# Subtest: appeals, pauses, and unknown hold information block exit even after expiry
+ok 15 - appeals, pauses, and unknown hold information block exit even after expiry
+  ---
+  duration_ms: 0.469332
+  type: 'test'
+  ...
+# Subtest: missing notice and shortened deadlines cannot bypass the window; longer deadlines are respected
+ok 16 - missing notice and shortened deadlines cannot bypass the window; longer deadlines are respected
+  ---
+  duration_ms: 0.370939
+  type: 'test'
+  ...
+# Subtest: invalid dates, implicit date coercion and overflow fail closed
+ok 17 - invalid dates, implicit date coercion and overflow fail closed
+  ---
+  duration_ms: 1.695326
+  type: 'test'
+  ...
+# Subtest: audit role requires listIndexes independently of createIndex and blocks mutation
+ok 18 - audit role requires listIndexes independently of createIndex and blocks mutation # SKIP
+  ---
+  duration_ms: 1.279965
+  type: 'test'
+  ...
+# Subtest: verified contract-style claims become req.user without extra token claims
+ok 19 - verified contract-style claims become req.user without extra token claims
+  ---
+  duration_ms: 68.658956
+  type: 'test'
+  ...
+# Subtest: missing, malformed, expired, future, forged, unsigned and wrong-algorithm tokens return 401
+ok 20 - missing, malformed, expired, future, forged, unsigned and wrong-algorithm tokens return 401
+  ---
+  duration_ms: 38.097003
+  type: 'test'
+  ...
+# Subtest: unconfigured authentication fails closed
+ok 21 - unconfigured authentication fails closed
+  ---
+  duration_ms: 12.569414
+  type: 'test'
+  ...
+# Subtest: explicit role permissions and auditor read-only access are enforced
+ok 22 - explicit role permissions and auditor read-only access are enforced
+  ---
+  duration_ms: 16.134587
+  type: 'test'
+  ...
+# Subtest: both scoped roles receive enforced filters when callers omit jurisdiction
+ok 23 - both scoped roles receive enforced filters when callers omit jurisdiction
+  ---
+  duration_ms: 6.895993
+  type: 'test'
+  ...
+# Subtest: out-of-scope or operator-shaped query filters cannot bypass jurisdiction
+ok 24 - out-of-scope or operator-shaped query filters cannot bypass jurisdiction
+  ---
+  duration_ms: 13.447935
+  type: 'test'
+  ...
+# Subtest: missing or invalid jurisdiction fails closed for scoped users
+ok 25 - missing or invalid jurisdiction fails closed for scoped users
+  ---
+  duration_ms: 7.159277
+  type: 'test'
+  ...
+# Subtest: record checks use trusted address, not spoofed body jurisdiction
+ok 26 - record checks use trusted address, not spoofed body jurisdiction
+  ---
+  duration_ms: 22.105201
+  type: 'test'
+  ...
+# Subtest: national roles have no geographic filter but still require explicit route permission
+ok 27 - national roles have no geographic filter but still require explicit route permission
+  ---
+  duration_ms: 9.920666
+  type: 'test'
+  ...
+# Subtest: invalid middleware configuration is rejected
+ok 28 - invalid middleware configuration is rejected
+  ---
+  duration_ms: 1.014989
+  type: 'test'
+  ...
+# Subtest: moratorium matches both province and municipality
+ok 29 - moratorium matches both province and municipality
+  ---
+  duration_ms: 1.22779
+  type: 'test'
+  ...
+# Subtest: provisional interval includes declaration and excludes exact expiry
+ok 30 - provisional interval includes declaration and excludes exact expiry
+  ---
+  duration_ms: 0.278552
+  type: 'test'
+  ...
+# Subtest: inactive declarations and open-ended declarations retain distinct behavior
+ok 31 - inactive declarations and open-ended declarations retain distinct behavior
+  ---
+  duration_ms: 0.309225
+  type: 'test'
+  ...
+# Subtest: overlapping valid zones preserve a hold regardless of ordering
+ok 32 - overlapping valid zones preserve a hold regardless of ordering
+  ---
+  duration_ms: 0.183322
+  type: 'test'
+  ...
+# Subtest: malformed data throws instead of returning permission to continue
+ok 33 - malformed data throws instead of returning permission to continue
+  ---
+  duration_ms: 1.005766
+  type: 'test'
+  ...
+# Subtest: checking a stored zone does not mutate it
+ok 34 - checking a stored zone does not mutate it
+  ---
+  duration_ms: 1.499391
+  type: 'test'
+  ...
+# Subtest: E2E-02 calamity moratorium freezes dispatch and flagging, releases on expiry/lift
+ok 35 - E2E-02 calamity moratorium freezes dispatch and flagging, releases on expiry/lift # SKIP
+  ---
+  duration_ms: 1.445064
+  type: 'test'
+  ...
+# Subtest: INT-04 POST /api/v1/calamity/toggle against a disposable MongoDB replica set
+ok 36 - INT-04 POST /api/v1/calamity/toggle against a disposable MongoDB replica set # SKIP
+  ---
+  duration_ms: 1.171011
+  type: 'test'
+  ...
+# Subtest: SHA-256 matches the standard known vector
+ok 37 - SHA-256 matches the standard known vector
+  ---
+  duration_ms: 2.916304
+  type: 'test'
+  ...
+# Subtest: reordered keys produce identical canonical JSON and entry hashes
+ok 38 - reordered keys produce identical canonical JSON and entry hashes
+  ---
+  duration_ms: 0.854786
+  type: 'test'
+  ...
+# Subtest: canonical JSON preserves falsy values and array ordering
+ok 39 - canonical JSON preserves falsy values and array ordering
+  ---
+  duration_ms: 0.44319
+  type: 'test'
+  ...
+# Subtest: Date objects and equivalent ISO timestamps hash identically
+ok 40 - Date objects and equivalent ISO timestamps hash identically
+  ---
+  duration_ms: 0.38843
+  type: 'test'
+  ...
+# Subtest: the seal binds every field using the existing colon-separated format
+ok 41 - the seal binds every field using the existing colon-separated format
+  ---
+  duration_ms: 0.393955
+  type: 'test'
+  ...
+# Subtest: connection observers are installed once, survive runtime errors and sanitize logs
+ok 42 - connection observers are installed once, survive runtime errors and sanitize logs
+  ---
+  duration_ms: 1.105029
+  type: 'test'
+  ...
+# Subtest: startup rejection is sanitized and preserves documented pool settings
+ok 43 - startup rejection is sanitized and preserves documented pool settings
+  ---
+  duration_ms: 1.913544
+  type: 'test'
+  ...
+# Subtest: isolated Docker MongoDB outage preserves HTTP service and recovers queries
+ok 44 - isolated Docker MongoDB outage preserves HTTP service and recovers queries # SKIP
+  ---
+  duration_ms: 0.24272
+  type: 'test'
+  ...
+# Subtest: zero risk and individual documented contributions
+ok 45 - zero risk and individual documented contributions
+  ---
+  duration_ms: 4.216405
+  type: 'test'
+  ...
+# Subtest: flagging threshold is inclusive at 70 and the score caps at 100
+ok 46 - flagging threshold is inclusive at 70 and the score caps at 100
+  ---
+  duration_ms: 1.815043
+  type: 'test'
+  ...
+# Subtest: missing, unknown or coerced inputs cannot silently become zero risk
+ok 47 - missing, unknown or coerced inputs cannot silently become zero risk
+  ---
+  duration_ms: 3.262983
+  type: 'test'
+  ...
+# Subtest: calculation is deterministic and does not mutate input
+ok 48 - calculation is deterministic and does not mutate input
+  ---
+  duration_ms: 0.278386
+  type: 'test'
+  ...
+# Subtest: HTTP error boundary sanitizes malformed requests and remains available
+ok 49 - HTTP error boundary sanitizes malformed requests and remains available
+  ---
+  duration_ms: 131.082352
+  type: 'test'
+  ...
+# Subtest: matching raw image bytes return a normalized digest without mutation
+ok 50 - matching raw image bytes return a normalized digest without mutation
+  ---
+  duration_ms: 2.442929
+  type: 'test'
+  ...
+# Subtest: one-byte changes, truncation and a different valid hash produce contract mismatch
+ok 51 - one-byte changes, truncation and a different valid hash produce contract mismatch
+  ---
+  duration_ms: 0.641534
+  type: 'test'
+  ...
+# Subtest: invalid bytes and malformed hashes fail before digest comparison
+ok 52 - invalid bytes and malformed hashes fail before digest comparison
+  ---
+  duration_ms: 0.591237
+  type: 'test'
+  ...
+# Subtest: raw buffer slices are hashed as bytes without encoding or backing-buffer changes
+ok 53 - raw buffer slices are hashed as bytes without encoding or backing-buffer changes
+  ---
+  duration_ms: 0.240929
+  type: 'test'
+  ...
+# Subtest: existing error middleware emits the exact frozen mismatch response
+ok 54 - existing error middleware emits the exact frozen mismatch response
+  ---
+  duration_ms: 0.543421
+  type: 'test'
+  ...
+# Subtest: geofence uses longitude-first GeoJSON and matches identical locations
+ok 55 - geofence uses longitude-first GeoJSON and matches identical locations
+  ---
+  duration_ms: 2.141301
+  type: 'test'
+  ...
+# Subtest: geofence compares unrounded distance at the inclusive 250 metre boundary
+ok 56 - geofence compares unrounded distance at the inclusive 250 metre boundary
+  ---
+  duration_ms: 0.221194
+  type: 'test'
+  ...
+# Subtest: malformed and non-finite coordinates fail closed
+ok 57 - malformed and non-finite coordinates fail closed
+  ---
+  duration_ms: 0.486849
+  type: 'test'
+  ...
+# Subtest: distance remains finite at antipodes and crosses the date line correctly
+ok 58 - distance remains finite at antipodes and crosses the date line correctly
+  ---
+  duration_ms: 0.203776
+  type: 'test'
+  ...
+# Subtest: all unfinished integration boundaries reject rather than report success
+ok 59 - all unfinished integration boundaries reject rather than report success
+  ---
+  duration_ms: 2.677935
+  type: 'test'
+  ...
+# Subtest: audit controller forwards service failure and emits no valid-chain response
+ok 60 - audit controller forwards service failure and emits no valid-chain response
+  ---
+  duration_ms: 0.887894
+  type: 'test'
+  ...
+# Subtest: audit placeholder blocks mutations and allows reads through
+ok 61 - audit placeholder blocks mutations and allows reads through
+  ---
+  duration_ms: 0.281749
+  type: 'test'
+  ...
+# Subtest: Joi middleware retains validated body and rejects invalid input without details
+ok 62 - Joi middleware retains validated body and rejects invalid input without details
+  ---
+  duration_ms: 4.513992
+  type: 'test'
+  ...
+# Subtest: 1000 valid blocks match the frozen response keys and partial ranges anchor to predecessor
+ok 63 - 1000 valid blocks match the frozen response keys and partial ranges anchor to predecessor
+  ---
+  duration_ms: 36.043745
+  type: 'test'
+  ...
+# Subtest: changed delta and recomputed broken link identify exact compromised sequence
+ok 64 - changed delta and recomputed broken link identify exact compromised sequence
+  ---
+  duration_ms: 31.463392
+  type: 'test'
+  ...
+# Subtest: genesis, missing blocks, missing predecessor, malformed entry and storage failures fail safely
+ok 65 - genesis, missing blocks, missing predecessor, malformed entry and storage failures fail safely
+  ---
+  duration_ms: 3.015618
+  type: 'test'
+  ...
+# Subtest: ranges reject missing, repeated, unknown, unsafe, negative and oversized parameters
+ok 66 - ranges reject missing, repeated, unknown, unsafe, negative and oversized parameters
+  ---
+  duration_ms: 0.816922
+  type: 'test'
+  ...
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m401[0m 2.403 ms - 90[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m401[0m 1.217 ms - 90[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [32m200[0m 2.661 ms - 281[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [32m200[0m 0.667 ms - 281[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m403[0m 0.733 ms - 67[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m403[0m 0.516 ms - 67[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m401[0m 0.609 ms - 90[0m
+# [0mGET /api/v1/audit/verify-chain [33m400[0m 1.200 ms - 112[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&start_sequence=2&end_sequence=2 [33m400[0m 1.148 ms - 112[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence[$gt]=0&end_sequence=2 [33m400[0m 0.723 ms - 112[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1001 [33m400[0m 0.710 ms - 112[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=2 [33m409[0m 0.603 ms - 108[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [31m503[0m 0.503 ms - 85[0m
+# Subtest: live route enforces current role, authentication, query errors and sanitized storage failures
+ok 67 - live route enforces current role, authentication, query errors and sanitized storage failures
+  ---
+  duration_ms: 112.678812
+  type: 'test'
+  ...
+# [0mPOST /api/v1/auth/login [32m200[0m 402.300 ms - 807[0m
+# Subtest: real bcrypt login follows contract shape, issues a 900s JWT, and exposes no password hash
+ok 68 - real bcrypt login follows contract shape, issues a 900s JWT, and exposes no password hash
+  ---
+  duration_ms: 802.332284
+  type: 'test'
+  ...
+# [0mPOST /api/v1/auth/login [33m401[0m 352.183 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 364.519 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 0.444 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 0.402 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 0.322 ms - 100[0m
+# Subtest: incorrect, unknown, invalid and injection-shaped credentials share contract error
+ok 69 - incorrect, unknown, invalid and injection-shaped credentials share contract error
+  ---
+  duration_ms: 741.01862
+  type: 'test'
+  ...
+# [0mPOST /api/v1/auth/login [33m403[0m 353.921 ms - 110[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 1.187 ms - 110[0m
+# Subtest: deactivation blocks login and an already-issued token
+ok 70 - deactivation blocks login and an already-issued token
+  ---
+  duration_ms: 363.058721
+  type: 'test'
+  ...
+# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Calamba [32m200[0m 1.670 ms - 119[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 0.646 ms - 85[0m
+# Subtest: triage handler receives current jurisdiction after authentication
+ok 71 - triage handler receives current jurisdiction after authentication
+  ---
+  duration_ms: 10.340738
+  type: 'test'
+  ...
+# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Other [33m403[0m 0.754 ms - 122[0m
+# Subtest: outside-jurisdiction response matches the triage contract
+ok 72 - outside-jurisdiction response matches the triage contract
+  ---
+  duration_ms: 3.847626
+  type: 'test'
+  ...
+# [0mGET /api/v1/tasks/assigned [33m401[0m 0.579 ms - 99[0m
+# Subtest: expired token matches assigned-task contract error
+ok 73 - expired token matches assigned-task contract error
+  ---
+  duration_ms: 3.769031
+  type: 'test'
+  ...
+# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 0.671 ms - 67[0m
+# [0mGET /api/v1/tasks/assigned?worker_id=60c72b2f9b1e8a001c8a1101 [32m200[0m 0.662 ms - 51[0m
+# Subtest: current role changes take effect immediately and assigned handler receives authenticated identity
+ok 74 - current role changes take effect immediately and assigned handler receives authenticated identity
+  ---
+  duration_ms: 5.190751
+  type: 'test'
+  ...
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.212 ms - 90[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.485 ms - 90[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.366 ms - 90[0m
+# Subtest: missing, forged and placeholder tokens cannot access mounted handlers
+ok 75 - missing, forged and placeholder tokens cannot access mounted handlers
+  ---
+  duration_ms: 6.261459
+  type: 'test'
+  ...
+# [0mGET /api/v1/beneficiaries/triage-queue [31m503[0m 1.468 ms - 85[0m
+# Subtest: production has real login but never serves protected fixture data
+ok 76 - production has real login but never serves protected fixture data
+  ---
+  duration_ms: 10.603588
+  type: 'test'
+  ...
+# [0mPOST /api/v1/auth/login [31m503[0m 0.418 ms - 85[0m
+# Subtest: repository errors fail closed without exposing database details
+ok 77 - repository errors fail closed without exposing database details
+  ---
+  duration_ms: 11.235324
+  type: 'test'
+  ...
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 1.033 ms - 90[0m
+# Subtest: deleted user tokens are rejected
+ok 78 - deleted user tokens are rejected
+  ---
+  duration_ms: 4.322266
+  type: 'test'
+  ...
+# Subtest: ML request and successful response match the frozen contract
+ok 79 - ML request and successful response match the frozen contract
+  ---
+  duration_ms: 37.376362
+  type: 'test'
+  ...
+# Subtest: invalid feature vectors are rejected before network access
+ok 80 - invalid feature vectors are rejected before network access
+  ---
+  duration_ms: 7.986886
+  type: 'test'
+  ...
+# Subtest: malformed, wrong-household and invalid prediction responses are rejected
+ok 81 - malformed, wrong-household and invalid prediction responses are rejected
+  ---
+  duration_ms: 29.578621
+  type: 'test'
+  ...
+# Subtest: upstream rejection, errors and redirects are sanitized without retries
+ok 82 - upstream rejection, errors and redirects are sanitized without retries
+  ---
+  duration_ms: 18.268388
+  type: 'test'
+  ...
+# Subtest: hung ML request aborts at the 2500 ms deadline
+ok 83 - hung ML request aborts at the 2500 ms deadline
+  ---
+  duration_ms: 2509.870064
+  type: 'test'
+  ...
+# Subtest: connection errors are sanitized and invalid service origins rejected
+ok 84 - connection errors are sanitized and invalid service origins rejected
+  ---
+  duration_ms: 4.356611
+  type: 'test'
+  ...
+# Subtest: streaming responses cannot extend the overall ML deadline
+ok 85 - streaming responses cannot extend the overall ML deadline
+  ---
+  duration_ms: 2503.367199
+  type: 'test'
+  ...
+# Subtest: oversized ML responses fail safely
+ok 86 - oversized ML responses fail safely
+  ---
+  duration_ms: 19.017681
+  type: 'test'
+  ...
+# Subtest: live feeds enforce contracts, pagination and data isolation in production
+ok 87 - live feeds enforce contracts, pagination and data isolation in production # SKIP
+  ---
+  duration_ms: 0.674949
+  type: 'test'
+  ...
+# Subtest: INT-05 POST /api/v1/beneficiaries/:household_id/assess against a disposable replica set
+ok 88 - INT-05 POST /api/v1/beneficiaries/:household_id/assess against a disposable replica set # SKIP
+  ---
+  duration_ms: 0.822384
+  type: 'test'
+  ...
+# Subtest: active assigned worker may prepare either open status; supplied session reaches all reads
+ok 89 - active assigned worker may prepare either open status; supplied session reaches all reads
+  ---
+  duration_ms: 25.980118
+  type: 'test'
+  ...
+# Subtest: missing authentication and malformed submissions stop before reads
+ok 90 - missing authentication and malformed submissions stop before reads
+  ---
+  duration_ms: 2.808714
+  type: 'test'
+  ...
+# Subtest: current stored role and activation control access on every call
+ok 91 - current stored role and activation control access on every call
+  ---
+  duration_ms: 2.192781
+  type: 'test'
+  ...
+# Subtest: another worker task and missing task both return not found without household reads
+ok 92 - another worker task and missing task both return not found without household reads
+  ---
+  duration_ms: 0.744508
+  type: 'test'
+  ...
+# Subtest: household mismatch and missing stored household are rejected
+ok 93 - household mismatch and missing stored household are rejected
+  ---
+  duration_ms: 0.854114
+  type: 'test'
+  ...
+# Subtest: stored household scope and current worker jurisdiction are enforced
+ok 94 - stored household scope and current worker jurisdiction are enforced
+  ---
+  duration_ms: 1.886145
+  type: 'test'
+  ...
+# Subtest: submitted, resolved and unknown task statuses fail closed
+ok 95 - submitted, resolved and unknown task statuses fail closed
+  ---
+  duration_ms: 1.499815
+  type: 'test'
+  ...
+# Subtest: submission contract maps into existing field_findings without changing input
+ok 96 - submission contract maps into existing field_findings without changing input
+  ---
+  duration_ms: 16.952275
+  type: 'test'
+  ...
+# Subtest: submission rejects missing fields and mismatched route identity
+ok 97 - submission rejects missing fields and mismatched route identity
+  ---
+  duration_ms: 7.922866
+  type: 'test'
+  ...
+# Subtest: submission rejects coercion, malformed evidence, coordinates and privileged fields
+ok 98 - submission rejects coercion, malformed evidence, coordinates and privileged fields
+  ---
+  duration_ms: 4.386226
+  type: 'test'
+  ...
+# Subtest: preparation permits absent EXIF and empty evidence without claiming evidence verification
+ok 99 - preparation permits absent EXIF and empty evidence without claiming evidence verification
+  ---
+  duration_ms: 0.439375
+  type: 'test'
+  ...
+# Subtest: test/support/replicaSet.js
+ok 24 - test/support/replicaSet.js
+  ---
+  duration_ms: 254.73843
+  type: 'test'
+  ...
+# Subtest: INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals REPORT_SUBMITTED
+ok 101 - INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals REPORT_SUBMITTED # SKIP
+  ---
+  duration_ms: 0.800298
+  type: 'test'
+  ...
+# Subtest: only the four documented forward transitions are accepted
+ok 102 - only the four documented forward transitions are accepted
+  ---
+  duration_ms: 1.520608
+  type: 'test'
+  ...
+# Subtest: unknown, missing, and structured status inputs cannot bypass the guard
+ok 103 - unknown, missing, and structured status inputs cannot bypass the guard
+  ---
+  duration_ms: 0.264952
+  type: 'test'
+  ...
+# Subtest: invalid jumps return sanitized HTTP 400 through the application error handler
+ok 104 - invalid jumps return sanitized HTTP 400 through the application error handler
+  ---
+  duration_ms: 61.811528
+  type: 'test'
+  ...
+# Subtest: workflow persistence requires an explicit policy and approved transition/action
+ok 105 - workflow persistence requires an explicit policy and approved transition/action
+  ---
+  duration_ms: 1.25685
+  type: 'test'
+  ...
+# Subtest: transactional workflow against a disposable MongoDB replica set
+ok 106 - transactional workflow against a disposable MongoDB replica set # SKIP
+  ---
+  duration_ms: 0.251002
+  type: 'test'
+  ...
+1..106
+# tests 106
+# suites 0
+# pass 97
+# fail 0
+# cancelled 0
+# skipped 9
+# todo 0
+# duration_ms 7733.174973

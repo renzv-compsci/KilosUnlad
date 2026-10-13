@@ -1,0 +1,57 @@
+# STR-03 concurrency at volume — 2026-10-13T16:32:54Z
+time="2026-10-13T16:32:54Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container cc-reset-demo-run-9c8079c77bd3 Creating 
+ Container cc-reset-demo-run-9c8079c77bd3 Created 
+[reset_demo] ===============================================
+[reset_demo] KilosUnlad — Demo Reset
+[reset_demo] ===============================================
+[reset_demo] [1/5] Checking database container...
+[reset_demo]       Container kilosunlad-db is running.
+[reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      Replica set PRIMARY confirmed.
+      Dropped 6 collections.
+      Collections + indexes rebuilt.
+[reset_demo] [2b/5] Restoring the 80k baseline snapshot (beneficiaries + external_records)...
+[reset_demo] [3/5] Seeding test accounts...
+[reset_demo]       Test accounts + sample records seeded.
+[reset_demo]       Baseline restored.
+[reset_demo] [4/5] Loading demo Case A and verifying...
+      Demo Case A loaded.
+      users:              4
+      beneficiaries:      80005
+      external_records:   80001
+      verification_tasks: 2
+      audit_logs:         0
+      system_configs:     0
+[reset_demo] ===============================================
+[reset_demo] [5/5] Demo reset complete in 5s
+[reset_demo] Within 10-second DoD.
+[reset_demo] ===============================================
+=== KilosUnlad INT-02 Case A Fixture ===
+
+[INFO] DEMO-4PS-GRAD-0001 status: ACTIVE_COMPLIANT (flagging is done by POST /beneficiaries/:id/assess, never by a patch)
+[OK]   case_worker_test covers barangay Real
+[START] STR-03 Concurrency Test (fan-out 60, contenders 20)
+
+   [OK]   production volume present (>= 80,000 ACTIVE_COMPLIANT)
+
+[1] 60 simultaneous assessments of distinct households...
+   [OK]   all 200, zero 5xx ({"200":60}, 2090 ms)
+   [OK]   flagged results carry receipts (15 flagged)
+
+[2] 20 simultaneous dispatches of SYN-4PS-000008...
+   [OK]   exactly one 201, the rest 409, zero 5xx ({"201":1,"409":19})
+   [OK]   exactly one task for the household in the worker feed
+
+[3] 20 simultaneous submissions of TSK-2026-8194d81d-6fde-4fc5-b085-ca1d1ae0624b...
+   [OK]   exactly one 200, the rest 409, zero 5xx ({"200":1,"409":19})
+
+[4] Audit-sequence contention: 30 simultaneous declarations, then 30 lifts...
+   [OK]   declarations all 201, zero 5xx ({"201":30}, 4737 ms)
+   [OK]   lifts all 200, zero 5xx ({"200":30})
+
+[5] Ledger accounting...
+   [OK]   chain 1..77 valid and contiguous
+   [OK]   no extra block beyond successful mutations
+
+[SUCCESS] STR-03 TEST PASSED!

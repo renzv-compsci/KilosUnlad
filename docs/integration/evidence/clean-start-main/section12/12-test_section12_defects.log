@@ -1,0 +1,39 @@
+# DEF-01..07 — test_section12_defects — 2026-10-13T16:34:34Z
+[START] Section 12.3 defect re-verification
+
+[DEF-01] Multi-document transactions need a replica set
+   [OK]   db service starts mongod with --replSet rs0 --bind_ip_all
+   [OK]   compose runs rs.initiate on first boot
+   [OK]   live server is primary of replica set rs0
+   [OK]   session.withTransaction() commits
+
+[DEF-02] app_user may inspect audit indexes but never update or delete
+   [OK]   role grants createIndex and listIndexes on audit_logs
+   [OK]   role grants no update or remove on audit_logs
+   [OK]   app_user can find and list audit indexes
+   [OK]   app_user update and delete on audit_logs -> Unauthorized
+
+[DEF-03] No _id auto-injected into nested sub-documents
+   [OK]   all 19 nested sub-schemas declare { _id: false, strict: true }
+   [OK]   a built Beneficiary has no _id in address, demographics or head_of_household
+
+[DEF-04] Host port collision on 27017
+   [OK]   compose maps ${MONGO_EXTERNAL_PORT:-27017}:27017
+
+[DEF-05] ML feature contract mismatch
+   [OK]   server Joi schema lists exactly the contract's 6 features
+   [OK]   ML service maps the same 6 features
+   [OK]   wall_score / roof_score are not part of the vector
+
+[DEF-06] Dispatch metadata persisted on VerificationTask
+   [OK]   priority enum LOW/MEDIUM/HIGH/CRITICAL
+   [OK]   due_date is a required Date
+   [OK]   assignment_notes aliased as dispatch_instructions
+   [OK]   strict mode keeps the three fields on save
+
+[DEF-07] General configuration audit action
+   [OK]   AUDIT_ACTIONS includes SYSTEM_CONFIG_UPDATED
+   [OK]   CALAMITY_DECLARED remains a separate action
+
+7/7 defects verified resolved.
+[SUCCESS] SECTION 12.3 DEFECTS VERIFIED!

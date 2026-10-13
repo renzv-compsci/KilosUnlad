@@ -1,0 +1,56 @@
+# TC-11, TC-12 — test_int08_appeals_ui (browser) — 2026-10-13T16:33:57Z
+time="2026-10-13T16:33:57Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container cc-reset-demo-run-19e506bf9c45 Creating 
+ Container cc-reset-demo-run-19e506bf9c45 Created 
+[reset_demo] ===============================================
+[reset_demo] KilosUnlad — Demo Reset
+[reset_demo] ===============================================
+[reset_demo] [1/5] Checking database container...
+[reset_demo]       Container kilosunlad-db is running.
+[reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      Replica set PRIMARY confirmed.
+      Dropped 6 collections.
+      Collections + indexes rebuilt.
+[reset_demo] [3/5] Seeding test accounts...
+[reset_demo]       Test accounts + sample records seeded.
+[reset_demo] [4/5] Loading demo Case A and verifying...
+      Demo Case A loaded.
+      users:              4
+      beneficiaries:      5
+      external_records:   1
+      verification_tasks: 2
+      audit_logs:         0
+      system_configs:     0
+[reset_demo] ===============================================
+[reset_demo] [5/5] Demo reset complete in 3s
+[reset_demo] Within 10-second DoD.
+[reset_demo] ===============================================
+=== KilosUnlad INT-03 Notice Fixture ===
+
+[OK]   TEST-4PS-NOTICE-0001 inserted (NOTICE_OF_INELIGIBILITY)
+[OK]   TEST-TSK-NOTICE-0001 notice instant = 2026-10-11T16:34:01.205Z
+       appeal deadline     = 2026-10-26T16:34:01.205Z
+[START] INT-08 Due Process Docket (API + browser)
+
+[1] GET /appeals/docket...
+   [OK]   200 OK
+   [OK]   item keys match contract
+   [OK]   fixture household under notice with a 15-day window
+   [OK]   grants continue during the window (grant_continuation_active)
+   [OK]   only NOTICE households listed
+   [OK]   pagination present
+   [OK]   COA auditor can read
+   [OK]   CASE_WORKER -> 403
+   [OK]   limit 500 -> 400 INVALID_QUERY
+
+[2] Browser: Due Process screen files a real appeal...
+   [OK]   live household card shown
+   [OK]   no sample households on the live screen
+   [OK]   countdown shows days remaining
+   [OK]   card now shows the appeal hearing and docket
+   [OK]   file-appeal button removed
+
+[3] Server state...
+   [OK]   GET reflects UNDER_APPEAL_HEARING with the same docket
+
+[SUCCESS] INT-08 TEST PASSED!

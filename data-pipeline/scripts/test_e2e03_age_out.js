@@ -45,9 +45,14 @@ async function run() {
   check('children_eligibility {total 3, eligible 1, aged_out 2}', JSON.stringify(a.data?.children_eligibility) ===
     JSON.stringify({ total: 3, eligible: 1, aged_out: 2, unknown: 0 }), a.data?.children_eligibility);
   check('CHILD_AGE_OUT badge', a.data?.trigger_badges?.some(b => b.code === 'CHILD_AGE_OUT'), a.data?.trigger_badges);
-  check('age-out does not change the published risk weights', a.data?.composite_risk_score === 75 &&
-    JSON.stringify(a.data?.contributions) === JSON.stringify({ swdi: 0, power: 20, water: 0, telecom: 25, vehicle: 30 }),
-    a.data?.contributions);
+  // The SWDI term depends on the deployed model's prediction (v1 and v2 differ), so
+  // derive it from the response; the published indicator weights must not move.
+  const gap = Math.max(0, (a.data?.predicted_swdi_level ?? 0) - 1); // fixture is enrolled Level 1
+  const expected = { swdi: 40 * gap, power: 20, water: 0, telecom: 25, vehicle: 30 };
+  check('age-out does not change the published risk weights',
+    JSON.stringify(a.data?.contributions) === JSON.stringify(expected) &&
+    a.data?.composite_risk_score === Math.min(100, Object.values(expected).reduce((x, y) => x + y, 0)),
+    { contributions: a.data?.contributions, score: a.data?.composite_risk_score, predicted: a.data?.predicted_swdi_level });
   check('flagged -> FLAGGED_FOR_REVIEW', a.data?.program_status === 'FLAGGED_FOR_REVIEW', a.data);
 
   const client = await MongoClient.connect(MONGO_URI);

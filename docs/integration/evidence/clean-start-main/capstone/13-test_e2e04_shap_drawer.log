@@ -1,0 +1,52 @@
+# E2E-04 SHAP drawer (API) — 2026-10-13T16:31:50Z
+time="2026-10-13T16:31:50Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container cc-reset-demo-run-63901b2faaf6 Creating 
+ Container cc-reset-demo-run-63901b2faaf6 Created 
+[reset_demo] ===============================================
+[reset_demo] KilosUnlad — Demo Reset
+[reset_demo] ===============================================
+[reset_demo] [1/5] Checking database container...
+[reset_demo]       Container kilosunlad-db is running.
+[reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      Replica set PRIMARY confirmed.
+      Dropped 6 collections.
+      Collections + indexes rebuilt.
+[reset_demo] [3/5] Seeding test accounts...
+[reset_demo]       Test accounts + sample records seeded.
+[reset_demo] [4/5] Loading demo Case A and verifying...
+      Demo Case A loaded.
+      users:              4
+      beneficiaries:      5
+      external_records:   1
+      verification_tasks: 2
+      audit_logs:         0
+      system_configs:     0
+[reset_demo] ===============================================
+[reset_demo] [5/5] Demo reset complete in 2s
+[reset_demo] Within 10-second DoD.
+[reset_demo] ===============================================
+[START] E2E-04 SHAP Drawer Test
+
+[1] Before any assessment...
+   [OK]   No sealed assessment yet -> 404 ASSESSMENT_NOT_FOUND
+
+[2] Assess Case A, then read the drawer source...
+   [OK]   assessment 200 (ML_MODEL)
+   [OK]   200 OK
+   [OK]   response keys match contract
+   [OK]   drawer SHAP === assessment SHAP
+   [OK]   drawer probabilities === assessment probabilities
+   [OK]   receipt is the MODEL_FLAG_RAISED block
+   [OK]   COA auditor can read the explanation (read-only role)
+
+[3] Same features straight to the ML service...
+   [OK]   ML 200
+   [OK]   drawer SHAP matches the ML response payload (indicator, weight)
+   [OK]   predicted level matches
+
+[4] Guards...
+   [OK]   CASE_WORKER -> 403 FORBIDDEN
+   [OK]   Unknown household -> 404 HOUSEHOLD_NOT_FOUND
+   [OK]   Query parameters rejected -> 400 INVALID_QUERY
+
+[SUCCESS] E2E-04 TEST PASSED!
