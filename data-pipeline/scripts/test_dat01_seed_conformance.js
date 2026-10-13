@@ -10,7 +10,7 @@
  * 1. Database running and `docker-compose run --rm seed-ingest` completed.
  * 2. server/node_modules installed (the script loads the real models).
  *
- * Usage: MONGO_URI=... node data-pipeline/scripts/test_dat01_seed_conformance.js
+ * Usage: MONGO_URI=... ADMIN_MONGO_URI=... node data-pipeline/scripts/test_dat01_seed_conformance.js
  */
 const path = require('path');
 
@@ -25,6 +25,10 @@ const { PMT_FEATURES } = require(path.join(ROOT, 'server/src/services/riskAssess
 
 const MONGO_URI = process.env.MONGO_URI ||
   'mongodb://app_user:AppUserPassword2026!@localhost:27017/kilosunlad?authSource=kilosunlad&directConnection=true';
+// Index inspection needs listIndexes, which kilosUnladAppRole grants only on
+// audit_logs (DEF-02). Inspect as the admin account; never relax the app role.
+const ADMIN_MONGO_URI = process.env.ADMIN_MONGO_URI ||
+  'mongodb://admin_user:RootAdminSecret2026!@localhost:27017/kilosunlad?authSource=admin&directConnection=true';
 const EXPECTED = Number(process.env.EXPECTED_SYN_COUNT || 80000);
 const SYN = { $regex: '^SYN-4PS-' };
 const DIRECTOR_SCOPE = { 'address.province': 'Laguna', 'address.municipality': 'Calamba',
@@ -94,13 +98,17 @@ async function run() {
   console.log('');
 
   console.log('[4] Every index declared by the frozen models exists (reset must not drop any)...');
+  const admin = await mongoose.createConnection(ADMIN_MONGO_URI, { serverSelectionTimeoutMS: 5000 }).asPromise();
   for (const name of ['User', 'Beneficiary', 'ExternalRecord', 'VerificationTask', 'AuditLog', 'SystemConfig']) {
     const Model = require(path.join(ROOT, `server/src/models/${name}`));
-    const existing = (await db.collection(Model.collection.collectionName).indexes().catch(() => []))
+    // A missing collection has no indexes; any other error (e.g. Unauthorized) must fail, not read as "missing".
+    const existing = (await admin.db.collection(Model.collection.collectionName).indexes()
+      .catch(e => { if (e.codeName === 'NamespaceNotFound') return []; throw e; }))
       .map(i => JSON.stringify(i.key));
     const missing = Model.schema.indexes().map(([key]) => JSON.stringify(key)).filter(k => !existing.includes(k));
     check(`${Model.collection.collectionName}: declared indexes present`, missing.length === 0, { missing });
   }
+  await admin.close();
   console.log('');
 
   await mongoose.disconnect();

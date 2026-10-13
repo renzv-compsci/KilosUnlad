@@ -13,7 +13,7 @@
 #                       INT-08, STR-01). Participant ratings are not automated.
 #
 # Usage (Docker stack):  bash data-pipeline/scripts/run_section12_plan.sh
-# Overrides (env): RESET_CMD, FIXTURE_CMD (receives a fixture name), SEED_CMD,
+# Overrides (env): RESET_CMD, RESET_BASELINE_CMD, FIXTURE_CMD (receives a fixture name), SEED_CMD,
 #   BASE_URL, ML_URL, CLIENT_URL, MONGO_URI, ADMIN_MONGO_URI, APP_MONGO_URI,
 #   JWT_SECRET, PYTHON, SERVER_TEST_ENV, EVIDENCE_DIR.
 # Browser steps need `npm install playwright-core` on NODE_PATH.
@@ -27,6 +27,7 @@ STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 ADMIN_IN_CONTAINER="mongodb://admin_user:RootAdminSecret2026!@localhost:27017/kilosunlad?authSource=admin"
 RESET_CMD="${RESET_CMD:-docker-compose run --rm reset-demo}"
 SEED_CMD="${SEED_CMD:-docker-compose run --rm seed-ingest}"
+RESET_BASELINE_CMD="${RESET_BASELINE_CMD:-docker-compose run --rm -e RESET_BASELINE=1 reset-demo}"
 default_fixture() {
   docker cp "$SCRIPTS/$1.js" "kilosunlad-db:/tmp/$1.js" >/dev/null &&
     docker exec kilosunlad-db mongosh "$ADMIN_IN_CONTAINER" --quiet "/tmp/$1.js"
@@ -56,7 +57,10 @@ step() {
     echo "# $items — $label — $(date -u +%FT%TZ)"
     case "$mode" in
       reset) $RESET_CMD ;;
-      seed) $RESET_CMD && $SEED_CMD ;;
+      seed) if [ -s "$ROOT/data-pipeline/snapshots/baseline_80k_beneficiaries.archive.gz" ] &&
+               [ -s "$ROOT/data-pipeline/snapshots/baseline_80k_external_records.archive.gz" ]; then
+              $RESET_BASELINE_CMD   # DAT-05 snapshot restore
+            else $RESET_CMD && $SEED_CMD; fi ;;
     esac
     for f in $fixtures; do fixture "$f"; done
     "$@"
