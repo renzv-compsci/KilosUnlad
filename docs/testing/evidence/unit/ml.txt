@@ -1,0 +1,20 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0 -- /tmp/claude-0/mlvenv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/user/KilosUnlad
+plugins: anyio-4.15.1
+collecting ... collected 11 items
+
+data-pipeline/scripts/test_section12_ml_unit.py::test_model_loaded_with_the_six_contract_features PASSED [  9%]
+data-pipeline/scripts/test_section12_ml_unit.py::test_shap_extraction_returns_top_three_signed_by_absolute_weight PASSED [ 18%]
+data-pipeline/scripts/test_section12_ml_unit.py::test_extracted_weights_are_the_predicted_class_attributions PASSED [ 27%]
+data-pipeline/scripts/test_section12_ml_unit.py::test_shap_attributions_are_additive_to_the_model_margin PASSED [ 36%]
+data-pipeline/scripts/test_section12_ml_unit.py::test_probabilities_are_a_distribution_and_level_is_argmax PASSED [ 45%]
+data-pipeline/scripts/test_section12_ml_unit.py::test_sangla_atm_heuristic[12-2-38-85.0-True] PASSED [ 54%]
+data-pipeline/scripts/test_section12_ml_unit.py::test_sangla_atm_heuristic[5-2-59-85.0-True] PASSED [ 63%]
+data-pipeline/scripts/test_section12_ml_unit.py::test_sangla_atm_heuristic[4-2-38-60.0-False] PASSED [ 72%]
+data-pipeline/scripts/test_section12_ml_unit.py::test_sangla_atm_heuristic[12-14-38-60.0-False] PASSED [ 81%]
+data-pipeline/scripts/test_section12_ml_unit.py::test_sangla_atm_heuristic[12-2-120-40.0-False] PASSED [ 90%]
+data-pipeline/scripts/test_section12_ml_unit.py::test_sangla_atm_heuristic[12-14-120-0.0-False] PASSED [100%]
+
+============================== 11 passed in 2.20s ==============================

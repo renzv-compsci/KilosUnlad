@@ -1,0 +1,514 @@
+# Unit Test Report — KilosUnlad
+
+**Plan reference:** Section 12.1.2, Unit Testing ("isolated functional verification of deterministic algorithms: Canonical JSON serialization, Haversine geofence calculation, and SHAP attribution extraction").
+**Executed:** 2026-10-13 on branch `claude/clever-albattani-8ikzld`. Each test file was run on its own so results are grouped by file. Raw output (TAP / pytest) is in [`evidence/unit/`](evidence/unit/).
+**Companion report:** [`SECTION12_TEST_RESULTS.md`](SECTION12_TEST_RESULTS.md) covers integration (TC-01 to TC-17), defects and UAT.
+
+## Summary
+
+| Result | Count |
+| --- | ---: |
+| Test cases executed (top-level) | **198** |
+| Passed | **196** |
+| Failed | **0** |
+| Skipped (need Docker, not available here) | **2** |
+| Additional subtests inside component tests (↳) | **47**, all PASS |
+
+**How these numbers match the runners' own counters:**
+- **Server:** `npm test` reports `# tests 155, pass 153, skipped 2` (`evidence/unit/server_full.tap`). That figure is 105 top-level cases + 47 subtests + 2 nested sub-subtests + 1 entry for `test/support/replicaSet.js`. That file is a helper which `npm test`'s glob loads as if it were a test file; it has no tests in it, so it is not listed here.
+- **Section 12 runner:** it reported 155 / 152 / 3 skipped, because it ran without `TEST_MONGO_URI`. This report sets it, so `readFeeds` runs and passes.
+- **Client:** 66 + 2.
+- **Python:** 11 + 5 + 9.
+
+Counts are top-level test cases. Several server files group their checks as subtests under one test; those subtests are listed under the case (↳) with their own result.
+
+### The three algorithms named in the plan
+
+| Algorithm | Where it is tested | Result |
+| --- | --- | :---: |
+| Canonical JSON serialization (and SHA-256 entry hashing) | `server/test/cryptoHelper.test.js`: key order does not change the JSON or the hash; falsy values and array order kept; Date and ISO string hash the same; known SHA-256 vector | **PASS (5/5)** |
+| Haversine geofence calculation | `server/test/geoFence.test.js`: GeoJSON longitude-first order; inclusive 250 m boundary on the unrounded distance; malformed coordinates fail closed; antipodes and date line | **PASS (4/4)** |
+| SHAP attribution extraction | `data-pipeline/scripts/test_section12_ml_unit.py`: top 3 ranked by absolute weight and signed; weights are the predicted class's attributions; attributions plus base value equal the model margin; probabilities sum to 1 | **PASS (5/5)** |
+
+### By file
+
+| File | Subsystem | Level | Cases | Pass | Fail | Skip |
+| --- | --- | --- | ---: | ---: | ---: | ---: |
+| `server/cryptoHelper` | Digital Seal | Unit | 5 | 5 | 0 | 0 |
+| `server/hashChain` | Digital Seal | Unit | 5 | 5 | 0 | 0 |
+| `server/evidenceHash` | Digital Seal | Unit | 5 | 5 | 0 | 0 |
+| `server/geoFence` | Backend | Unit | 4 | 4 | 0 | 0 |
+| `server/discrepancy` | Backend | Unit | 4 | 4 | 0 | 0 |
+| `server/ageOut` | Backend | Unit | 5 | 5 | 0 | 0 |
+| `server/appealLifecycle` | Backend | Unit | 5 | 5 | 0 | 0 |
+| `server/calamity` | Backend | Unit | 6 | 6 | 0 | 0 |
+| `server/workflow` | Backend | Unit | 3 | 3 | 0 | 0 |
+| `server/submissionPreparation` | Backend | Unit | 4 | 4 | 0 | 0 |
+| `server/submissionAuthorization` | Backend | Unit | 7 | 7 | 0 | 0 |
+| `server/mlClient` | Backend ↔ ML | Unit | 8 | 8 | 0 | 0 |
+| `server/auth-rbac` | Security | Unit | 10 | 10 | 0 | 0 |
+| `server/login` | Security | Unit | 11 | 11 | 0 | 0 |
+| `server/errorBoundary` | Backend | Unit | 1 | 1 | 0 | 0 |
+| `server/handoffPlaceholders` | Backend | Unit | 4 | 4 | 0 | 0 |
+| `server/app` | Backend | Component (in-process app) | 6 | 6 | 0 | 0 |
+| `server/databaseLifecycle` | Database | Unit + Docker | 3 | 2 | 0 | 1 |
+| `server/workflowPersistence` | Database | Component (disposable replica set) | 2 | 2 | 0 | 0 |
+| `server/appealDocket` | Backend | Component (disposable replica set) | 1 | 1 | 0 | 0 |
+| `server/calamityToggle` | Backend | Component (disposable replica set) | 1 | 1 | 0 | 0 |
+| `server/calamityHold` | Backend | Component (disposable replica set) | 1 | 1 | 0 | 0 |
+| `server/riskAssessment` | Backend | Component (disposable replica set) | 1 | 1 | 0 | 0 |
+| `server/taskSubmission` | Backend | Component (disposable replica set) | 1 | 1 | 0 | 0 |
+| `server/readFeeds` | Backend | Component (local replica set) | 1 | 1 | 0 | 0 |
+| `server/auditRoleCompatibility` | Database | Docker only | 1 | 0 | 0 | 1 |
+| `client/auth` | Frontend | Unit | 62 | 62 | 0 | 0 |
+| `client/submissionContract` | Frontend | Unit | 4 | 4 | 0 | 0 |
+| `client/pwa` | Frontend | Unit (build output) | 2 | 2 | 0 | 0 |
+| `data-pipeline/scripts/test_section12_ml_unit.py` | ML | Unit | 11 | 11 | 0 | 0 |
+| `ml-service/scripts/test_sprint2_experiments.py` | ML | Unit (fixture data) | 5 | 5 | 0 | 0 |
+| `data-pipeline/scripts/test_seed_mapping.py` | Data pipeline | Unit | 9 | 9 | 0 | 0 |
+
+**Levels:**
+- **Unit:** one function or module in isolation, no database or network.
+- **Component (disposable replica set):** the Express app runs in-process against a throwaway MongoDB replica set started by the test itself. These sit in the server's unit suite (`npm test`), but they are closer to integration tests and are labelled that way here.
+- **Docker only:** the test starts its own Docker container, so it could not run in this environment.
+
+## A. Server (Node.js / Express / Mongoose)
+
+Runner: `cd server && RUN_WORKFLOW_MONGO_TESTS=1 MONGOD_PATH=<mongod> TEST_MONGO_URI=<replica set> npm test`
+
+
+### `server/test/cryptoHelper.test.js` (Digital Seal, Unit)
+
+SHA-256 and canonical JSON entry hashing (`utils/cryptoHelper.js`, `canonicalJson`).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-001 | SHA-256 matches the standard known vector | **PASS** |
+| UT-002 | reordered keys produce identical canonical JSON and entry hashes | **PASS** |
+| UT-003 | canonical JSON preserves falsy values and array ordering | **PASS** |
+| UT-004 | Date objects and equivalent ISO timestamps hash identically | **PASS** |
+| UT-005 | the seal binds every field using the existing colon-separated format | **PASS** |
+
+### `server/test/hashChain.test.js` (Digital Seal, Unit)
+
+Chain verifier: 1,000-block ranges, broken links, genesis and storage failures (`hashChain.service.js`).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-006 | 1000 valid blocks match the frozen response keys and partial ranges anchor to predecessor | **PASS** |
+| UT-007 | changed delta and recomputed broken link identify exact compromised sequence | **PASS** |
+| UT-008 | genesis, missing blocks, missing predecessor, malformed entry and storage failures fail safely | **PASS** |
+| UT-009 | ranges reject missing, repeated, unknown, unsafe, negative and oversized parameters | **PASS** |
+| UT-010 | live route enforces current role, authentication, query errors and sanitized storage failures | **PASS** |
+
+### `server/test/evidenceHash.test.js` (Digital Seal, Unit)
+
+Evidence byte hashing and `EVIDENCE_HASH_MISMATCH` (`sync.service.verifyEvidenceHash`).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-011 | matching raw image bytes return a normalized digest without mutation | **PASS** |
+| UT-012 | one-byte changes, truncation and a different valid hash produce contract mismatch | **PASS** |
+| UT-013 | invalid bytes and malformed hashes fail before digest comparison | **PASS** |
+| UT-014 | raw buffer slices are hashed as bytes without encoding or backing-buffer changes | **PASS** |
+| UT-015 | existing error middleware emits the exact frozen mismatch response | **PASS** |
+
+### `server/test/geoFence.test.js` (Backend, Unit)
+
+Haversine distance and the inclusive 250 m geofence (`utils/geoFence.js`).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-016 | geofence uses longitude-first GeoJSON and matches identical locations | **PASS** |
+| UT-017 | geofence compares unrounded distance at the inclusive 250 metre boundary | **PASS** |
+| UT-018 | malformed and non-finite coordinates fail closed | **PASS** |
+| UT-019 | distance remains finite at antipodes and crosses the date line correctly | **PASS** |
+
+### `server/test/discrepancy.test.js` (Backend, Unit)
+
+Composite risk score weights, 70 threshold, cap at 100 (`discrepancy.service.js`).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-020 | zero risk and individual documented contributions | **PASS** |
+| UT-021 | flagging threshold is inclusive at 70 and the score caps at 100 | **PASS** |
+| UT-022 | missing, unknown or coerced inputs cannot silently become zero risk | **PASS** |
+| UT-023 | calculation is deterministic and does not mutate input | **PASS** |
+
+### `server/test/ageOut.test.js` (Backend, Unit)
+
+RA 11310 age-out on the Asia/Manila calendar (`ageOut.service.js`).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-024 | age is counted on the Asia/Manila calendar date | **PASS** |
+| UT-025 | RA 11310 Sec. 6: eligible until the 19th birthday | **PASS** |
+| UT-026 | ISO strings from legacy inserts are accepted; invalid dates keep the stored flag as unknown | **PASS** |
+| UT-027 | future birthdates are unknown, never eligible-by-default changes | **PASS** |
+| UT-028 | empty or missing registry | **PASS** |
+
+### `server/test/appealLifecycle.test.js` (Backend, Unit)
+
+15-day appeal deadline and window rules (`appealLifecycle.service.js`).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-029 | deadline adds 15 elapsed days across month/year/leap-day boundaries without changing input | **PASS** |
+| UT-030 | one millisecond before expiry is blocked; exact expiry and later satisfy timing only | **PASS** |
+| UT-031 | appeals, pauses, and unknown hold information block exit even after expiry | **PASS** |
+| UT-032 | missing notice and shortened deadlines cannot bypass the window; longer deadlines are respected | **PASS** |
+| UT-033 | invalid dates, implicit date coercion and overflow fail closed | **PASS** |
+
+### `server/test/calamity.test.js` (Backend, Unit)
+
+Moratorium zone matching and intervals (`calamity.service.js`).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-034 | moratorium matches both province and municipality | **PASS** |
+| UT-035 | provisional interval includes declaration and excludes exact expiry | **PASS** |
+| UT-036 | inactive declarations and open-ended declarations retain distinct behavior | **PASS** |
+| UT-037 | overlapping valid zones preserve a hold regardless of ordering | **PASS** |
+| UT-038 | malformed data throws instead of returning permission to continue | **PASS** |
+| UT-039 | checking a stored zone does not mutate it | **PASS** |
+
+### `server/test/workflow.test.js` (Backend, Unit)
+
+Program-status state machine (`workflow.service.js`).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-040 | only the four documented forward transitions are accepted | **PASS** |
+| UT-041 | unknown, missing, and structured status inputs cannot bypass the guard | **PASS** |
+| UT-042 | invalid jumps return sanitized HTTP 400 through the application error handler | **PASS** |
+
+### `server/test/submissionPreparation.test.js` (Backend, Unit)
+
+Field-report contract mapping and rejection rules (`sync.service.prepareSubmission`).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-043 | submission contract maps into existing field_findings without changing input | **PASS** |
+| UT-044 | submission rejects missing fields and mismatched route identity | **PASS** |
+| UT-045 | submission rejects coercion, malformed evidence, coordinates and privileged fields | **PASS** |
+| UT-046 | preparation permits absent EXIF and empty evidence without claiming evidence verification | **PASS** |
+
+### `server/test/submissionAuthorization.test.js` (Backend, Unit)
+
+Who may submit a field report, re-checked from stored data.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-047 | active assigned worker may prepare either open status; supplied session reaches all reads | **PASS** |
+| UT-048 | missing authentication and malformed submissions stop before reads | **PASS** |
+| UT-049 | current stored role and activation control access on every call | **PASS** |
+| UT-050 | another worker task and missing task both return not found without household reads | **PASS** |
+| UT-051 | household mismatch and missing stored household are rejected | **PASS** |
+| UT-052 | stored household scope and current worker jurisdiction are enforced | **PASS** |
+| UT-053 | submitted, resolved and unknown task statuses fail closed | **PASS** |
+
+### `server/test/mlClient.test.js` (Backend ↔ ML, Unit)
+
+ML request/response contract validation, timeouts and errors (`mlClient.service.js`).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-054 | ML request and successful response match the frozen contract | **PASS** |
+| UT-055 | invalid feature vectors are rejected before network access | **PASS** |
+| UT-056 | malformed, wrong-household and invalid prediction responses are rejected | **PASS** |
+| UT-057 | upstream rejection, errors and redirects are sanitized without retries | **PASS** |
+| UT-058 | hung ML request aborts at the 2500 ms deadline | **PASS** |
+| UT-059 | connection errors are sanitized and invalid service origins rejected | **PASS** |
+| UT-060 | streaming responses cannot extend the overall ML deadline | **PASS** |
+| UT-061 | oversized ML responses fail safely | **PASS** |
+
+### `server/test/auth-rbac.test.js` (Security, Unit)
+
+JWT verification, `allowRoles`, `scopeJurisdiction`, `requireJurisdiction`.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-062 | verified contract-style claims become req.user without extra token claims | **PASS** |
+| UT-063 | missing, malformed, expired, future, forged, unsigned and wrong-algorithm tokens return 401 | **PASS** |
+| UT-064 | unconfigured authentication fails closed | **PASS** |
+| UT-065 | explicit role permissions and auditor read-only access are enforced | **PASS** |
+| UT-066 | both scoped roles receive enforced filters when callers omit jurisdiction | **PASS** |
+| UT-067 | out-of-scope or operator-shaped query filters cannot bypass jurisdiction | **PASS** |
+| UT-068 | missing or invalid jurisdiction fails closed for scoped users | **PASS** |
+| UT-069 | record checks use trusted address, not spoofed body jurisdiction | **PASS** |
+| UT-070 | national roles have no geographic filter but still require explicit route permission | **PASS** |
+| UT-071 | invalid middleware configuration is rejected | **PASS** |
+
+### `server/test/login.test.js` (Security, Unit)
+
+bcrypt login, 900 s JWT, error contract, deactivation.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-072 | real bcrypt login follows contract shape, issues a 900s JWT, and exposes no password hash | **PASS** |
+| UT-073 | incorrect, unknown, invalid and injection-shaped credentials share contract error | **PASS** |
+| UT-074 | deactivation blocks login and an already-issued token | **PASS** |
+| UT-075 | triage handler receives current jurisdiction after authentication | **PASS** |
+| UT-076 | outside-jurisdiction response matches the triage contract | **PASS** |
+| UT-077 | expired token matches assigned-task contract error | **PASS** |
+| UT-078 | current role changes take effect immediately and assigned handler receives authenticated identity | **PASS** |
+| UT-079 | missing, forged and placeholder tokens cannot access mounted handlers | **PASS** |
+| UT-080 | production has real login but never serves protected fixture data | **PASS** |
+| UT-081 | repository errors fail closed without exposing database details | **PASS** |
+| UT-082 | deleted user tokens are rejected | **PASS** |
+
+### `server/test/errorBoundary.test.js` (Backend, Unit)
+
+HTTP error boundary sanitises malformed requests.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-083 | HTTP error boundary sanitizes malformed requests and remains available | **PASS** |
+
+### `server/test/handoffPlaceholders.test.js` (Backend, Unit)
+
+Unfinished boundaries fail closed rather than report success.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-084 | all unfinished integration boundaries reject rather than report success | **PASS** |
+| UT-085 | audit controller forwards service failure and emits no valid-chain response | **PASS** |
+| UT-086 | audit placeholder blocks mutations and allows reads through | **PASS** |
+| UT-087 | Joi middleware retains validated body and rejects invalid input without details | **PASS** |
+
+### `server/test/app.test.js` (Backend, Component (in-process app))
+
+Health, discovery and frozen mock-mode contracts.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-088 | health and API discovery respond successfully | **PASS** |
+| UT-089 | POST /api/v1/auth/login matches the frozen response data | **PASS** |
+| UT-090 | GET /api/v1/beneficiaries/triage-queue?municipality=Calamba&status=FLAGGED_FOR_REVIEW&page=1&limit=10 matches the frozen response data | **PASS** |
+| UT-091 | GET /api/v1/tasks/assigned matches the frozen response data | **PASS** |
+| UT-092 | browser login preflight allows JSON and authorization headers | **PASS** |
+| UT-093 | legacy unauthenticated mock mode is rejected in production | **PASS** |
+
+### `server/test/databaseLifecycle.test.js` (Database, Unit + Docker)
+
+Connection observers, sanitised startup errors, outage recovery.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-094 | connection observers are installed once, survive runtime errors and sanitize logs | **PASS** |
+| UT-095 | startup rejection is sanitized and preserves documented pool settings | **PASS** |
+| UT-096 | isolated Docker MongoDB outage preserves HTTP service and recovers queries | **SKIP** |
+
+*Skipped:* The outage subtest needs Docker (`RUN_DB_RECOVERY_TESTS=1` stops and restarts a container).
+
+### `server/test/workflowPersistence.test.js` (Database, Component (disposable replica set))
+
+Transactional status change + audit append, retries, rollback.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-097 | workflow persistence requires an explicit policy and approved transition/action | **PASS** |
+| UT-098 | transactional workflow against a disposable MongoDB replica set<br>↳ successful update and audit use the accepted hash format (PASS)<br>↳ current role, deactivation and jurisdiction are read from MongoDB (PASS)<br>↳ failed prerequisites roll back associated writes (PASS)<br>↳ audit failure rolls back the status update (PASS)<br>↳ simultaneous changes to one household yield one winner and one audit (PASS)<br>↳ independent concurrent changes form one contiguous audit chain (PASS)<br>↳ invalid input, unknown actor and missing household fail closed (PASS)<br>↳ unexpected database status cannot be skipped or overwritten (PASS)<br>↳ dispatch HTTP contract, authorization, metadata and atomic rollback (PASS)<br>↳ verifier reads persisted workflow hashes and detects tampering in 1000 MongoDB blocks (PASS)<br>↳ missing unique audit sequence index prevents all writes (PASS) | **PASS** |
+
+### `server/test/appealDocket.test.js` (Backend, Component (disposable replica set))
+
+INT-03/INT-08 appeals docket route end to end.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-099 | INT-03 POST /api/v1/appeals/docket against a disposable MongoDB replica set<br>↳ the frontend appeal dialog payload is accepted: 201, countdown paused, audit sealed (PASS)<br>↳ SUPER_ADMIN may docket; chain stays contiguous and verifiable (PASS)<br>↳ 400 root causes are rejected at the boundary with no writes (PASS)<br>↳ security guards: 401, role 403, auditor 403, jurisdiction 403 (PASS)<br>↳ due-process prerequisites: 404, 409 status/notice/window/duplicate (PASS)<br>↳ INT-08 GET /appeals/docket lists notices with deadlines and verified appeals (PASS)<br>↳ simultaneous filings for one household yield exactly one appeal (PASS) | **PASS** |
+
+### `server/test/calamityToggle.test.js` (Backend, Component (disposable replica set))
+
+INT-04 calamity toggle route end to end.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-100 | INT-04 POST /api/v1/calamity/toggle against a disposable MongoDB replica set<br>↳ security guards: 401, director 403, worker 403, auditor 403 (PASS)<br>↳ boundary validation: 400 with no writes (PASS)<br>↳ lifting with no declared zone is a 409 and creates nothing (PASS)<br>↳ declaration returns the hold for the matching zone and seals CALAMITY_DECLARED (PASS)<br>↳ a second declaration for an active zone is a 409 with no writes (PASS)<br>↳ lifting releases the hold, keeps history and seals SYSTEM_CONFIG_UPDATED (PASS)<br>↳ open-ended re-declaration appends a new zone; expired zones do not block (PASS)<br>↳ audit chain stays contiguous across toggles (PASS)<br>↳ simultaneous first declarations create one config and one active zone (PASS) | **PASS** |
+
+### `server/test/calamityHold.test.js` (Backend, Component (disposable replica set))
+
+E2E-02 moratorium freezes dispatch and flagging.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-101 | E2E-02 calamity moratorium freezes dispatch and flagging, releases on expiry/lift<br>↳ no configuration document: no hold (PASS)<br>↳ active zone freezes dispatch and assessment with zero writes (PASS)<br>↳ other municipality and inactive zones are not held (PASS)<br>↳ expiry releases the hold (PASS)<br>↳ malformed stored configuration fails closed (503), never silently clears (PASS) | **PASS** |
+
+### `server/test/riskAssessment.test.js` (Backend, Component (disposable replica set))
+
+INT-05 assessment route, explanation route, concurrency.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-102 | INT-05 POST /api/v1/beneficiaries/:household_id/assess against a disposable replica set<br>↳ graduation drift: ML Level 3 vs enrolled 1 flags and seals MODEL_FLAG_RAISED (PASS)<br>↳ below threshold: 200 result, nothing persisted, no audit block (PASS)<br>↳ ML down, error or malformed: EVALUATED_VIA_FALLBACK, utilities still score, no crash (PASS)<br>↳ indicator rules: vehicle ownership, franchise, missing external record (PASS)<br>↳ security guards and boundary validation with no writes (PASS)<br>↳ E2E-03a age-out: reported, not scored; corrected and sealed only when flagged (PASS)<br>↳ E2E-04 GET /assessment serves the sealed explanation and rejects tampering (PASS)<br>↳ simultaneous assessments of one household flag it exactly once (PASS) | **PASS** |
+
+### `server/test/taskSubmission.test.js` (Backend, Component (disposable replica set))
+
+INT-02/INT-06 field submission, evidence storage, sealing.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-103 | INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals REPORT_SUBMITTED<br>↳ JSON contract submission: 200 frozen response, findings persisted, audit sealed (PASS)<br>↳ multipart with matching bytes verifies evidence and stores it content-addressed (PASS)<br>↳ uploaded evidence storage_url must be bound to the verified hash (PASS)<br>↳ evidence integrity: altered bytes 422, missing files 400, no writes (PASS)<br>↳ geofence breach beyond 250 m is rejected with GEOFENCE_VIOLATION and no writes (PASS)<br>↳ security and identity guards: 401, 403 roles, 404 other worker, 400 mismatch (PASS)<br>↳ duplicate and simultaneous submissions commit exactly once (PASS) | **PASS** |
+
+### `server/test/readFeeds.test.js` (Backend, Component (local replica set))
+
+Triage and assigned-task feeds: contracts, pagination, isolation.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-104 | live feeds enforce contracts, pagination and data isolation in production | **PASS** |
+
+### `server/test/auditRoleCompatibility.test.js` (Database, Docker only)
+
+Audit role grants listIndexes/createIndex and blocks mutation.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-105 | audit role requires listIndexes independently of createIndex and blocks mutation | **SKIP** |
+
+*Skipped:* Needs Docker (`RUN_AUDIT_ROLE_TESTS=1` starts a `mongo:6.0` container). Same property verified live in Section 12 DEF-02 against a role created by `init-mongo.js`.
+
+## B. Client (React PWA)
+
+Runner: `cd client && npm test && npm run test:pwa`
+
+
+### `client/test/auth.test.mjs` (Frontend, Unit)
+
+Session parsing, presentation helpers, screen logic (dates, due process, dispatch, audit ranges, sidebar).
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-106 | dates preserve calendar dates, use Philippine time, and retain missing/invalid values | **PASS** |
+| UT-107 | dispatch puts assignments before collapsed staff details and identifies sample data | **PASS** |
+| UT-108 | due process preserves notices, protected grants and appeal actions while collapsing details | **PASS** |
+| UT-109 | assessment step navigation retains accessible names and current-step context | **PASS** |
+| UT-110 | assessment completion requires recorded answers rather than visited steps | **PASS** |
+| UT-111 | dashboard separates live workload from samples and has one analytics selector | **PASS** |
+| UT-112 | audit navigation does not claim verification or present sample percentages as live | **PASS** |
+| UT-113 | audit overview identifies the authenticated reviewer and keeps AOM explicitly preview-only | **PASS** |
+| UT-114 | data notices are compact disclosures and never imply successful verification | **PASS** |
+| UT-115 | field tasks use plain-language titles and distinguish local copies from submissions | **PASS** |
+| UT-116 | notice deadlines are concise, timezone-aware, and never imply an eligibility decision | **PASS** |
+| UT-117 | due process sorts active deadlines before paused cases without changing source data | **PASS** |
+| UT-118 | dashboard renders API households only when counts are available and excludes stale loading data | **PASS** |
+| UT-119 | triage keeps four primary columns with complete, collapsed evidence and backend severity labels | **PASS** |
+| UT-120 | policy settings clearly identifies non-persistent previews | **PASS** |
+| UT-121 | sidebar toggles only from non-navigation clicks in either width state | **PASS** |
+| UT-122 | workload summary preserves zeros and rejects missing, partial or invalid counts | **PASS** |
+| UT-123 | dashboard separates API workload semantics from sample chart metrics | **PASS** |
+| UT-124 | audit ranges enforce inclusive 1000-block limit and positive safe integers | **PASS** |
+| UT-125 | audit transport sends authenticated read-only range and handles broken HTTP 200 | **PASS** |
+| UT-126 | audit malformed results cannot report verified and unavailable responses stay errors | **PASS** |
+| UT-127 | audit starts unverified with no simulated blocks and role access matches contract | **PASS** |
+| UT-128 | dispatch dates use Philippine end-of-day and reject invalid fields | **PASS** |
+| UT-129 | dispatch posts exact authenticated contract and requires a matching 201 receipt | **PASS** |
+| UT-130 | dispatch rejects forbidden roles before transport and explains backend conflicts | **PASS** |
+| UT-131 | dispatch source keeps QA writes disabled and does not import fabricated staff | **PASS** |
+| UT-132 | accepts backend-shaped session and restores SUPER_ADMIN | **PASS** |
+| UT-133 | accepts backend-shaped session and restores REGIONAL_DIRECTOR | **PASS** |
+| UT-134 | accepts backend-shaped session and restores CASE_WORKER | **PASS** |
+| UT-135 | accepts backend-shaped session and restores COA_AUDITOR | **PASS** |
+| UT-136 | rejects unknown and legacy roles instead of assigning admin | **PASS** |
+| UT-137 | rejects placeholder tokens, mismatched claims, expiry and future activation | **PASS** |
+| UT-138 | clears malformed, expired and mismatched stored sessions | **PASS** |
+| UT-139 | login sends credentials without bearer and stores only accepted response | **PASS** |
+| UT-140 | invalid login never falls back or stores a session | **PASS** |
+| UT-141 | network failure never creates a session | **PASS** |
+| UT-142 | rejects mock mode and malformed successful login responses | **PASS** |
+| UT-143 | protected request requires a session before contacting backend | **PASS** |
+| UT-144 | bearer attached to requests; valid empty fixture responses stay empty | **PASS** |
+| UT-145 | protected 401 or deactivated account clears session | **PASS** |
+| UT-146 | role/jurisdiction 403 retains identity and reports access denial | **PASS** |
+| UT-147 | late 401 from old identity does not clear newer login | **PASS** |
+| UT-148 | role navigation follows endpoint RBAC; COA cannot dispatch | **PASS** |
+| UT-149 | COA triage renders without dispatch controls | **PASS** |
+| UT-150 | empty assigned tasks renders empty state and authenticated worker identity | **PASS** |
+| UT-151 | cached assignments are isolated per owner and empty results clear only that owner | **PASS** |
+| UT-152 | drafts and sync statuses never cross worker boundaries or load legacy unowned drafts | **PASS** |
+| UT-153 | triage requests explicit pages of flagged records without truncating total count | **PASS** |
+| UT-154 | missing or mismatched pagination is reported instead of hiding additional rows | **PASS** |
+| UT-155 | null SWDI prediction and evaluation time do not invent a level or timestamp | **PASS** |
+| UT-156 | live assigned API gets no worker override and preserves missing optional data | **PASS** |
+| UT-157 | triage pagination shows total, page count, and disabled boundary controls | **PASS** |
+| UT-158 | an API-returned Palingon task renders its actual fields and verification action | **PASS** |
+| UT-159 | assigned-task API failures reject instead of manufacturing a successful empty or sample feed | **PASS** |
+| UT-160 | saved drafts and exact evidence survive database reopen; resave replaces only the same owner/task | **PASS** |
+| UT-161 | offline assignments restore only an authenticated worker cache without a network request | **PASS** |
+| UT-162 | network-only failure can restore cache; 401/403/503 and cancellation never do | **PASS** |
+| UT-163 | a successful empty assignment response clears stale tasks without deleting saved drafts | **PASS** |
+| UT-164 | SHA-256 matches a known vector and fingerprints original bytes | **PASS** |
+| UT-165 | evidence photo validation rejects empty, oversized, unsupported and disguised files | **PASS** |
+| UT-166 | location preserves device accuracy and requests a fresh high-accuracy reading | **PASS** |
+| UT-167 | location denial, timeout, unavailable hardware and invalid coordinates have actionable errors | **PASS** |
+
+### `client/test/submissionContract.test.mjs` (Frontend, Unit)
+
+Offline draft → field-task-submission contract mapping; local-only fields never leave the device.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-168 | mapped draft passes the server Joi schema and matches the contract keys | **PASS** |
+| UT-169 | local-only fields never leave the device | **PASS** |
+| UT-170 | legacy drafts without a verified level or evidence are rejected locally | **PASS** |
+| UT-171 | motorcycle absent maps to proof_type NONE and empty franchise | **PASS** |
+
+### `client/test/pwa.test.mjs` (Frontend, Unit (build output))
+
+Service-worker precache and navigation rules.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-172 | production precache includes the exact built shell, scripts, styles and branding | **PASS** |
+| UT-173 | API and QA navigation never receive app HTML and updates do not interrupt forms | **PASS** |
+
+## C. Machine Learning and data pipeline (Python)
+
+Runner: `python -m pytest -v data-pipeline/scripts/test_section12_ml_unit.py ml-service/scripts/test_sprint2_experiments.py data-pipeline/scripts/test_seed_mapping.py`
+
+
+### `data-pipeline/scripts/test_section12_ml_unit.py` (ML, Unit)
+
+SHAP attribution extraction (top 3, predicted class, additivity to the model margin) and the Sangla-ATM heuristic.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-174 | `test_model_loaded_with_the_six_contract_features` | **PASS** |
+| UT-175 | `test_shap_extraction_returns_top_three_signed_by_absolute_weight` | **PASS** |
+| UT-176 | `test_extracted_weights_are_the_predicted_class_attributions` | **PASS** |
+| UT-177 | `test_shap_attributions_are_additive_to_the_model_margin` | **PASS** |
+| UT-178 | `test_probabilities_are_a_distribution_and_level_is_argmax` | **PASS** |
+| UT-179 | `test_sangla_atm_heuristic[12-2-38-85.0-True]` | **PASS** |
+| UT-180 | `test_sangla_atm_heuristic[5-2-59-85.0-True]` | **PASS** |
+| UT-181 | `test_sangla_atm_heuristic[4-2-38-60.0-False]` | **PASS** |
+| UT-182 | `test_sangla_atm_heuristic[12-14-38-60.0-False]` | **PASS** |
+| UT-183 | `test_sangla_atm_heuristic[12-2-120-40.0-False]` | **PASS** |
+| UT-184 | `test_sangla_atm_heuristic[12-14-120-0.0-False]` | **PASS** |
+
+### `ml-service/scripts/test_sprint2_experiments.py` (ML, Unit (fixture data))
+
+Sprint 2 E1–E5 runner mechanics: selection rule, no holdout leakage, audit gate, frozen vector.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-185 | `Sprint2Mechanics.test_all_experiments_ran_on_one_holdout` | **PASS** |
+| UT-186 | `Sprint2Mechanics.test_artifact_serves_the_frozen_vector` | **PASS** |
+| UT-187 | `Sprint2Mechanics.test_missing_empirical_matrix_names_the_notebooks` | **PASS** |
+| UT-188 | `Sprint2Mechanics.test_no_holdout_leakage_and_audit_gate_passes` | **PASS** |
+| UT-189 | `Sprint2Mechanics.test_selection_rule` | **PASS** |
+
+### `data-pipeline/scripts/test_seed_mapping.py` (Data pipeline, Unit)
+
+Seed mapping from generator output to the frozen Mongoose models.
+
+| ID | Test case | Result |
+| --- | --- | :---: |
+| UT-190 | `BeneficiaryMapping.test_address_keeps_real_coordinates_and_assigns_reference_barangay` | **PASS** |
+| UT-191 | `BeneficiaryMapping.test_demographics_declared_fields_plus_pmt_vector` | **PASS** |
+| UT-192 | `BeneficiaryMapping.test_labels_and_sensitive_raw_fields_are_not_ingested` | **PASS** |
+| UT-193 | `BeneficiaryMapping.test_required_model_fields` | **PASS** |
+| UT-194 | `BeneficiaryMapping.test_single_token_name` | **PASS** |
+| UT-195 | `ExternalMapping.test_mask_pan` | **PASS** |
+| UT-196 | `ExternalMapping.test_mismatched_household_rejected` | **PASS** |
+| UT-197 | `ExternalMapping.test_model_shape` | **PASS** |
+| UT-198 | `ExternalMapping.test_vehicle_categories` | **PASS** |
