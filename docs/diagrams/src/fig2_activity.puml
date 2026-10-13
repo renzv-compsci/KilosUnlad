@@ -1,0 +1,79 @@
+@startuml fig2_activity
+!include _style.iuml
+title Figure 2. Audit Lifecycle Activity Diagram (ingestion to graduation)
+
+|External Feeds / AI Engine|
+start
+:Scheduled pipeline job ingests utility,
+LTO, telecom and LandBank records
+(seed_db.py -> external_records);
+|Regional Director|
+:Request assessment
+POST /beneficiaries/:id/assess;
+|Backend & Database|
+if (Active calamity moratorium\nfor the household's municipality?) then (yes)
+  :409 CALAMITY_MORATORIUM_ACTIVE
+  no flag, no penalty (RA 10121);
+  stop
+else (no)
+endif
+|External Feeds / AI Engine|
+:LightGBM classifies SWDI level
+(6 proxy-means features) + SHAP top 3;
+|Backend & Database|
+:Compute composite risk score S_i =
+40 x SWDI gap + 20 power > 200 kWh
++ 15 water > 25 cu.m + 25 postpaid telecom
++ 30 owned 4-wheel vehicle (max 100);
+if (S_i >= 70?) then (no)
+  :Beneficiary stays ACTIVE_COMPLIANT;
+  stop
+else (yes)
+  :program_status = FLAGGED_FOR_REVIEW
+  seal MODEL_FLAG_RAISED block;
+endif
+|Regional Director|
+:Review triage queue, trigger badges
+and SHAP explanation;
+:Dispatch task with priority, due date
+and instructions (POST /tasks/dispatch);
+|Backend & Database|
+:One transaction: VerificationTask PENDING_DISPATCH,
+Beneficiary UNDER_INVESTIGATION,
+seal TASK_DISPATCHED block;
+|Municipal Link (Tablet)|
+:Download assigned tasks to IndexedDB
+(GET /tasks/assigned);
+repeat
+  :Visit household offline: inspect livelihood
+  asset (MoveIt / Angkas proof) and LandBank card
+  custody, photo hashed with Web Crypto + GPS fix;
+  :Back on Wi-Fi the PWA auto-syncs the queued
+  report (POST /tasks/:id/submit);
+  |Backend & Database|
+repeat while (Photo SHA-256 matches and\nGPS within 250 m of residence?) is (no: 422, draft stays on tablet)
+->yes;
+:Task SUBMITTED, evidence stored by hash,
+seal REPORT_SUBMITTED block;
+|Regional Director|
+:Review report and approve graduation
+(admin_resolution APPROVED_GRADUATION);
+note right: Notice issuance and final graduation\nroutes pending decision (services exist)
+|Backend & Database|
+:program_status = NOTICE_OF_INELIGIBILITY
+15-day appeal window starts, grants continue;
+if (Appeal filed within 15 days?) then (yes)
+  |Regional Director|
+  :File appeal docket
+  (POST /appeals/docket);
+  |Backend & Database|
+  :Seal APPEAL_FILED block, docket shows
+  UNDER_APPEAL_HEARING, graduation blocked;
+  :Grievance hearing resolves the case;
+  stop
+else (no)
+  :program_status = GRADUATED
+  seal BENEFICIARY_GRADUATED block;
+  stop
+endif
+@enduml

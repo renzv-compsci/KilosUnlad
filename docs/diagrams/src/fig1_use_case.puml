@@ -1,0 +1,68 @@
+@startuml fig1_use_case
+!include _style.iuml
+left to right direction
+title Figure 1. KilosUnlad Use Case Diagram
+
+actor "Regional Director\n(REGIONAL_DIRECTOR)" as DIR
+actor "Super Admin\n(SUPER_ADMIN)" as SA
+actor "Automated Scheduler\n(data-pipeline jobs)" as SCH
+
+rectangle "KilosUnlad Platform" {
+  usecase "Authenticate & Manage Session\n(JWT HS256, 900 s)" as UC1
+  usecase "Ingest External Records\n(Meralco, water, LTO, LandBank)" as UC0
+  usecase "Assess Household Risk\n(ML SWDI + composite score S_i)" as UC2
+  usecase "View Triage Queue &\nFilter Anomalies" as UC3
+  usecase "View SHAP Explanation\n(sealed assessment)" as UC3b
+  usecase "Dispatch Field\nInvestigation Task" as UC4
+  usecase "Approve Graduation &\nIssue 15-Day Notice" as UC8b
+  usecase "Review Due Process Docket\n(15-day countdown)" as UC8
+  usecase "File Appeal Docket" as UC9
+  usecase "Toggle Calamity Moratorium\n(RA 10121)" as UC11
+  usecase "Verify Cryptographic\nHash Chain" as UC10
+  usecase "Download Assigned Tasks\nOffline (IndexedDB)" as UC5
+  usecase "Complete Field Checklist &\nCapture Geotagged Evidence" as UC6
+  usecase "Sync Offline Reports" as UC7
+  usecase "Seal Audit Block\n(SHA-256 hash chain)" as UCA
+}
+
+actor "Municipal Link\n(CASE_WORKER)" as ML
+actor "COA State Auditor\n(COA_AUDITOR)" as COA
+
+SA -|> DIR
+DIR --> UC1
+DIR --> UC2
+DIR --> UC3
+DIR --> UC3b
+DIR --> UC4
+DIR --> UC8b
+DIR --> UC8
+DIR --> UC9
+SA --> UC11
+SA --> UC10
+SCH --> UC0
+
+UC1 <-- ML
+UC5 <-- ML
+UC6 <-- ML
+UC7 <-- ML
+UC1 <-- COA
+UC3 <-- COA
+UC3b <-- COA
+UC8 <-- COA
+UC10 <-- COA
+
+UC2 ..> UCA : <<include>>
+UC4 ..> UCA : <<include>>
+UC7 ..> UCA : <<include>>
+UC9 ..> UCA : <<include>>
+
+note right of UC8b
+  Pending decision: no API route yet.
+  Notice instant = VerificationTask.
+  admin_resolution (APPROVED_GRADUATION)
+end note
+note right of UC11
+  SUPER_ADMIN only
+  (POST /api/v1/calamity/toggle)
+end note
+@enduml

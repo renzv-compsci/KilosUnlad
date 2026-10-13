@@ -1,0 +1,29 @@
+[START] DAT-05 reset-demo at the 80k baseline
+[1] Timing reset-demo in baseline mode...
+      [reset_demo] [1/5] Checking database container...
+      [reset_demo]       Container kilosunlad-db is running.
+      [reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      [reset_demo] [2b/5] Restoring the 80k baseline snapshot (beneficiaries + external_records)...
+      [reset_demo] [3/5] Seeding test accounts...
+      [reset_demo]       Test accounts + sample records seeded.
+      [reset_demo]       Baseline restored.
+      [reset_demo] [4/5] Loading demo Case A and verifying...
+      [reset_demo] ===============================================
+      [reset_demo] [5/5] Demo reset complete in 5s
+      [reset_demo] Within 10-second DoD.
+      [reset_demo] ===============================================
+   [OK]   reset-demo exited 0
+   [OK]   wall-clock 5768 ms < 10000 ms (DAT-05 DoD)
+
+[2] Counts after reset...
+      {"syn_ben":80000,"syn_ext":80000,"users":4,"case_a":1,"audit":0}
+   [OK]   80,000 baseline beneficiaries
+   [OK]   80,000 matching external records
+   [OK]   Demo Case A loaded
+   [OK]   test accounts seeded
+   [OK]   audit ledger empty
+
+[3] Conformance and declared indexes (DAT-01 script)...
+   [OK]   DAT-01 conformance passes
+
+[SUCCESS] DAT-05 TEST PASSED! (5768 ms)

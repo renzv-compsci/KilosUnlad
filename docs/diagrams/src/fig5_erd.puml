@@ -1,0 +1,114 @@
+@startuml fig5_erd
+!include _style.iuml
+title Figure 5. Entity Relationship Diagram (MongoDB kilosunlad, 6 collections)
+hide circle
+hide empty methods
+
+entity "users" as users {
+  * _id : ObjectId <<PK>>
+  --
+  * username : String <<UK>>
+  * email : String <<UK>>
+  * password_hash : String
+  * role : enum
+  * full_name : String
+  is_active : Boolean
+  last_login_at : Date
+  ..embedded {_id:false}..
+  jurisdiction { region, province,
+   municipality, assigned_barangays[] }
+  ..index..
+  (role, jurisdiction.municipality)
+}
+entity "beneficiaries" as ben {
+  * _id : ObjectId <<PK>>
+  --
+  * household_id : String <<UK>>
+  * enrolled_swdi_level : 1..3
+  * program_status : enum
+  ..embedded {_id:false}..
+  head_of_household { first_name, last_name,
+   national_id <<UK>>, contact_phone }
+  address { street, barangay, municipality,
+   province, coordinates GeoJSON Point <<2dsphere>> }
+  demographics { household_size, head_education_level,
+   dependents_ratio, wall/roof/water scores,
+   + 6 PMT features read via lean() [ADR-009] }
+  children_registry[] { birthdate, is_eligible }
+  risk_assessment { composite_risk_score, is_flagged,
+   predicted_swdi_level, flag_reasons[], trigger_badges[],
+   evaluated_at }
+  ..index..
+  (risk_assessment.is_flagged, address.municipality)
+}
+entity "external_records" as ext {
+  * _id : ObjectId <<PK>>
+  --
+  * matched_household_id : String <<UK, FK>>
+  * national_id : String <<IX>>
+  ..embedded {_id:false}..
+  power_utility { provider, meter_no, avg_monthly_kwh, is_lifeline }
+  water_utility { provider, meter_type, avg_monthly_cu_m, is_lifeline }
+  telecom_registry { contract_type, monthly_plan_php }
+  transport_registry { vehicles[] { plate_number,
+   vehicle_category, make_model, year_model,
+   is_commercial_franchise } }
+  landbank_telemetry { card_masked_pan,
+   last_withdrawal_timestamp, sangla_atm_risk_score }
+}
+entity "verification_tasks" as task {
+  * _id : ObjectId <<PK>>
+  --
+  * task_id : String <<UK>>
+  * household_id : String <<FK>>
+  assigned_worker_id : ObjectId <<FK>>
+  task_status : enum
+  priority : enum
+  * due_date : Date
+  assignment_notes : String
+  ..embedded {_id:false}..
+  field_findings { verified_swdi_level, worker_recommendation,
+   narrative_report, livelihood_asset_verification,
+   landbank_card_inspection, client_geolocation,
+   evidence_attachments[] { storage_url, sha256_hash, exif } }
+  admin_resolution { reviewed_by <<FK>>, decision,
+   admin_notes, finalized_at }
+  ..index..
+  (assigned_worker_id, task_status)
+}
+entity "audit_logs (append-only)" as audit {
+  * _id : ObjectId <<PK>>
+  --
+  * sequence_index : Number <<UK>>
+  * previous_entry_hash : String
+  * timestamp : Date
+  * action : enum
+  * entry_hash : String <<UK>>
+  ..embedded {_id:false}..
+  actor { user_id <<FK>>, username, role, ip_address }
+  target_entity { collection_name, entity_id <<IX>> }
+  state_delta { before, after }
+}
+entity "system_configs" as cfg {
+  * _id : ObjectId <<PK>>
+  --
+  * config_key : String <<UK>>
+  updated_by : String
+  ..embedded {_id:false}..
+  calamity_moratorium_zones[] { municipality, province,
+   declared_at, expires_at, ndrrmc_reference, is_active }
+  threshold_configs { power_lifeline_kwh, water_lifeline_cu_m,
+   risk_score_flag_trigger, appeal_window_days }
+  feature_flags { enable_sangla_detection,
+   enable_auto_dispatch, enable_geofence_enforcement }
+}
+
+ben ||--|| ext : "household_id =\nmatched_household_id"
+ben ||--o{ task : household_id
+users ||--o{ task : assigned_worker_id /\nadmin_resolution.reviewed_by
+users ||--o{ audit : actor.user_id
+audit }o..o| ben : target_entity
+audit }o..o| task : target_entity
+audit }o..o| cfg : target_entity
+audit |o--o| audit : "previous_entry_hash =\nentry_hash(n-1)"
+@enduml

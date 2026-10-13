@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: age is counted on the Asia/Manila calendar date
+ok 1 - age is counted on the Asia/Manila calendar date
+  ---
+  duration_ms: 1.734978
+  type: 'test'
+  ...
+# Subtest: RA 11310 Sec. 6: eligible until the 19th birthday
+ok 2 - RA 11310 Sec. 6: eligible until the 19th birthday
+  ---
+  duration_ms: 1.607275
+  type: 'test'
+  ...
+# Subtest: ISO strings from legacy inserts are accepted; invalid dates keep the stored flag as unknown
+ok 3 - ISO strings from legacy inserts are accepted; invalid dates keep the stored flag as unknown
+  ---
+  duration_ms: 0.410988
+  type: 'test'
+  ...
+# Subtest: future birthdates are unknown, never eligible-by-default changes
+ok 4 - future birthdates are unknown, never eligible-by-default changes
+  ---
+  duration_ms: 0.247496
+  type: 'test'
+  ...
+# Subtest: empty or missing registry
+ok 5 - empty or missing registry
+  ---
+  duration_ms: 0.152382
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 114.767491

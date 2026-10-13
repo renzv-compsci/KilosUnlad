@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: ML request and successful response match the frozen contract
+ok 1 - ML request and successful response match the frozen contract
+  ---
+  duration_ms: 34.071794
+  type: 'test'
+  ...
+# Subtest: invalid feature vectors are rejected before network access
+ok 2 - invalid feature vectors are rejected before network access
+  ---
+  duration_ms: 7.582026
+  type: 'test'
+  ...
+# Subtest: malformed, wrong-household and invalid prediction responses are rejected
+ok 3 - malformed, wrong-household and invalid prediction responses are rejected
+  ---
+  duration_ms: 24.478876
+  type: 'test'
+  ...
+# Subtest: upstream rejection, errors and redirects are sanitized without retries
+ok 4 - upstream rejection, errors and redirects are sanitized without retries
+  ---
+  duration_ms: 7.374127
+  type: 'test'
+  ...
+# Subtest: hung ML request aborts at the 2500 ms deadline
+ok 5 - hung ML request aborts at the 2500 ms deadline
+  ---
+  duration_ms: 2505.987591
+  type: 'test'
+  ...
+# Subtest: connection errors are sanitized and invalid service origins rejected
+ok 6 - connection errors are sanitized and invalid service origins rejected
+  ---
+  duration_ms: 4.744241
+  type: 'test'
+  ...
+# Subtest: streaming responses cannot extend the overall ML deadline
+ok 7 - streaming responses cannot extend the overall ML deadline
+  ---
+  duration_ms: 2502.983017
+  type: 'test'
+  ...
+# Subtest: oversized ML responses fail safely
+ok 8 - oversized ML responses fail safely
+  ---
+  duration_ms: 21.540464
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5334.813223

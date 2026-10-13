@@ -1,0 +1,83 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Figure 4 System Architecture</title>
+<style>
+  :root { --ink:#1F3A5F; --muted:#5B6B80; --line:#7A8CA3; --l1:#E8F1FB; --l2:#FFF4DE; --l3:#E9F6EE; --l4:#F3ECFA; --l5:#FDECEC; --l6:#EEF1F4; }
+  body { margin:0; background:#fff; font-family:"DejaVu Sans",Arial,sans-serif; color:#1B2430; }
+  main { width:1500px; padding:28px 34px 30px; box-sizing:border-box; }
+  h1 { font-size:24px; text-align:center; margin:0 0 4px; }
+  .sub { text-align:center; color:var(--muted); font-size:14px; margin-bottom:22px; }
+  .layer { display:grid; grid-template-columns:210px 1fr; border:2px solid var(--ink); border-radius:10px; margin:0 0 14px; overflow:hidden; }
+  .tag { background:var(--ink); color:#fff; padding:14px 14px; display:flex; flex-direction:column; justify-content:center; }
+  .tag b { font-size:12px; letter-spacing:.08em; opacity:.8; } .tag span { font-size:17px; font-weight:700; margin-top:4px; }
+  .body { display:flex; gap:14px; padding:14px; flex-wrap:wrap; }
+  .card { flex:1; min-width:250px; background:#fff; border:1.5px solid var(--line); border-radius:8px; padding:10px 14px; font-size:13.5px; line-height:1.45; }
+  .card h3 { margin:0 0 6px; font-size:15.5px; color:var(--ink); }
+  .card ul { margin:0; padding-left:18px; }
+  .port { display:inline-block; font-size:12px; background:var(--ink); color:#fff; border-radius:4px; padding:1px 7px; margin-left:6px; font-weight:400; }
+  .arrow { text-align:center; font-size:13px; color:var(--muted); margin:-6px 0 8px; }
+  .arrow i { font-style:normal; font-size:20px; color:var(--ink); display:block; line-height:16px; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .row .layer { margin:0; }
+  .l1 .body{background:var(--l1)} .l2 .body{background:var(--l2)} .l3 .body{background:var(--l3)} .l4 .body{background:var(--l4)} .l5 .body{background:var(--l5)} .l6 .body{background:var(--l6)}
+  .note { font-size:12.5px; color:var(--muted); margin-top:12px; border-top:1px solid #d5dce5; padding-top:10px; }
+  code { font-family:"DejaVu Sans Mono",monospace; font-size:12.5px; }
+</style></head>
+<body><main>
+  <h1>Figure 4. KilosUnlad System Architecture (6-layer decoupled engine)</h1>
+  <div class="sub">Docker Compose stack on the <code>kilosunlad-network</code> bridge; versions and ports from <code>docker-compose.yml</code> and the service Dockerfiles</div>
+
+  <div class="layer l1"><div class="tag"><b>LAYER 1</b><span>Presentation</span></div><div class="body">
+    <div class="card"><h3>Desktop Web Portal <span class="port">client :3000</span></h3><ul>
+      <li>React 18 + Vite 5, TypeScript</li><li>Director, Super Admin, COA screens: dashboard, triage queue + SHAP drawer, dispatch modal, due process docket, audit chain inspector</li></ul></div>
+    <div class="card"><h3>Mobile Tablet App (PWA)</h3><ul>
+      <li>Service worker offline shell; tasks and drafts in IndexedDB (Dexie)</li>
+      <li>Web Crypto SHA-256 photo hashing, Geolocation API</li><li>Auto-sync of queued reports on reconnect</li></ul></div>
+    <div class="card"><h3>Session handling</h3><ul>
+      <li>HS256 JWT in sessionStorage, 900 s lifetime</li><li>401 / expiry clears the session and returns to login</li></ul></div>
+  </div></div>
+  <div class="arrow"><i>&#8597;</i>HTTP (JSON, multipart evidence uploads)</div>
+
+  <div class="layer l2"><div class="tag"><b>LAYER 2</b><span>Edge Gateway</span></div><div class="body">
+    <div class="card"><h3>Nginx reverse proxy <span class="port">:80</span></h3><ul>
+      <li><code>/api/v1/</code> &rarr; server:5000, <code>/</code> &rarr; client:3000 (single origin, no CORS round trips)</li>
+      <li><code>client_max_body_size 30M</code> for photo evidence, forwards X-Real-IP / X-Forwarded-For for audit actor IPs</li>
+      <li>TLS termination is not configured in the repository (port 80 only)</li></ul></div>
+  </div></div>
+  <div class="arrow"><i>&#8597;</i>proxy_pass /api/v1/</div>
+
+  <div class="row">
+    <div class="layer l3"><div class="tag"><b>LAYER 3</b><span>Application Server</span></div><div class="body">
+      <div class="card"><h3>Node.js 20 + Express 4 <span class="port">:5000</span></h3><ul>
+        <li><code>authenticate</code> (JWT) &rarr; <code>allowRoles</code> (RBAC) &rarr; <code>scopeJurisdiction</code> &rarr; <code>validateBody</code> (Joi, convert:false)</li>
+        <li>Status state machine, transactional dispatch / submit / appeal / calamity toggle</li>
+        <li>Composite risk score, RA 11310 age-out, geofence (Haversine, 250 m)</li>
+        <li>Hash-chain sealing and <code>GET /audit/verify-chain</code></li></ul></div>
+    </div></div>
+    <div class="layer l4"><div class="tag"><b>LAYER 4</b><span>AI Microservice</span></div><div class="body">
+      <div class="card"><h3>Python 3.10 + FastAPI <span class="port">:8000</span></h3><ul>
+        <li><code>POST /api/v1/predict-swdi</code>: LightGBM v1 multi-class SWDI (6 proxy-means features)</li>
+        <li>SHAP TreeExplainer: top-3 signed attributions</li>
+        <li><code>POST /api/v1/score-atm-stream</code>: Sangla-ATM velocity heuristic</li>
+        <li>Server falls back to a deterministic rule score if the service is down</li></ul></div>
+    </div></div>
+  </div>
+  <div class="arrow" style="margin-top:6px"><i>&#8597;</i>Mongoose 8 (replica-set URI, sessions + transactions) &nbsp;&nbsp;|&nbsp;&nbsp; server &rarr; ML over HTTP on the bridge network</div>
+
+  <div class="row">
+    <div class="layer l5"><div class="tag"><b>LAYER 5</b><span>Database</span></div><div class="body">
+      <div class="card"><h3>MongoDB 6.0 replica set <code>rs0</code> <span class="port">:27017</span></h3><ul>
+        <li>6 collections: users, beneficiaries, external_records, verification_tasks, audit_logs, system_configs</li>
+        <li><code>app_user</code> with <code>kilosUnladAppRole</code>: audit_logs is find / insert / createIndex / listIndexes only (append-only)</li>
+        <li>Indexes: <code>2dsphere</code> on address.coordinates, compound (risk_assessment.is_flagged, address.municipality), unique sequence_index and entry_hash</li>
+        <li>Host port <code>${MONGO_EXTERNAL_PORT:-27017}</code>, keyfile auth</li></ul></div>
+    </div></div>
+    <div class="layer l6"><div class="tag"><b>LAYER 6</b><span>Storage</span></div><div class="body">
+      <div class="card"><h3>Persistent evidence volume <code>upload-data</code></h3><ul>
+        <li>Mounted at <code>/app/uploads</code> (UPLOAD_DIR) in the server container</li>
+        <li>Content-addressed: <code>evidence/&lt;sha256&gt;</code>, bytes re-hashed before storage; mismatch &rarr; 422 EVIDENCE_HASH_MISMATCH</li>
+        <li>Named volumes also persist <code>mongo-data</code> and the replica-set keyfile</li></ul></div>
+    </div></div>
+  </div>
+
+  <div class="note">Batch jobs (not request path): <code>seed-ingest</code>, <code>seed-verify</code>, <code>seed-audit</code>, <code>audit-integrity</code> (python:3.10-slim) and <code>reset-demo</code> run on demand via <code>docker-compose run</code> against the same database. <code>replset-init</code> runs <code>rs.initiate()</code> on first boot.</div>
+</main></body></html>
