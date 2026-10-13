@@ -237,6 +237,10 @@ What "done" means here:
 | `test_int08_appeals_ui.js` | Docket GET (contract keys, 15-day window, roles, query rejection); Chromium: live card, countdown, File Appeal, server shows `UNDER_APPEAL_HEARING` |
 | `ml-service/scripts/test_sprint2_experiments.py` | E1–E5 runner mechanics: selection rule, no holdout leakage, output passes the ML-04 gate 6/6, artifact serves the frozen vector |
 | `run_capstone_proofs.sh [--full]` | Runs all of the above from clean resets and writes the evidence folder |
+| `test_section12_plan.js` | Section 12.2 TC-01..06, 08, 09, 10, 13, 15 as worded in the test plan (11 cases, every observed value to JSON) |
+| `test_section12_defects.js` | Section 12.3 DEF-01..07 corrective actions re-checked in code and live (incl. app_user denied update/delete on audit_logs) |
+| `test_section12_ml_unit.py` | ML unit tier: SHAP top-3 extraction, predicted-class attribution, additivity to the margin; Sangla-ATM heuristic (pytest, 11) |
+| `run_section12_plan.sh` | The whole Section 12 plan (unit, TC-01..17, DEF-01..07, UAT walkthroughs) from clean resets into `docs/testing/evidence/` |
 
 ### 5.3 Key measurements
 * **Ingest (80k + 80k):** insert phase 8.13 s; end-to-end 12.9–14.3 s; zero errors.
@@ -255,6 +259,10 @@ What "done" means here:
 * `docs/integration/evidence/sprint-3/`: ingest, index, integrity and reset logs.
 * `docs/integration/evidence/sprint-4/`: triage drawer screenshot.
 * `docs/integration/evidence/sprint-6/`: the rehearsal (15 logs + SUMMARY) and clean-clone results.
+* `docs/testing/SECTION12_TEST_RESULTS.md` + `docs/testing/evidence/section12-local/`: Section 12 executed (14/14 steps;
+  TC 16 PASS + TC-11 PARTIAL; DEF 7/7; UAT A–D scripted, participant ratings still to be collected; F1 objective ≥ 0.85 not met).
+* `docs/diagrams/`: every DIAGRAM_INTEGRATION.md figure as JPG (use case, activity, class, sequence, architecture, ERD),
+  Section 9 UI screenshots, Section 11 walkthrough, Appendix D ML plots; sources and `src/build_all.sh` to rebuild.
 
 ---
 

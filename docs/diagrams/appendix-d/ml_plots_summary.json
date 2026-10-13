@@ -1,0 +1,27 @@
+{
+  "rows": 20001,
+  "macro_f1": 0.7771,
+  "per_class_f1": [
+    0.7186,
+    0.8216,
+    0.7911
+  ],
+  "roc_auc": [
+    0.9531,
+    0.8996,
+    0.9459
+  ],
+  "mean_abs_shap": {
+    "head_education_level": 0.6089,
+    "head_formal_employment": 1.0547,
+    "remittance_income_flag": 0.5183,
+    "housing_material_score": 1.1089,
+    "appliance_density_index": 0.1746,
+    "dependency_ratio": 0.2481
+  },
+  "atm": {
+    "transactions": 12,
+    "span_s": 418.0,
+    "mean_interval_s": 38.0
+  }
+}

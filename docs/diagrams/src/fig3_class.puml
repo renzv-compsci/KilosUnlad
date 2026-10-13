@@ -1,0 +1,125 @@
+@startuml fig3_class
+!include _style.iuml
+title Figure 3. Class Diagram (Mongoose domain models, server/src/models)
+hide empty methods
+
+class User <<users>> {
+  +_id : ObjectId
+  +full_name : String
+  +username : String {unique}
+  +email : String {unique}
+  -password_hash : String [bcrypt]
+  +role : SUPER_ADMIN | REGIONAL_DIRECTOR | CASE_WORKER | COA_AUDITOR
+  +jurisdiction : Jurisdiction
+  +is_active : Boolean
+  +last_login_at : Date
+}
+class Beneficiary <<beneficiaries>> {
+  +household_id : String {unique}
+  +head_of_household : HeadOfHousehold
+  +address : Address [GeoJSON Point, 2dsphere]
+  +demographics : Demographics
+  +children_registry : Child[]
+  +enrolled_swdi_level : 1 | 2 | 3
+  +program_status : ProgramStatus
+  +risk_assessment : RiskAssessment
+  ~flagged_at : Date <<virtual>>
+}
+class ExternalRecord <<external_records>> {
+  +matched_household_id : String {unique}
+  +national_id : String
+  +power_utility : PowerUtility
+  +water_utility : WaterUtility
+  +telecom_registry : TelecomRegistry
+  +transport_registry : TransportRegistry
+  +landbank_telemetry : LandbankTelemetry
+}
+class VerificationTask <<verification_tasks>> {
+  +task_id : String {unique}
+  +household_id : String
+  +assigned_worker_id : ObjectId -> User
+  +task_status : TaskStatus
+  +priority : LOW | MEDIUM | HIGH | CRITICAL
+  +due_date : Date
+  +assignment_notes : String [alias dispatch_instructions]
+  +field_findings : FieldFindings
+  +admin_resolution : AdminResolution
+}
+class AuditLog <<audit_logs>> {
+  +sequence_index : Number {unique}
+  +previous_entry_hash : String
+  +timestamp : Date
+  +actor : Actor
+  +action : AuditAction
+  +target_entity : TargetEntity
+  +state_delta : StateDelta
+  +entry_hash : String {unique}
+}
+class SystemConfig <<system_configs>> {
+  +config_key : String {unique}
+  +calamity_moratorium_zones : CalamityZone[]
+  +threshold_configs : ThresholdConfigs
+  +feature_flags : FeatureFlags
+  +updated_by : String
+}
+
+class AuthService <<service>> {
+  +login(username, password) : Session
+  +findCurrentUser(userId) : User
+}
+class Authenticate <<middleware>> {
+  +verifyToken(Bearer JWT) : claims
+}
+class CryptoHelper <<utility: cryptoHelper.js>> {
+  +sha256(data) : hex
+  +computeEntryHash(seq, prev, timestamp, actorId, action, stateDelta) : hex
+  .. uses canonicalJson (stable key order) ..
+}
+class WorkflowPersistence <<service>> {
+  +transition(householdId, actorId) : receipt
+  +appendAuditEntry(...) : audit_receipt
+}
+
+enum ProgramStatus {
+  ACTIVE_COMPLIANT
+  FLAGGED_FOR_REVIEW
+  UNDER_INVESTIGATION
+  NOTICE_OF_INELIGIBILITY
+  GRADUATED
+  CALAMITY_SUSPENDED
+}
+enum TaskStatus {
+  PENDING_DISPATCH
+  CACHED_OFFLINE
+  SUBMITTED
+  VERIFIED_GRADUATE
+  VERIFIED_RETAIN
+}
+enum AuditAction {
+  MODEL_FLAG_RAISED
+  TASK_DISPATCHED
+  REPORT_SUBMITTED
+  BENEFICIARY_GRADUATED
+  APPEAL_FILED
+  CALAMITY_DECLARED
+  SYSTEM_CONFIG_UPDATED
+}
+
+User "1" -- "0..*" VerificationTask : assigned to >
+User "1" -- "0..*" VerificationTask : reviewed_by (admin_resolution) >
+Beneficiary "1" -- "1" ExternalRecord : matched_household_id /\nnational_id >
+Beneficiary "1" -- "0..*" VerificationTask : household_id >
+AuditLog ..> Beneficiary : target_entity
+AuditLog ..> VerificationTask : target_entity
+AuditLog ..> SystemConfig : target_entity
+AuditLog "0..*" --> "1" User : actor.user_id
+AuditLog "1" --> "0..1" AuditLog : previous_entry_hash =\nentry_hash of block n-1
+Beneficiary ..> ProgramStatus
+VerificationTask ..> TaskStatus
+AuditLog ..> AuditAction
+AuthService ..> User : reads
+Authenticate ..> AuthService : uses
+WorkflowPersistence ..> CryptoHelper : uses
+WorkflowPersistence ..> AuditLog : appends
+WorkflowPersistence ..> Beneficiary : updates status
+@enduml

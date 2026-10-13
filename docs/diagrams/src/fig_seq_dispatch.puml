@@ -1,0 +1,38 @@
+@startuml fig_seq_dispatch
+!include _style.iuml
+title Figure 6 (Section 6.4). Sequence Diagram: Transactional Task Dispatch
+autonumber
+actor "Regional Director" as U
+participant "Desktop Client\n(React)" as C
+participant "API Gateway\n(Nginx :80)" as G
+participant "Express Router\nauthenticate, allowRoles,\nscopeJurisdiction" as R
+participant "Task Dispatcher\n(taskDispatcher.service)" as T
+database "MongoDB rs0\n(transaction session)" as DB
+participant "Audit Service\n(appendAuditEntry +\ncomputeEntryHash)" as A
+
+U -> C : Confirm dispatch modal
+C -> G : POST /api/v1/tasks/dispatch\nAuthorization: Bearer JWT
+G -> R : proxy /api/v1/
+R -> R : verify HS256 JWT, role\nSUPER_ADMIN | REGIONAL_DIRECTOR
+R -> T : dispatch(body, userId)
+T -> T : Joi validation (convert:false)\n-> 400 INVALID_DISPATCH_REQUEST
+T -> DB : startSession(); withTransaction(snapshot, w:majority)
+activate DB
+T -> DB : load actor; load household\n(requireJurisdiction on stored address)
+T -> DB : calamity hold? open task?\n-> 409 CALAMITY_MORATORIUM_ACTIVE / ACTIVE_TASK_EXISTS
+T -> DB : worker is active CASE_WORKER?\n-> 400 INVALID_ASSIGNED_WORKER
+T -> DB : Write 1: insert VerificationTask\n(TSK-2026-<uuid>, PENDING_DISPATCH)
+T -> DB : Write 2: update Beneficiary\nFLAGGED_FOR_REVIEW -> UNDER_INVESTIGATION
+T -> A : seal(TASK_DISPATCHED, state_delta)
+A -> DB : read head block H(n-1)
+A -> A : H(n) = SHA-256(seq : H(n-1) : timestamp :\nactor : action : canonical delta)
+A -> DB : Write 3: insert AuditLog block n
+A --> T : audit_receipt {sequence_index, entry_hash}
+T -> DB : commit
+deactivate DB
+note right of DB : Any error aborts all three writes;\nduplicate sequence_index retries the transaction
+T --> R : task + household_status + receipt
+R --> G : 201 Created
+G --> C : 201 Created
+C --> U : success toast with task ID
+@enduml
