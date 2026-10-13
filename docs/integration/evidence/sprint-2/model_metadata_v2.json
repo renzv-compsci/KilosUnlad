@@ -1,0 +1,243 @@
+{
+  "model_name": "LightGBM",
+  "model_file": "lightgbm_swdi_v2.joblib",
+  "training_date": "2026-10-13T16:05:20.394890+00:00",
+  "feature_names": [
+    "demographics.head_education_level",
+    "demographics.head_formal_employment",
+    "demographics.remittance_income_flag",
+    "demographics.housing_material_score",
+    "demographics.appliance_density_index",
+    "demographics.dependency_ratio"
+  ],
+  "shap_importance": {
+    "demographics.head_education_level": 0.22749728656675225,
+    "demographics.head_formal_employment": 0.19183231994863525,
+    "demographics.remittance_income_flag": 0.07688478994825426,
+    "demographics.housing_material_score": 0.7587079045771448,
+    "demographics.appliance_density_index": 1.3303396111699077,
+    "demographics.dependency_ratio": 0.42879821063301515
+  },
+  "target_classes": [
+    1,
+    2,
+    3
+  ],
+  "random_seed": 42,
+  "library_versions": {
+    "python": "3.12.8",
+    "lightgbm": "4.7.0",
+    "scikit-learn": "1.9.1",
+    "pandas": "3.0.6",
+    "numpy": "2.5.4",
+    "shap": "0.53.0"
+  },
+  "row_counts": {
+    "empirical_total": 41544,
+    "empirical_train": 29080,
+    "empirical_validation": 6232,
+    "empirical_test": 6232,
+    "synthetic_available": 69999
+  },
+  "split_hashes": {
+    "train": "221950b94d29d547b1e545c48d1eea1f2020cb48f1e17898ca608ce3de5167ae",
+    "validation": "7a4082384e5c236a040ac2f377504ef5c11cc94c150437aaf23c2c50a0844992",
+    "test": "ef5d1c2303a7bd58d8b00432bf950230e5d45cee14e9b2c2e634c1c94db4f4f2",
+    "empirical_source_sha256": "63a2c5ea98492d618fa25f888ed47db92b28bd081e36c023876a765a0f5d04dd",
+    "synthetic_source_sha256": "ead1ee2799619ad4304acbfcf4cd5993e96b33f01e70a64a808d3f581c073287"
+  },
+  "empirical_test_rows_in_training": 0,
+  "selection": {
+    "criterion": "macro F1 on the empirical holdout; tie-break: higher minimum per-class F1",
+    "winner": "E1",
+    "winner_metrics": {
+      "training_rows": {
+        "empirical": 29080
+      },
+      "note": "empirical, defaults",
+      "validation": {
+        "macro_f1": 0.6207402832928856,
+        "per_class_f1": [
+          0.376357056694813,
+          0.5680356259277586,
+          0.9178281672560848
+        ],
+        "min_class_f1": 0.376357056694813,
+        "roc_auc_ovr": 0.9031394554137776
+      },
+      "empirical_holdout": {
+        "macro_f1": 0.6243743214356535,
+        "per_class_f1": [
+          0.3817733990147783,
+          0.5724137931034483,
+          0.9189357721887341
+        ],
+        "min_class_f1": 0.3817733990147783,
+        "roc_auc_ovr": 0.9020690409338542
+      }
+    }
+  },
+  "experiments": {
+    "E1": {
+      "training_rows": {
+        "empirical": 29080
+      },
+      "note": "empirical, defaults",
+      "validation": {
+        "macro_f1": 0.6207402832928856,
+        "per_class_f1": [
+          0.376357056694813,
+          0.5680356259277586,
+          0.9178281672560848
+        ],
+        "min_class_f1": 0.376357056694813,
+        "roc_auc_ovr": 0.9031394554137776
+      },
+      "empirical_holdout": {
+        "macro_f1": 0.6243743214356535,
+        "per_class_f1": [
+          0.3817733990147783,
+          0.5724137931034483,
+          0.9189357721887341
+        ],
+        "min_class_f1": 0.3817733990147783,
+        "roc_auc_ovr": 0.9020690409338542
+      }
+    },
+    "E2": {
+      "training_rows": {
+        "empirical": 29080
+      },
+      "note": "empirical, balanced",
+      "validation": {
+        "macro_f1": 0.609342155378062,
+        "per_class_f1": [
+          0.4280442804428044,
+          0.5177935943060499,
+          0.8821885913853318
+        ],
+        "min_class_f1": 0.4280442804428044,
+        "roc_auc_ovr": 0.886707782783815
+      },
+      "empirical_holdout": {
+        "macro_f1": 0.6054780562570429,
+        "per_class_f1": [
+          0.4266321913380737,
+          0.5054277029960921,
+          0.884374274436963
+        ],
+        "min_class_f1": 0.4266321913380737,
+        "roc_auc_ovr": 0.8871900077748126
+      }
+    },
+    "E3": {
+      "training_rows": {
+        "empirical": 29080
+      },
+      "note": "empirical, balanced, tuned (CV on train folds) {'colsample_bytree': 0.5669260594003166, 'learning_rate': 0.010418078759816981, 'max_depth': 9, 'min_child_samples': 10, 'min_split_gain': 0.345857198584456, 'n_estimators': 858, 'num_leaves': 102, 'reg_alpha': 0.9991783100123222, 'reg_lambda': 4.494309834137459, 'subsample': 0.792574766162736}",
+      "validation": {
+        "macro_f1": 0.612468706206446,
+        "per_class_f1": [
+          0.43647416413373863,
+          0.5202108963093146,
+          0.8807210581762847
+        ],
+        "min_class_f1": 0.43647416413373863,
+        "roc_auc_ovr": 0.8924032112143886
+      },
+      "empirical_holdout": {
+        "macro_f1": 0.6123206808511024,
+        "per_class_f1": [
+          0.44374209860935526,
+          0.5084745762711864,
+          0.8847453676727655
+        ],
+        "min_class_f1": 0.44374209860935526,
+        "roc_auc_ovr": 0.8935641845147533
+      }
+    },
+    "E4a": {
+      "training_rows": {
+        "empirical": 29080,
+        "synthetic": 69999
+      },
+      "note": "blend, synthetic weight 0.3",
+      "validation": {
+        "macro_f1": 0.6180797483504407,
+        "per_class_f1": [
+          0.46698434309053777,
+          0.47058823529411764,
+          0.9166666666666666
+        ],
+        "min_class_f1": 0.46698434309053777,
+        "roc_auc_ovr": 0.895888766428287
+      },
+      "empirical_holdout": {
+        "macro_f1": 0.6104048067003649,
+        "per_class_f1": [
+          0.44337016574585636,
+          0.4674104521432766,
+          0.9204338022119618
+        ],
+        "min_class_f1": 0.44337016574585636,
+        "roc_auc_ovr": 0.893648368621982
+      }
+    },
+    "E4b": {
+      "training_rows": {
+        "empirical": 29080,
+        "synthetic": 69999
+      },
+      "note": "blend, synthetic weight 0.5",
+      "validation": {
+        "macro_f1": 0.6166223292464873,
+        "per_class_f1": [
+          0.4644808743169399,
+          0.47024504084014,
+          0.9151410725823821
+        ],
+        "min_class_f1": 0.4644808743169399,
+        "roc_auc_ovr": 0.8933331223075826
+      },
+      "empirical_holdout": {
+        "macro_f1": 0.6061589112637181,
+        "per_class_f1": [
+          0.44060773480662985,
+          0.4591304347826087,
+          0.9187385642019158
+        ],
+        "min_class_f1": 0.44060773480662985,
+        "roc_auc_ovr": 0.8907685307027212
+      }
+    },
+    "E5": {
+      "training_rows": {
+        "empirical": 29080,
+        "synthetic_pretrain": 69999
+      },
+      "note": "pretrain synthetic, fine-tune empirical",
+      "validation": {
+        "macro_f1": 0.6071657514471528,
+        "per_class_f1": [
+          0.4326797385620915,
+          0.510797342192691,
+          0.8780201735866761
+        ],
+        "min_class_f1": 0.4326797385620915,
+        "roc_auc_ovr": 0.8854724004980371
+      },
+      "empirical_holdout": {
+        "macro_f1": 0.5990890191019725,
+        "per_class_f1": [
+          0.4251012145748988,
+          0.49219391947411667,
+          0.8799719232569022
+        ],
+        "min_class_f1": 0.4251012145748988,
+        "roc_auc_ovr": 0.8851212277977071
+      }
+    }
+  },
+  "quick_mode": false,
+  "data_provenance": "PSA FIES 2015 (data-pipeline/docs/data_provenence.md) via notebooks 01-02; synthetic partitions via scripts/stratified_partition.py"
+}
