@@ -76,9 +76,9 @@ export function parseTriageSummary(value: unknown): TriageSummary | null {
     .every(count => Number.isSafeInteger(count) && count >= 0) ? summary : null;
 }
 
-export async function fetchTriagePage(page = 1, signal?: AbortSignal): Promise<{ items: BeneficiaryTriageItem[]; pagination: TriagePagination; summary: TriageSummary | null }> {
+export async function fetchTriagePage(page = 1, signal?: AbortSignal, status = 'FLAGGED_FOR_REVIEW', limit = 10): Promise<{ items: BeneficiaryTriageItem[]; pagination: TriagePagination; summary: TriageSummary | null }> {
   const response = await api.get('/beneficiaries/triage-queue', {
-    signal, params: { page, limit: 10, status: 'FLAGGED_FOR_REVIEW' },
+    signal, params: { page, limit, status },
   });
   const payload = response.data?.data ?? response.data;
   const items = payload.items ?? payload;
@@ -330,4 +330,71 @@ function firstName(value?: string): string {
 function lastName(value?: string): string {
   const parts = value?.split(' ') ?? [];
   return parts.slice(1).join(' ') || 'Beneficiary';
+}
+
+// ---- UI live data (DECISION-010): read-only routes for the dashboards ----
+export interface InsightsOverview {
+  generated_at: string;
+  households: { total: number; by_status: Record<string, number>; by_enrolled_level: Record<string, number> };
+  risk: { flag_threshold: number; high_risk: number; critical: number; high: number; below_threshold: number;
+    average_flagged_score: number | null; triggers: { code: string; label: string; count: number }[] };
+  municipalities: { province: string; municipality: string; households: number; flagged: number; under_investigation: number;
+    notice: number; graduated: number; high_risk: number; average_flagged_score: number | null; centroid: [number, number] | null;
+    calamity_active: boolean; top_triggers: { code: string; count: number }[] }[];
+  tasks: { total: number; by_status: Record<string, number>; average_turnaround_hours: number | null;
+    workers: { user_id: string; full_name: string; open: number; submitted: number; verified: number }[] };
+  due_process: { notices: number; appeals_filed: number };
+  calamity: { active_zones: CalamityZone[] };
+  audit: { total_blocks: number; last_sequence_index: number | null; last_timestamp: string | null; by_action: Record<string, number> } | null;
+}
+export interface CalamityZone { province: string; municipality: string; declared_at: string | null; expires_at: string | null; ndrrmc_reference: string | null; is_active?: boolean }
+export interface AdminTaskItem {
+  task_id: string; household_id: string; head_of_household: { full_name: string }; address: { barangay: string; municipality: string };
+  task_status: string; priority: string; due_date: string | null; dispatched_at: string | null; updated_at: string | null;
+  assigned_worker: { user_id: string; full_name: string } | null; composite_risk_score: number;
+}
+export interface CaseworkerItem { user_id: string; full_name: string; username: string;
+  jurisdiction: { province: string | null; municipality: string | null; assigned_barangays: string[] }; open_tasks: number }
+export interface AuditBlockHeader { sequence_index: number; timestamp: string; action: string; actor: { username: string; role: string };
+  target_entity: { collection_name: string; entity_id: string }; previous_entry_hash: string; entry_hash: string }
+export interface PolicySnapshot {
+  risk_score: { flag_threshold: number; weights: Record<string, number>; cap: number };
+  lifeline_limits: { power_kwh_per_month: number; water_cu_m_per_month: number };
+  field_verification: { geofence_radius_m: number };
+  due_process: { appeal_window_days: number };
+  age_out: { eligible_until_age: number; timezone: string };
+  sangla_atm: { max_swipe_interval_seconds: number; nocturnal_start_hour: number; nocturnal_end_hour: number; cluster_repeat_ratio: number };
+  calamity_zones: CalamityZone[];
+}
+
+export async function fetchInsightsOverview(signal?: AbortSignal): Promise<InsightsOverview> {
+  const { data } = await api.get('/insights/overview', { signal });
+  if (!data?.households || !data?.risk || !Array.isArray(data?.municipalities)) throw new Error('Overview response did not match the contract.');
+  return data as InsightsOverview;
+}
+
+export async function fetchAdminTasks(params: { status?: string; page?: number; limit?: number } = {}, signal?: AbortSignal):
+  Promise<{ items: AdminTaskItem[]; pagination: TriagePagination }> {
+  const { data } = await api.get('/tasks', { params, signal });
+  if (!Array.isArray(data?.items) || !data?.pagination) throw new Error('Task list response did not match the contract.');
+  return data;
+}
+
+export async function fetchCaseworkers(signal?: AbortSignal): Promise<CaseworkerItem[]> {
+  const { data } = await api.get('/users/caseworkers', { signal });
+  if (!Array.isArray(data?.items)) throw new Error('Case worker directory response did not match the contract.');
+  return data.items;
+}
+
+export async function fetchAuditBlocks(params: { limit?: number; before?: number } = {}, signal?: AbortSignal):
+  Promise<{ items: AuditBlockHeader[]; total_blocks: number; next_before: number | null }> {
+  const { data } = await api.get('/audit/blocks', { params, signal });
+  if (!Array.isArray(data?.items)) throw new Error('Audit block response did not match the contract.');
+  return data;
+}
+
+export async function fetchPolicy(signal?: AbortSignal): Promise<PolicySnapshot> {
+  const { data } = await api.get('/system/policy', { signal });
+  if (!data?.risk_score) throw new Error('Policy response did not match the contract.');
+  return data as PolicySnapshot;
 }

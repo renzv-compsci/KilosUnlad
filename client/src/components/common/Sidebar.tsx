@@ -38,8 +38,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectScreen,
   pendingTriageCount = 0,
   assignedTasksCount = 0,
-  dueProcessCount = 3,
-  offlineSyncCount = 1,
+  dueProcessCount = 0,
+  offlineSyncCount = 0,
   showSpecAnnotations = false,
 }) => {
   // Define role-specific navigation menus
@@ -82,7 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {
             id: 'admin_settings' as ScreenId,
             label: 'Policy Settings',
-            sublabel: 'Cross-match sensitivity',
+            sublabel: 'Enforced thresholds',
             icon: Sliders,
             badge: null
           },
@@ -94,7 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {
             id: 'field_dashboard' as ScreenId,
             label: 'Field Overview',
-            sublabel: 'Calamba assigned caseload',
+            sublabel: 'Your assigned caseload',
             icon: LayoutDashboard,
             badge: `${assignedTasksCount} ${assignedTasksCount === 1 ? 'task' : 'tasks'}`
           },
@@ -135,9 +135,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {
             id: 'coa_dashboard' as ScreenId,
             label: 'Audit Overview',
-            sublabel: 'RA 11310 compliance metrics',
+            sublabel: 'Register, flags & ledger',
             icon: Scale,
-            badge: 'Preview'
+            badge: null
           },
           {
             id: 'audit_ledger' as ScreenId,
@@ -149,9 +149,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {
             id: 'coa_sampling' as ScreenId,
             label: 'Audit Sampling',
-            sublabel: 'Cross-match audit ledger',
+            sublabel: 'Flagged households & evidence',
             icon: FileCheck2,
-            badge: 'Preview'
+            badge: null
           }
         ];
 

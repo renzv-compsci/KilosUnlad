@@ -351,6 +351,7 @@ export default function App() {
             onOpenSyncDrawer={() => setIsSyncDrawerOpen(true)}
             isOffline={isOffline}
             onToggleOffline={() => setSimulateOffline((value) => !value)}
+            pendingDrafts={submissions.filter((item) => item.sync_status !== 'SYNCED').length}
           />
         );
       case 'field_tasks':
@@ -448,7 +449,7 @@ export default function App() {
               }}
               pendingTriageCount={triagePagination?.total_records ?? 0}
               assignedTasksCount={fieldTasks.length}
-              dueProcessCount={3}
+              dueProcessCount={triageSummary?.notice_of_ineligibility_count ?? 0}
               offlineSyncCount={submissions.filter((submission) => submission.sync_status === 'PENDING_SYNC').length}
             />
           {!sidebarCollapsed && <button type="button" className="sidebar-backdrop" aria-label="Close navigation" onClick={() => setSidebarCollapsed(true)} />}

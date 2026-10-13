@@ -33,13 +33,14 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<'laguna' | 'national'>('laguna');
 
-  // National anchor points for broader context
+  // National context: only the pilot region carries data; other regions are outside the pilot.
+  const pilotStatus = pins.some(p => p.status === 'RED') ? 'RED' : pins.some(p => p.status === 'AMBER') ? 'AMBER' : 'GREEN';
   const nationalNodes = [
-    { name: 'NCR Central', x: 42, y: 31, status: 'GREEN', cases: 5 },
-    { name: 'Region III (Pampanga)', x: 40, y: 27, status: 'AMBER', cases: 9 },
-    { name: 'Region IV-A (Laguna Pilot)', x: 44, y: 34, status: 'RED', cases: 32, isHighlight: true },
-    { name: 'Region VII (Cebu)', x: 57, y: 56, status: 'GREEN', cases: 4 },
-    { name: 'Region XI (Davao)', x: 67, y: 79, status: 'AMBER', cases: 7 },
+    { name: 'NCR', x: 42, y: 31, status: 'NONE' },
+    { name: 'Region III', x: 40, y: 27, status: 'NONE' },
+    { name: 'Region IV-A (Laguna Pilot)', x: 44, y: 34, status: pilotStatus, isHighlight: true },
+    { name: 'Region VII', x: 57, y: 56, status: 'NONE' },
+    { name: 'Region XI', x: 67, y: 79, status: 'NONE' },
   ];
 
   return (
@@ -280,7 +281,7 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({
                     : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
                 }`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${
-                    node.status === 'RED' ? 'bg-red-500' : node.status === 'AMBER' ? 'bg-amber-500' : 'bg-emerald-500'
+                    node.status === 'RED' ? 'bg-red-500' : node.status === 'AMBER' ? 'bg-amber-500' : node.status === 'GREEN' ? 'bg-emerald-500' : 'bg-slate-300'
                   }`} />
                   <span>{node.name}</span>
                 </div>
@@ -405,8 +406,14 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({
                 'Calamba City': { left: '33%', top: '74%' },
                 'Los Baños': { left: '60%', top: '82%' },
               };
-
-              const pos = coords[pin.municipality] || { left: pin.mapX || '50%', top: pin.mapY || '50%' };
+              coords['Calamba'] = coords['Calamba City'];
+              coords['Biñan'] = coords['Biñan City'];
+              // Unknown municipalities: project the household centroid onto the Laguna frame.
+              const [lon, lat] = pin.coordinates;
+              const clamp = (v: number) => `${Math.min(92, Math.max(8, v)).toFixed(1)}%`;
+              const projected = Number.isFinite(lon) && Number.isFinite(lat)
+                ? { left: clamp(((lon - 121.0) / 0.5) * 100), top: clamp(((14.45 - lat) / 0.4) * 100) } : null;
+              const pos = coords[pin.municipality] || projected || { left: pin.mapX || '50%', top: pin.mapY || '50%' };
 
               let pinBadge = 'bg-emerald-700 text-white border-emerald-800';
               if (pin.status === 'RED') pinBadge = 'bg-rose-700 text-white border-rose-800';
@@ -451,11 +458,11 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({
           </span>
           <span className="flex items-center space-x-1.5">
             <span className="w-2 h-2 rounded-full bg-amber-700"></span>
-            <span>In Field Verification</span>
+            <span>Flags below 70 average / under review</span>
           </span>
           <span className="flex items-center space-x-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-700"></span>
-            <span>Compliant Baseline</span>
+            <span>No flagged households</span>
           </span>
         </div>
 

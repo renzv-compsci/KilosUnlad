@@ -1,7 +1,7 @@
-import { SampleDataLabel } from '../common/SampleDataLabel';
-import React, { useState } from 'react';
-import { MOCK_TRIAGE_ITEMS } from '../../data/mockContracts';
-import { BeneficiaryTriageItem } from '../../types/contracts';
+import React, { useEffect, useState } from 'react';
+import { AssessmentExplanation, BeneficiaryTriageItem } from '../../types/contracts';
+import { apiErrorMessage, fetchAssessmentExplanation, fetchTriagePage } from '../../services/api';
+import { displayDateTime } from '../../utils/displayDate';
 import { 
   ShieldCheck, 
   ShieldAlert, 
@@ -23,12 +23,36 @@ interface CoaEvidentiarySamplingProps {
 export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
   showSpecAnnotations = false,
 }) => {
-  const [items, setItems] = useState<BeneficiaryTriageItem[]>(MOCK_TRIAGE_ITEMS);
-  const [selectedItem, setSelectedItem] = useState<BeneficiaryTriageItem>(MOCK_TRIAGE_ITEMS[0]);
-  const [auditDecisionMap, setAuditDecisionMap] = useState<Record<string, 'CERTIFIED' | 'DISALLOWANCE_FLAG'>>({
-    [MOCK_TRIAGE_ITEMS[1].household_id]: 'CERTIFIED'
-  });
+  const [items, setItems] = useState<BeneficiaryTriageItem[]>([]);
+  const [selectedItem, setSelectedItem] = useState<BeneficiaryTriageItem | null>(null);
+  const [auditDecisionMap, setAuditDecisionMap] = useState<Record<string, 'CERTIFIED' | 'DISALLOWANCE_FLAG'>>({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [explanation, setExplanation] = useState<AssessmentExplanation | null | undefined>(undefined);
+
+  // Sampling frame: every household the model flagged, in each review stage (triage feed, read-only).
+  useEffect(() => {
+    const controller = new AbortController();
+    Promise.all(['FLAGGED_FOR_REVIEW', 'UNDER_INVESTIGATION', 'NOTICE_OF_INELIGIBILITY']
+      .map(status => fetchTriagePage(1, controller.signal, status, 100)))
+      .then(pages => {
+        const all = pages.flatMap(p => p.items).sort((a, b) => b.composite_risk_score - a.composite_risk_score);
+        setItems(all); setSelectedItem(all[0] ?? null);
+      })
+      .catch(failure => { if (!controller.signal.aborted) setError(apiErrorMessage(failure)); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, []);
+  useEffect(() => {
+    if (!selectedItem) return;
+    const controller = new AbortController();
+    setExplanation(undefined);
+    fetchAssessmentExplanation(selectedItem.household_id, controller.signal).then(setExplanation)
+      .catch(() => { if (!controller.signal.aborted) setExplanation(null); });
+    return () => controller.abort();
+  }, [selectedItem]);
+  const reviewed = Object.keys(auditDecisionMap).length;
 
   const handleDecision = (id: string, decision: 'CERTIFIED' | 'DISALLOWANCE_FLAG') => {
     setAuditDecisionMap(prev => ({ ...prev, [id]: decision }));
@@ -62,24 +86,23 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
               INDEPENDENT COA RECONCILIATION
             </span>
           </div>
-          <SampleDataLabel />
           <h2 className="text-xl font-bold text-stone-900 tracking-tight mt-1 font-display">
             Audit Sampling
           </h2>
           <p className="text-xs text-stone-500 mt-0.5">
-            Cross-examine DSWD 4Ps beneficiary claims against external utility APIs, LTO vehicle registrations, and municipal link field submissions.
+            Cross-examine each model-flagged household against its trigger evidence and the sealed model explanation in the audit ledger.
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 self-start sm:self-auto shrink-0">
-          <div className="relative">
+        <div className="flex items-center space-x-2 self-stretch sm:self-auto w-full sm:w-auto">
+          <div className="relative w-full">
             <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-stone-400" />
             <input
               type="text"
               placeholder="Search PhilSys, Household ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 pr-3 py-1.5 border border-stone-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-[#132e4f] bg-white w-64"
+              className="pl-8 pr-3 py-1.5 border border-stone-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-[#132e4f] bg-white w-full sm:w-64"
             />
           </div>
         </div>
@@ -95,18 +118,23 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
               Auditor Sampling Queue ({filteredItems.length})
             </span>
             <span className="text-[11px] text-stone-500 font-mono">
-              68.4% Sampled
+              {reviewed} reviewed this session
             </span>
           </div>
 
-          <div className="divide-y divide-stone-100 max-h-[600px] overflow-y-auto">
+          <div className="divide-y divide-stone-100 max-h-[360px] lg:max-h-[600px] overflow-y-auto" aria-busy={loading}>
+            {loading && <p role="status" className="p-4 text-xs text-stone-500">Loading flagged households…</p>}
+            {error && <p role="alert" className="p-4 text-xs text-rose-800">{error}</p>}
+            {!loading && !error && items.length === 0 && <p role="status" className="p-4 text-xs text-stone-500">No flagged households to sample.</p>}
             {filteredItems.map((item) => {
               const decision = auditDecisionMap[item.household_id];
-              const isSelected = selectedItem.household_id === item.household_id;
+              const isSelected = selectedItem?.household_id === item.household_id;
 
               return (
                 <div
                   key={item.household_id}
+                  role="button" tabIndex={0} aria-pressed={isSelected}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedItem(item); } }}
                   onClick={() => setSelectedItem(item)}
                   className={`p-4 cursor-pointer transition flex items-center justify-between gap-3 ${
                     isSelected ? 'bg-stone-100/90 border-l-3 border-l-[#132e4f]' : 'hover:bg-stone-50'
@@ -151,12 +179,12 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
         </div>
 
         {/* Right Column: Detailed Cross-Examination Dossier (7 Cols) */}
-        <div className="lg:col-span-7 bg-white rounded-xl border border-stone-200/90 shadow-2xs p-6 space-y-5">
+        {selectedItem && <div className="lg:col-span-7 bg-white rounded-xl border border-stone-200/90 shadow-2xs p-4 sm:p-6 space-y-5 min-w-0">
           
           {/* Dossier Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-stone-100">
             <div>
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-x-2">
                 <span className="font-mono font-bold text-base text-[#132e4f]">
                   {selectedItem.household_id}
                 </span>
@@ -183,37 +211,39 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
               Government Registry Reconciliations
             </h4>
 
-            {/* Meralco Lifeline Check */}
             <div className="p-3.5 bg-stone-50 rounded-lg border border-stone-200/80 space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-stone-900">1. Meralco API Lifeline Consumption</span>
-                <span className="font-mono font-semibold text-rose-700">312 kWh/mo (Breach: &gt;200)</span>
+              <div className="flex flex-wrap items-center justify-between gap-1 text-xs">
+                <span className="font-semibold text-stone-900">Status and score</span>
+                <span className="font-mono font-semibold text-rose-700">{selectedItem.composite_risk_score} / 100</span>
               </div>
               <p className="text-[11px] text-stone-500">
-                Electric meter CIN-0092182 registered to same residential address. 6-month average exceeds statutory lifeline poverty threshold by 56%.
+                {selectedItem.status.replace(/_/g, ' ')} · enrolled {selectedItem.enrolled_swdi_level} · model predicts {selectedItem.predicted_swdi_level}
               </p>
             </div>
-
-            {/* LTO Vehicle Check */}
-            <div className="p-3.5 bg-stone-50 rounded-lg border border-stone-200/80 space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-stone-900">2. LTO Motor Vehicle Registry</span>
-                <span className="font-mono font-semibold text-amber-700">Yamaha NMAX (2024 Model)</span>
+            {selectedItem.trigger_badges.map((badge, index) => (
+              <div key={`${badge.type}-${index}`} className="p-3.5 bg-stone-50 rounded-lg border border-stone-200/80 space-y-1">
+                <div className="flex flex-wrap items-center justify-between gap-1 text-xs">
+                  <span className="font-semibold text-stone-900">{index + 1}. {badge.label}</span>
+                  <span className={`font-mono font-semibold ${badge.severity === 'danger' ? 'text-rose-700' : badge.severity === 'warning' ? 'text-amber-700' : 'text-stone-600'}`}>{badge.type}</span>
+                </div>
+                {badge.detail !== badge.label && <p className="text-[11px] text-stone-500">{badge.detail}</p>}
               </div>
-              <p className="text-[11px] text-stone-500">
-                Vehicle registration active under beneficiary name. Caseworker field report confirms vehicle is utilized as productive Angkas/MoveIt livelihood asset.
-              </p>
-            </div>
-
-            {/* LandBank Sangla Check */}
-            <div className="p-3.5 bg-stone-50 rounded-lg border border-stone-200/80 space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-stone-900">3. LandBank ATM Card Custody</span>
-                <span className="font-mono font-semibold text-emerald-800">Physical Possession Verified</span>
-              </div>
-              <p className="text-[11px] text-stone-500">
-                Municipal Link physically verified EMV chip card in beneficiary possession during scheduled home visit.
-              </p>
+            ))}
+            {selectedItem.trigger_badges.length === 0 && <p className="text-[11px] text-stone-500">No external-registry trigger was recorded for this household.</p>}
+            <div className="p-3.5 bg-stone-50 rounded-lg border border-stone-200/80 space-y-1.5">
+              <div className="text-xs font-semibold text-stone-900">Sealed model explanation</div>
+              {explanation === undefined && <p className="text-[11px] text-stone-500">Loading…</p>}
+              {explanation === null && <p className="text-[11px] text-stone-500">No sealed assessment exists for this household yet.</p>}
+              {explanation && <>
+                <p className="text-[11px] text-stone-500">
+                  {explanation.evaluation_mode === 'ML_MODEL' ? 'Model' : 'Fallback rules'} · sealed {displayDateTime(explanation.sealed_at)} · ledger block #{explanation.audit_receipt.sequence_index}
+                </p>
+                <ul className="text-[11px] text-stone-600 space-y-0.5">
+                  {explanation.shap_explainability.slice(0, 5).map(s => (
+                    <li key={s.indicator} className="flex justify-between gap-2"><span className="min-w-0">{s.description || s.indicator}</span><span className="font-mono shrink-0">{s.contribution_weight > 0 ? '+' : ''}{s.contribution_weight.toFixed(3)}</span></li>
+                  ))}
+                </ul>
+              </>}
             </div>
           </div>
 
@@ -248,7 +278,7 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
             </p>
           </div>
 
-        </div>
+        </div>}
 
       </div>
 

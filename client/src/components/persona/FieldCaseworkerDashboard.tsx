@@ -1,5 +1,4 @@
 import React from 'react';
-import { SampleDataLabel } from '../common/SampleDataLabel';
 import { displayDate } from '../../utils/displayDate';
 import { FieldTaskItem, UserSession } from '../../types/contracts';
 import { 
@@ -25,6 +24,7 @@ interface FieldCaseworkerDashboardProps {
   onOpenSyncDrawer: () => void;
   isOffline: boolean;
   onToggleOffline: () => void;
+  pendingDrafts?: number;
   showSpecAnnotations?: boolean;
 }
 
@@ -36,15 +36,23 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
   onOpenSyncDrawer,
   isOffline,
   onToggleOffline,
+  pendingDrafts = 0,
   showSpecAnnotations = false,
 }) => {
   const nextPriorityTask = tasks[0];
-
-  const barangayCaseload = [
-    { name: 'Barangay Makiling', total: 5, pending: 2, completed: 3, riskLevel: 'High' },
-    { name: 'Barangay Canlubang', total: 4, pending: 1, completed: 3, riskLevel: 'Medium' },
-    { name: 'Barangay Bucal', total: 3, pending: 0, completed: 3, riskLevel: 'Normal' },
-  ];
+  // All figures below are computed from the tasks the server assigned (GET /tasks/assigned).
+  const manilaDay = (value: string | null | undefined) => value ? new Date(value).toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' }) : '';
+  const today = manilaDay(new Date().toISOString());
+  const dueTimes = tasks.map(t => Date.parse(t.due_date)).filter(Number.isFinite);
+  const overdue = dueTimes.filter(time => time < Date.now()).length;
+  const dueToday = tasks.filter(t => manilaDay(t.due_date) === today).length;
+  const nextDue = dueTimes.filter(time => time >= Date.now()).sort((a, b) => a - b)[0];
+  const daysToNext = nextDue ? Math.ceil((nextDue - Date.now()) / 86400000) : null;
+  const barangayCaseload = user.jurisdiction.assigned_barangays.map(name => {
+    const mine = tasks.filter(t => t.address.barangay === name);
+    return { name, total: mine.length, critical: mine.filter(t => t.priority === 'CRITICAL' || t.priority === 'HIGH').length };
+  });
+  const maxCaseload = Math.max(1, ...barangayCaseload.map(b => b.total));
 
   return (
     <div className="module-page field-dashboard">
@@ -106,40 +114,40 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
       </div>
 
       {/* Primary Field Caseworker KPIs */}
-      <div className="data-section-label">Operational snapshot <SampleDataLabel /></div>
+      <div className="data-section-label">Operational snapshot</div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* KPI 1: Assigned Field Dockets */}
-        <div 
+        <button type="button"
           onClick={onNavigateToTasks}
-          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#132e4f] transition cursor-pointer"
+          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#132e4f] transition cursor-pointer text-left"
         >
           <div className="flex items-center justify-between text-stone-500 text-xs">
             <span className="font-semibold uppercase tracking-wider text-[10px]">Active Assigned Caseload</span>
             <ClipboardList className="w-4 h-4 text-[#132e4f]" />
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-stone-900">12</span>
+          <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-2">
+            <span className="text-2xl font-bold font-mono text-stone-900">{tasks.length}</span>
             <span className="text-[11px] font-medium text-stone-500">Households</span>
           </div>
           <div className="mt-2 text-[11px] text-stone-500 flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-            <span>3 pending in-person visits</span>
+            <span>{tasks.length} pending in-person visit{tasks.length === 1 ? '' : 's'}</span>
           </div>
-        </div>
+        </button>
 
         {/* KPI 2: Today's Scheduled Itinerary */}
         <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs">
           <div className="flex items-center justify-between text-stone-500 text-xs">
-            <span className="font-semibold uppercase tracking-wider text-[10px]">Today's Field Itinerary</span>
+            <span className="font-semibold uppercase tracking-wider text-[10px]">Due Today</span>
             <Calendar className="w-4 h-4 text-amber-700" />
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-stone-900">2</span>
-            <span className="text-[11px] font-medium text-amber-700">Scheduled Today</span>
+          <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-2">
+            <span className="text-2xl font-bold font-mono text-stone-900">{dueToday}</span>
+            <span className="text-[11px] font-medium text-amber-700">Philippine date</span>
           </div>
           <div className="mt-2 text-[11px] text-stone-500">
-            Est. Transit Distance: ~6.4 km
+            {barangayCaseload.filter(b => b.total).length} barangay{barangayCaseload.filter(b => b.total).length === 1 ? '' : 's'} with open visits
           </div>
         </div>
 
@@ -149,32 +157,32 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
             <span className="font-semibold uppercase tracking-wider text-[10px]">Statutory Clock (+14d)</span>
             <Clock className="w-4 h-4 text-[#132e4f]" />
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-stone-900">100%</span>
-            <span className="text-[11px] font-medium text-emerald-800">On Schedule</span>
+          <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-2">
+            <span className="text-2xl font-bold font-mono text-stone-900">{tasks.length ? `${Math.round((100 * (tasks.length - overdue)) / tasks.length)}%` : '—'}</span>
+            <span className={`text-[11px] font-medium ${overdue ? 'text-rose-700' : 'text-emerald-800'}`}>{overdue ? `${overdue} overdue` : 'On Schedule'}</span>
           </div>
           <div className="mt-2 text-[11px] text-stone-500">
-            Next deadline expires in 7 days
+            {daysToNext === null ? 'No upcoming deadline' : `Next deadline in ${daysToNext} day${daysToNext === 1 ? '' : 's'}`}
           </div>
         </div>
 
         {/* KPI 4: Offline Field Cache Health */}
-        <div 
+        <button type="button"
           onClick={onOpenSyncDrawer}
-          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#132e4f] transition cursor-pointer"
+          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#132e4f] transition cursor-pointer text-left"
         >
           <div className="flex items-center justify-between text-stone-500 text-xs">
             <span className="font-semibold uppercase tracking-wider text-[10px]">IndexedDB Cache</span>
             <FileCheck className="w-4 h-4 text-emerald-700" />
           </div>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-stone-900">1 Pending</span>
-            <span className="text-[11px] font-medium text-stone-500">Ready to Push</span>
+          <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-2">
+            <span className="text-2xl font-bold font-mono text-stone-900">{pendingDrafts} Pending</span>
+            <span className="text-[11px] font-medium text-stone-500">{isOffline ? 'Waiting for signal' : 'Syncs automatically'}</span>
           </div>
           <div className="mt-2 text-[11px] text-stone-500">
-            Uploads pending backend integration
+            Reports saved on this device
           </div>
-        </div>
+        </button>
 
       </div>
 
@@ -196,6 +204,7 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
               </span>
             </div>
 
+            {!nextPriorityTask && <p className="pt-4 text-xs text-stone-500">No assigned visits. New tasks appear here after a director dispatches them.</p>}
             {nextPriorityTask && (
               <div className="pt-4 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -298,10 +307,10 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
           {/* Barangay Caseload Distribution */}
           <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs space-y-3">
             <h3 className="text-sm font-bold text-stone-900 font-display">
-              Barangay Distribution <SampleDataLabel />
+              Barangay Distribution
             </h3>
             <p className="text-xs text-stone-500">
-              Sample distribution; live barangay totals are not connected yet.
+              Open visits in your assigned barangays.
             </p>
 
             <div className="space-y-2.5 pt-2">
@@ -309,17 +318,16 @@ export const FieldCaseworkerDashboard: React.FC<FieldCaseworkerDashboardProps> =
                 <div key={brgy.name} className="p-3 bg-stone-50 rounded-lg border border-stone-200/80">
                   <div className="flex items-center justify-between text-xs font-semibold text-stone-900">
                     <span>{brgy.name}</span>
-                    <span className="font-mono">{brgy.total} Total</span>
+                    <span className="font-mono">{brgy.total} Open</span>
                   </div>
                   <div className="flex items-center justify-between text-[11px] text-stone-500 mt-1">
-                    <span>{brgy.pending} Pending Visits</span>
-                    <span className="text-emerald-700 font-medium">{brgy.completed} Verified</span>
+                    <span>{brgy.critical} high or critical priority</span>
                   </div>
                   {/* Progress bar */}
                   <div className="w-full bg-stone-200 rounded-full h-1 mt-2 overflow-hidden">
                     <div 
                       className="bg-[#132e4f] h-full"
-                      style={{ width: `${(brgy.completed / brgy.total) * 100}%` }}
+                      style={{ width: `${(brgy.total / maxCaseload) * 100}%` }}
                     />
                   </div>
                 </div>

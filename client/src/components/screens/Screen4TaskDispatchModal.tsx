@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { X, Send, CheckCircle2 } from 'lucide-react';
 import { AccessibleDialog } from '../common/AccessibleDialog';
 import { BeneficiaryTriageItem } from '../../types/contracts';
-import { apiErrorMessage } from '../../services/api';
+import { apiErrorMessage, CaseworkerItem, fetchCaseworkers } from '../../services/api';
 import { dispatchDeadline, dispatchErrorMessage, dispatchTask, DispatchReceipt } from '../../services/taskDispatch';
 
 interface Screen4TaskDispatchModalProps {
@@ -22,9 +22,19 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
   const inFlight = useRef(false);
   const [error, setError] = useState('');
   const [receipt, setReceipt] = useState<DispatchReceipt | null>(null);
+  const [workers, setWorkers] = useState<CaseworkerItem[] | null>(null);
+  const live = Boolean(onDispatched);
+  // Directory of assignable caseworkers; the typed ID remains as a fallback if it cannot load.
+  useEffect(() => {
+    if (!isOpen || !live) return;
+    const controller = new AbortController();
+    fetchCaseworkers(controller.signal).then(setWorkers).catch(() => { if (!controller.signal.aborted) setWorkers(null); });
+    return () => controller.abort();
+  }, [isOpen, live]);
   const close = () => { if (!inFlight.current) onClose(); };
   if (!isOpen || !targetHousehold) return null;
-  const live = Boolean(onDispatched);
+  const eligible = (workers ?? []).filter(w => w.jurisdiction.municipality === targetHousehold.address.municipality &&
+    w.jurisdiction.assigned_barangays.includes(targetHousehold.address.barangay));
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (inFlight.current || receipt || !live) return;
@@ -63,8 +73,16 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
           <p className="text-sm text-stone-600">{targetHousehold.address.barangay}, {targetHousehold.address.municipality}</p>
         </div>
         <fieldset disabled={pending} className="dispatch-fields space-y-4">
-          <label htmlFor="dispatch-worker-id">Caseworker account ID<input id="dispatch-worker-id" required value={worker} onChange={event => setWorker(event.target.value)} pattern="[a-fA-F0-9]{24}" maxLength={24} autoComplete="off" spellCheck={false} aria-describedby="dispatch-worker-help" /></label>
-          <p id="dispatch-worker-help" className="text-sm text-stone-600">Use the 24-character ID provided by your administrator. A staff directory is not available yet.</p>
+          {workers && workers.length > 0 ? <>
+            <label htmlFor="dispatch-worker-id">Caseworker<select id="dispatch-worker-id" required value={worker} onChange={event => setWorker(event.target.value)} aria-describedby="dispatch-worker-help">
+              <option value="">Choose a caseworker</option>
+              {eligible.map(w => <option key={w.user_id} value={w.user_id}>{w.full_name} ({w.open_tasks} open)</option>)}
+            </select></label>
+            <p id="dispatch-worker-help" className="text-sm text-stone-600">{eligible.length ? `Caseworkers covering ${targetHousehold.address.barangay}, ${targetHousehold.address.municipality}.` : `No active caseworker covers ${targetHousehold.address.barangay}. Ask an administrator to assign one.`}</p>
+          </> : <>
+            <label htmlFor="dispatch-worker-id">Caseworker account ID<input id="dispatch-worker-id" required value={worker} onChange={event => setWorker(event.target.value)} pattern="[a-fA-F0-9]{24}" maxLength={24} autoComplete="off" spellCheck={false} aria-describedby="dispatch-worker-help" /></label>
+            <p id="dispatch-worker-help" className="text-sm text-stone-600">The caseworker directory could not be loaded. Enter the 24-character account ID instead.</p>
+          </>}
           <label htmlFor="dispatch-instructions">Inspection instructions<textarea id="dispatch-instructions" required rows={3} value={notes} onChange={event => setNotes(event.target.value)} /></label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label htmlFor="dispatch-deadline">Deadline (Philippine time)<input id="dispatch-deadline" type="date" required value={deadline} onChange={event => setDeadline(event.target.value)} /></label>
