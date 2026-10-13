@@ -27,7 +27,7 @@ import {
   TriagePagination,
 } from './types/contracts';
 import type { ScreenId } from './types/navigation';
-import { apiErrorMessage, fetchTriagePage } from './services/api';
+import { apiErrorMessage, appealErrorMessage, fetchAssessmentExplanation, fetchDueProcessDocket, fetchTriagePage, fileAppeal } from './services/api';
 import { loadWorkerAssignments } from './services/workerAssignments';
 import type { TriageSummary } from './services/api';
 import { clearStoredSession, isUserRole, readStoredSession } from './services/authSession';
@@ -130,8 +130,14 @@ export default function App() {
       item.task_id === taskId ? { ...item, sync_status: 'SYNCED' } : item
     )));
   }, []);
-  // Submission endpoints are not in the current backend handoff; keep drafts local.
-  const { isOnline, isSyncing, syncPending } = useOfflineSync(submissions, markSubmissionSynced, session?.user.user_id ?? null, false);
+  const markSubmissionRejected = React.useCallback((taskId: string) => {
+    setSubmissions((current) => current.map((item) => (
+      item.task_id === taskId ? { ...item, sync_status: 'ERROR' } : item
+    )));
+  }, []);
+  // INT-02/STR-02: POST /api/v1/tasks/:id/submit is mounted; queued reports sync when online.
+  const { isOnline, isSyncing, syncPending } = useOfflineSync(submissions, markSubmissionSynced,
+    session?.user.user_id ?? null, true, markSubmissionRejected);
   const isOffline = simulateOffline || !isOnline;
 
   const clearSession = React.useCallback(() => {
@@ -320,7 +326,7 @@ export default function App() {
       case 'dashboard':
         return <Screen2Dashboard onNavigateToScreen={navigateToScreen} triageSummary={dataState === 'ready' ? triageSummary : null} triageCount={dataState === 'ready' ? triagePagination?.total_records : undefined} triageItems={dataState === 'ready' ? triageItems : []} triageLoading={dataState === 'loading'} />;
       case 'triage':
-        return <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} readOnly={!canDispatch(session.user.role)} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} />;
+        return <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} readOnly={!canDispatch(session.user.role)} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} loadExplanation={fetchAssessmentExplanation} />;
       case 'dispatch_manager':
         return (
           <AdminDispatchManager
@@ -330,7 +336,7 @@ export default function App() {
       case 'dispatch_modal':
         return (
           <div className="p-6">
-            <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} />
+            <Screen3TriageQueue onDispatchTask={handleOpenDispatch} items={triageItems} pagination={triagePagination ?? undefined} onPageChange={setTriagePage} loadExplanation={fetchAssessmentExplanation} />
           </div>
         );
       case 'admin_settings':
@@ -376,7 +382,7 @@ export default function App() {
         return (
           <div className="field-screen-wrapper">
             <div className="mx-auto mb-4 flex max-w-3xl items-center justify-between rounded-xl border border-stone-200 bg-stone-100 p-3">
-              <span className="text-xs font-medium text-stone-700">Drafts saved on this device; not submitted</span>
+              <span className="text-xs font-medium text-stone-700">Drafts saved on this device; submitted when online</span>
               <button
                 type="button"
                 onClick={() => setIsSyncDrawerOpen(true)}
@@ -399,7 +405,7 @@ export default function App() {
         return <GrievanceAppealsDashboard onNavigateToScreen={navigateToScreen} />;
       case 'due_process':
       case 'appeal_hearing':
-        return <Screen5DueProcessManager />;
+        return <Screen5DueProcessManager loadDocket={fetchDueProcessDocket} submitAppeal={fileAppeal} describeError={appealErrorMessage} />;
       case 'coa_dashboard':
         return (
           <CoaAuditDashboard
@@ -494,6 +500,7 @@ export default function App() {
         submissions={submissions}
         onSyncAll={handleSyncAll}
         isSyncing={isSyncing}
+        submissionAvailable
       />
     </div>
   );

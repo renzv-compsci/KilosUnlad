@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AccessibleDialog } from '../common/AccessibleDialog';
 import { SampleDataLabel } from '../common/SampleDataLabel';
 import { displayDate, displayDateTime } from '../../utils/displayDate';
 import { noticeCountdown, sortDueProcessNotices } from '../../utils/dueProcessPresentation';
-import { DueProcessNoticeItem } from '../../types/contracts';
+import { AppealFilingReceipt, AppealFilingRequest, DueProcessNoticeItem } from '../../types/contracts';
 import { MOCK_DUE_PROCESS_NOTICES } from '../../data/mockContracts';
 import { 
   Clock, 
@@ -17,12 +17,41 @@ import {
 
 interface Screen5DueProcessManagerProps {
   showSpecAnnotations?: boolean;
+  // INT-08: when both are supplied the screen is live (real notices, real filing).
+  loadDocket?: (signal: AbortSignal) => Promise<DueProcessNoticeItem[]>;
+  submitAppeal?: (body: AppealFilingRequest) => Promise<AppealFilingReceipt>;
+  describeError?: (error: unknown) => string;
 }
 
+const manilaToday = () => new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10);
+
 export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> = ({
-  showSpecAnnotations = false,
+  showSpecAnnotations = false, loadDocket, submitAppeal, describeError,
 }) => {
-  const [notices, setNotices] = useState<DueProcessNoticeItem[]>(MOCK_DUE_PROCESS_NOTICES);
+  const live = Boolean(loadDocket && submitAppeal);
+  const [notices, setNotices] = useState<DueProcessNoticeItem[]>(live ? [] : MOCK_DUE_PROCESS_NOTICES);
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(live ? 'loading' : 'ready');
+  const [isFiling, setIsFiling] = useState(false);
+  const [filingError, setFilingError] = useState<string | null>(null);
+  const [filedMessage, setFiledMessage] = useState<string | null>(null);
+
+  const reload = useCallback(async (signal: AbortSignal) => {
+    if (!loadDocket) return;
+    setLoadState('loading');
+    try {
+      const items = await loadDocket(signal);
+      if (!signal.aborted) { setNotices(items); setLoadState('ready'); }
+    } catch {
+      if (!signal.aborted) setLoadState('error');
+    }
+  }, [loadDocket]);
+
+  useEffect(() => {
+    if (!live) return;
+    const controller = new AbortController();
+    void reload(controller.signal);
+    return () => controller.abort();
+  }, [live, reload]);
   const [selectedNoticeForAppeal, setSelectedNoticeForAppeal] = useState<DueProcessNoticeItem | null>(null);
   const [isAppealModalOpen, setIsAppealModalOpen] = useState(false);
   const [previewUpdated, setPreviewUpdated] = useState(false);
@@ -40,9 +69,25 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
     setIsAppealModalOpen(true);
   };
 
-  const handleConfirmAppeal = (e: React.FormEvent) => {
+  const handleConfirmAppeal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedNoticeForAppeal) return;
+    if (live && submitAppeal) {
+      setIsFiling(true);
+      setFilingError(null);
+      try {
+        const receipt = await submitAppeal({ household_id: selectedNoticeForAppeal.household_id,
+          appeal_docket_id: appealDocketId.trim(), hearing_date: hearingDate, appeal_grounds: appealGrounds.trim() });
+        setIsAppealModalOpen(false);
+        setFiledMessage(`Appeal filed: ${receipt.appeal_docket_id} for ${receipt.household_id}. Countdown paused; sealed in audit block #${receipt.audit_receipt.sequence_index}.`);
+        await reload(new AbortController().signal);
+      } catch (error) {
+        setFilingError(describeError ? describeError(error) : 'The appeal could not be filed.');
+      } finally {
+        setIsFiling(false);
+      }
+      return;
+    }
 
     // Update notice to UNDER_APPEAL_HEARING and pause countdown
     setNotices((prev) =>
@@ -79,9 +124,9 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
 
       <header className="module-heading">
         <div>
-          <SampleDataLabel />
+          {!live && <SampleDataLabel />}
           <h2>15-Day Due Process</h2>
-          <p>Upcoming deadlines first. Sample timeline: Sep 21, 2026, 10:00 AM PHT.</p>
+          <p>{live ? 'Upcoming deadlines first. Households under a Notice of Ineligibility in your jurisdiction.' : 'Upcoming deadlines first. Sample timeline: Sep 21, 2026, 10:00 AM PHT.'}</p>
         </div>
         <span className="quiet-count">{notices.length} active dockets</span>
       </header>
@@ -91,11 +136,17 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
         <span><strong>{notices.filter((notice) => notice.status === 'UNDER_APPEAL_HEARING').length}</strong> Under appeal</span>
       </div>
       {previewUpdated && <p role="status" className="preview-note">Preview updated only. No appeal was filed and no official deadline was changed.</p>}
+      {filedMessage && <p role="status" className="preview-note">{filedMessage}</p>}
+      {live && loadState === 'loading' && <p role="status" className="preview-note">Loading the due process docket…</p>}
+      {live && loadState === 'error' && <p role="alert" className="preview-note">The due process docket could not be loaded. Try again later.</p>}
+      {live && loadState === 'ready' && notices.length === 0 && <p role="status" className="preview-note">No households are under a Notice of Ineligibility in your jurisdiction.</p>}
 
       <section className="operations-records" aria-label="Due process notices">
         {sortDueProcessNotices(notices).map((notice) => {
           const isUnderAppeal = notice.status === 'UNDER_APPEAL_HEARING';
-          const countdown = noticeCountdown(notice.notice_expiry_date, isUnderAppeal);
+          const countdown = live
+            ? noticeCountdown(notice.notice_expiry_date ?? '', isUnderAppeal, new Date().toISOString())
+            : noticeCountdown(notice.notice_expiry_date ?? '', isUnderAppeal);
           return (
             <article key={notice.household_id} id={`due-process-card-${notice.household_id}`} className={`operations-record process-record ${countdown.urgent ? 'record-urgent' : ''}`}>
               <div className="record-main">
@@ -106,8 +157,8 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                   <dl>
                     <div><dt>Household</dt><dd>{notice.household_id}</dd></div>
                     <div><dt>PhilSys</dt><dd>{notice.head_of_household.national_id}</dd></div>
-                    <div><dt>Notice served</dt><dd><time dateTime={notice.notice_date} title={notice.notice_date}>{displayDate(notice.notice_date)}</time></dd></div>
-                    <div><dt>Notice expires</dt><dd><time dateTime={notice.notice_expiry_date} title={notice.notice_expiry_date}>{displayDate(notice.notice_expiry_date)}</time></dd></div>
+                    <div><dt>Notice served</dt><dd><time dateTime={notice.notice_date ?? undefined} title={notice.notice_date ?? undefined}>{displayDate(notice.notice_date)}</time></dd></div>
+                    <div><dt>Notice expires</dt><dd><time dateTime={notice.notice_expiry_date ?? undefined} title={notice.notice_expiry_date ?? undefined}>{displayDate(notice.notice_expiry_date)}</time></dd></div>
                   </dl>
                   <p><strong>Grounds for notice:</strong> {notice.initial_ineligibility_cause}</p>
                   {isUnderAppeal && <>
@@ -125,11 +176,11 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                   {isUnderAppeal ? <PauseCircle size={16} aria-hidden="true" /> : <Clock size={16} aria-hidden="true" />}
                   {countdown.text}
                 </span>
-                <span className="record-date-label">{isUnderAppeal ? 'Hearing ' : 'Deadline '}<time dateTime={isUnderAppeal ? notice.hearing_date : notice.notice_expiry_date}>{displayDateTime(isUnderAppeal ? notice.hearing_date : notice.notice_expiry_date)}</time></span>
+                <span className="record-date-label">{isUnderAppeal ? 'Hearing ' : 'Deadline '}<time dateTime={(isUnderAppeal ? notice.hearing_date : notice.notice_expiry_date) ?? undefined}>{displayDateTime(isUnderAppeal ? notice.hearing_date : notice.notice_expiry_date)}</time></span>
                 {notice.grant_continuation_active && <span className="protected-label"><ShieldCheck size={14} aria-hidden="true" />Grants protected</span>}
               </div>
               <div className="record-action-area">
-                {!isUnderAppeal && <button id={`file-appeal-btn-${notice.household_id}`} onClick={() => handleOpenAppealModal(notice)} className="record-action"><Scale size={16} aria-hidden="true" />Preview Appeal</button>}
+                {!isUnderAppeal && <button id={`file-appeal-btn-${notice.household_id}`} onClick={() => handleOpenAppealModal(notice)} className="record-action"><Scale size={16} aria-hidden="true" />{live ? 'File Appeal' : 'Preview Appeal'}</button>}
               </div>
             </article>
           );
@@ -152,10 +203,10 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                 </div>
                 <div>
                   <h3 id="appeal-dialog-title" className="text-base font-bold text-stone-900 font-display">
-                    Appeal Preview
+                    {live ? 'File Formal Appeal' : 'Appeal Preview'}
                   </h3>
                   <p className="text-xs text-stone-500 mt-0.5">
-                    Sample docket; no official filing
+                    {live ? 'Recorded in the sealed audit ledger; pauses the 15-day countdown' : 'Sample docket; no official filing'}
                   </p>
                 </div>
               </div>
@@ -186,6 +237,9 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                 <input id="appeal-reference"
                   type="text"
                   required
+                  pattern="[A-Za-z0-9][A-Za-z0-9\-]{2,63}"
+                  title="3-64 letters, digits or hyphens"
+                  disabled={isFiling}
                   value={appealDocketId}
                   onChange={(e) => setAppealDocketId(e.target.value)}
                   className="w-full p-2.5 border border-stone-300 rounded-lg font-mono text-xs focus:ring-2 focus:ring-[#132e4f] outline-none"
@@ -199,6 +253,8 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                 <input id="appeal-hearing"
                   type="date"
                   required
+                  min={live ? manilaToday() : undefined}
+                  disabled={isFiling}
                   value={hearingDate}
                   onChange={(e) => setHearingDate(e.target.value)}
                   className="w-full p-2.5 border border-stone-300 rounded-lg font-mono text-xs focus:ring-2 focus:ring-[#132e4f] outline-none"
@@ -220,7 +276,10 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
               </div>
 
               <div className="bg-amber-50 p-3 rounded-lg border border-amber-200/80 text-amber-900 text-xs leading-relaxed">
-                <span className="font-semibold">Preview only:</span> This updates the sample on this page. It does not file an appeal, change an official deadline, or affect grant payments.
+                {live
+                  ? <><span className="font-semibold">Official filing:</span> This registers the appeal, pauses the countdown and is sealed as an APPEAL_FILED audit block. It cannot be undone from this screen.</>
+                  : <><span className="font-semibold">Preview only:</span> This updates the sample on this page. It does not file an appeal, change an official deadline, or affect grant payments.</>}
+                {filingError && <p role="alert" className="mt-2 text-rose-800">{filingError}</p>}
               </div>
 
               </div>
@@ -235,10 +294,11 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                 <button
                   id="confirm-appeal-docket-btn"
                   type="submit"
+                  disabled={isFiling}
                   className="px-4 py-2 bg-[#132e4f] hover:bg-[#0c2340] text-white font-semibold rounded-lg text-xs shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Preview Appeal Status</span>
+                  <span>{live ? (isFiling ? 'Filing appeal…' : 'File Appeal') : 'Preview Appeal Status'}</span>
                 </button>
               </footer>
 

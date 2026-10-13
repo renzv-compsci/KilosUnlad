@@ -1,0 +1,38 @@
+=== KilosUnlad Compound Index Verification (Phase 3 Task 3.2) ===
+
+[1] Connecting to MongoDB...
+    Connected.
+
+[2] Running explain on the triage (flagged) query...
+    Query: {'risk_assessment.is_flagged': True, 'address.municipality': 'Calamba'}
+
+[3] Execution stats:
+    totalKeysExamined: 3
+    totalDocsExamined: 3
+    nReturned:         3
+    IXSCAN present:    YES
+    COLLSCAN present:  NO
+    Index used:        risk_assessment.is_flagged_1_address.municipality_1
+
+[4] Assertions:
+    [PASS] Query uses IXSCAN (not COLLSCAN)
+    [PASS] Index name matches compound index
+    [PASS] No over-scan (totalDocsExamined == nReturned)
+
+[2] Running explain on the at volume (unflagged roster) query...
+    Query: {'risk_assessment.is_flagged': False, 'address.municipality': 'Calamba'}
+
+[3] Execution stats:
+    totalKeysExamined: 80002
+    totalDocsExamined: 80002
+    nReturned:         80002
+    IXSCAN present:    YES
+    COLLSCAN present:  NO
+    Index used:        risk_assessment.is_flagged_1_address.municipality_1
+
+[4] Assertions:
+    [PASS] Query uses IXSCAN (not COLLSCAN)
+    [PASS] Index name matches compound index
+    [PASS] No over-scan (totalDocsExamined == nReturned)
+
+=== RESULT: ALL PASS ===

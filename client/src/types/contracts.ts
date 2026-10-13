@@ -26,6 +26,27 @@ export interface TriagePagination {
   limit: number;
 }
 
+// GET /api/v1/beneficiaries/:household_id/assessment (admin-assessment-explanation.json)
+export interface ShapIndicator {
+  indicator: string;
+  contribution_weight: number;
+  description: string;
+}
+
+export interface AssessmentExplanation {
+  household_id: string;
+  evaluation_mode: 'ML_MODEL' | 'EVALUATED_VIA_FALLBACK';
+  fallback_reason: string | null;
+  predicted_swdi_level: number | null;
+  class_probabilities: Record<string, number> | null;
+  shap_explainability: ShapIndicator[];
+  composite_risk_score: number | null;
+  contributions: Record<string, number>;
+  evaluated_at: string | null;
+  sealed_at: string;
+  audit_receipt: { sequence_index: number; entry_hash: string };
+}
+
 export type TriggerBadgeType = 
   | 'POWER_LIFELINE_BREACH' 
   | 'LTO_VEHICLE_MATCH' 
@@ -91,14 +112,31 @@ export interface DueProcessNoticeItem {
     barangay: string;
     municipality: string;
   };
-  notice_date: string;
-  notice_expiry_date: string; // 15-day statutory window
+  notice_date: string | null; // null when no approved notice record exists (live docket)
+  notice_expiry_date: string | null; // 15-day statutory window
   status: 'NOTICE_OF_INELIGIBILITY' | 'UNDER_APPEAL_HEARING' | 'FINAL_REVOCATION';
   grant_continuation_active: boolean;
-  appeal_docket_id?: string;
-  hearing_date?: string;
-  appeal_grounds?: string;
+  appeal_docket_id?: string | null;
+  hearing_date?: string | null;
+  appeal_grounds?: string | null;
   initial_ineligibility_cause: string;
+}
+
+// POST /api/v1/appeals/docket (admin-appeal-filing.json)
+export interface AppealFilingRequest {
+  household_id: string;
+  appeal_docket_id: string;
+  hearing_date: string; // YYYY-MM-DD
+  appeal_grounds: string;
+}
+
+export interface AppealFilingReceipt {
+  appeal_docket_id: string;
+  household_id: string;
+  docket_status: 'UNDER_APPEAL_HEARING';
+  notice_expiry_date: string;
+  hearing_date: string;
+  audit_receipt: { sequence_index: number; entry_hash: string };
 }
 
 export interface AuditBlock {
@@ -195,6 +233,8 @@ export interface FieldTaskSubmission {
   }[];
 
   // Section 5: Final Recommendation & Narrative
+  // Required by field-task-submission.json; optional only for legacy drafts.
+  verified_swdi_level?: 1 | 2 | 3;
   worker_recommendation: WorkerRecommendation;
   narrative_report: string;
   

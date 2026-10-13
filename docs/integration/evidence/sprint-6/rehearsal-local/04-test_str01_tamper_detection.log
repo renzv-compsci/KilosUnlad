@@ -1,0 +1,24 @@
+# Proof 4: Audit Proof (tamper block 3 detected) — 2026-10-12T19:04:33Z
+[reset] done
+=== KilosUnlad INT-02 Case A Fixture ===
+
+[INFO] DEMO-4PS-GRAD-0001 status: ACTIVE_COMPLIANT (flagging is done by POST /beneficiaries/:id/assess, never by a patch)
+[OK]   case_worker_test covers barangay Real
+[START] STR-01 Tamper Detection Test
+
+[1] Building a real 5-block chain through the API...
+   [OK]   baseline chain 1..5 valid
+
+[2] Tampering with block 3 (REPORT_SUBMITTED) directly in MongoDB...
+   [OK]   is_chain_valid false
+   [OK]   head_hash = INVALID_HASH_AT_SEQUENCE_3
+   [OK]   exactly block 3 reported
+   [OK]   report names the tampered entity
+   [OK]   untampered range 1..2 still verifies
+   [OK]   untampered range 4..5 still verifies (anchored on block 3 recorded hash)
+
+[3] Tampering with the sealed SHAP in block 1...
+   [OK]   drawer refuses tampered explanation (409 AUDIT_ENTRY_INVALID)
+   [OK]   restored chain verifies again
+
+[SUCCESS] STR-01 TEST PASSED!

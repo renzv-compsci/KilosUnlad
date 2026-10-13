@@ -1,5 +1,4 @@
-const { prepareSubmission, createSubmissionAuthorizer, verifyEvidenceHash } = require('../services/sync.service');
-const { WorkflowError } = require('../services/workflowPersistence.service');
+const { createTaskSubmission } = require('../services/taskSubmission.service');
 
 function createDispatch(taskDispatcher) {
   return async (req, res, next) => {
@@ -12,21 +11,21 @@ function createDispatch(taskDispatcher) {
   };
 }
 
-function createSubmit() {
+function createSubmit(service = createTaskSubmission()) {
   return async (req, res, next) => {
     res.set('Cache-Control', 'no-store');
     try {
-      // 1. Parse multipart string fields back to their correct types
-      // Multipart/form-data converts all text fields to strings. We must parse them 
-      // so the Joi schema in sync.service.js receives the correct Objects and Numbers.
+      // Multipart/form-data converts all text fields to strings. Parse them back
+      // so the Joi schema in sync.service.js receives Objects and Numbers. JSON
+      // bodies (the field-task-submission contract) pass through unchanged.
       const parsedBody = { ...req.body };
       const jsonFields = [
-        'livelihood_asset_verification', 
-        'landbank_card_inspection', 
-        'client_geolocation', 
+        'livelihood_asset_verification',
+        'landbank_card_inspection',
+        'client_geolocation',
         'evidence_attachments'
       ];
-      
+
       for (const field of jsonFields) {
         if (typeof parsedBody[field] === 'string') {
           try {
@@ -36,36 +35,18 @@ function createSubmit() {
           }
         }
       }
-      
-      if (typeof parsedBody.verified_swdi_level === 'string') {
-        parsedBody.verified_swdi_level = parseInt(parsedBody.verified_swdi_level, 10);
+
+      // Only an all-digit string is converted; anything else is left for Joi to reject.
+      if (typeof parsedBody.verified_swdi_level === 'string' && /^\d+$/.test(parsedBody.verified_swdi_level)) {
+        parsedBody.verified_swdi_level = Number(parsedBody.verified_swdi_level);
       }
 
-      // 2. Authorize and prepare submission
-      const authorize = createSubmissionAuthorizer();
-      const prepared = await authorize({
+      res.status(200).json(await service.submit({
         input: parsedBody,
         routeTaskId: req.params.id,
-        actorId: req.user.userId
-      });
-
-      // 3. Verify evidence hashes
-      if (req.files && req.files.length > 0) {
-        for (let i = 0; i < prepared.field_findings.evidence_attachments.length; i++) {
-          const expectedHash = prepared.field_findings.evidence_attachments[i].sha256_hash;
-          const fileBuffer = req.files[i].buffer; 
-          verifyEvidenceHash(fileBuffer, expectedHash);
-        }
-      }
-
-      // 4. Return success (Transactional write is pending final integration)
-      res.status(201).json({
-        task_id: prepared.task_id,
-        household_id: prepared.household_id,
-        status: 'SUBMITTED',
-        message: 'Submission authorized, schema validated, and evidence hashes verified.'
-      });
-
+        actorId: req.user.userId,
+        files: (req.files || []).map(file => file.buffer)
+      }));
     } catch (error) {
       next(error);
     }

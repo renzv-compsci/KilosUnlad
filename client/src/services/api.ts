@@ -8,6 +8,10 @@ import {
   UserSession,
   FieldTaskSubmission,
   TriagePagination,
+  AssessmentExplanation,
+  AppealFilingReceipt,
+  AppealFilingRequest,
+  DueProcessNoticeItem,
 } from '../types/contracts';
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
@@ -93,6 +97,48 @@ export async function fetchTriagePage(page = 1, signal?: AbortSignal): Promise<{
   return { items: items.map(normalizeTriageItem), pagination, summary: parseTriageSummary(payload.summary_metrics) };
 }
 
+// Sealed model explanation for the triage drawer; null when none is sealed yet.
+export async function fetchAssessmentExplanation(householdId: string, signal?: AbortSignal): Promise<AssessmentExplanation | null> {
+  try {
+    const response = await api.get(`/beneficiaries/${encodeURIComponent(householdId)}/assessment`, { signal });
+    const data = response.data;
+    if (!data || data.household_id !== householdId || !Array.isArray(data.shap_explainability)) {
+      throw new Error('Assessment explanation response did not match the contract.');
+    }
+    return data as AssessmentExplanation;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.error?.code === 'ASSESSMENT_NOT_FOUND') return null;
+    throw error;
+  }
+}
+
+// INT-08: live due-process docket (admin-due-process-docket.json).
+export async function fetchDueProcessDocket(signal?: AbortSignal): Promise<DueProcessNoticeItem[]> {
+  const response = await api.get('/appeals/docket', { params: { limit: 100 }, signal });
+  if (!Array.isArray(response.data?.items)) throw new Error('Due process docket response did not include an items array.');
+  return response.data.items as DueProcessNoticeItem[];
+}
+
+// INT-08: files a formal appeal (admin-appeal-filing.json).
+export async function fileAppeal(body: AppealFilingRequest): Promise<AppealFilingReceipt> {
+  const response = await api.post('/appeals/docket', body);
+  return response.data as AppealFilingReceipt;
+}
+
+export function appealErrorMessage(error: unknown): string {
+  const code = axios.isAxiosError(error) ? error.response?.data?.error?.code : undefined;
+  const messages: Record<string, string> = {
+    INVALID_REQUEST: 'Check the fields: docket reference (letters, digits, hyphens), a valid hearing date and at least 10 characters of grounds.',
+    INVALID_HEARING_DATE: 'The hearing date cannot be earlier than today.',
+    NOTICE_REQUIRED: 'This household is no longer under a Notice of Ineligibility. Refresh the list.',
+    NOTICE_RECORD_MISSING: 'No approved notice record exists for this household, so no appeal window can be computed.',
+    APPEAL_WINDOW_CLOSED: 'The 15-day appeal window has already elapsed.',
+    APPEAL_ALREADY_FILED: 'An appeal is already docketed for this notice. Refresh the list.',
+    DOCKET_ID_CONFLICT: 'That docket reference is already used by another appeal.',
+  };
+  return (code && messages[code]) || apiErrorMessage(error);
+}
+
 export async function fetchAssignedTasks(signal?: AbortSignal): Promise<FieldTaskItem[]> {
   const response = await api.get('/tasks/assigned', { signal });
   const payload = response.data?.data ?? response.data;
@@ -105,8 +151,63 @@ export async function fetchAssignedTasks(signal?: AbortSignal): Promise<FieldTas
   return tasks.map(normalizeFieldTask);
 }
 
+export class DraftIncompleteError extends Error {
+  code = 'DRAFT_INCOMPLETE';
+}
+
+// Maps a local draft to the frozen field-task-submission.json request. Local-only
+// fields (living-condition scores, sync status, data URLs) are never sent. Each
+// photo's storage_url is its content address, which the server binds to the hash.
+export function toSubmissionContract(draft: FieldTaskSubmission) {
+  const evidence = draft.evidence_attachments ?? [];
+  const first = evidence[0];
+  if (!draft.verified_swdi_level || !first) {
+    throw new DraftIncompleteError('This saved report is missing the verified SWDI level or geotagged evidence. Reopen and save it again.');
+  }
+  return {
+    task_id: draft.task_id,
+    household_id: draft.household_id,
+    verified_swdi_level: draft.verified_swdi_level,
+    worker_recommendation: draft.worker_recommendation,
+    narrative_report: draft.narrative_report,
+    livelihood_asset_verification: {
+      is_motorcycle_present: draft.is_motorcycle_present,
+      is_productive_asset: draft.is_productive_asset,
+      proof_type: draft.proof_type ?? 'NONE',
+      franchise_number: draft.franchise_number ?? '',
+    },
+    landbank_card_inspection: {
+      physical_card_presented: draft.physical_card_presented,
+      card_matches_beneficiary: draft.card_matches_beneficiary,
+      pawning_suspected: draft.pawning_suspected,
+    },
+    client_geolocation: {
+      latitude: first.gps_readout.latitude,
+      longitude: first.gps_readout.longitude,
+      accuracy_meters: first.gps_readout.accuracy_m,
+      captured_at: first.captured_at,
+    },
+    evidence_attachments: evidence.map((item) => ({
+      media_type: /^data:(image\/(?:jpeg|png|webp));/.exec(item.photo_url)?.[1] ?? 'image/jpeg',
+      storage_url: `${API_BASE_URL}/evidence/${item.client_side_hash}`,
+      sha256_hash: item.client_side_hash,
+      exif_metadata: { timestamp: item.captured_at, latitude: item.gps_readout.latitude, longitude: item.gps_readout.longitude },
+    })),
+  };
+}
+
+// Multipart so the server verifies (and stores) the original photo bytes.
 export async function submitFieldTask(submission: FieldTaskSubmission): Promise<void> {
-  await api.post(`/tasks/${encodeURIComponent(submission.task_id)}/submit`, submission);
+  const body = toSubmissionContract(submission);
+  const form = new FormData();
+  for (const [key, value] of Object.entries(body)) {
+    form.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+  }
+  for (const [index, item] of submission.evidence_attachments.entries()) {
+    const blob = await (await fetch(item.photo_url)).blob();
+    form.append('evidence_files', blob, `evidence-${index + 1}`);
+  }
+  await api.post(`/tasks/${encodeURIComponent(submission.task_id)}/submit`, form);
 }
 
 export function apiErrorMessage(error: unknown): string {
@@ -120,6 +221,7 @@ export function apiErrorMessage(error: unknown): string {
   if (code === 'ENDPOINT_NOT_READY') return 'This backend endpoint is not available yet.';
   if (code === 'AUDIT_RANGE_INCOMPLETE') return 'The requested range or its preceding block is missing. Confirm an existing range with the backend team.';
   if (code === 'AUDIT_ENTRY_INVALID') return 'An audit entry could not be verified. Ask the backend team to inspect the entry.';
+  if (code === 'ASSESSMENT_NOT_FOUND') return 'No sealed model assessment exists for this household yet.';
   if (code === 'INVALID_QUERY') return 'Enter a valid inclusive sequence range of up to 1,000 blocks.';
   if (error.response.status === 404) return 'This endpoint is unavailable on the running backend version.';
   if (error.response.status >= 500) return 'The backend service is unavailable. Please try again later.';

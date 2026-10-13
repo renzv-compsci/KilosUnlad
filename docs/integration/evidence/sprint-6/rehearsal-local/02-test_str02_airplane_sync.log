@@ -1,0 +1,62 @@
+# Proof 2: Offline Field Visit (airplane mode, zero-loss sync) — 2026-10-12T19:04:16Z
+[reset] done
+=== KilosUnlad INT-02 Case A Fixture ===
+
+[INFO] DEMO-4PS-GRAD-0001 status: ACTIVE_COMPLIANT (flagging is done by POST /beneficiaries/:id/assess, never by a patch)
+[OK]   case_worker_test covers barangay Real
+=== KilosUnlad Dispatch Test Fixture ===
+
+[1] Looking up worker account...
+    Worker found:
+      username:  case_worker_test
+      _id:       6acd2f33814359bac1c96d9f
+      role:      CASE_WORKER
+      barangay:  ["Palingon","Real"]
+
+[2] Checking if test household already exists...
+    Not found. Will insert.
+
+[3] Confirming no active task exists for this household...
+    No active task. Safe to dispatch.
+
+[4] Inserting test household...
+    [OK] Inserted TEST-4PS-DISPATCH-0001
+
+=== Setup Complete ===
+
+Household ready for dispatch:
+  household_id:      TEST-4PS-DISPATCH-0001
+  barangay:          Palingon
+  municipality:      Calamba
+  province:          Laguna
+  program_status:    FLAGGED_FOR_REVIEW
+  active task:       none
+
+Worker _id for dispatch request:
+  6acd2f33814359bac1c96d9f
+
+Send dispatch request with:
+  household_id:       TEST-4PS-DISPATCH-0001
+  assigned_worker_id: 6acd2f33814359bac1c96d9f
+
+Expected: HTTP 201 Created, task appears in worker assigned feed.
+[START] STR-02 Airplane-Mode Sync Test
+
+[1] Dispatched TSK-2026-d6e992fc-6b39-4399-ac77-ef355bf596c9, TSK-2026-9908a52f-d59b-46ca-a913-fcc186a6ed9d
+
+[2] Airplane mode: completing both reports offline...
+   [OK]   browser reports offline
+    Editing report 1 before reconnecting...
+   [OK]   exactly 2 queued drafts on the device (edit replaced, not duplicated)
+   [OK]   queued draft holds the edited narrative
+   [OK]   nothing reached the server while offline
+
+[3] Reconnecting...
+   [OK]   both reports synced automatically (zero loss)
+   [OK]   server holds the edited report 1
+   [OK]   server holds the edited photo hash
+   [OK]   exactly one REPORT_SUBMITTED block per task
+   [OK]   original photo bytes verified server-side
+   [OK]   device marks both drafts SYNCED
+
+[SUCCESS] STR-02 TEST PASSED!

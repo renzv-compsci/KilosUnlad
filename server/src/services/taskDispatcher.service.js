@@ -4,6 +4,9 @@ const Beneficiary = require('../models/Beneficiary');
 const User = require('../models/User');
 const AuditLog = require('../models/AuditLog');
 const VerificationTask = require('../models/VerificationTask');
+const SystemConfig = require('../models/SystemConfig');
+const { sameConnection } = require('../utils/sameConnection');
+const { assertNoCalamityHold } = require('./calamityToggle.service');
 const R = require('../constants/roles');
 const { requireJurisdiction } = require('../middleware/rbac.middleware');
 const { createWorkflowPersistence, WorkflowError, runGuard } = require('./workflowPersistence.service');
@@ -18,8 +21,8 @@ const schema = Joi.object({
 const activeStatuses = ['PENDING_DISPATCH', 'CACHED_OFFLINE', 'SUBMITTED'];
 
 function createTaskDispatcher({ beneficiaries = Beneficiary, users = User,
-  audits = AuditLog, tasks = VerificationTask } = {}) {
-  if (tasks.db !== beneficiaries.db) throw new TypeError('Task and workflow models must use the same connection.');
+  audits = AuditLog, tasks = VerificationTask, configs = sameConnection(beneficiaries, SystemConfig) } = {}) {
+  if (tasks.db !== beneficiaries.db || configs.db !== beneficiaries.db) throw new TypeError('Task and workflow models must use the same connection.');
   return { async dispatch(input, actorId) {
     const { value, error } = schema.validate(input, { convert: false, allowUnknown: false });
     if (error) throw new WorkflowError(400, 'INVALID_DISPATCH_REQUEST', 'Task dispatch fields are missing or invalid.');
@@ -30,6 +33,7 @@ function createTaskDispatcher({ beneficiaries = Beneficiary, users = User,
       from: 'FLAGGED_FOR_REVIEW', to: 'UNDER_INVESTIGATION', action: 'TASK_DISPATCHED',
       roles: [R.SUPER_ADMIN, R.REGIONAL_DIRECTOR],
       precheck: async ({ record, session }) => {
+        await assertNoCalamityHold({ configs, address: record.address, session });
         if (await tasks.findOne({ household_id: record.household_id,
           task_status: { $in: activeStatuses } }).session(session).lean()) {
           throw new WorkflowError(409, 'ACTIVE_TASK_EXISTS', 'Household already has an open investigation task in progress.');

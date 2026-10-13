@@ -6,7 +6,8 @@ const environment = require('./config/environment');
 const v1Routes = require('./routes/v1');
 
 function createApp({ mockMode = process.env.PHASE1_MOCK_MODE === 'true',
-  production = environment.NODE_ENV === 'production', authService, taskDispatcher, readFeeds, chainVerifier } = {}) {
+  production = environment.NODE_ENV === 'production', authService, taskDispatcher, readFeeds, chainVerifier,
+  appealDocket, calamityToggle, taskSubmission, riskAssessment } = {}) {
 const app = express();
 
 // 1. Security Headers & CORS Middleware
@@ -32,7 +33,8 @@ app.get('/health', (req, res) => {
 });
 
 // 4. Real authentication by default; legacy fixtures require explicit opt-in.
-app.use('/api/v1', v1Routes({ mockMode, production, authService, taskDispatcher, readFeeds, chainVerifier }));
+app.use('/api/v1', v1Routes({ mockMode, production, authService, taskDispatcher, readFeeds, chainVerifier,
+  appealDocket, calamityToggle, taskSubmission, riskAssessment }));
 
 // API discovery route.
 app.get('/api/v1', (req, res) => {

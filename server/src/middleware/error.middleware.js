@@ -20,6 +20,12 @@ module.exports = (error, req, res, next) => {
   if (error instanceof mongoose.Error.ValidationError || error instanceof mongoose.Error.CastError) {
     return res.status(400).json({ error: { code: 'INVALID_REQUEST', message: 'Request fields are missing or invalid.' } });
   }
+  // Malformed multipart uploads are client errors, never a service outage.
+  if (error.name === 'MulterError') {
+    return error.code === 'LIMIT_FILE_SIZE'
+      ? res.status(413).json({ error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request body exceeds the allowed size.' } })
+      : res.status(400).json({ error: { code: 'INVALID_EVIDENCE_INPUT', message: 'Evidence bytes and a valid SHA-256 fingerprint are required.' } });
+  }
   if (error.type === 'entity.too.large') {
     return res.status(413).json({ error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request body exceeds the allowed size.' } });
   }

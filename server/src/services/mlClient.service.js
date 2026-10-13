@@ -80,4 +80,4 @@ function createMlClient({ baseURL = environment.ML_SERVICE_URL } = {}) {
     } finally { clearTimeout(timer); }
   } };
 }
-module.exports = { createMlClient, MlClientError };
+module.exports = { createMlClient, MlClientError, requestSchema };

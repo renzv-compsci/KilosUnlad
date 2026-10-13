@@ -70,7 +70,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
                 </h3>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Assessments saved on this device; not submitted
+                Assessments saved on this device; submitted when online
               </p>
             </div>
           </div>
@@ -87,8 +87,8 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
         {/* Spec Annotation */}
         {showSpecAnnotations && (
           <div className="bg-slate-50 border-b border-slate-200 px-4 py-1.5 text-[10px] font-mono text-slate-600 flex justify-between">
-            <span>POST /api/v1/sync/batch</span>
-            <span>Contract: field-sync-queue.json</span>
+            <span>POST /api/v1/tasks/:id/submit</span>
+            <span>Contract: field-task-submission.json</span>
           </div>
         )}
 
@@ -129,6 +129,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
           ) : (
             submissions.map((sub, idx) => {
               const isPending = sub.sync_status === 'PENDING_SYNC';
+              const isRejected = sub.sync_status === 'ERROR';
 
               return (
                 <div
@@ -166,9 +167,9 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
 
                   <div className="shrink-0 text-right">
                     <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                      isPending ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-emerald-100 text-emerald-900 border border-emerald-200'
+                      isPending ? 'bg-amber-100 text-amber-900 border border-amber-200' : isRejected ? 'bg-rose-100 text-rose-900 border border-rose-200' : 'bg-emerald-100 text-emerald-900 border border-emerald-200'
                     }`}>
-                      {isPending ? 'Not submitted' : 'Synced'}
+                      {isPending ? 'Not submitted' : isRejected ? 'Rejected by server' : 'Synced'}
                     </span>
                   </div>
                 </div>

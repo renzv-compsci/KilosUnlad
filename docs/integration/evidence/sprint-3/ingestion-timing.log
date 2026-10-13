@@ -1,0 +1,112 @@
+# DAT-02 seed-ingest at the ADR-001 80k baseline — 2026-10-12
+# Environment: local single-node replica set (MongoDB 8.0.23, 4 vCPU, 15 GiB); not the Docker stack.
+# 'Wall-clock time' = insert phase only (as printed by seed_db.py).
+=================================================================
+KilosUnlad Seed Ingestion (Phase 3 Task 3.1; Sprint 3 DAT-01, ADR-001 80k baseline)
+=================================================================
+
+[1] Connecting to MongoDB...
+    Connected successfully.
+
+[2] Loading seed files...
+    Beneficiaries: 80,000 records
+    External records: 80,000 records
+
+[3] Ingesting in chunks (to avoid 16MB BSON limit)...
+    Clearing existing synthetic seed data (SYN-4PS-*)...
+
+    Inserting beneficiaries (chunk size: 2000)...
+      Progress: 2,000 / 80,000
+      Progress: 4,000 / 80,000
+      Progress: 6,000 / 80,000
+      Progress: 8,000 / 80,000
+      Progress: 10,000 / 80,000
+      Progress: 12,000 / 80,000
+      Progress: 14,000 / 80,000
+      Progress: 16,000 / 80,000
+      Progress: 18,000 / 80,000
+      Progress: 20,000 / 80,000
+      Progress: 22,000 / 80,000
+      Progress: 24,000 / 80,000
+      Progress: 26,000 / 80,000
+      Progress: 28,000 / 80,000
+      Progress: 30,000 / 80,000
+      Progress: 32,000 / 80,000
+      Progress: 34,000 / 80,000
+      Progress: 36,000 / 80,000
+      Progress: 38,000 / 80,000
+      Progress: 40,000 / 80,000
+      Progress: 42,000 / 80,000
+      Progress: 44,000 / 80,000
+      Progress: 46,000 / 80,000
+      Progress: 48,000 / 80,000
+      Progress: 50,000 / 80,000
+      Progress: 52,000 / 80,000
+      Progress: 54,000 / 80,000
+      Progress: 56,000 / 80,000
+      Progress: 58,000 / 80,000
+      Progress: 60,000 / 80,000
+      Progress: 62,000 / 80,000
+      Progress: 64,000 / 80,000
+      Progress: 66,000 / 80,000
+      Progress: 68,000 / 80,000
+      Progress: 70,000 / 80,000
+      Progress: 72,000 / 80,000
+      Progress: 74,000 / 80,000
+      Progress: 76,000 / 80,000
+      Progress: 78,000 / 80,000
+      Progress: 80,000 / 80,000
+
+    Inserting external records (chunk size: 2000)...
+      Progress: 2,000 / 80,000
+      Progress: 4,000 / 80,000
+      Progress: 6,000 / 80,000
+      Progress: 8,000 / 80,000
+      Progress: 10,000 / 80,000
+      Progress: 12,000 / 80,000
+      Progress: 14,000 / 80,000
+      Progress: 16,000 / 80,000
+      Progress: 18,000 / 80,000
+      Progress: 20,000 / 80,000
+      Progress: 22,000 / 80,000
+      Progress: 24,000 / 80,000
+      Progress: 26,000 / 80,000
+      Progress: 28,000 / 80,000
+      Progress: 30,000 / 80,000
+      Progress: 32,000 / 80,000
+      Progress: 34,000 / 80,000
+      Progress: 36,000 / 80,000
+      Progress: 38,000 / 80,000
+      Progress: 40,000 / 80,000
+      Progress: 42,000 / 80,000
+      Progress: 44,000 / 80,000
+      Progress: 46,000 / 80,000
+      Progress: 48,000 / 80,000
+      Progress: 50,000 / 80,000
+      Progress: 52,000 / 80,000
+      Progress: 54,000 / 80,000
+      Progress: 56,000 / 80,000
+      Progress: 58,000 / 80,000
+      Progress: 60,000 / 80,000
+      Progress: 62,000 / 80,000
+      Progress: 64,000 / 80,000
+      Progress: 66,000 / 80,000
+      Progress: 68,000 / 80,000
+      Progress: 70,000 / 80,000
+      Progress: 72,000 / 80,000
+      Progress: 74,000 / 80,000
+      Progress: 76,000 / 80,000
+      Progress: 78,000 / 80,000
+      Progress: 80,000 / 80,000
+
+=================================================================
+[SUCCESS] Ingestion complete.
+    Wall-clock time: 8.13 seconds
+    Total Beneficiaries in DB: 80,005
+    Total External Records in DB: 80,001
+=================================================================
+
+# End-to-end process time incl. JSON load + mapping (DAT-05 runs):
+run 1: reset 5.02s  ingest 14.28s  total 19.30s
+run 2: reset 4.59s  ingest 12.88s  total 17.48s
+run 3: reset 4.43s  ingest 13.90s  total 18.34s

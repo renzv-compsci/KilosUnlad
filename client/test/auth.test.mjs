@@ -131,7 +131,7 @@ test('data notices are compact disclosures and never imply successful verificati
   assert.match(render('audit_ledger'), /Read-only verification/);
   assert.doesNotMatch(render('audit_ledger'), /Verified|100%/);
   assert.match(render('dashboard'), /Server records \+ sample analytics/);
-  assert.match(render('field_verify'), /Local drafts only/);
+  assert.match(render('field_verify'), /Saved on device until synced/);
   assert.match(render('due_process'), /Preview only/);
   assert.match(render('due_process'), /not submitted/);
   assert.doesNotMatch(render('dashboard'), /<details[^>]*open/);

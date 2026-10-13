@@ -1,0 +1,42 @@
+# INT-02 field submission — 2026-10-12T19:04:46Z
+[reset] done
+=== KilosUnlad INT-02 Case A Fixture ===
+
+[INFO] DEMO-4PS-GRAD-0001 status: ACTIVE_COMPLIANT (flagging is done by POST /beneficiaries/:id/assess, never by a patch)
+[OK]   case_worker_test covers barangay Real
+[START] INT-02 Real Data Integration Test
+
+[1] Logging in as REGIONAL_DIRECTOR...
+[2] Logging in as CASE_WORKER...
+   [OK] Worker ID extracted: 6acd2f511b89b5f85fa700c1
+
+   [OK] Case A assessed: score 100, FLAGGED_FOR_REVIEW
+
+[3] Dispatching task for DEMO-4PS-GRAD-0001 to worker 6acd2f511b89b5f85fa700c1...
+   [OK] Task dispatched: TSK-2026-dea27689-031e-42ba-bffb-0045fb76e89d
+
+[4] Preparing multipart submission with real file hash and geofence coords...
+[5] Negative cases: altered bytes, geofence breach...
+   [OK] Altered photo bytes -> 422 EVIDENCE_HASH_MISMATCH
+   [OK] Geofence breach (~333 m) -> 422 GEOFENCE_VIOLATION
+
+[6] Submitting task to POST /api/v1/tasks/:id/submit...
+   [OK] 200 matches field-task-submission.json
+
+   [OK] Duplicate submission -> 409 TASK_NOT_SUBMITTABLE
+
+[SUCCESS] INT-02 TEST PASSED!
+Response Status: 200
+Response Data: {
+  "task_id": "TSK-2026-dea27689-031e-42ba-bffb-0045fb76e89d",
+  "task_status": "SUBMITTED",
+  "geofence_verification": {
+    "is_matched": true,
+    "distance_variance_meters": 0
+  },
+  "audit_receipt": {
+    "sequence_index": 3,
+    "entry_hash": "6b15802e53267ccfd4ab929a4ba065b6ed03371ef03fd3f6eb6b0a0f09b87cce"
+  },
+  "submitted_at": "2026-10-12T19:04:51.743Z"
+}

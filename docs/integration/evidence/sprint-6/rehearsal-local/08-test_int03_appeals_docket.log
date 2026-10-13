@@ -1,0 +1,51 @@
+# INT-03 appeals docket — 2026-10-12T19:04:51Z
+[reset] done
+=== KilosUnlad INT-03 Notice Fixture ===
+
+[OK]   TEST-4PS-NOTICE-0001 inserted (NOTICE_OF_INELIGIBILITY)
+[OK]   TEST-TSK-NOTICE-0001 notice instant = 2026-10-10T19:04:56.371Z
+       appeal deadline     = 2026-10-25T19:04:56.371Z
+[START] INT-03 Appeals Docket Integration Test
+
+[1] Logged in as REGIONAL_DIRECTOR, CASE_WORKER, COA_AUDITOR
+
+[2] Negative cases (security guards and boundary validation, expect zero writes)...
+   [OK]   No token -> 401 UNAUTHORIZED
+   [OK]   CASE_WORKER role -> 403 FORBIDDEN
+   [OK]   COA_AUDITOR mutation -> 403 FORBIDDEN
+   [OK]   Client-supplied status (frozen enum) -> 400 INVALID_REQUEST
+   [OK]   Impossible hearing date -> 400 INVALID_REQUEST
+   [OK]   Malformed JSON -> 400 INVALID_JSON
+   [OK]   Unknown household -> 404 HOUSEHOLD_NOT_FOUND
+   [OK]   Household not under notice -> 409 NOTICE_REQUIRED
+
+[3] Filing appeal APP-INT03-1791831896813 for TEST-4PS-NOTICE-0001...
+   [OK]   201 Created
+   [OK]   docket_status UNDER_APPEAL_HEARING
+   [OK]   program_status unchanged (NOTICE_OF_INELIGIBILITY)
+   [OK]   countdown paused
+   [OK]   15-day statutory window from stored notice
+   [OK]   audit receipt returned
+
+[4] Duplicate filing for the same notice...
+   [OK]   Second appeal -> 409 APPEAL_ALREADY_FILED
+
+[5] COA verify-chain over 1..1...
+   [OK]   chain valid and includes APPEAL_FILED block
+
+[SUCCESS] INT-03 TEST PASSED!
+Response Data: {
+  "appeal_docket_id": "APP-INT03-1791831896813",
+  "household_id": "TEST-4PS-NOTICE-0001",
+  "docket_status": "UNDER_APPEAL_HEARING",
+  "program_status": "NOTICE_OF_INELIGIBILITY",
+  "notice_date": "2026-10-10T19:04:56.371Z",
+  "notice_expiry_date": "2026-10-25T19:04:56.371Z",
+  "countdown_paused": true,
+  "hearing_date": "2026-10-20",
+  "filed_at": "2026-10-12T19:04:56.885Z",
+  "audit_receipt": {
+    "sequence_index": 1,
+    "entry_hash": "8f15fbd617ca269cfe569c5a1c116213817be22a485b4632356bc655e6323351"
+  }
+}
