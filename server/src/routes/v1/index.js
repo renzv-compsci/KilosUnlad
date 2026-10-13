@@ -7,8 +7,9 @@ const { allowRoles, scopeJurisdiction } = require('../../middleware/rbac.middlew
 const R = require('../../constants/roles');
 const { createReadFeeds } = require('../../services/readFeeds.service');
 const { createTaskDispatcher } = require('../../services/taskDispatcher.service');
-const { createDispatch, createSubmit } = require('../../controllers/task.controller'); // Added createSubmit
+const { createDispatch, createSubmit } = require('../../controllers/task.controller');
 const { createVerifyChain } = require('../../controllers/audit.controller');
+const { createFileAppeal } = require('../../controllers/appeals.controller'); // Added for INT-03
 
 // Configure multer for in-memory file buffering (required for SHA-256 hash verification)
 const upload = multer({ 
@@ -44,10 +45,13 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   router.post('/tasks/dispatch', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
     scopeJurisdiction, createDispatch(taskDispatcher));
 
-  // NEW: Task Submission (Case Worker only, with multipart upload)
-  // This wires the INT-02 integration seam to the live API surface.
+  // Task Submission (Case Worker only, with multipart upload)
   router.post('/tasks/:id/submit', authenticate, allowRoles(R.CASE_WORKER), 
     upload.array('evidence_files', 10), createSubmit());
+
+  // Appeals Docket (Director/Admin only) - INT-03
+  router.post('/appeals/docket', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
+    scopeJurisdiction, createFileAppeal());
 
   // Feed Helpers
   const feed = operation => async (req, res, next) => {
