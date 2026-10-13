@@ -165,6 +165,7 @@ services:
   # kilosunlad-network with the app_user account.
   # ----------------------------------------------------------------------------
   seed-ingest:
+    profiles: ["tools"] # one-shot job: run explicitly, never on `up`
     image: python:3.10-slim
     container_name: kilosunlad-seed-ingest
     working_dir: /app
@@ -182,6 +183,7 @@ services:
   # Invoke manually via: docker-compose run --rm seed-verify
   # ----------------------------------------------------------------------------
   seed-verify:
+    profiles: ["tools"] # one-shot job: run explicitly, never on `up`
     image: python:3.10-slim
     container_name: kilosunlad-seed-verify
     working_dir: /app
@@ -199,6 +201,7 @@ services:
   # Invoke manually via: docker-compose run --rm seed-audit
   # ----------------------------------------------------------------------------
   seed-audit:
+    profiles: ["tools"] # one-shot job: run explicitly, never on `up`
     image: python:3.10-slim
     container_name: kilosunlad-seed-audit
     working_dir: /app
@@ -216,6 +219,7 @@ services:
   # missing natural keys. Invoke: docker-compose run --rm audit-integrity
   # ----------------------------------------------------------------------------
   audit-integrity:
+    profiles: ["tools"] # one-shot job: run explicitly, never on `up`
     image: python:3.10-slim
     container_name: kilosunlad-audit-integrity
     working_dir: /app
@@ -233,6 +237,7 @@ services:
   # Invoke: docker-compose run --rm reset-demo
   # ----------------------------------------------------------------------------
   reset-demo:
+    profiles: ["tools"] # one-shot job: run explicitly, never on `up`
     image: docker:cli
     container_name: kilosunlad-reset-demo
     working_dir: /workspace
