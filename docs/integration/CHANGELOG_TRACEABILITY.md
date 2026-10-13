@@ -60,13 +60,13 @@ frontend changes limited to wiring and copy; contract changes limited to DECISIO
 | Age-out rule absent (RDY-04) | MODERATE | CLOSED with limitation | "18 and not enrolled" not evaluable (no enrollment field). |
 | Dataset scale contradiction (5k vs 80k) | MAJOR | CLOSED | ADR-001 executed; docs updated. |
 | Integrity counts 54 vs 50 | MINOR | CLOSED | Superseded: 0 issues across 160,012 documents. |
-| Metric discrepancy 0.7726 vs 0.7781 | MODERATE | OPEN (Charles, ML-01) | Independent live measurement 0.766. |
+| Metric discrepancy 0.7726 vs 0.7781 | MODERATE | CLOSED (ML-01, 54f6622) | 0.7726 validation, 0.7771 test-20k (reconciled), 0.7781 not reproducible. |
 | Synthetic-only training / Macro F1 < 0.85 | MAJOR | OPEN (Sprint 2) | ML-04 gate fails P1–P3 on v1 by design. |
 | Reset + 80k baseline exceeds the 10 s DoD | MINOR | OPEN | 17.5–19.3 s measured; reset alone 4.4–5.0 s. |
 | Audit appends serialize globally | MINOR | ACCEPTED | 100 simultaneous flags: 100/100 succeed, burst 24 s. |
 | Notice issuance has no route or audit action | MODERATE | OPEN (decision) | Docket reads the stored approval instant. |
 | Evidence files have no authenticated read route | MINOR | OPEN | Stored content-addressed; viewing is future scope. |
-| Appeals dialog still preview-only (INT-08) | MINOR | OPEN (Markie) | Backend route is live. |
+| Appeals dialog still preview-only (INT-08) | MINOR | CLOSED (e3ae342) | Screen 5 uses live GET/POST /appeals/docket; `test_int08_appeals_ui.js`. |
 | Docker-stack runs of the rehearsal, clean clone and reset | — | PENDING | Local equivalents pass; record Docker logs. |
 | DEF-04 deck | — | BLOCKED | Needs the ML-01 reconciled F1 and the v2 provenance. |
 | E2E-05 standup cadence evidence | — | NOT PRODUCIBLE BY CODE | Needs team records. |

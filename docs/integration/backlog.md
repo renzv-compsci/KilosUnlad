@@ -29,18 +29,18 @@ Legend: DONE | IN REVIEW | OPEN | BLOCKED
 - INT-05 Wire discrepancy.service.js into live assessment — **IN REVIEW** (branch claude/clever-albattani-8ikzld) — POST /beneficiaries/:id/assess (new contract); MODEL_FLAG_RAISED with contributions.
 - INT-06 Verify audit appends on submission and status change — **IN REVIEW** (branch claude/clever-albattani-8ikzld) — in-transaction sealing; verify-chain at every script end.
 - INT-07 Regression matrix for new routes — **IN REVIEW** (branch claude/clever-albattani-8ikzld) — duplicate, altered bytes, geofence, role, expired JWT on every new route.
-- INT-08 Notify Markie; enable sync and appeals UI — **PARTIAL** — sync enabled and proven (STR-02); appeals dialog wiring remains with Markie.
+- INT-08 Notify Markie; enable sync and appeals UI — **DONE** — sync proven (STR-02); Due Process screen lists the live docket (GET /appeals/docket) and files real appeals (`test_int08_appeals_ui.js`).
 
 ---
 
 ## Sprint 2 — ML Empirical Grounding (Charles executes, Renz reviews)
-- ML-01 Reconcile F1 figures with run metadata — **OPEN** (Charles) — independent live measurement 0.766 recorded in F1_DISPOSITION_MEMO §5.
+- ML-01 Reconcile F1 figures with run metadata — **DONE** — 0.7726 = validation score (reproduced), 0.7771 = untouched test-20k (reconciled figure), 0.7781 not reproducible (superseded). See `evidence/sprint-2/SPRINT2_EVIDENCE.md`.
 - ML-02 Train and evaluate E1-E3 on empirical parquet — **OPEN**
 - ML-03 Evaluate E4-E5 blends against best of E1-E3 — **OPEN**
 - ML-04 Leakage audit (6 features only; holdout exclusion) — **PARTIAL** — audit_leakage.py: F1–F3 PASS on v1; P1–P3 gate v2 provenance.
 - ML-05 Contract compliance re-verification (schema, latency, SHAP, fallback) — **OPEN**
-- ML-06 v2 artifact, metadata provenance, image rebuild, benchmark — **OPEN**
-- ML-07 Documentation and threshold disposition update — **PARTIAL** — memo §5 added; reconciled figure pending ML-01.
+- ML-06 v2 artifact, metadata provenance, image rebuild, benchmark — **READY** — `sprint2_experiments.py` exports v2 + provenance (passes audit 6/6 on fixture); waits on `data/raw/fies_raw.csv`.
+- ML-07 Documentation and threshold disposition update — **PARTIAL** — memo §5–§6 added; reconciled figure 0.7771 (ML-01).
 
 ---
 
