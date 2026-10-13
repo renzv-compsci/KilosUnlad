@@ -112,14 +112,31 @@ export interface DueProcessNoticeItem {
     barangay: string;
     municipality: string;
   };
-  notice_date: string;
-  notice_expiry_date: string; // 15-day statutory window
+  notice_date: string | null; // null when no approved notice record exists (live docket)
+  notice_expiry_date: string | null; // 15-day statutory window
   status: 'NOTICE_OF_INELIGIBILITY' | 'UNDER_APPEAL_HEARING' | 'FINAL_REVOCATION';
   grant_continuation_active: boolean;
-  appeal_docket_id?: string;
-  hearing_date?: string;
-  appeal_grounds?: string;
+  appeal_docket_id?: string | null;
+  hearing_date?: string | null;
+  appeal_grounds?: string | null;
   initial_ineligibility_cause: string;
+}
+
+// POST /api/v1/appeals/docket (admin-appeal-filing.json)
+export interface AppealFilingRequest {
+  household_id: string;
+  appeal_docket_id: string;
+  hearing_date: string; // YYYY-MM-DD
+  appeal_grounds: string;
+}
+
+export interface AppealFilingReceipt {
+  appeal_docket_id: string;
+  household_id: string;
+  docket_status: 'UNDER_APPEAL_HEARING';
+  notice_expiry_date: string;
+  hearing_date: string;
+  audit_receipt: { sequence_index: number; entry_hash: string };
 }
 
 export interface AuditBlock {

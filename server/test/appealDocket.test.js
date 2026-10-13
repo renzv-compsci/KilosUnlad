@@ -171,6 +171,47 @@ test('INT-03 POST /api/v1/appeals/docket against a disposable MongoDB replica se
     });
   });
 
+  await t.test('INT-08 GET /appeals/docket lists notices with deadlines and verified appeals', async () => {
+    const contract = require('../../docs/contracts/admin-web/admin-due-process-docket.json');
+    const get = (as, query = '') => fetch(`${base}/appeals/docket${query}`,
+      { headers: as ? { Authorization: `Bearer ${tokens[as]}` } : {} });
+    await seed('HH-LIST-OPEN');
+    await seed('HH-LIST-NONOTICE', { noticeAgo: null });
+    await seed('HH-LIST-REAL', { barangay: 'Real' });
+    await seed('HH-LIST-INV', { status: 'UNDER_INVESTIGATION' });
+    const r = await get('director', '?limit=100');
+    assert.equal(r.status, 200);
+    assert.equal(r.headers.get('cache-control'), 'no-store');
+    const data = await r.json();
+    const byId = Object.fromEntries(data.items.map(i => [i.household_id, i]));
+    assert.deepEqual(Object.keys(byId['HH-LIST-OPEN']).sort(), Object.keys(contract.response.data.items[0]).sort());
+    assert.equal(byId['HH-LIST-OPEN'].status, 'NOTICE_OF_INELIGIBILITY');
+    assert.equal(Date.parse(byId['HH-LIST-OPEN'].notice_expiry_date) - Date.parse(byId['HH-LIST-OPEN'].notice_date), 15 * DAY);
+    assert.equal(byId['HH-LIST-OPEN'].grant_continuation_active, true);
+    assert.equal(byId['HH-LIST-NONOTICE'].notice_date, null);
+    assert.equal(byId['HH-OK'].status, 'UNDER_APPEAL_HEARING');
+    assert.equal(byId['HH-OK'].appeal_docket_id, 'APP-HH-OK');
+    assert.ok(!byId['HH-LIST-REAL'], 'outside the director barangays');
+    assert.ok(!byId['HH-LIST-INV'], 'not under notice');
+    const admin = await (await get('admin', '?limit=100')).json();
+    assert.ok(admin.items.some(i => i.household_id === 'HH-LIST-REAL'));
+    assert.equal(admin.pagination.total_records, admin.items.length);
+    const paged = await (await get('admin', '?limit=1&page=2')).json();
+    assert.equal(paged.items.length, 1); assert.equal(paged.pagination.current_page, 2);
+    assert.equal((await get('auditor')).status, 200);
+    await rejected(await get(null), 401, 'UNAUTHORIZED');
+    await rejected(await get('worker'), 403, 'FORBIDDEN');
+    for (const q of ['?limit=0', '?limit=101', '?page=0', '?page=x', '?status=GRADUATED', '?limit=1&limit=2']) {
+      await rejected(await get('director', q), 400, 'INVALID_QUERY');
+    }
+    // A tampered APPEAL_FILED block must not be presented as a verified appeal.
+    const block = await audits.findOne({ action: 'APPEAL_FILED', 'target_entity.entity_id': 'HH-OK' }).lean();
+    await audits.collection.updateOne({ _id: block._id }, { $set: { 'state_delta.after.hearing_date': '2099-01-01' } });
+    await rejected(await get('director', '?limit=100'), 409, 'AUDIT_ENTRY_INVALID');
+    await audits.collection.replaceOne({ _id: block._id }, block);
+    assert.equal((await get('director', '?limit=100')).status, 200);
+  });
+
   await t.test('simultaneous filings for one household yield exactly one appeal', async () => {
     await seed('HH-RACE');
     const results = await Promise.all([post('director', payload('HH-RACE')),

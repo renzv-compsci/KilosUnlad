@@ -75,6 +75,7 @@ if [ $FULL -eq 1 ]; then
   run "INT-02 field submission" "add_int02_case_a_fixture" test_int02_submission
   run "INT-03 appeals docket" "add_int03_notice_fixture" test_int03_appeals_docket
   run "INT-04 calamity toggle" "" test_int04_calamity_toggle
+  run "INT-08 due process docket (API + browser)" "add_int03_notice_fixture" test_int08_appeals_ui
   run "E2E-02 calamity freeze" "add_dispatch_test" test_e2e02_calamity_freeze
   run "E2E-03 age-out (RA 11310)" "add_e2e03_age_out_fixture" test_e2e03_age_out
   run "E2E-04 SHAP drawer (API)" "" test_e2e04_shap_drawer

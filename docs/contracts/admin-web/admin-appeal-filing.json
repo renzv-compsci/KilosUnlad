@@ -1,0 +1,94 @@
+{
+  "contract_name": "admin-appeal-filing",
+  "version": "1.0.0",
+  "revision_note": "2026-10-12 (INT-03/INT-08): documents the mounted POST /api/v1/appeals/docket, which shipped in INT-03 without a contract file. Body is exactly the four fields the appeal dialog collects; status, notice and deadline values are never accepted from the client.",
+  "endpoint": "/api/v1/appeals/docket",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>",
+    "Content-Type": "application/json"
+  },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR (jurisdiction-scoped).",
+  "request": {
+    "household_id": "TEST-4PS-NOTICE-0001",
+    "appeal_docket_id": "APP-CAL-2026-0042",
+    "hearing_date": "2026-10-20",
+    "appeal_grounds": "Motorcycle is registered to a sibling living separately."
+  },
+  "response": {
+    "status": 201,
+    "data": {
+      "appeal_docket_id": "APP-CAL-2026-0042",
+      "household_id": "TEST-4PS-NOTICE-0001",
+      "docket_status": "UNDER_APPEAL_HEARING",
+      "program_status": "NOTICE_OF_INELIGIBILITY",
+      "notice_date": "2026-10-10T08:00:00.000Z",
+      "notice_expiry_date": "2026-10-25T08:00:00.000Z",
+      "countdown_paused": true,
+      "hearing_date": "2026-10-20",
+      "filed_at": "2026-10-12T08:00:00.000Z",
+      "audit_receipt": {
+        "sequence_index": 1,
+        "entry_hash": "3d9a1f2e4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e"
+      }
+    }
+  },
+  "error_responses": [
+    {
+      "status": 400,
+      "error": {
+        "code": "INVALID_REQUEST",
+        "message": "Request fields are missing or invalid."
+      }
+    },
+    {
+      "status": 400,
+      "error": {
+        "code": "INVALID_HEARING_DATE",
+        "message": "The hearing date cannot precede the filing date."
+      }
+    },
+    {
+      "status": 404,
+      "error": {
+        "code": "HOUSEHOLD_NOT_FOUND",
+        "message": "Specified household ID does not exist."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "NOTICE_REQUIRED",
+        "message": "Only households under a Notice of Ineligibility can appeal."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "NOTICE_RECORD_MISSING",
+        "message": "No approved notice record exists for this household."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "APPEAL_WINDOW_CLOSED",
+        "message": "The 15-day appeal window has elapsed."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "APPEAL_ALREADY_FILED",
+        "message": "An appeal is already docketed for this notice."
+      }
+    },
+    {
+      "status": 409,
+      "error": {
+        "code": "DOCKET_ID_CONFLICT",
+        "message": "The appeal docket reference is already in use."
+      }
+    }
+  ]
+}

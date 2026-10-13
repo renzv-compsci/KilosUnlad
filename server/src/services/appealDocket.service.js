@@ -9,6 +9,7 @@ const { allowRoles, requireJurisdiction } = require('../middleware/rbac.middlewa
 const { calculateAppealDeadline } = require('./appealLifecycle.service');
 const { WorkflowError, runGuard, assertAuditReady, appendAuditEntry,
   isSequenceContention } = require('./workflowPersistence.service');
+const { computeEntryHash } = require('../utils/cryptoHelper');
 
 const ROLES = [R.SUPER_ADMIN, R.REGIONAL_DIRECTOR];
 const DOCKET_STATUS = 'UNDER_APPEAL_HEARING';
@@ -125,7 +126,58 @@ function createAppealDocket({ beneficiaries = Beneficiary, users = User, audits 
       audit_receipt };
   }
 
-  return { file };
+  // INT-08: read model for the Due Process screen (admin-due-process-docket.json).
+  // Deadlines use the same stored notice instant as file(); appeal details come
+  // only from APPEAL_FILED blocks whose entry hash recomputes.
+  async function list(query = {}, jurisdictionFilter) {
+    const keys = Object.keys(query || {});
+    const parse = value => typeof value === 'string' && /^[1-9]\d*$/.test(value) ? Number(value) : NaN;
+    const page = query.page === undefined ? 1 : parse(query.page);
+    const limit = query.limit === undefined ? 50 : parse(query.limit);
+    if (keys.some(k => !['page', 'limit'].includes(k)) || !Number.isSafeInteger(page) ||
+        !Number.isSafeInteger(limit) || limit > 100 || !jurisdictionFilter) {
+      throw new WorkflowError(400, 'INVALID_QUERY', 'Supply page >= 1 and limit between 1 and 100.');
+    }
+    const match = { $and: [jurisdictionFilter, { program_status: S.NOTICE_OF_INELIGIBILITY }] };
+    const [total, households] = await Promise.all([
+      beneficiaries.countDocuments(match),
+      beneficiaries.find(match).select('household_id head_of_household address risk_assessment')
+        .sort({ household_id: 1 }).skip((page - 1) * limit).limit(limit).lean()
+    ]);
+    const items = [];
+    for (const h of households) {
+      const approval = await tasks.findOne({ household_id: h.household_id, task_status: 'VERIFIED_GRADUATE',
+        'admin_resolution.decision': 'APPROVED_GRADUATION' }).sort({ 'admin_resolution.finalized_at': -1 }).lean();
+      const noticeAt = approval?.admin_resolution?.finalized_at;
+      const valid = noticeAt instanceof Date && Number.isFinite(noticeAt.getTime());
+      const appeal = valid ? await audits.findOne({ action: 'APPEAL_FILED', 'target_entity.entity_id': h.household_id,
+        timestamp: { $gte: noticeAt } }).sort({ sequence_index: -1 }).lean() : null;
+      if (appeal && computeEntryHash({ sequenceIndex: appeal.sequence_index, previousEntryHash: appeal.previous_entry_hash,
+        timestamp: appeal.timestamp, actorId: appeal.actor.user_id, action: appeal.action,
+        stateDelta: appeal.state_delta }) !== appeal.entry_hash) {
+        throw new WorkflowError(409, 'AUDIT_ENTRY_INVALID', 'An audit entry cannot be verified.');
+      }
+      const filed = appeal?.state_delta?.after || {};
+      const head = h.head_of_household || {};
+      items.push({ household_id: h.household_id,
+        head_of_household: { full_name: `${head.first_name || ''} ${head.last_name || ''}`.trim(), national_id: head.national_id },
+        address: { barangay: h.address?.barangay, municipality: h.address?.municipality },
+        notice_date: valid ? noticeAt.toISOString() : null,
+        notice_expiry_date: valid ? calculateAppealDeadline(noticeAt).toISOString() : null,
+        status: appeal ? DOCKET_STATUS : S.NOTICE_OF_INELIGIBILITY,
+        // RA 11310 Sec. 12: grants continue while due process is pending.
+        grant_continuation_active: true,
+        appeal_docket_id: appeal ? filed.appeal_docket_id : null,
+        hearing_date: appeal ? filed.hearing_date : null,
+        appeal_grounds: appeal ? filed.appeal_grounds : null,
+        initial_ineligibility_cause: approval?.admin_resolution?.admin_notes ||
+          (h.risk_assessment?.flag_reasons || []).join('; ') });
+    }
+    return { items, pagination: { total_records: total, current_page: page,
+      total_pages: Math.ceil(total / limit), limit } };
+  }
+
+  return { file, list };
 }
 
 module.exports = { createAppealDocket, docketSchema };

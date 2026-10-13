@@ -9,6 +9,9 @@ import {
   FieldTaskSubmission,
   TriagePagination,
   AssessmentExplanation,
+  AppealFilingReceipt,
+  AppealFilingRequest,
+  DueProcessNoticeItem,
 } from '../types/contracts';
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
@@ -107,6 +110,33 @@ export async function fetchAssessmentExplanation(householdId: string, signal?: A
     if (axios.isAxiosError(error) && error.response?.data?.error?.code === 'ASSESSMENT_NOT_FOUND') return null;
     throw error;
   }
+}
+
+// INT-08: live due-process docket (admin-due-process-docket.json).
+export async function fetchDueProcessDocket(signal?: AbortSignal): Promise<DueProcessNoticeItem[]> {
+  const response = await api.get('/appeals/docket', { params: { limit: 100 }, signal });
+  if (!Array.isArray(response.data?.items)) throw new Error('Due process docket response did not include an items array.');
+  return response.data.items as DueProcessNoticeItem[];
+}
+
+// INT-08: files a formal appeal (admin-appeal-filing.json).
+export async function fileAppeal(body: AppealFilingRequest): Promise<AppealFilingReceipt> {
+  const response = await api.post('/appeals/docket', body);
+  return response.data as AppealFilingReceipt;
+}
+
+export function appealErrorMessage(error: unknown): string {
+  const code = axios.isAxiosError(error) ? error.response?.data?.error?.code : undefined;
+  const messages: Record<string, string> = {
+    INVALID_REQUEST: 'Check the fields: docket reference (letters, digits, hyphens), a valid hearing date and at least 10 characters of grounds.',
+    INVALID_HEARING_DATE: 'The hearing date cannot be earlier than today.',
+    NOTICE_REQUIRED: 'This household is no longer under a Notice of Ineligibility. Refresh the list.',
+    NOTICE_RECORD_MISSING: 'No approved notice record exists for this household, so no appeal window can be computed.',
+    APPEAL_WINDOW_CLOSED: 'The 15-day appeal window has already elapsed.',
+    APPEAL_ALREADY_FILED: 'An appeal is already docketed for this notice. Refresh the list.',
+    DOCKET_ID_CONFLICT: 'That docket reference is already used by another appeal.',
+  };
+  return (code && messages[code]) || apiErrorMessage(error);
 }
 
 export async function fetchAssignedTasks(signal?: AbortSignal): Promise<FieldTaskItem[]> {

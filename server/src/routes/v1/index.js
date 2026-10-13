@@ -12,7 +12,7 @@ const { createTaskSubmission } = require('../../services/taskSubmission.service'
 const { createVerifyChain } = require('../../controllers/audit.controller');
 const validateBody = require('../../middleware/validation.middleware');
 const { createAppealDocket, docketSchema } = require('../../services/appealDocket.service');
-const { createFileAppeal } = require('../../controllers/appeal.controller');
+const { createFileAppeal, createListDocket } = require('../../controllers/appeal.controller');
 const { createCalamityToggle, toggleSchema } = require('../../services/calamityToggle.service');
 const { createToggleCalamity } = require('../../controllers/calamity.controller');
 const { createRiskAssessment, assessSchema } = require('../../services/riskAssessment.service');
@@ -63,6 +63,9 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   // pauses the 15-day countdown; household status is unchanged (frozen enum).
   router.post('/appeals/docket', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
     scopeJurisdiction, validateBody(docketSchema), createFileAppeal(appealDocket));
+  // INT-08: Due Process read model (Admin/Director/COA; jurisdiction-scoped).
+  router.get('/appeals/docket', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR),
+    scopeJurisdiction, createListDocket(appealDocket));
 
   // INT-04: Calamity Moratorium Toggle (Super Admin only; RA 10121 declarations
   // are municipality-wide and exceed a barangay-scoped director's jurisdiction).

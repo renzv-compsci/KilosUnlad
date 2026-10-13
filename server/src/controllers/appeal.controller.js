@@ -10,4 +10,13 @@ function createFileAppeal(service = createAppealDocket()) {
   };
 }
 
-module.exports = { createFileAppeal };
+// INT-08: GET /api/v1/appeals/docket (admin-due-process-docket.json).
+function createListDocket(service = createAppealDocket()) {
+  return async (req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    try { res.status(200).json(await service.list(req.query, req.jurisdictionFilter)); }
+    catch (error) { next(error); }
+  };
+}
+
+module.exports = { createFileAppeal, createListDocket };
