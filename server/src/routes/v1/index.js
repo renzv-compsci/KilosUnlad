@@ -13,6 +13,7 @@ const R = require('../../constants/roles');
 
 // --- Feeds & Tasks ---
 const { createReadFeeds } = require('../../services/readFeeds.service');
+const { createInsights } = require('../../services/insights.service');
 const { createTaskDispatcher } = require('../../services/taskDispatcher.service');
 const { createDispatch, createSubmit } = require('../../controllers/task.controller');
 const { createTaskSubmission } = require('../../services/taskSubmission.service');
@@ -37,7 +38,7 @@ const upload = multer({
 module.exports = function createRouter({ mockMode, production, authService = createAuthService(),
   taskDispatcher = createTaskDispatcher(), readFeeds = createReadFeeds(), chainVerifier,
   appealDocket = createAppealDocket(), calamityToggle = createCalamityToggle(),
-  taskSubmission = createTaskSubmission(), riskAssessment = createRiskAssessment() }) {
+  taskSubmission = createTaskSubmission(), riskAssessment = createRiskAssessment(), insights = createInsights() }) {
   
   const router = Router();
   
@@ -106,6 +107,20 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   // Assigned Tasks
   router.get('/tasks/assigned', authenticate, allowRoles(R.CASE_WORKER), scopeJurisdiction,
     feed(req => readFeeds.assigned(req.query, req.jurisdictionFilter, req.user.userId)));
+
+  // UI live data (DECISION-010): read-only aggregates and lists, same scoping as the triage feed.
+  router.get('/insights/overview', authenticate,
+    allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR), scopeJurisdiction,
+    feed(req => insights.overview(req.query, req.jurisdictionFilter, req.user)));
+  router.get('/tasks', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR), scopeJurisdiction,
+    feed(req => insights.tasksList(req.query, req.jurisdictionFilter)));
+  router.get('/users/caseworkers', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR), scopeJurisdiction,
+    feed(req => insights.caseworkers(req.query, req.user)));
+  router.get('/audit/blocks', authenticate, allowRoles(R.COA_AUDITOR, R.SUPER_ADMIN),
+    feed(req => insights.auditBlocks(req.query)));
+  router.get('/system/policy', authenticate,
+    allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR), scopeJurisdiction,
+    feed(req => insights.policy(req.query, req.user)));
 
   return router;
 };

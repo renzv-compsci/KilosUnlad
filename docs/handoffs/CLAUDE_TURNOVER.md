@@ -10,6 +10,27 @@ flag register), `docs/decisions/009-ml-vector-and-assessment-contracts.md`, evid
 
 ---
 
+## 00. Update after the main merge (2026-10-13, clean start + live UI + hosting)
+
+| Item | Result | Where |
+| --- | --- | --- |
+| Clean-start check of `main` (model v2) on Docker | Capstone 16/16, Section 12 14/14. E2E-03 weight check fixed for v2 (test, not system) | `docs/integration/evidence/clean-start-main/` |
+| UI shows the data inside the system | Every sample panel replaced by server data. Five new read-only routes and contracts. No schema change, no guard changed | `docs/decisions/010-ui-live-data-read-contracts.md` (**PROPOSED: needs your sign-off**) |
+| Tests | Server 158 pass / 0 fail (replica set); `insights.test.js` 6/6 written first. Client 67/67, typecheck clean, build OK. `test_ui_live_data.js` **101/101** (API + browser at 390/834/1440 px, no sideways scroll). Capstone `--full` re-run **16/16** on the rebuilt stack | `docs/integration/evidence/ui-live-data/` |
+| Manual test scenarios | 12 scenarios (S1–S12) with exact expected numbers; the API steps were executed as written | `docs/testing/MANUAL_TEST_SCENARIOS.md` |
+| Free hosting | Vercel (client) + Render free (API, ML) + Atlas M0. Blueprint, Vercel config, seeding script; production start and Atlas-style restore rehearsed locally | `deploy/HOSTING_GUIDE.md`, `render.yaml`, `client/vercel.json`, `deploy/atlas_seed.sh` |
+
+**Decisions still yours (new):**
+1. Sign DECISION-010.
+2. Whether Atlas M0 lets you create the append-only custom role. If it does not, do **not** fall back to `readWrite` silently (`HOSTING_GUIDE.md` §1.3).
+
+**Flags from the main merge (not changed by me):**
+- `server/src/controllers/appeals.controller.js` is not mounted and contains debug logs.
+- `stratified_partition.py` now targets `swdi_level` on the empirical parquet, while `sprint2_experiments` uses `swdi_level_true`. Check that the two agree before the next ML run.
+- After rebuilding the client or server container, restart `gateway`: nginx keeps the old container address and returns 502 until restarted.
+
+---
+
 ## 0. Where the Scrum plan stands (2026-10-13)
 
 **Short answer: every Scrum item except Sprint 2's empirical ML run is done, verified on the Docker Compose stack, and has evidence. The ML run is blocked on one input file that is not in the repository. Section 6 is the step-by-step guide for validating everything yourself.**

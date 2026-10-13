@@ -1,0 +1,140 @@
+{
+  "contract_name": "admin-insights-overview",
+  "version": "1.0.0",
+  "revision_note": "2026-10-13 (UI live data, DECISION-010): read-only aggregates for the Executive Dashboard and the COA Audit Overview. Every count is limited to the caller's jurisdiction (same filter as the triage feed). `audit` is present only for COA_AUDITOR and SUPER_ADMIN; it is null for REGIONAL_DIRECTOR. Score bands use the persisted risk_assessment.composite_risk_score; the flag threshold is 70.",
+  "endpoint": "/api/v1/insights/overview",
+  "method": "GET",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>"
+  },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR, COA_AUDITOR (jurisdiction-scoped). No query parameters.",
+  "response": {
+    "status": 200,
+    "data": {
+      "generated_at": "2026-10-13T09:00:00.000Z",
+      "households": {
+        "total": 80005,
+        "by_status": {
+          "ACTIVE_COMPLIANT": 79997,
+          "FLAGGED_FOR_REVIEW": 4,
+          "UNDER_INVESTIGATION": 2,
+          "NOTICE_OF_INELIGIBILITY": 1,
+          "GRADUATED": 1,
+          "CALAMITY_SUSPENDED": 0
+        },
+        "by_enrolled_level": {
+          "1": 13716,
+          "2": 41305,
+          "3": 24984
+        }
+      },
+      "risk": {
+        "flag_threshold": 70,
+        "high_risk": 6,
+        "critical": 3,
+        "high": 3,
+        "below_threshold": 79999,
+        "average_flagged_score": 84.5,
+        "triggers": [
+          {
+            "code": "POWER_LIFELINE_BREACH",
+            "label": "Power above lifeline",
+            "count": 4
+          }
+        ]
+      },
+      "municipalities": [
+        {
+          "province": "Laguna",
+          "municipality": "Calamba",
+          "households": 80005,
+          "flagged": 4,
+          "under_investigation": 2,
+          "notice": 1,
+          "graduated": 1,
+          "high_risk": 6,
+          "average_flagged_score": 84.5,
+          "centroid": [
+            121.1652,
+            14.2144
+          ],
+          "calamity_active": false,
+          "top_triggers": [
+            {
+              "code": "POWER_LIFELINE_BREACH",
+              "count": 4
+            }
+          ]
+        }
+      ],
+      "tasks": {
+        "total": 3,
+        "by_status": {
+          "PENDING_DISPATCH": 1,
+          "CACHED_OFFLINE": 0,
+          "SUBMITTED": 1,
+          "VERIFIED_GRADUATE": 1,
+          "VERIFIED_RETAIN": 0
+        },
+        "average_turnaround_hours": 26.5,
+        "workers": [
+          {
+            "user_id": "64f1a2b3c4d5e6f7a8b9c0d1",
+            "full_name": "Test Case Worker",
+            "open": 1,
+            "submitted": 1,
+            "verified": 1
+          }
+        ]
+      },
+      "due_process": {
+        "notices": 1,
+        "appeals_filed": 0
+      },
+      "calamity": {
+        "active_zones": [
+          {
+            "province": "Laguna",
+            "municipality": "Calamba",
+            "declared_at": "2026-10-01T00:00:00.000Z",
+            "expires_at": null,
+            "ndrrmc_reference": "NDRRMC-2026-0001"
+          }
+        ]
+      },
+      "audit": {
+        "total_blocks": 5,
+        "last_sequence_index": 5,
+        "last_timestamp": "2026-10-13T08:59:00.000Z",
+        "by_action": {
+          "MODEL_FLAG_RAISED": 2,
+          "TASK_DISPATCHED": 1,
+          "REPORT_SUBMITTED": 1,
+          "APPEAL_FILED": 1
+        }
+      }
+    }
+  },
+  "errors": [
+    {
+      "status": 401,
+      "code": "UNAUTHORIZED"
+    },
+    {
+      "status": 403,
+      "code": "FORBIDDEN"
+    },
+    {
+      "status": 403,
+      "code": "OUT_OF_JURISDICTION"
+    },
+    {
+      "status": 400,
+      "code": "INVALID_QUERY"
+    },
+    {
+      "status": 503,
+      "code": "SERVICE_UNAVAILABLE"
+    }
+  ]
+}

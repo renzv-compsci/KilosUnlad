@@ -1,0 +1,49 @@
+# Render Blueprint for KilosUnlad (free plan). See deploy/HOSTING_GUIDE.md.
+# Two web services: the Express API (native Node) and the FastAPI ML service (Docker,
+# because LightGBM needs libgomp). MongoDB is on Atlas M0; the client is on Vercel.
+# Values marked `sync: false` are entered in the Render dashboard (never committed).
+services:
+  - type: web
+    name: kilosunlad-ml
+    runtime: docker
+    plan: free
+    rootDir: ml-service
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: SWDI_MODEL_PATH
+        value: /app/artifacts/v2/lightgbm_swdi_v2.joblib
+      - key: MODEL_METADATA_PATH
+        value: /app/artifacts/v2/model_metadata.json
+
+  - type: web
+    name: kilosunlad-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: PHASE1_MOCK_MODE
+        value: "false"
+      - key: MONGO_URI          # Atlas app user, e.g. mongodb+srv://kilosunlad_app:<pw>@<cluster>/kilosunlad?retryWrites=true&w=majority&authSource=admin
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN        # your Vercel URL, e.g. https://kilosunlad.vercel.app
+        sync: false
+      - key: ML_SERVICE_URL     # https://kilosunlad-ml.onrender.com (shown on the ML service page)
+        sync: false
+      - key: ML_SERVICE_TIMEOUT_MS
+        value: "2500"
+      - key: UPLOAD_DIR         # ephemeral on the free plan: evidence files are lost on restart
+        value: /tmp/kilosunlad-uploads
+      - key: APPEAL_WINDOW_DAYS
+        value: "15"

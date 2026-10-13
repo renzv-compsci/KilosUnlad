@@ -1,0 +1,87 @@
+# TC-07, TC-10 — test_str02_airplane_sync (browser offline) — 2026-10-13T16:33:41Z
+time="2026-10-13T16:33:42Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container cc-reset-demo-run-7fa74db9f67c Creating 
+ Container cc-reset-demo-run-7fa74db9f67c Created 
+[reset_demo] ===============================================
+[reset_demo] KilosUnlad — Demo Reset
+[reset_demo] ===============================================
+[reset_demo] [1/5] Checking database container...
+[reset_demo]       Container kilosunlad-db is running.
+[reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      Replica set PRIMARY confirmed.
+      Dropped 6 collections.
+      Collections + indexes rebuilt.
+[reset_demo] [3/5] Seeding test accounts...
+[reset_demo]       Test accounts + sample records seeded.
+[reset_demo] [4/5] Loading demo Case A and verifying...
+      Demo Case A loaded.
+      users:              4
+      beneficiaries:      5
+      external_records:   1
+      verification_tasks: 2
+      audit_logs:         0
+      system_configs:     0
+[reset_demo] ===============================================
+[reset_demo] [5/5] Demo reset complete in 2s
+[reset_demo] Within 10-second DoD.
+[reset_demo] ===============================================
+=== KilosUnlad INT-02 Case A Fixture ===
+
+[INFO] DEMO-4PS-GRAD-0001 status: ACTIVE_COMPLIANT (flagging is done by POST /beneficiaries/:id/assess, never by a patch)
+[OK]   case_worker_test covers barangay Real
+=== KilosUnlad Dispatch Test Fixture ===
+
+[1] Looking up worker account...
+    Worker found:
+      username:  case_worker_test
+      _id:       6ace5d6806a9149bcc9df8a5
+      role:      CASE_WORKER
+      barangay:  ["Palingon","Real"]
+
+[2] Checking if test household already exists...
+    Not found. Will insert.
+
+[3] Confirming no active task exists for this household...
+    No active task. Safe to dispatch.
+
+[4] Inserting test household...
+    [OK] Inserted TEST-4PS-DISPATCH-0001
+
+=== Setup Complete ===
+
+Household ready for dispatch:
+  household_id:      TEST-4PS-DISPATCH-0001
+  barangay:          Palingon
+  municipality:      Calamba
+  province:          Laguna
+  program_status:    FLAGGED_FOR_REVIEW
+  active task:       none
+
+Worker _id for dispatch request:
+  6ace5d6806a9149bcc9df8a5
+
+Send dispatch request with:
+  household_id:       TEST-4PS-DISPATCH-0001
+  assigned_worker_id: 6ace5d6806a9149bcc9df8a5
+
+Expected: HTTP 201 Created, task appears in worker assigned feed.
+[START] STR-02 Airplane-Mode Sync Test
+
+[1] Dispatched TSK-2026-05d87ab7-6c38-4207-9372-c4ee4755f541, TSK-2026-259caa38-7509-4d57-8cef-75a1e8334c8f
+
+[2] Airplane mode: completing both reports offline...
+   [OK]   browser reports offline
+    Editing report 1 before reconnecting...
+   [OK]   exactly 2 queued drafts on the device (edit replaced, not duplicated)
+   [OK]   queued draft holds the edited narrative
+   [OK]   nothing reached the server while offline
+
+[3] Reconnecting...
+   [OK]   both reports synced automatically (zero loss)
+   [OK]   server holds the edited report 1
+   [OK]   server holds the edited photo hash
+   [OK]   exactly one REPORT_SUBMITTED block per task
+   [OK]   original photo bytes verified server-side
+   [OK]   device marks both drafts SYNCED
+
+[SUCCESS] STR-02 TEST PASSED!

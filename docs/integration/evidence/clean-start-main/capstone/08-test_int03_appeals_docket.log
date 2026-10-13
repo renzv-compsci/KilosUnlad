@@ -1,0 +1,76 @@
+# INT-03 appeals docket — 2026-10-13T16:31:16Z
+time="2026-10-13T16:31:16Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container cc-reset-demo-run-9ed40731ef26 Creating 
+ Container cc-reset-demo-run-9ed40731ef26 Created 
+[reset_demo] ===============================================
+[reset_demo] KilosUnlad — Demo Reset
+[reset_demo] ===============================================
+[reset_demo] [1/5] Checking database container...
+[reset_demo]       Container kilosunlad-db is running.
+[reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      Replica set PRIMARY confirmed.
+      Dropped 6 collections.
+      Collections + indexes rebuilt.
+[reset_demo] [3/5] Seeding test accounts...
+[reset_demo]       Test accounts + sample records seeded.
+[reset_demo] [4/5] Loading demo Case A and verifying...
+      Demo Case A loaded.
+      users:              4
+      beneficiaries:      5
+      external_records:   1
+      verification_tasks: 2
+      audit_logs:         0
+      system_configs:     0
+[reset_demo] ===============================================
+[reset_demo] [5/5] Demo reset complete in 3s
+[reset_demo] Within 10-second DoD.
+[reset_demo] ===============================================
+=== KilosUnlad INT-03 Notice Fixture ===
+
+[OK]   TEST-4PS-NOTICE-0001 inserted (NOTICE_OF_INELIGIBILITY)
+[OK]   TEST-TSK-NOTICE-0001 notice instant = 2026-10-11T16:31:20.667Z
+       appeal deadline     = 2026-10-26T16:31:20.667Z
+[START] INT-03 Appeals Docket Integration Test
+
+[1] Logged in as REGIONAL_DIRECTOR, CASE_WORKER, COA_AUDITOR
+
+[2] Negative cases (security guards and boundary validation, expect zero writes)...
+   [OK]   No token -> 401 UNAUTHORIZED
+   [OK]   CASE_WORKER role -> 403 FORBIDDEN
+   [OK]   COA_AUDITOR mutation -> 403 FORBIDDEN
+   [OK]   Client-supplied status (frozen enum) -> 400 INVALID_REQUEST
+   [OK]   Impossible hearing date -> 400 INVALID_REQUEST
+   [OK]   Malformed JSON -> 400 INVALID_JSON
+   [OK]   Unknown household -> 404 HOUSEHOLD_NOT_FOUND
+   [OK]   Household not under notice -> 409 NOTICE_REQUIRED
+
+[3] Filing appeal APP-INT03-1791909081122 for TEST-4PS-NOTICE-0001...
+   [OK]   201 Created
+   [OK]   docket_status UNDER_APPEAL_HEARING
+   [OK]   program_status unchanged (NOTICE_OF_INELIGIBILITY)
+   [OK]   countdown paused
+   [OK]   15-day statutory window from stored notice
+   [OK]   audit receipt returned
+
+[4] Duplicate filing for the same notice...
+   [OK]   Second appeal -> 409 APPEAL_ALREADY_FILED
+
+[5] COA verify-chain over 1..1...
+   [OK]   chain valid and includes APPEAL_FILED block
+
+[SUCCESS] INT-03 TEST PASSED!
+Response Data: {
+  "appeal_docket_id": "APP-INT03-1791909081122",
+  "household_id": "TEST-4PS-NOTICE-0001",
+  "docket_status": "UNDER_APPEAL_HEARING",
+  "program_status": "NOTICE_OF_INELIGIBILITY",
+  "notice_date": "2026-10-11T16:31:20.667Z",
+  "notice_expiry_date": "2026-10-26T16:31:20.667Z",
+  "countdown_paused": true,
+  "hearing_date": "2026-10-21",
+  "filed_at": "2026-10-13T16:31:21.199Z",
+  "audit_receipt": {
+    "sequence_index": 1,
+    "entry_hash": "89e715f929d7a64f81a2f4cce455ab17cf8c1cf8592ff7a79127dc0af3b00334"
+  }
+}

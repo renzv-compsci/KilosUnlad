@@ -1,0 +1,67 @@
+# TC-17 — verify_compound_index (80k) — 2026-10-13T16:34:27Z
+time="2026-10-13T16:34:27Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container cc-reset-demo-run-db6f3d3b5fdf Creating 
+ Container cc-reset-demo-run-db6f3d3b5fdf Created 
+[reset_demo] ===============================================
+[reset_demo] KilosUnlad — Demo Reset
+[reset_demo] ===============================================
+[reset_demo] [1/5] Checking database container...
+[reset_demo]       Container kilosunlad-db is running.
+[reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      Replica set PRIMARY confirmed.
+      Dropped 6 collections.
+      Collections + indexes rebuilt.
+[reset_demo] [2b/5] Restoring the 80k baseline snapshot (beneficiaries + external_records)...
+[reset_demo] [3/5] Seeding test accounts...
+[reset_demo]       Test accounts + sample records seeded.
+[reset_demo]       Baseline restored.
+[reset_demo] [4/5] Loading demo Case A and verifying...
+      Demo Case A loaded.
+      users:              4
+      beneficiaries:      80005
+      external_records:   80001
+      verification_tasks: 2
+      audit_logs:         0
+      system_configs:     0
+[reset_demo] ===============================================
+[reset_demo] [5/5] Demo reset complete in 6s
+[reset_demo] Within 10-second DoD.
+[reset_demo] ===============================================
+=== KilosUnlad Compound Index Verification (Phase 3 Task 3.2) ===
+
+[1] Connecting to MongoDB...
+    Connected.
+
+[2] Running explain on the triage (flagged) query...
+    Query: {'risk_assessment.is_flagged': True, 'address.municipality': 'Calamba'}
+
+[3] Execution stats:
+    totalKeysExamined: 3
+    totalDocsExamined: 3
+    nReturned:         3
+    IXSCAN present:    YES
+    COLLSCAN present:  NO
+    Index used:        risk_assessment.is_flagged_1_address.municipality_1
+
+[4] Assertions:
+    [PASS] Query uses IXSCAN (not COLLSCAN)
+    [PASS] Index name matches compound index
+    [PASS] No over-scan (totalDocsExamined == nReturned)
+
+[2] Running explain on the at volume (unflagged roster) query...
+    Query: {'risk_assessment.is_flagged': False, 'address.municipality': 'Calamba'}
+
+[3] Execution stats:
+    totalKeysExamined: 80002
+    totalDocsExamined: 80002
+    nReturned:         80002
+    IXSCAN present:    YES
+    COLLSCAN present:  NO
+    Index used:        risk_assessment.is_flagged_1_address.municipality_1
+
+[4] Assertions:
+    [PASS] Query uses IXSCAN (not COLLSCAN)
+    [PASS] Index name matches compound index
+    [PASS] No over-scan (totalDocsExamined == nReturned)
+
+=== RESULT: ALL PASS ===

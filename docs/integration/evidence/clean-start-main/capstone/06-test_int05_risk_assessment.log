@@ -1,0 +1,139 @@
+# INT-05 risk assessment — 2026-10-13T16:31:07Z
+time="2026-10-13T16:31:07Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container cc-reset-demo-run-fabb426f0de0 Creating 
+ Container cc-reset-demo-run-fabb426f0de0 Created 
+[reset_demo] ===============================================
+[reset_demo] KilosUnlad — Demo Reset
+[reset_demo] ===============================================
+[reset_demo] [1/5] Checking database container...
+[reset_demo]       Container kilosunlad-db is running.
+[reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      Replica set PRIMARY confirmed.
+      Dropped 6 collections.
+      Collections + indexes rebuilt.
+[reset_demo] [3/5] Seeding test accounts...
+[reset_demo]       Test accounts + sample records seeded.
+[reset_demo] [4/5] Loading demo Case A and verifying...
+      Demo Case A loaded.
+      users:              4
+      beneficiaries:      5
+      external_records:   1
+      verification_tasks: 2
+      audit_logs:         0
+      system_configs:     0
+[reset_demo] ===============================================
+[reset_demo] [5/5] Demo reset complete in 2s
+[reset_demo] Within 10-second DoD.
+[reset_demo] ===============================================
+[START] INT-05 Risk Assessment Integration Test (ML UP)
+
+[1] Negative cases (expect zero writes)...
+   [OK]   No token -> 401 UNAUTHORIZED
+   [OK]   CASE_WORKER -> 403 FORBIDDEN
+   [OK]   COA_AUDITOR mutation -> 403 FORBIDDEN
+   [OK]   Client-supplied score -> 400 INVALID_REQUEST
+   [OK]   Unknown household -> 404 HOUSEHOLD_NOT_FOUND
+   [OK]   Already flagged household -> 409 HOUSEHOLD_NOT_ASSESSABLE
+
+[2] Assessing DEMO-4PS-GRAD-0001...
+   [OK]   200 OK
+   [OK]   response keys match contract
+   [OK]   ML_MODEL mode
+   [OK]   predicted Level 3 vs enrolled Level 1
+   [OK]   SHAP top-3 present
+   [OK]   contributions match contract example
+   [OK]   score 100, flagged, FLAGGED_FOR_REVIEW
+   [OK]   MODEL_FLAG_RAISED receipt
+
+[3] Triage queue reflects the persisted flag...
+   [OK]   Case A listed with persisted score and predicted level
+   [OK]   Re-assessing a flagged household -> 409 HOUSEHOLD_NOT_ASSESSABLE
+
+[4] COA verify-chain over 1..1...
+   [OK]   chain valid, head = MODEL_FLAG_RAISED block
+
+[SUCCESS] INT-05 TEST PASSED!
+Response Data: {
+  "household_id": "DEMO-4PS-GRAD-0001",
+  "evaluation_mode": "ML_MODEL",
+  "fallback_reason": null,
+  "enrolled_swdi_level": 1,
+  "predicted_swdi_level": 3,
+  "class_probabilities": {
+    "level_1_survival": 0.00003281422058117355,
+    "level_2_subsistence": 0.0014964866475642555,
+    "level_3_self_sufficiency": 0.9984706991318547
+  },
+  "shap_explainability": [
+    {
+      "indicator": "demographics.appliance_density_index",
+      "contribution_weight": 2.5859411136849793,
+      "description": "Higher appliance density reflects improved standard of living."
+    },
+    {
+      "indicator": "demographics.dependency_ratio",
+      "contribution_weight": -1.300823078206809,
+      "description": "High dependency ratio strains household resources."
+    },
+    {
+      "indicator": "demographics.head_education_level",
+      "contribution_weight": 1.0411831874850563,
+      "description": "Educational attainment strongly correlates with socioeconomic transition."
+    }
+  ],
+  "composite_risk_score": 100,
+  "contributions": {
+    "swdi": 80,
+    "power": 20,
+    "water": 15,
+    "telecom": 25,
+    "vehicle": 30
+  },
+  "is_flagged": true,
+  "trigger_badges": [
+    {
+      "code": "TIER_INVERSION",
+      "label": "AI Predicted Level 3",
+      "severity": "CRITICAL"
+    },
+    {
+      "code": "POWER_LIFELINE_BREACH",
+      "label": "Meralco > 200 kWh",
+      "severity": "HIGH"
+    },
+    {
+      "code": "WATER_LIFELINE_BREACH",
+      "label": "Water > 25 cu.m",
+      "severity": "MEDIUM"
+    },
+    {
+      "code": "TELECOM_POSTPAID_PLAN",
+      "label": "Postpaid telecom plan",
+      "severity": "MEDIUM"
+    },
+    {
+      "code": "LTO_VEHICLE_MATCH",
+      "label": "Registered 4-Wheel Vehicle",
+      "severity": "HIGH"
+    }
+  ],
+  "flag_reasons": [
+    "AI Predicted Level 3",
+    "Meralco > 200 kWh",
+    "Water > 25 cu.m",
+    "Postpaid telecom plan",
+    "Registered 4-Wheel Vehicle"
+  ],
+  "children_eligibility": {
+    "total": 2,
+    "eligible": 2,
+    "aged_out": 0,
+    "unknown": 0
+  },
+  "program_status": "FLAGGED_FOR_REVIEW",
+  "evaluated_at": "2026-10-13T16:31:11.360Z",
+  "audit_receipt": {
+    "sequence_index": 1,
+    "entry_hash": "dc9d14f1a7ecbd11d87d24615506499ccbdc29d65cdeff54b1695ef8c848be10"
+  }
+}

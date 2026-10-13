@@ -1,0 +1,84 @@
+# TC-16 — test_e2e02_calamity_freeze — 2026-10-13T16:34:12Z
+time="2026-10-13T16:34:13Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container cc-reset-demo-run-67ab646f7f6e Creating 
+ Container cc-reset-demo-run-67ab646f7f6e Created 
+[reset_demo] ===============================================
+[reset_demo] KilosUnlad — Demo Reset
+[reset_demo] ===============================================
+[reset_demo] [1/5] Checking database container...
+[reset_demo]       Container kilosunlad-db is running.
+[reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      Replica set PRIMARY confirmed.
+      Dropped 6 collections.
+      Collections + indexes rebuilt.
+[reset_demo] [3/5] Seeding test accounts...
+[reset_demo]       Test accounts + sample records seeded.
+[reset_demo] [4/5] Loading demo Case A and verifying...
+      Demo Case A loaded.
+      users:              4
+      beneficiaries:      5
+      external_records:   1
+      verification_tasks: 2
+      audit_logs:         0
+      system_configs:     0
+[reset_demo] ===============================================
+[reset_demo] [5/5] Demo reset complete in 3s
+[reset_demo] Within 10-second DoD.
+[reset_demo] ===============================================
+=== KilosUnlad Dispatch Test Fixture ===
+
+[1] Looking up worker account...
+    Worker found:
+      username:  case_worker_test
+      _id:       6ace5d873fc5c354f39df8a5
+      role:      CASE_WORKER
+      barangay:  ["Palingon"]
+
+[2] Checking if test household already exists...
+    Not found. Will insert.
+
+[3] Confirming no active task exists for this household...
+    No active task. Safe to dispatch.
+
+[4] Inserting test household...
+    [OK] Inserted TEST-4PS-DISPATCH-0001
+
+=== Setup Complete ===
+
+Household ready for dispatch:
+  household_id:      TEST-4PS-DISPATCH-0001
+  barangay:          Palingon
+  municipality:      Calamba
+  province:          Laguna
+  program_status:    FLAGGED_FOR_REVIEW
+  active task:       none
+
+Worker _id for dispatch request:
+  6ace5d873fc5c354f39df8a5
+
+Send dispatch request with:
+  household_id:       TEST-4PS-DISPATCH-0001
+  assigned_worker_id: 6ace5d873fc5c354f39df8a5
+
+Expected: HTTP 201 Created, task appears in worker assigned feed.
+[START] E2E-02 Calamity Moratorium Freeze Test
+
+[1] Declaring a 8s moratorium for Calamba...
+   [OK]   201 hold_active
+
+[2] While active: dispatch and flagging are frozen (no writes)...
+   [OK]   Dispatch in zone -> 409 CALAMITY_MORATORIUM_ACTIVE
+   [OK]   no task created
+   [OK]   Assessment in zone -> 409 CALAMITY_MORATORIUM_ACTIVE
+
+[3] Waiting for expiry (8s)...
+   [OK]   dispatch resumes after expiry (201)
+   [OK]   task visible to the worker
+
+[4] Open-ended declaration, then lift...
+   [OK]   201 open-ended hold
+   [OK]   Assessment frozen -> 409 CALAMITY_MORATORIUM_ACTIVE
+   [OK]   lift 200
+   [OK]   assessment resumes after lift (200)
+
+[SUCCESS] E2E-02 TEST PASSED!

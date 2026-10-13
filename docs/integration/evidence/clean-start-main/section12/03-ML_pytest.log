@@ -1,0 +1,9 @@
+# Unit — ML pytest — 2026-10-13T16:33:30Z
+...........                                                              [100%]
+=============================== warnings summary ===============================
+ml-service/app/core/config.py:4
+  /tmp/claude-0/cc/ml-service/app/core/config.py:4: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    class Settings(BaseSettings):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+11 passed, 1 warning in 3.23s

@@ -1,0 +1,64 @@
+# Proof 1: Graduation Drift (assess -> triage -> dispatch -> report -> audit, via gateway) — 2026-10-13T16:30:35Z
+time="2026-10-13T16:30:35Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container cc-reset-demo-run-30e6d2a93f93 Creating 
+ Container cc-reset-demo-run-30e6d2a93f93 Created 
+[reset_demo] ===============================================
+[reset_demo] KilosUnlad — Demo Reset
+[reset_demo] ===============================================
+[reset_demo] [1/5] Checking database container...
+[reset_demo]       Container kilosunlad-db is running.
+[reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      Replica set PRIMARY confirmed.
+      Dropped 6 collections.
+      Collections + indexes rebuilt.
+[reset_demo] [3/5] Seeding test accounts...
+[reset_demo]       Test accounts + sample records seeded.
+[reset_demo] [4/5] Loading demo Case A and verifying...
+      Demo Case A loaded.
+      users:              4
+      beneficiaries:      5
+      external_records:   1
+      verification_tasks: 2
+      audit_logs:         0
+      system_configs:     0
+[reset_demo] ===============================================
+[reset_demo] [5/5] Demo reset complete in 3s
+[reset_demo] Within 10-second DoD.
+[reset_demo] ===============================================
+=== KilosUnlad INT-02 Case A Fixture ===
+
+[INFO] DEMO-4PS-GRAD-0001 status: ACTIVE_COMPLIANT (flagging is done by POST /beneficiaries/:id/assess, never by a patch)
+[OK]   case_worker_test covers barangay Real
+[START] E2E-01 Full Chain via http://localhost/api/v1
+
+   [OK]   login director_test (200)
+   [OK]   login case_worker_test (200)
+   [OK]   login auditor_test (200)
+
+[1] Assessment: ML prediction -> risk score -> flag
+   [OK]   POST /beneficiaries/:id/assess (200)
+   [OK]   model prediction (not fallback)
+   [OK]   SHAP explanation returned
+   [OK]   risk score >= 70 and flagged
+   [OK]   status FLAGGED_FOR_REVIEW
+
+[2] Triage queue shows the flag
+   [OK]   GET /beneficiaries/triage-queue (200)
+   [OK]   Case A listed with persisted score, level and badges
+
+[3] Dispatch
+   [OK]   POST /tasks/dispatch (201)
+   [OK]   household UNDER_INVESTIGATION
+   [OK]   GET /tasks/assigned (worker) (200)
+   [OK]   task visible to the assigned worker
+
+[4] Field report (contract JSON submission)
+   [OK]   POST /tasks/:id/submit (200)
+   [OK]   SUBMITTED within geofence
+
+[5] Audit chain: blocks in order and verifiable
+   [OK]   MODEL_FLAG_RAISED < TASK_DISPATCHED < REPORT_SUBMITTED (1 < 2 < 3)
+   [OK]   GET /audit/verify-chain (auditor) (200)
+   [OK]   chain valid; head = REPORT_SUBMITTED block
+
+[SUCCESS] E2E-01 TEST PASSED!

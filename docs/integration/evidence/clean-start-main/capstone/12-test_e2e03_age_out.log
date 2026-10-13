@@ -1,0 +1,54 @@
+# E2E-03 age-out (RA 11310) — 2026-10-13T16:31:45Z
+time="2026-10-13T16:31:45Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container cc-reset-demo-run-ae58d3875222 Creating 
+ Container cc-reset-demo-run-ae58d3875222 Created 
+[reset_demo] ===============================================
+[reset_demo] KilosUnlad — Demo Reset
+[reset_demo] ===============================================
+[reset_demo] [1/5] Checking database container...
+[reset_demo]       Container kilosunlad-db is running.
+[reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      Replica set PRIMARY confirmed.
+      Dropped 6 collections.
+      Collections + indexes rebuilt.
+[reset_demo] [3/5] Seeding test accounts...
+[reset_demo]       Test accounts + sample records seeded.
+[reset_demo] [4/5] Loading demo Case A and verifying...
+      Demo Case A loaded.
+      users:              4
+      beneficiaries:      5
+      external_records:   1
+      verification_tasks: 2
+      audit_logs:         0
+      system_configs:     0
+[reset_demo] ===============================================
+[reset_demo] [5/5] Demo reset complete in 3s
+[reset_demo] Within 10-second DoD.
+[reset_demo] ===============================================
+=== KilosUnlad E2E-03 Age-Out Fixture ===
+
+[OK]   TEST-4PS-AGEOUT-0001 children born 2005-10-14, 2007-10-14, 2007-10-15
+[OK]   TEST-4PS-AGEOUT-0002 children born 2006-10-14, 2004-10-14
+[OK]   external record for TEST-4PS-AGEOUT-0001 (power, postpaid, 4-wheel)
+[START] E2E-03 Age-Out (RA 11310) Test
+
+[1] Mixed household: 21 y, 19 today, 19 tomorrow...
+   [OK]   200 OK
+   [OK]   children_eligibility {total 3, eligible 1, aged_out 2}
+   [OK]   CHILD_AGE_OUT badge
+   [FAIL] age-out does not change the published risk weights {"swdi":40,"power":20,"water":0,"telecom":25,"vehicle":30}
+   [OK]   flagged -> FLAGGED_FOR_REVIEW
+   [OK]   stored is_eligible corrected to [false, false, true]
+   [OK]   stored birthdates are Dates
+   [OK]   correction sealed in MODEL_FLAG_RAISED delta
+   [OK]   verify-chain valid
+
+[2] Every child aged out, not flagged (result only, no write)...
+   [OK]   200 with eligible 0 of 2
+   [OK]   reason: no eligible children (RA 11310 Sec. 6)
+   [OK]   not persisted (no receipt, still ACTIVE_COMPLIANT)
+
+[3] Demo Case A (children 16 and 12) unaffected...
+   [OK]   Case A: 2 eligible, no CHILD_AGE_OUT
+
+[FAIL] E2E-03 TEST FAILED (1 check(s))

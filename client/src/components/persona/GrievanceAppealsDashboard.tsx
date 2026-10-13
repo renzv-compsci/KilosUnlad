@@ -1,5 +1,4 @@
-import { SampleDataLabel } from '../common/SampleDataLabel';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Scale, 
   Clock, 
@@ -15,7 +14,8 @@ import {
   ExternalLink
 } from 'lucide-react';
 import type { ScreenId } from '../../types/navigation';
-import { MOCK_DUE_PROCESS_NOTICES } from '../../data/mockContracts';
+import { apiErrorMessage, fetchDueProcessDocket } from '../../services/api';
+import { displayDate } from '../../utils/displayDate';
 import { DueProcessNoticeItem } from '../../types/contracts';
 
 interface GrievanceAppealsDashboardProps {
@@ -27,7 +27,20 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
   onNavigateToScreen,
   showSpecAnnotations = false
 }) => {
-  const [notices] = useState<DueProcessNoticeItem[]>(MOCK_DUE_PROCESS_NOTICES);
+  const [notices, setNotices] = useState<DueProcessNoticeItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchDueProcessDocket(controller.signal).then(setNotices)
+      .catch(failure => { if (!controller.signal.aborted) setError(apiErrorMessage(failure)); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, []);
+  const today = new Date().toISOString().slice(0, 10);
+  const hearings = notices.filter(n => n.hearing_date && n.hearing_date.slice(0, 10) >= today)
+    .sort((a, b) => String(a.hearing_date).localeCompare(String(b.hearing_date)));
+  const revokedCount = notices.filter(n => n.status === 'FINAL_REVOCATION').length;
 
   const activeNoticesCount = notices.filter(n => n.status === 'NOTICE_OF_INELIGIBILITY').length;
   const underAppealCount = notices.filter(n => n.status === 'UNDER_APPEAL_HEARING').length;
@@ -50,16 +63,15 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
       <div className="module-heading">
         <div>
           <div className="flex items-center space-x-2.5">
-            <SampleDataLabel />
           <h2 className="text-xl font-bold text-stone-900 tracking-tight font-display">
               Grievance & Statutory Appeals Division
             </h2>
             <span className="text-[11px] font-semibold text-stone-600 bg-stone-100 px-2 py-0.5 rounded border border-stone-200">
-              Laguna Regional Pilot
+              Your jurisdiction
             </span>
           </div>
           <p className="text-xs text-stone-500 mt-1 max-w-3xl leading-relaxed">
-            Caseworker portal for Rochelle Castillo, MSSW (Social Welfare Officer II). Enforces Section 12 of Republic Act 11310: Beneficiaries cannot be de-listed without 15-day statutory notice and access to formal evidentiary appeal.
+            Live due-process docket. Enforces Section 12 of Republic Act 11310: Beneficiaries cannot be de-listed without 15-day statutory notice and access to formal evidentiary appeal.
           </p>
         </div>
 
@@ -94,17 +106,17 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
             <span>Hearings Scheduled</span>
             <Calendar className="w-4 h-4 text-emerald-600" />
           </div>
-          <div className="text-3xl font-black text-stone-900 font-display mt-2">2</div>
-          <div className="text-[11px] text-emerald-700 mt-1 font-medium">Upcoming in October 2026</div>
+          <div className="text-3xl font-black text-stone-900 font-display mt-2">{hearings.length}</div>
+          <div className="text-[11px] text-emerald-700 mt-1 font-medium">Today or later</div>
         </div>
 
         <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs">
           <div className="flex items-center justify-between text-stone-500 text-xs">
-            <span>Reinstated with Backpay</span>
+            <span>Appeal Window Elapsed</span>
             <FileCheck2 className="w-4 h-4 text-emerald-600" />
           </div>
-          <div className="text-3xl font-black text-stone-900 font-display mt-2">5</div>
-          <div className="text-[11px] text-stone-500 mt-1 font-medium">Contestations substantiated</div>
+          <div className="text-3xl font-black text-stone-900 font-display mt-2">{revokedCount}</div>
+          <div className="text-[11px] text-stone-500 mt-1 font-medium">No appeal filed within 15 days</div>
         </div>
       </div>
 
@@ -131,7 +143,10 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3" aria-busy={loading}>
+            {loading && <p role="status" className="text-xs text-stone-500">Loading the docket…</p>}
+            {error && <p role="alert" className="text-xs text-rose-800">{error}</p>}
+            {!loading && !error && notices.length === 0 && <p role="status" className="text-xs text-stone-500">No households are under a Notice of Ineligibility in your jurisdiction.</p>}
             {notices.map((notice) => (
               <div 
                 key={notice.household_id}
@@ -170,7 +185,7 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
                 {notice.appeal_docket_id && (
                   <div className="text-[11px] text-stone-600 mt-2 flex items-center justify-between font-mono bg-blue-50/50 p-2 rounded border border-blue-100">
                     <span>Docket: {notice.appeal_docket_id}</span>
-                    <span>Hearing: {notice.hearing_date}</span>
+                    <span>Hearing: {notice.hearing_date ? displayDate(notice.hearing_date) : '—'}</span>
                   </div>
                 )}
               </div>
@@ -207,16 +222,14 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
               <span>Upcoming Hearings Calendar</span>
             </h4>
             <div className="space-y-2 text-xs">
-              <div className="p-2.5 bg-stone-50 rounded-lg border border-stone-200">
-                <div className="font-bold text-stone-900">Eduardo Dela Cruz</div>
-                <div className="text-[11px] text-stone-500">October 8, 2026 · 10:00 AM</div>
-                <div className="text-[11px] text-[#132e4f] font-mono mt-1">Docket: APP-CAL-2026-0089</div>
-              </div>
-              <div className="p-2.5 bg-stone-50 rounded-lg border border-stone-200">
-                <div className="font-bold text-stone-900">Maria Clara Santos</div>
-                <div className="text-[11px] text-stone-500">October 14, 2026 · 2:00 PM</div>
-                <div className="text-[11px] text-[#132e4f] font-mono mt-1">Docket: APP-STR-2026-4410</div>
-              </div>
+              {hearings.length === 0 && <p className="text-[11px] text-stone-500">No upcoming hearings.</p>}
+              {hearings.map(h => (
+                <div key={h.household_id} className="p-2.5 bg-stone-50 rounded-lg border border-stone-200">
+                  <div className="font-bold text-stone-900">{h.head_of_household.full_name}</div>
+                  <div className="text-[11px] text-stone-500">{displayDate(String(h.hearing_date))}</div>
+                  <div className="text-[11px] text-[#132e4f] font-mono mt-1">Docket: {h.appeal_docket_id}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

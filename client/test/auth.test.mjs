@@ -48,15 +48,15 @@ test('dates preserve calendar dates, use Philippine time, and retain missing/inv
   assert.equal(app.displayDate('unknown'), 'unknown');
 });
 
-test('dispatch puts assignments before collapsed staff details and identifies sample data', () => {
+test('dispatch puts assignments before collapsed staff details and loads server records only', () => {
   const html = app.renderToStaticMarkup(app.createElement(app.AdminDispatchManager, { onSelectHousehold: () => {} }));
-  assert.match(html, /Sample data/);
+  assert.doesNotMatch(html, /Sample data|Marvin Bautista|Elena Rosales/);
   assert.ok(html.indexOf('dispatch-list-heading') < html.indexOf('staff-disclosure'));
   assert.match(html, /<details class="staff-disclosure">/);
-  assert.match(html, /<summary>Assignment details<\/summary>/);
+  assert.match(html, /Loading assignments/);
   assert.doesNotMatch(html, /Manage \/ Reassign/);
   assert.match(html, /Select Household/);
-  assert.equal((html.match(/disabled="" aria-describedby="dispatch-preview-note"/g) ?? []).length, 3);
+  assert.match(html, /Reassignment is not supported/);
   assert.doesNotMatch(html, /Not connected/);
 });
 
@@ -97,13 +97,13 @@ test('assessment completion requires recorded answers rather than visited steps'
   assert.equal(app.assessmentProgress({ ...complete, evidenceReady: false }).every(Boolean), false);
 });
 
-test('dashboard separates live workload from samples and has one analytics selector', () => {
+test('dashboard shows the live workload first and loads the regional snapshot from the server', () => {
   const render = (triageCount) => app.renderToStaticMarkup(app.createElement(app.Screen2Dashboard, { onNavigateToScreen() {}, triageCount }));
   const html = render(2);
   assert.match(html, /<strong>2<\/strong><span>cases awaiting review/);
   assert.match(html, /Regional snapshot/);
-  assert.match(html, /Sample data/);
-  assert.match(html, /<article id="metric-active-beneficiaries"/);
+  assert.doesNotMatch(html, /Sample data|4,850|Sample advisory/);
+  assert.match(html, /Loading…/, 'snapshot waits for GET /insights/overview');
   assert.doesNotMatch(html, /Filter Triage Queue for/);
   assert.match(render(0), /<strong>0<\/strong><span>cases awaiting review/);
   assert.match(render(undefined), /Live queue count unavailable/);
@@ -130,10 +130,11 @@ test('data notices are compact disclosures and never imply successful verificati
   const render = screen => app.renderToStaticMarkup(app.createElement(app.DataSourceNotice, {screen}));
   assert.match(render('audit_ledger'), /Read-only verification/);
   assert.doesNotMatch(render('audit_ledger'), /Verified|100%/);
-  assert.match(render('dashboard'), /Server records \+ sample analytics/);
+  assert.match(render('dashboard'), /Server records/);
+  assert.doesNotMatch(render('dashboard'), /sample/i);
   assert.match(render('field_verify'), /Saved on device until synced/);
-  assert.match(render('due_process'), /Preview only/);
-  assert.match(render('due_process'), /not submitted/);
+  assert.match(render('due_process'), /APPEAL_FILED/);
+  assert.match(render('coa_dashboard'), /not saved or sent/);
   assert.doesNotMatch(render('dashboard'), /<details[^>]*open/);
 });
 
@@ -181,8 +182,8 @@ test('dashboard renders API households only when counts are available and exclud
   }));
   assert.match(render({ triageCount: 5 }), /3 shown from the current page/);
   const html = render({ triageCount: 5 });
-  assert.ok(html.indexOf('live-queue-preview') < html.indexOf('metric-visual-deck'));
-  assert.ok(html.indexOf('live-queue-preview') < html.indexOf('geography-section'));
+  assert.ok(html.indexOf('live-queue-preview') < html.indexOf('sample-analytics-section'));
+  assert.doesNotMatch(html, /geography-section/, 'the map renders only after the overview loads');
   assert.doesNotMatch(render({ triageCount: undefined }), /class="live-households"/);
   assert.doesNotMatch(render({ triageCount: 0 }), /class="live-households"/);
   assert.match(render({ triageLoading: true }), /Loading queue/);
@@ -204,11 +205,11 @@ test('triage keeps four primary columns with complete, collapsed evidence and ba
   assert.doesNotMatch(render(true), /class="triage-dispatch"/);
 });
 
-test('policy settings clearly identifies non-persistent previews', () => {
+test('policy settings is read-only and waits for the server policy', () => {
   const html = app.renderToStaticMarkup(app.createElement(app.AdminSettingsView));
-  assert.match(html, /Changes are not applied to the system/);
-  assert.match(html, /Preview Parameters/);
-  assert.doesNotMatch(html, /Save Administrative Parameters/);
+  assert.match(html, /cannot be edited here/);
+  assert.match(html, /Loading policy/);
+  assert.doesNotMatch(html, /<input|Save Administrative Parameters|Preview Parameters/);
 });
 
 test('sidebar toggles only from non-navigation clicks in either width state', () => {
@@ -269,7 +270,7 @@ test('dashboard separates API workload semantics from sample chart metrics', () 
   assert.match(html, /High-risk beneficiaries<\/dt><dd>0/);
   assert.match(html, /Notices of ineligibility<\/dt><dd>3/);
   assert.match(html, /Categories may overlap/);
-  assert.match(html, /Sample data/);
+  assert.doesNotMatch(html, /Sample data/);
   assert.match(render({}), /High-risk beneficiaries<\/dt><dd>Unavailable/);
 });
 
@@ -444,6 +445,34 @@ test('bearer attached to requests; valid empty fixture responses stay empty', as
   assert.deepEqual(await app.fetchTriageQueue(), []);
   respond({ tasks: [] });
   assert.deepEqual(await app.fetchAssignedTasks(), []);
+});
+test('UI live-data reads call the DECISION-010 routes with the bearer and reject malformed bodies', async () => {
+  const session = app.parseSession(fixture()); app.saveSession(session);
+  const seen = [];
+  const bodies = {
+    '/insights/overview': { households: { total: 0, by_status: {}, by_enrolled_level: {} }, risk: { triggers: [] }, municipalities: [] },
+    '/tasks': { items: [], pagination: { total_records: 0, current_page: 1, total_pages: 0, limit: 20 } },
+    '/users/caseworkers': { items: [] },
+    '/audit/blocks': { items: [], total_blocks: 0, next_before: null },
+    '/system/policy': { risk_score: { flag_threshold: 70, weights: {}, cap: 100 } },
+  };
+  app.api.defaults.adapter = async (config) => {
+    assert.equal(config.headers.Authorization, `Bearer ${session.access_token}`);
+    assert.equal(config.method, 'get');
+    seen.push([config.url, config.params ?? {}]);
+    return { config, status: 200, headers: {}, data: bodies[config.url] };
+  };
+  await app.fetchInsightsOverview();
+  await app.fetchAdminTasks({ status: 'SUBMITTED', page: 2, limit: 20 });
+  await app.fetchCaseworkers();
+  await app.fetchAuditBlocks({ limit: 8 });
+  await app.fetchPolicy();
+  assert.deepEqual(seen, [['/insights/overview', {}], ['/tasks', { status: 'SUBMITTED', page: 2, limit: 20 }],
+    ['/users/caseworkers', {}], ['/audit/blocks', { limit: 8 }], ['/system/policy', {}]]);
+  app.api.defaults.adapter = async (config) => ({ config, status: 200, headers: {}, data: {} });
+  for (const call of [app.fetchInsightsOverview, app.fetchAdminTasks, app.fetchCaseworkers, app.fetchAuditBlocks, app.fetchPolicy]) {
+    await assert.rejects(call(), /did not match the contract/);
+  }
 });
 test('protected 401 or deactivated account clears session', async () => {
   for (const [status, code] of [[401, 'TOKEN_EXPIRED'], [403, 'ACCOUNT_DEACTIVATED']]) {

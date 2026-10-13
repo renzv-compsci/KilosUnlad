@@ -88,6 +88,7 @@ if [ $FULL -eq 1 ]; then
   run "E2E-03 age-out (RA 11310)" "add_e2e03_age_out_fixture" test_e2e03_age_out
   run "E2E-04 SHAP drawer (API)" "" test_e2e04_shap_drawer
   run "E2E-04 SHAP drawer (browser)" "" test_e2e04_drawer_ui SCREENSHOT="$EVIDENCE_DIR/e2e04-drawer.png"
+  run "UI live data, phone/tablet/desktop (DECISION-010)" "add_dispatch_test" test_ui_live_data SCREENSHOT_DIR="$EVIDENCE_DIR/ui-live-data"
   # DAT-01 and STR-03 need the 80k baseline: reset + seed-ingest inside one step.
   WITH_SEED=1
   run "DAT-01 seed conformance (80k)" "" test_dat01_seed_conformance

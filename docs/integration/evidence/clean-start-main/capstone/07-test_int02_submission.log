@@ -1,0 +1,67 @@
+# INT-02 field submission — 2026-10-13T16:31:11Z
+time="2026-10-13T16:31:11Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container cc-reset-demo-run-93f240848a0f Creating 
+ Container cc-reset-demo-run-93f240848a0f Created 
+[reset_demo] ===============================================
+[reset_demo] KilosUnlad — Demo Reset
+[reset_demo] ===============================================
+[reset_demo] [1/5] Checking database container...
+[reset_demo]       Container kilosunlad-db is running.
+[reset_demo] [2/5] Wiping, recreating collections, and rebuilding indexes...
+      Replica set PRIMARY confirmed.
+      Dropped 6 collections.
+      Collections + indexes rebuilt.
+[reset_demo] [3/5] Seeding test accounts...
+[reset_demo]       Test accounts + sample records seeded.
+[reset_demo] [4/5] Loading demo Case A and verifying...
+      Demo Case A loaded.
+      users:              4
+      beneficiaries:      5
+      external_records:   1
+      verification_tasks: 2
+      audit_logs:         0
+      system_configs:     0
+[reset_demo] ===============================================
+[reset_demo] [5/5] Demo reset complete in 3s
+[reset_demo] Within 10-second DoD.
+[reset_demo] ===============================================
+=== KilosUnlad INT-02 Case A Fixture ===
+
+[INFO] DEMO-4PS-GRAD-0001 status: ACTIVE_COMPLIANT (flagging is done by POST /beneficiaries/:id/assess, never by a patch)
+[OK]   case_worker_test covers barangay Real
+[START] INT-02 Real Data Integration Test
+
+[1] Logging in as REGIONAL_DIRECTOR...
+[2] Logging in as CASE_WORKER...
+   [OK] Worker ID extracted: 6ace5cd143c3f157c19df8a5
+
+   [OK] Case A assessed: score 100, FLAGGED_FOR_REVIEW
+
+[3] Dispatching task for DEMO-4PS-GRAD-0001 to worker 6ace5cd143c3f157c19df8a5...
+   [OK] Task dispatched: TSK-2026-ae4ff317-54f2-462d-bfb1-01d382848f15
+
+[4] Preparing multipart submission with real file hash and geofence coords...
+[5] Negative cases: altered bytes, geofence breach...
+   [OK] Altered photo bytes -> 422 EVIDENCE_HASH_MISMATCH
+   [OK] Geofence breach (~333 m) -> 422 GEOFENCE_VIOLATION
+
+[6] Submitting task to POST /api/v1/tasks/:id/submit...
+   [OK] 200 matches field-task-submission.json
+
+   [OK] Duplicate submission -> 409 TASK_NOT_SUBMITTABLE
+
+[SUCCESS] INT-02 TEST PASSED!
+Response Status: 200
+Response Data: {
+  "task_id": "TSK-2026-ae4ff317-54f2-462d-bfb1-01d382848f15",
+  "task_status": "SUBMITTED",
+  "geofence_verification": {
+    "is_matched": true,
+    "distance_variance_meters": 0
+  },
+  "audit_receipt": {
+    "sequence_index": 3,
+    "entry_hash": "e24fbd7cedffc2e9a4ef62d1d738171af1f51950f208d9b7dfd172d7f33bbd20"
+  },
+  "submitted_at": "2026-10-13T16:31:16.205Z"
+}
