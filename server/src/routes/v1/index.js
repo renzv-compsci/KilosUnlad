@@ -1,21 +1,31 @@
 const { Router } = require('express');
-const multer = require('multer'); // Added for multipart form data parsing
+const multer = require('multer');
+
+// --- Auth & Middleware ---
 const { createAuthService } = require('../../services/auth.service');
 const { createLogin } = require('../../controllers/auth.controller');
 const { createAuthenticate } = require('../../middleware/auth.middleware');
 const { allowRoles, scopeJurisdiction } = require('../../middleware/rbac.middleware');
+const validateBody = require('../../middleware/validation.middleware');
+
+// --- Roles ---
 const R = require('../../constants/roles');
+
+// --- Feeds & Tasks ---
 const { createReadFeeds } = require('../../services/readFeeds.service');
 const { createTaskDispatcher } = require('../../services/taskDispatcher.service');
 const { createDispatch, createSubmit } = require('../../controllers/task.controller');
 const { createTaskSubmission } = require('../../services/taskSubmission.service');
 const { createVerifyChain } = require('../../controllers/audit.controller');
-const validateBody = require('../../middleware/validation.middleware');
+
+// --- New Turnover Services (Schemas are exported directly from here) ---
 const { createAppealDocket, docketSchema } = require('../../services/appealDocket.service');
-const { createFileAppeal, createListDocket } = require('../../controllers/appeal.controller');
 const { createCalamityToggle, toggleSchema } = require('../../services/calamityToggle.service');
-const { createToggleCalamity } = require('../../controllers/calamity.controller');
 const { createRiskAssessment, assessSchema } = require('../../services/riskAssessment.service');
+
+// --- New Turnover Controllers ---
+const { createFileAppeal, createListDocket } = require('../../controllers/appeal.controller');
+const { createToggleCalamity } = require('../../controllers/calamity.controller');
 const { createAssess, createExplain } = require('../../controllers/beneficiary.controller');
 
 // Configure multer for in-memory file buffering (required for SHA-256 hash verification)
@@ -54,8 +64,7 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   router.post('/tasks/dispatch', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
     scopeJurisdiction, createDispatch(taskDispatcher));
 
-  // NEW: Task Submission (Case Worker only, with multipart upload)
-  // This wires the INT-02 integration seam to the live API surface.
+  // Task Submission (Case Worker only, with multipart upload)
   router.post('/tasks/:id/submit', authenticate, allowRoles(R.CASE_WORKER), 
     upload.array('evidence_files', 10), createSubmit(taskSubmission));
 
@@ -63,6 +72,7 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   // pauses the 15-day countdown; household status is unchanged (frozen enum).
   router.post('/appeals/docket', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
     scopeJurisdiction, validateBody(docketSchema), createFileAppeal(appealDocket));
+    
   // INT-08: Due Process read model (Admin/Director/COA; jurisdiction-scoped).
   router.get('/appeals/docket', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR),
     scopeJurisdiction, createListDocket(appealDocket));
