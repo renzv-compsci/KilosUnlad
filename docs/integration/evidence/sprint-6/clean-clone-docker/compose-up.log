@@ -1,0 +1,261 @@
+time="2026-10-13T14:13:58Z" level=warning msg="/tmp/claude-0/cc/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Image cc-client Building 
+ Image cc-server Building 
+ Image cc-gateway Building 
+ Image cc-ml-service Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.03kB done
+#1 DONE 0.0s
+
+#2 [gateway internal] load build definition from Dockerfile
+#2 transferring dockerfile: 154B done
+#2 DONE 0.0s
+
+#3 [client internal] load build definition from client.Dockerfile
+#3 transferring dockerfile: 831B done
+#3 DONE 0.0s
+
+#4 [ml-service internal] load build definition from ml.Dockerfile
+#4 transferring dockerfile: 1.19kB done
+#4 DONE 0.0s
+
+#5 [server internal] load build definition from server.Dockerfile
+#5 transferring dockerfile: 779B done
+#5 DONE 0.0s
+
+#6 [ml-service context shim] load .dockerignore
+#6 transferring shim: 2B done
+#6 DONE 0.0s
+
+#7 [ml-service internal] load metadata for docker.io/library/python:3.10-slim
+#7 DONE 0.0s
+
+#8 [ml-service internal] load .dockerignore
+#8 transferring context: 2B done
+#8 DONE 0.0s
+
+#9 [ml-service context shim] load from client
+#9 DONE 0.0s
+
+#10 [ml-service context shim] load from client
+#10 DONE 0.0s
+
+#11 [ml-service internal] load build context
+#11 transferring context: 1.08MB 0.0s done
+#11 DONE 0.0s
+
+#12 [ml-service stage-0 1/8] FROM docker.io/library/python:3.10-slim@sha256:6ff506466f8b1e981719b468cc0023b8ef000b983cdec0eafe119d01f379e31d
+#12 resolve docker.io/library/python:3.10-slim@sha256:6ff506466f8b1e981719b468cc0023b8ef000b983cdec0eafe119d01f379e31d 0.0s done
+#12 DONE 0.0s
+
+#10 [ml-service context shim] load from client
+#10 transferring shim: 197.24kB done
+#10 DONE 0.0s
+
+#9 [ml-service context shim] load from client
+#9 transferring shim: 352.41kB 0.0s done
+#9 DONE 0.0s
+
+#13 [ml-service stage-0 3/8] RUN ln -s libgomp.so.1.0.0 /usr/lib/x86_64-linux-gnu/libgomp.so.1 && ldconfig
+#13 CACHED
+
+#14 [ml-service stage-0 6/8] COPY requirements.txt .
+#14 CACHED
+
+#15 [ml-service stage-0 2/8] COPY --from=shim libgomp.so.1.0.0 /usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0
+#15 CACHED
+
+#16 [ml-service stage-0 7/8] RUN pip install --no-cache-dir -r requirements.txt
+#16 CACHED
+
+#17 [ml-service stage-0 4/8] COPY --from=shim ca-bundle.crt /etc/ssl/certs/sandbox-ca.crt
+#17 CACHED
+
+#18 [ml-service stage-0 5/8] WORKDIR /app
+#18 CACHED
+
+#19 [ml-service stage-0 8/8] COPY . .
+#19 CACHED
+
+#20 [ml-service] exporting to image
+#20 exporting layers done
+#20 exporting manifest sha256:57243511fb9fbe62454f03af4ec79a862b282e1bb0f0ba05c2b42a1910055c31 done
+#20 exporting config sha256:e26ad952cd1bdac4cd776fb1362f30bffbac3a4c6ea529f63a8bf88d7c19afc1 done
+#20 exporting attestation manifest sha256:9b1df19234b97ff670ee995824d5aadf139423ba47b38ec46d44f2ec32bbcd92 done
+#20 exporting manifest list sha256:3ab06ad82274aa0147468949da0c8e8616bb4c8b0a536b2de9a232e28e92ee46 done
+#20 naming to docker.io/library/cc-ml-service:latest done
+#20 unpacking to docker.io/library/cc-ml-service:latest 0.0s done
+#20 DONE 0.1s
+
+#21 [server internal] load metadata for docker.io/library/node:20-alpine
+#21 ...
+
+#22 [ml-service] resolving provenance for metadata file
+#22 DONE 0.0s
+
+#23 [client internal] load metadata for docker.io/library/node:18-alpine
+#23 DONE 0.8s
+
+#24 [gateway internal] load metadata for docker.io/library/nginx:alpine
+#24 DONE 0.8s
+
+#25 [client internal] load .dockerignore
+#25 transferring context: 2B done
+#25 DONE 0.0s
+
+#10 [server context shim] load from client
+#10 DONE 0.0s
+
+#21 [server internal] load metadata for docker.io/library/node:20-alpine
+#21 DONE 0.8s
+
+#26 [gateway internal] load .dockerignore
+#26 transferring context: 2B done
+#26 DONE 0.0s
+
+#27 [server internal] load .dockerignore
+#27 transferring context: 90B done
+#27 DONE 0.0s
+
+#28 [gateway internal] load build context
+#28 transferring context: 1.10kB done
+#28 DONE 0.0s
+
+#29 [client stage-0 1/6] FROM docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e
+#29 resolve docker.io/library/node:18-alpine@sha256:8d6421d663b4c28fd3ebc498332f249011d118945588d0a35cb9bc4b8ca09d9e 0.1s done
+#29 DONE 0.1s
+
+#30 [client internal] load build context
+#30 transferring context: 2.05MB 0.1s done
+#30 DONE 0.1s
+
+#31 [client stage-0 4/6] COPY package*.json ./
+#31 CACHED
+
+#32 [client stage-0 2/6] COPY --from=shim ca-bundle.crt /etc/ssl/certs/sandbox-ca.crt
+#32 CACHED
+
+#33 [client stage-0 3/6] WORKDIR /app
+#33 CACHED
+
+#34 [client stage-0 5/6] RUN npm install
+#34 CACHED
+
+#35 [client stage-0 6/6] COPY . .
+#35 CACHED
+
+#36 [server internal] load build context
+#36 transferring context: 407.26kB 0.1s done
+#36 DONE 0.1s
+
+#37 [gateway 1/2] FROM docker.io/library/nginx:alpine@sha256:df221db836e1754089190208cee7eeda94f233197056426eda74a43ab1abeac2
+#37 resolve docker.io/library/nginx:alpine@sha256:df221db836e1754089190208cee7eeda94f233197056426eda74a43ab1abeac2 0.1s done
+#37 DONE 0.1s
+
+#38 [gateway 2/2] COPY default.conf /etc/nginx/conf.d/default.conf
+#38 CACHED
+
+#39 [server stage-0 1/6] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#39 resolve docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 0.0s done
+#39 DONE 0.1s
+
+#40 [server stage-0 2/6] COPY --from=shim ca-bundle.crt /etc/ssl/certs/sandbox-ca.crt
+#40 CACHED
+
+#41 [server stage-0 4/6] COPY package*.json ./
+#41 CACHED
+
+#42 [server stage-0 5/6] RUN npm ci
+#42 CACHED
+
+#43 [server stage-0 3/6] WORKDIR /app
+#43 CACHED
+
+#44 [server stage-0 6/6] COPY . .
+#44 CACHED
+
+#45 [server] exporting to image
+#45 exporting layers done
+#45 exporting manifest sha256:c13fb07014be0d6fd93a57a01dca23ec6db0bfe5c60745159bff656c53373934 done
+#45 exporting config sha256:703830bc9a81c4505f03a438697b063c1edccc2c1a4f8f6b6cbd7cd1468d171f done
+#45 exporting attestation manifest sha256:bb4656488eeb3ecc51a6446876beae4b4732b607781961e96dbb8e405f108bc0 0.0s done
+#45 exporting manifest list sha256:48d07fc4a675f1e20bc36a24a76a395801ada32461f16cbca1d6b9c639784b04 0.0s done
+#45 naming to docker.io/library/cc-server:latest
+#45 naming to docker.io/library/cc-server:latest done
+#45 unpacking to docker.io/library/cc-server:latest 0.0s done
+#45 DONE 0.1s
+
+#46 [client] exporting to image
+#46 exporting layers 0.0s done
+#46 exporting manifest sha256:ac792f3fb2e1da2abb1fadd6824d7840174e382df406b2e50f7a221bdd6e1e22 done
+#46 exporting config sha256:be66977714a33b04ab5fd49c4862de780937ef74f931bfb35f0b0436e968df31 done
+#46 exporting attestation manifest sha256:4916d2a02ce374590ac462204b58717e8108340bfab3a800244db1bd766461bf 0.0s done
+#46 exporting manifest list sha256:51d3c32e6f903e97780a8db6d72d62f0c9d28a39cfdb2672e6ede8fa17925885 0.0s done
+#46 naming to docker.io/library/cc-client:latest done
+#46 unpacking to docker.io/library/cc-client:latest 0.0s done
+#46 DONE 0.1s
+
+#47 [gateway] exporting to image
+#47 exporting layers done
+#47 exporting manifest sha256:c878cd2150e85c9ca56c3aa21a2259b0207f4131de6b6e32a897fc9d14ffd6e7 done
+#47 exporting config sha256:3195d44bd343a95ae41da112e2d714d8ce26f853d3d342b9981282dfa689d127 done
+#47 exporting attestation manifest sha256:dfc447a1848fbc64e6e38f2f8826462dd602167f073ad9b011ff4087b2d35588 0.0s done
+#47 exporting manifest list sha256:b0ba357a5984d6dd1e02667052b4a50400f5fc28d880024805ecee45bc1664d7 0.0s done
+#47 naming to docker.io/library/cc-gateway:latest done
+#47 unpacking to docker.io/library/cc-gateway:latest 0.0s done
+#47 DONE 0.1s
+
+#48 [client] resolving provenance for metadata file
+#48 DONE 0.0s
+
+#49 [gateway] resolving provenance for metadata file
+#49 DONE 0.0s
+
+#50 [server] resolving provenance for metadata file
+#50 DONE 0.0s
+ Image cc-client Built 
+ Image cc-ml-service Built 
+ Image cc-server Built 
+ Image cc-gateway Built 
+ Network cc_kilosunlad-network Creating 
+ Network cc_kilosunlad-network Creating 
+ Volume cc_mongo-data Creating 
+ Volume cc_mongo-data Creating 
+ Volume cc_upload-data Creating 
+ Volume cc_upload-data Creating 
+ Volume cc_mongo-keyfile-data Creating 
+ Volume cc_mongo-keyfile-data Creating 
+ Volume cc_mongo-keyfile-data Created 
+ Volume cc_mongo-keyfile-data Created 
+ Volume cc_upload-data Created 
+ Volume cc_upload-data Created 
+ Volume cc_mongo-data Created 
+ Volume cc_mongo-data Created 
+ Network cc_kilosunlad-network Created 
+ Network cc_kilosunlad-network Created 
+ Container kilosunlad-db Creating 
+ Container kilosunlad-ml Creating 
+ Container kilosunlad-client Creating 
+ Container kilosunlad-ml Created 
+ Container kilosunlad-db Created 
+ Container kilosunlad-replset-init Creating 
+ Container kilosunlad-client Created 
+ Container kilosunlad-replset-init Created 
+ Container kilosunlad-server Creating 
+ Container kilosunlad-server Created 
+ Container kilosunlad-gateway Creating 
+ Container kilosunlad-gateway Created 
+ Container kilosunlad-client Starting 
+ Container kilosunlad-db Starting 
+ Container kilosunlad-ml Starting 
+ Container kilosunlad-client Started 
+ Container kilosunlad-db Started 
+ Container kilosunlad-replset-init Starting 
+ Container kilosunlad-ml Started 
+ Container kilosunlad-replset-init Started 
+ Container kilosunlad-replset-init Waiting 
+ Container kilosunlad-replset-init Exited 
+ Container kilosunlad-server Starting 
+ Container kilosunlad-server Started 
+ Container kilosunlad-gateway Starting 
+ Container kilosunlad-gateway Started 

@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: E2E-02 calamity moratorium freezes dispatch and flagging, releases on expiry/lift
+    # Subtest: no configuration document: no hold
+    ok 1 - no configuration document: no hold
+      ---
+      duration_ms: 63.030045
+      type: 'test'
+      ...
+    # Subtest: active zone freezes dispatch and assessment with zero writes
+    ok 2 - active zone freezes dispatch and assessment with zero writes
+      ---
+      duration_ms: 47.663811
+      type: 'test'
+      ...
+    # Subtest: other municipality and inactive zones are not held
+    ok 3 - other municipality and inactive zones are not held
+      ---
+      duration_ms: 49.872397
+      type: 'test'
+      ...
+    # Subtest: expiry releases the hold
+    ok 4 - expiry releases the hold
+      ---
+      duration_ms: 1050.16701
+      type: 'test'
+      ...
+    # Subtest: malformed stored configuration fails closed (503), never silently clears
+    ok 5 - malformed stored configuration fails closed (503), never silently clears
+      ---
+      duration_ms: 15.337441
+      type: 'test'
+      ...
+    1..5
+ok 1 - E2E-02 calamity moratorium freezes dispatch and flagging, releases on expiry/lift
+  ---
+  duration_ms: 2411.917119
+  type: 'test'
+  ...
+1..1
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2949.495076

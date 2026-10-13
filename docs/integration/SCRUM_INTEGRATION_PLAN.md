@@ -4,6 +4,8 @@
 
 * 2026-10-12: Sprint 1–6 execution on branch `claude/clever-albattani-8ikzld`. Per-item status: `backlog.md` rev 5. Changes, traceability and flags: `CHANGELOG_TRACEABILITY.md`. Contract decisions: DECISION-009.
 
+* 2026-10-13: Docker verification and closure. Rehearsal 16/16 and clean clone on the Compose stack; DAT-05 met (snapshot restore, 5.6–7.1 s); DEF-04 deck, E2E-05 cadence log. Only ML-02/03/06 (and ML-04/05/07 v2 parts) remain, blocked on the FIES input file. Status: `backlog.md` rev 6.
+
 ## Sprint 0 — Integration Readiness Gate (1 day)
 
 **Goal:** Close all documentation and scope flags before any build sprint starts.

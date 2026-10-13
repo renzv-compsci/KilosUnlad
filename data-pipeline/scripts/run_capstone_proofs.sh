@@ -8,7 +8,7 @@
 # (STR-04 evidence capture), including the 80k concurrency test.
 #
 # Usage (Docker stack):  bash data-pipeline/scripts/run_capstone_proofs.sh [--full]
-# Overrides (env): RESET_CMD, FIXTURE_CMD (receives a fixture name), SEED_CMD,
+# Overrides (env): RESET_CMD, RESET_BASELINE_CMD, FIXTURE_CMD (receives a fixture name), SEED_CMD,
 #   BASE_URL, GATEWAY_URL, ML_URL, CLIENT_URL, MONGO_URI, ADMIN_MONGO_URI, EVIDENCE_DIR.
 # Proof 2 and the drawer UI test need `npm install playwright-core` on NODE_PATH.
 # ============================================================
@@ -28,7 +28,15 @@ default_fixture() {
 }
 fixture() { if [ -n "${FIXTURE_CMD:-}" ]; then $FIXTURE_CMD "$1"; else default_fixture "$1"; fi; }
 WITH_SEED=0
-do_reset() { $RESET_CMD && if [ $WITH_SEED -eq 1 ]; then $SEED_CMD; fi; }
+# DAT-05: with a baseline snapshot (snapshot_baseline.sh), the 80k steps restore it
+# in one fast reset instead of reset + seed-ingest.
+RESET_BASELINE_CMD="${RESET_BASELINE_CMD:-docker-compose run --rm -e RESET_BASELINE=1 reset-demo}"
+has_snapshot() { [ -s "$ROOT/data-pipeline/snapshots/baseline_80k_beneficiaries.archive.gz" ] &&
+  [ -s "$ROOT/data-pipeline/snapshots/baseline_80k_external_records.archive.gz" ]; }
+do_reset() {
+  if [ $WITH_SEED -eq 1 ] && has_snapshot; then $RESET_BASELINE_CMD
+  else $RESET_CMD && if [ $WITH_SEED -eq 1 ]; then $SEED_CMD; fi; fi
+}
 
 export BASE_URL="${BASE_URL:-http://localhost:5000/api/v1}"
 GATEWAY_URL="${GATEWAY_URL:-http://localhost/api/v1}"

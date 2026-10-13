@@ -1,0 +1,7 @@
+NAME                      IMAGE           STATUS
+kilosunlad-client         cc-client       Up 13 minutes
+kilosunlad-db             mongo:6.0       Up 13 minutes
+kilosunlad-gateway        cc-gateway      Up 13 minutes
+kilosunlad-ml             cc-ml-service   Up 13 minutes
+kilosunlad-replset-init   mongo:6.0       Exited (0) 13 minutes ago
+kilosunlad-server         cc-server       Up 13 minutes

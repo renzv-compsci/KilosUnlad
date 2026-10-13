@@ -7,6 +7,8 @@
 #
 # Usage:
 #   docker-compose run --rm reset-demo
+#   docker-compose run --rm -e RESET_BASELINE=1 reset-demo   # also restore the
+#       ADR-001 80k baseline from data-pipeline/snapshots (snapshot_baseline.sh)
 #
 # Target: complete in under 10 seconds (Task 5.1 DoD).
 #
@@ -37,6 +39,18 @@ APP_AUTH_DB="kilosunlad"
 
 REPLICA_SET_URI="mongodb://${APP_USER}:${APP_PASS}@db:27017/${DB_NAME}?replicaSet=rs0&authSource=${APP_AUTH_DB}"
 ADMIN_URI="mongodb://${ADMIN_USER}:${ADMIN_PASS}@db:27017/${DB_NAME}?authSource=${ADMIN_AUTH_DB}"
+
+# DAT-05: RESET_BASELINE=1 restores the 80k baseline snapshot (beneficiaries and
+# external_records, SYN-4PS-*) instead of re-ingesting the seed JSON.
+RESET_BASELINE="${RESET_BASELINE:-0}"
+SNAPSHOT_DIR="${PROJECT_ROOT}/data-pipeline/snapshots"
+RESTORE_URI="mongodb://${ADMIN_USER}:${ADMIN_PASS}@localhost:27017/?authSource=${ADMIN_AUTH_DB}"
+if [ "${RESET_BASELINE}" = "1" ]; then
+  for c in beneficiaries external_records; do
+    [ -s "${SNAPSHOT_DIR}/baseline_80k_${c}.archive.gz" ] ||
+      { echo "[reset_demo] FAIL: missing snapshot ${SNAPSHOT_DIR}/baseline_80k_${c}.archive.gz (run snapshot_baseline.sh once)." >&2; exit 1; }
+  done
+fi
 
 # ------------------------------------------------------------
 # Helpers
@@ -84,10 +98,14 @@ docker exec -i "${DB_CONTAINER}" mongosh "${ADMIN_URI}" --quiet --eval "
   });
   print('      Dropped 6 collections.');
 
+  // Baseline mode: the snapshot restore recreates beneficiaries and
+  // external_records with the same indexes, built after the bulk load.
+  const baseline = ${RESET_BASELINE} === 1;
+
   // Recreate collections
   db.createCollection('users');
-  db.createCollection('beneficiaries');
-  db.createCollection('external_records');
+  if (!baseline) db.createCollection('beneficiaries');
+  if (!baseline) db.createCollection('external_records');
   db.createCollection('verification_tasks');
   db.createCollection('audit_logs');
   db.createCollection('system_configs');
@@ -97,13 +115,15 @@ docker exec -i "${DB_CONTAINER}" mongosh "${ADMIN_URI}" --quiet --eval "
   db.users.createIndex({ username: 1 }, { unique: true });
   db.users.createIndex({ role: 1, 'jurisdiction.municipality': 1 });
 
-  db.beneficiaries.createIndex({ household_id: 1 }, { unique: true });
-  db.beneficiaries.createIndex({ 'head_of_household.national_id': 1 }, { unique: true });
-  db.beneficiaries.createIndex({ 'address.coordinates': '2dsphere' });
-  db.beneficiaries.createIndex({ 'risk_assessment.is_flagged': 1, 'address.municipality': 1 });
+  if (!baseline) {
+    db.beneficiaries.createIndex({ household_id: 1 }, { unique: true });
+    db.beneficiaries.createIndex({ 'head_of_household.national_id': 1 }, { unique: true });
+    db.beneficiaries.createIndex({ 'address.coordinates': '2dsphere' });
+    db.beneficiaries.createIndex({ 'risk_assessment.is_flagged': 1, 'address.municipality': 1 });
 
-  db.external_records.createIndex({ matched_household_id: 1 }, { unique: true });
-  db.external_records.createIndex({ national_id: 1 });
+    db.external_records.createIndex({ matched_household_id: 1 }, { unique: true });
+    db.external_records.createIndex({ national_id: 1 });
+  }
 
   db.verification_tasks.createIndex({ task_id: 1 }, { unique: true });
   db.verification_tasks.createIndex({ assigned_worker_id: 1, task_status: 1 });
@@ -116,6 +136,20 @@ docker exec -i "${DB_CONTAINER}" mongosh "${ADMIN_URI}" --quiet --eval "
 
   print('      Collections + indexes rebuilt.');
 "
+
+# ------------------------------------------------------------
+# 2b. Baseline mode: restore the 80k snapshot in the background
+#     (runs alongside step 3; joined before step 4).
+# ------------------------------------------------------------
+RESTORE_PIDS=""
+if [ "${RESET_BASELINE}" = "1" ]; then
+  log "[2b/5] Restoring the 80k baseline snapshot (beneficiaries + external_records)..."
+  for c in beneficiaries external_records; do
+    docker exec -i "${DB_CONTAINER}" mongorestore --uri "${RESTORE_URI}" --archive --gzip --quiet \
+      --numInsertionWorkersPerCollection=4 < "${SNAPSHOT_DIR}/baseline_80k_${c}.archive.gz" &
+    RESTORE_PIDS="${RESTORE_PIDS} $!"
+  done
+fi
 
 # ------------------------------------------------------------
 # 3. Seed test accounts + Phase 3 data
@@ -136,6 +170,11 @@ fi
 # 4. Load demo Case A + verify counts
 #    Single mongosh call for insert + counts.
 # ------------------------------------------------------------
+if [ -n "${RESTORE_PIDS}" ]; then
+  for pid in ${RESTORE_PIDS}; do wait "${pid}" || fail "Baseline restore failed."; done
+  log "      Baseline restored."
+fi
+
 log "[4/5] Loading demo Case A and verifying..."
 
 # Copy demo files
@@ -160,6 +199,13 @@ docker exec -i "${DB_CONTAINER}" mongosh "${ADMIN_URI}" --quiet --eval "
   if (ext.landbank_telemetry && ext.landbank_telemetry.last_withdrawal_timestamp) {
     ext.landbank_telemetry.last_withdrawal_timestamp = new Date(ext.landbank_telemetry.last_withdrawal_timestamp);
   }
+  // Declared indexes (no-ops when present; required after a baseline restore).
+  db.beneficiaries.createIndex({ household_id: 1 }, { unique: true });
+  db.beneficiaries.createIndex({ 'head_of_household.national_id': 1 }, { unique: true });
+  db.beneficiaries.createIndex({ 'address.coordinates': '2dsphere' });
+  db.beneficiaries.createIndex({ 'risk_assessment.is_flagged': 1, 'address.municipality': 1 });
+  db.external_records.createIndex({ matched_household_id: 1 }, { unique: true });
+  db.external_records.createIndex({ national_id: 1 });
   db.beneficiaries.insertOne(ben);
   db.external_records.insertOne(ext);
   print('      Demo Case A loaded.');

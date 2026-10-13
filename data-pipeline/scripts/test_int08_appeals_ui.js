@@ -48,6 +48,7 @@ async function run() {
     JSON.stringify(Object.keys(contract.response.data.items[0]).sort()), item && Object.keys(item));
   check('fixture household under notice with a 15-day window', item?.status === 'NOTICE_OF_INELIGIBILITY' &&
     Date.parse(item.notice_expiry_date) - Date.parse(item.notice_date) === 15 * DAY, item);
+  check('grants continue during the window (grant_continuation_active)', item?.grant_continuation_active === true, item);
   check('only NOTICE households listed', list.data.items.every(i => ['NOTICE_OF_INELIGIBILITY', 'UNDER_APPEAL_HEARING'].includes(i.status)));
   check('pagination present', list.data.pagination?.current_page === 1, list.data.pagination);
   check('COA auditor can read', (await call('GET', '/appeals/docket', { token: auditor })).status === 200);
