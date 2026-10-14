@@ -21,13 +21,16 @@ interface Screen5DueProcessManagerProps {
   loadDocket?: (signal: AbortSignal) => Promise<DueProcessNoticeItem[]>;
   submitAppeal?: (body: AppealFilingRequest) => Promise<AppealFilingReceipt>;
   describeError?: (error: unknown) => string;
+  // DECISION-011: completes graduation once the 15-day window has passed with no appeal.
+  completeGraduation?: (householdId: string) => Promise<{ household_id: string; audit_receipt: { sequence_index: number } }>;
 }
 
 const manilaToday = () => new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10);
 
 export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> = ({
-  showSpecAnnotations = false, loadDocket, submitAppeal, describeError,
+  showSpecAnnotations = false, loadDocket, submitAppeal, describeError, completeGraduation,
 }) => {
+  const [graduating, setGraduating] = useState<string | null>(null);
   const live = Boolean(loadDocket && submitAppeal);
   const [notices, setNotices] = useState<DueProcessNoticeItem[]>(live ? [] : MOCK_DUE_PROCESS_NOTICES);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(live ? 'loading' : 'ready');
@@ -181,6 +184,16 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
               </div>
               <div className="record-action-area">
                 {!isUnderAppeal && <button id={`file-appeal-btn-${notice.household_id}`} onClick={() => handleOpenAppealModal(notice)} className="record-action"><Scale size={16} aria-hidden="true" />{live ? 'File Appeal' : 'Preview Appeal'}</button>}
+                {live && completeGraduation && !isUnderAppeal && notice.notice_expiry_date && Date.parse(notice.notice_expiry_date) <= Date.now() &&
+                  <button id={`graduate-btn-${notice.household_id}`} type="button" disabled={graduating !== null} className="record-action" onClick={async () => {
+                    setGraduating(notice.household_id); setFilingError(null); setFiledMessage(null);
+                    try {
+                      const receipt = await completeGraduation(notice.household_id);
+                      setFiledMessage(`${notice.head_of_household.full_name} graduated: the appeal window ended with no appeal. Sealed as ledger block #${receipt.audit_receipt.sequence_index}.`);
+                      const controller = new AbortController(); await reload(controller.signal);
+                    } catch (failure) { setFiledMessage(describeError ? describeError(failure) : 'Graduation could not be completed.'); }
+                    finally { setGraduating(null); }
+                  }}><CheckCircle2 size={16} aria-hidden="true" />{graduating === notice.household_id ? 'Completing…' : 'Complete graduation'}</button>}
               </div>
             </article>
           );

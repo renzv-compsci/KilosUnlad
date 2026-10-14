@@ -1,6 +1,6 @@
 # KilosUnlad: scenarios to test yourself
 
-Twelve scenarios you can run by hand, in the browser, from a clean start. Each scenario lists:
+Thirteen scenarios you can run by hand, in the browser, from a clean start. Each scenario lists:
 - the account to use;
 - the steps;
 - what you should see;
@@ -226,6 +226,45 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST $API/calamity/toggle -H "Author
 
 ---
 
+## S13. Review a report, issue the notice, graduate (DECISION-011)
+1. Do S7 (Case A flagged), S4 (dispatch Case A to Test Case Worker) and S5 (the caseworker submits a report with a photo; set the location to Case A: 14.2215, 121.1875).
+2. Director → **Caseworker Dispatch**. Case A shows **Review report**. Open it.
+3. Write the grounds (at least 10 characters) and click **Approve graduation and issue notice**.
+4. Open **15-Day Due Process**.
+5. Try to graduate early:
+   ```bash
+   curl -s -X POST $API/beneficiaries/DEMO-4PS-GRAD-0001/graduate -H "Authorization: Bearer $DIR" -H 'Content-Type: application/json' -d '{}'
+   ```
+6. *Optional, local only:* to see the end of the window without waiting 15 days, move the notice back in the test data. Then reload Due Process:
+   ```bash
+   docker exec kilosunlad-db mongosh "mongodb://admin_user:RootAdminSecret2026!@localhost:27017/kilosunlad?authSource=admin" --quiet \
+     --eval 'db.verification_tasks.updateOne({household_id:"DEMO-4PS-GRAD-0001","admin_resolution.decision":"APPROVED_GRADUATION"},{$set:{"admin_resolution.finalized_at":new Date(Date.now()-16*864e5)}})'
+   ```
+
+**Expect:**
+- The report shows the caseworker's findings and the photo with **"Hash verified"**.
+- The notice receipt shows the appeal window (15 days) and a ledger block number. The task now shows **View report**.
+- Due Process lists Case A with the 15-day countdown, grants protected.
+- The early graduation call returns `APPEAL_WINDOW_OPEN`.
+- After step 6, a **Complete graduation** button appears. Clicking it graduates Case A and seals another `BENEFICIARY_GRADUATED` block.
+- Filing an appeal instead (S8) blocks graduation (`APPEAL_HOLD`).
+
+**Negative checks:**
+- A report that recommends retaining the household cannot be turned into a notice; the dialog explains why.
+- A seeded report whose photo was never uploaded says "The photo is not in storage."
+
+**Tamper check (local):** alter the stored photo, then reopen the report. The photo is refused ("no longer matches its recorded hash"). Restore it, and it shows again.
+```bash
+# alter (keeps a backup)
+docker exec kilosunlad-server sh -c 'f=/app/uploads/evidence/$(ls /app/uploads/evidence | head -1); cp $f /tmp/photo.bak; printf X >> $f'
+# restore
+docker exec kilosunlad-server sh -c 'f=/app/uploads/evidence/$(ls /app/uploads/evidence | head -1); cp /tmp/photo.bak $f'
+```
+
+**Proves:** notice issuance, the due-process timer, and tamper-evident evidence storage.
+
+---
+
 ### Record your results
 | Scenario | Date | Tester | Pass / Fail | Notes |
 | --- | --- | --- | --- | --- |
@@ -241,3 +280,4 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST $API/calamity/toggle -H "Author
 | S10 | | | | |
 | S11 | | | | |
 | S12 | | | | |
+| S13 | | | | |

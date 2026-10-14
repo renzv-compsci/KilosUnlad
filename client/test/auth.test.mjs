@@ -56,7 +56,7 @@ test('dispatch puts assignments before collapsed staff details and loads server 
   assert.match(html, /Loading assignments/);
   assert.doesNotMatch(html, /Manage \/ Reassign/);
   assert.match(html, /Select Household/);
-  assert.match(html, /Reassignment is not supported/);
+  assert.match(html, /Review report/);
   assert.doesNotMatch(html, /Not connected/);
 });
 
@@ -475,6 +475,34 @@ test('UI live-data reads call the DECISION-010 routes with the bearer and reject
   for (const call of [app.fetchInsightsOverview, app.fetchAdminTasks, app.fetchCaseworkers, app.fetchAuditBlocks, app.fetchPolicy, app.fetchMapDensity]) {
     await assert.rejects(call(), /did not match the contract/);
   }
+});
+test('DECISION-011 calls: report, evidence, notice and graduation use the routes and verify receipts', async () => {
+  const session = app.parseSession(fixture()); app.saveSession(session);
+  const seen = [];
+  const photoBytes = new TextEncoder().encode('photo-bytes');
+  const hash = await app.calculateSha256(new Blob([photoBytes]));
+  app.api.defaults.adapter = async (config) => {
+    assert.equal(config.headers.Authorization, `Bearer ${session.access_token}`);
+    seen.push([config.method, config.url, config.data ? JSON.parse(config.data) : undefined]);
+    if (config.url === '/tasks/TSK-1/report') return { config, status: 200, headers: {}, data: { task_id: 'TSK-1', evidence: [] } };
+    if (config.url === `/evidence/${hash}`) return { config, status: 200, headers: { 'x-content-sha256': hash }, data: new Blob([photoBytes]) };
+    if (config.url === '/tasks/TSK-1/resolve') return { config, status: 200, headers: {}, data: { household_status: 'NOTICE_OF_INELIGIBILITY', audit_receipt: { sequence_index: 7 } } };
+    return { config, status: 200, headers: {}, data: { household_status: 'GRADUATED', audit_receipt: { sequence_index: 8 } } };
+  };
+  globalThis.URL.createObjectURL ??= () => 'blob:test';
+  await app.fetchTaskReport('TSK-1');
+  assert.match(await app.fetchEvidenceUrl(hash), /^blob:/);
+  await app.issueNotice('TSK-1', 'Grounds of at least ten characters');
+  await app.completeGraduation('HH-1');
+  assert.deepEqual(seen, [['get', '/tasks/TSK-1/report', undefined], ['get', `/evidence/${hash}`, undefined],
+    ['post', '/tasks/TSK-1/resolve', { decision: 'APPROVED_GRADUATION', admin_notes: 'Grounds of at least ten characters' }],
+    ['post', '/beneficiaries/HH-1/graduate', {}]]);
+  // A photo whose hash the server does not confirm, or a receipt without a sealed block, is rejected.
+  app.api.defaults.adapter = async (config) => ({ config, status: 200, headers: { 'x-content-sha256': hash }, data: new Blob(['altered']) });
+  await assert.rejects(app.fetchEvidenceUrl(hash), /does not match its recorded hash/, 'the browser re-hashes the bytes itself');
+  app.api.defaults.adapter = async (config) => ({ config, status: 200, headers: {}, data: {} });
+  await assert.rejects(app.issueNotice('TSK-1', 'Grounds of at least ten characters'), /valid notice receipt/);
+  await assert.rejects(app.completeGraduation('HH-1'), /valid graduation receipt/);
 });
 test('protected 401 or deactivated account clears session', async () => {
   for (const [status, code] of [[401, 'TOKEN_EXPIRED'], [403, 'ACCOUNT_DEACTIVATED']]) {

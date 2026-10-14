@@ -1,0 +1,41 @@
+{
+  "contract_name": "admin-notice-issuance",
+  "version": "1.0.0",
+  "revision_note": "2026-10-14 (DECISION-011): a director approves graduation after reviewing the submitted field report. This issues the Notice of Ineligibility (household UNDER_INVESTIGATION -> NOTICE_OF_INELIGIBILITY), starts the 15-day appeal window at `notice_date`, and seals one BENEFICIARY_GRADUATED block whose state_delta records decision APPROVED_GRADUATION and the appeal deadline (no new audit action; frozen schema). Grants continue during the window. Refused when the field report does not support graduation or a calamity moratorium (RA 10121) covers the municipality.",
+  "endpoint": "/api/v1/tasks/:task_id/resolve",
+  "method": "POST",
+  "headers": { "Authorization": "Bearer <JWT_ACCESS_TOKEN>", "Content-Type": "application/json" },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR (jurisdiction-scoped).",
+  "request": {
+    "decision": "APPROVED_GRADUATION",
+    "admin_notes": "Field visit confirmed Level 3: private sedan, postpaid plan and household business; utility use above lifeline."
+  },
+  "request_rules": {
+    "decision": "required; only APPROVED_GRADUATION is accepted (retention rules are not yet agreed)",
+    "admin_notes": "required; 10 to 1000 characters; becomes the stated grounds on the notice"
+  },
+  "response": {
+    "status": 200,
+    "data": {
+      "task_id": "TSK-2026-0c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f",
+      "household_id": "DEMO-4PS-GRAD-0001",
+      "task_status": "VERIFIED_GRADUATE",
+      "household_status": "NOTICE_OF_INELIGIBILITY",
+      "notice_date": "2026-10-14T09:00:00.000Z",
+      "appeal_deadline": "2026-10-29T09:00:00.000Z",
+      "audit_receipt": { "sequence_index": 5, "entry_hash": "805deeeda86503386a5ac480147d1a88184ced4791809318754395094d70f649" }
+    }
+  },
+  "errors": [
+    { "status": 400, "code": "INVALID_REQUEST" },
+    { "status": 401, "code": "UNAUTHORIZED" },
+    { "status": 403, "code": "FORBIDDEN" },
+    { "status": 403, "code": "OUT_OF_JURISDICTION" },
+    { "status": 404, "code": "TASK_NOT_FOUND" },
+    { "status": 409, "code": "TASK_NOT_SUBMITTED" },
+    { "status": 409, "code": "FIELD_REPORT_DOES_NOT_SUPPORT_GRADUATION" },
+    { "status": 409, "code": "CALAMITY_MORATORIUM_ACTIVE" },
+    { "status": 409, "code": "WORKFLOW_CONFLICT" },
+    { "status": 503, "code": "WORKFLOW_UNAVAILABLE" }
+  ]
+}

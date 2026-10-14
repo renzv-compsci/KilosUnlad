@@ -10,6 +10,22 @@ flag register), `docs/decisions/009-ml-vector-and-assessment-contracts.md`, evid
 
 ---
 
+## 000. Update 2026-10-14: notice issuance, evidence viewing, UAT instrument (DECISION-011)
+
+| Item | Result | Where |
+| --- | --- | --- |
+| Notice issuance | `GET /tasks/:task_id/report`, `POST /tasks/:task_id/resolve` (UNDER_INVESTIGATION → NOTICE_OF_INELIGIBILITY), `POST /beneficiaries/:household_id/graduate` (NOTICE → GRADUATED after 15 days and no appeal). Both transitions sealed as `BENEFICIARY_GRADUATED` (existing enum; you chose this); the state delta says which step. Director/Super Admin only, jurisdiction-scoped, Joi-validated, calamity hold respected | `docs/decisions/011-notice-issuance-and-evidence-retrieval.md` (**PROPOSED: needs your sign-off**), 4 new contracts in `docs/contracts/admin-web/` |
+| Evidence photos | `GET /evidence/:sha256` serves the stored file only after re-hashing it; altered bytes return 409 `EVIDENCE_INTEGRITY_FAILED`. The browser checks the hash again before showing it. Files live in the `upload-data` Docker volume and survive restarts | same decision |
+| UI | Dispatch screen: "Review report" opens findings, photos ("Hash verified") and the notice form. Due Process screen: "Complete graduation" appears once the window has passed with no appeal | `client/src/components/persona/ReportReviewDialog.tsx` |
+| Tests | `resolution.test.js` written first (5 subtests). Server 165 pass / 0 fail; client 68/68, build OK. `test_decision011_notice_flow.js` **17/17** (API + browser + tamper). Capstone `--full` **18/18** from clean resets | `docs/integration/evidence/decision011/` |
+| Section 12 | TC-11 now **PASS**; manual scenario S13 added | `SECTION12_TEST_RESULTS.md`, `MANUAL_TEST_SCENARIOS.md` |
+| UAT | Rating form + `score_uat.py` (SUS ≥ 68 and ≥ 80% completion). Ratings must come from real participants; the CSV is empty on purpose | `docs/testing/uat/` |
+| Deck | Limitations, evidence, safeguards and deployment slides updated. Deployment now describes the local Docker setup (no hosting) | private link in §6 Step 8 |
+
+**Still yours:** sign DECISION-011; run the UAT sessions; agree retention rules (`VERIFIED_RETAIN` is still rejected with 400).
+
+---
+
 ## 00. Update after the main merge (2026-10-13, clean start + live UI + hosting)
 
 | Item | Result | Where |
@@ -55,17 +71,15 @@ flag register), `docs/decisions/009-ml-vector-and-assessment-contracts.md`, evid
 
 **Still yours:**
 1. Place the FIES CSV and run §7.1 (Sprint 2 v2).
-2. Decide on notice issuance (§7.3); TC-11 stays PARTIAL until then.
+2. ~~Decide on notice issuance~~ Done in DECISION-011 (§000); TC-11 now PASS.
 3. Collect real UAT participant ratings.
 4. Validate with §6, then review and merge PR #29.
 
 **The program DoD** (`SCRUM_INTEGRATION_PLAN.md`) is met, except for the clause "the SWDI classifier in production is the v2 artifact". That clause needs item 1.
 
-**For a complete beneficiary lifecycle in production**, two transitions still have no route:
-- `UNDER_INVESTIGATION → NOTICE_OF_INELIGIBILITY`: no route and no audit action.
-- `NOTICE_OF_INELIGIBILITY → GRADUATED`: the timing helper exists, but there is no route.
-
-Both need your decision (§7.3).
+**Lifecycle:** both former gaps now have routes (DECISION-011, §000):
+- `UNDER_INVESTIGATION → NOTICE_OF_INELIGIBILITY`: `POST /tasks/:task_id/resolve`.
+- `NOTICE_OF_INELIGIBILITY → GRADUATED`: `POST /beneficiaries/:household_id/graduate`.
 
 ---
 
@@ -477,11 +491,8 @@ Note: Case A's demo outcome (Level 3) was checked against v1. Re-check it with v
 * Optional: a calamity toggle UI for Super Admin.
 
 ### 7.3 Your decisions
-* **Notice issuance.** Choose an audit action and route for `UNDER_INVESTIGATION → NOTICE_OF_INELIGIBILITY`
-  (for example, director approval writing `admin_resolution` + `NOTICE`). The current audit enum has no notice
-  action, so this needs a decision under Iron Law 2. After that, graduation (`NOTICE → GRADUATED`) can use the
-  existing `assertAppealWindowElapsed`. Until then, the appeals docket works from the stored approval
-  (`add_int03_notice_fixture.js`).
+* **Notice issuance.** Resolved by DECISION-011 (reuses `BENEFICIARY_GRADUATED`, no enum change). Sign it off.
+  Retention (`VERIFIED_RETAIN`) is still not built: agree the rules first.
 * **Calamity toggle roles.** It is Super Admin only. Widen it if directors should declare calamities.
 * **v2 promotion** (after the §7.1 run): accept or reject the winning experiment; ML-02 does not guarantee an improvement.
 * **DEF-04 deck:** review it, share it from its Share menu, and update the model and limitations slides after v2.
@@ -491,7 +502,7 @@ Note: Case A's demo outcome (Level 3) was checked against v1. Re-check it with v
 ### 7.4 Known limitations (documented, not defects)
 * The age-out rule cannot apply "18 and no longer enrolled", because there is no enrollment field.
 * Assessments that score below 70 are returned but not saved, because every save requires an audit entry.
-* Stored evidence photos have no authenticated viewing route yet.
+* Stored evidence photos are viewable through `GET /evidence/:sha256` (DECISION-011), re-hashed on every read.
 * Audit writes are serialized system-wide: correct under load, but bursts queue.
 
 ---

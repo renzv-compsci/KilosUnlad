@@ -409,3 +409,14 @@
 .hh-cluster-marker:focus-visible .hh-cluster { outline: 3px solid #132e4f; outline-offset: 3px; }
 .map-layer-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; }
 .map-layer-bar .map-toggle .map-dot { width: 10px; height: 10px; flex: 0 0 auto; }
+
+/* Report review dialog (DECISION-011). */
+.report-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 20px; font-size: 14px; }
+.report-facts dt { color: #5f6c7d; font-size: 12px; }
+.report-facts dd { margin: 0; color: #253044; font-weight: 600; }
+.evidence-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.evidence-photo { margin: 0; overflow: hidden; border: 1px solid #e3e8ee; border-radius: 8px; background: #f6f7f9; }
+.evidence-photo img, .evidence-placeholder { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.evidence-placeholder { display: flex; align-items: center; justify-content: center; padding: 10px; color: #5f6c7d; font-size: 13px; text-align: center; }
+.evidence-photo figcaption { padding: 6px 8px; color: #5f6c7d; font-size: 12px; line-height: 1.4; }
+.evidence-photo code { font-size: 11px; }

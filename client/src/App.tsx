@@ -27,7 +27,7 @@ import {
   TriagePagination,
 } from './types/contracts';
 import type { ScreenId } from './types/navigation';
-import { apiErrorMessage, appealErrorMessage, fetchAssessmentExplanation, fetchDueProcessDocket, fetchTriagePage, fileAppeal } from './services/api';
+import { apiErrorMessage, appealErrorMessage, completeGraduation, fetchAssessmentExplanation, fetchDueProcessDocket, fetchTriagePage, fileAppeal, resolutionErrorMessage } from './services/api';
 import { loadWorkerAssignments } from './services/workerAssignments';
 import type { TriageSummary } from './services/api';
 import { clearStoredSession, isUserRole, readStoredSession } from './services/authSession';
@@ -406,7 +406,8 @@ export default function App() {
         return <GrievanceAppealsDashboard onNavigateToScreen={navigateToScreen} />;
       case 'due_process':
       case 'appeal_hearing':
-        return <Screen5DueProcessManager loadDocket={fetchDueProcessDocket} submitAppeal={fileAppeal} describeError={appealErrorMessage} />;
+        return <Screen5DueProcessManager loadDocket={fetchDueProcessDocket} submitAppeal={fileAppeal} describeError={appealErrorMessage}
+          completeGraduation={(householdId) => completeGraduation(householdId).catch((error) => { throw new Error(resolutionErrorMessage(error)); })} />;
       case 'coa_dashboard':
         return (
           <CoaAuditDashboard

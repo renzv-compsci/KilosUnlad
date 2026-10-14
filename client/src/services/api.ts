@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { clearStoredSession, parseSession, readStoredSession, saveSession } from './authSession';
+import { calculateSha256 } from '../utils/photoHasher';
 import {
   BeneficiaryTriageItem,
   FieldTaskItem,
@@ -407,4 +408,75 @@ export async function fetchMapDensity(signal?: AbortSignal): Promise<MapDensity>
   const { data } = await api.get('/insights/map', { signal });
   if (!Array.isArray(data?.cells) || !Number.isSafeInteger(data?.total_households)) throw new Error('Map response did not match the contract.');
   return data as MapDensity;
+}
+
+// ---- DECISION-011: report review, evidence photos, notice issuance, graduation ----
+export interface TaskReport {
+  task_id: string; household_id: string; head_of_household: { full_name: string }; address: { barangay: string; municipality: string };
+  task_status: string; household_status: string; assigned_worker: { user_id: string; full_name: string } | null; submitted_at: string | null;
+  findings: { verified_swdi_level: number | null; worker_recommendation: string | null; narrative_report: string;
+    livelihood_asset_verification: { is_motorcycle_present?: boolean; is_productive_asset?: boolean; proof_type?: string; franchise_number?: string } | null;
+    landbank_card_inspection: { physical_card_presented?: boolean; card_matches_beneficiary?: boolean; pawning_suspected?: boolean } | null;
+    client_geolocation: { latitude: number; longitude: number; accuracy_meters: number | null; captured_at: string | null } | null };
+  evidence: { sha256_hash: string; media_type: string; captured_at: string | null; url: string }[];
+  graduation_supported: boolean;
+  admin_resolution: { decision: string; admin_notes: string; finalized_at: string | null } | null;
+}
+export interface NoticeReceipt { task_id: string; household_id: string; task_status: string; household_status: string;
+  notice_date: string; appeal_deadline: string; audit_receipt: { sequence_index: number; entry_hash: string } }
+export interface GraduationReceipt { household_id: string; household_status: string; notice_date: string; appeal_deadline: string;
+  audit_receipt: { sequence_index: number; entry_hash: string } }
+
+export async function fetchTaskReport(taskId: string, signal?: AbortSignal): Promise<TaskReport> {
+  const { data } = await api.get(`/tasks/${encodeURIComponent(taskId)}/report`, { signal });
+  if (data?.task_id !== taskId || !Array.isArray(data?.evidence)) throw new Error('Report response did not match the contract.');
+  return data as TaskReport;
+}
+
+// Evidence is fetched with the session token and shown from an in-memory object URL. The
+// browser re-hashes the received bytes itself (when it can) and also checks the server's
+// confirmation header, so a photo is shown only if it matches its recorded hash.
+export async function fetchEvidenceUrl(hash: string, signal?: AbortSignal): Promise<string> {
+  const response = await api.get(`/evidence/${encodeURIComponent(hash)}`, { signal, responseType: 'blob' });
+  const blob = response.data as Blob;
+  const confirmed = response.headers['x-content-sha256'];
+  if (globalThis.crypto?.subtle) {
+    if (await calculateSha256(blob) !== hash) throw new Error('The photo does not match its recorded hash.');
+  } else if (confirmed !== hash) {
+    throw new Error('The server did not confirm the photo hash.');
+  }
+  return URL.createObjectURL(blob);
+}
+
+export async function issueNotice(taskId: string, adminNotes: string): Promise<NoticeReceipt> {
+  const { data } = await api.post(`/tasks/${encodeURIComponent(taskId)}/resolve`, { decision: 'APPROVED_GRADUATION', admin_notes: adminNotes });
+  if (data?.household_status !== 'NOTICE_OF_INELIGIBILITY' || !Number.isSafeInteger(data?.audit_receipt?.sequence_index)) {
+    throw new Error('The server did not return a valid notice receipt.');
+  }
+  return data as NoticeReceipt;
+}
+
+export async function completeGraduation(householdId: string): Promise<GraduationReceipt> {
+  const { data } = await api.post(`/beneficiaries/${encodeURIComponent(householdId)}/graduate`, {});
+  if (data?.household_status !== 'GRADUATED' || !Number.isSafeInteger(data?.audit_receipt?.sequence_index)) {
+    throw new Error('The server did not return a valid graduation receipt.');
+  }
+  return data as GraduationReceipt;
+}
+
+export function resolutionErrorMessage(error: unknown): string {
+  const code = axios.isAxiosError(error) ? error.response?.data?.error?.code : undefined;
+  const messages: Record<string, string> = {
+    INVALID_REQUEST: 'Write the grounds for the notice (at least 10 characters).',
+    TASK_NOT_SUBMITTED: 'This report was already decided. Refresh the list.',
+    FIELD_REPORT_DOES_NOT_SUPPORT_GRADUATION: 'The field report neither recommends graduation nor verifies Level 3, so a notice cannot be issued.',
+    CALAMITY_MORATORIUM_ACTIVE: 'A calamity moratorium (RA 10121) covers this municipality: notices and graduation are frozen.',
+    WORKFLOW_CONFLICT: 'The household status changed. Refresh and try again.',
+    NOTICE_RECORD_MISSING: 'No approved notice is on record for this household.',
+    APPEAL_WINDOW_OPEN: 'The 15-day appeal window has not ended yet.',
+    APPEAL_HOLD: 'An appeal was filed, so the household cannot be graduated.',
+    EVIDENCE_INTEGRITY_FAILED: 'This photo no longer matches its recorded hash and was not shown.',
+    EVIDENCE_NOT_FOUND: 'The photo is not in storage.',
+  };
+  return (code && messages[code]) || apiErrorMessage(error);
 }
