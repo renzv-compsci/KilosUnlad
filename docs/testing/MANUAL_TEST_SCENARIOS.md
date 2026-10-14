@@ -171,7 +171,7 @@ The ledger is empty. Every block you see later was created by your own actions.
 
 ## S5. Field visit with geotagged evidence (continue from S4)
 1. Sign in as `case_worker_test` → **Assigned Tasks**. Rosa Villanueva and Dispatch TestSubject are listed.
-2. The geofence needs you to "stand" within 250 m of the household. **Before starting**, in Chrome open **DevTools → ⋮ → More tools → Sensors → Location → Other** and set latitude **14.2120**, longitude **121.1660** (Dispatch TestSubject). Allow location when the browser asks.
+2. The geofence needs you to "stand" within 250 m of the household. **Before starting**, open Chrome DevTools (F12) on the app's tab and **keep it open for the whole visit** (the location override only works while DevTools is open). Then open **DevTools → ⋮ → More tools → Sensors → Location → Other** and set latitude **14.2120**, longitude **121.1660** (Dispatch TestSubject). Allow location when the browser asks.
 3. Click **Start In-Person Verification** on Dispatch TestSubject and complete the 5 steps:
    - Step 1: pick one option for wall, roof and water.
    - Step 2: answer the vehicle question.
@@ -402,6 +402,9 @@ Reset (§0) before a second run. After a session with real users, record their r
 | `docker cp` / `docker exec` cannot find `/tmp/...` or `/app/...` | Git Bash rewrote the path to a Windows folder | §0.3 (`export MSYS_NO_PATHCONV=1`), or use `reset_test_data.sh` |
 | `curl` returns **401** in the middle of a session | Tokens last 15 minutes | re-run the last three lines of §0.5 |
 | A scenario's numbers differ from the document | Data from an earlier scenario, or the demo dataset | §0.6 and §0.4 |
+| Photo step says **Location request timed out. Move to an open area, then retry.** (any image) | The browser got no GPS fix within 15 s. A laptop has no GPS, so without a location override Chrome waits on Windows location services and times out. The photo is fine. | Open DevTools (F12) **on that tab and keep it open**, ⋮ → More tools → **Sensors** → Location → *Other…* → 14.2120 / 121.1660 (S5), then capture again. Closing DevTools removes the override. |
+| Photo step says **Location permission was denied** | Location blocked for the site | Click the icon left of the address bar → Location → Allow, then retry |
+| Photo step says **Location is unavailable** | Sensors set to *Location unavailable*, or Windows location services off | Pick a location in Sensors, or turn on Windows Settings → Privacy & security → Location |
 
 ---
 
