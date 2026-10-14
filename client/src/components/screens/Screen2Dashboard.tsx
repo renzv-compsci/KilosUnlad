@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { ScreenId } from '../../types/navigation';
 import type { BeneficiaryTriageItem } from '../../types/contracts';
-import { apiErrorMessage, fetchInsightsOverview, InsightsOverview, type TriageSummary } from '../../services/api';
+import { apiErrorMessage, fetchInsightsOverview, fetchTriagePage, InsightsOverview, type TriageSummary } from '../../services/api';
 import { displayDate } from '../../utils/displayDate';
 import { 
   Users, 
@@ -15,7 +15,10 @@ import {
   ArrowRight,
   ClipboardList
 } from 'lucide-react';
-import { MinimalPhMap, ClusterPin } from '../dashboard/MinimalPhMap';
+import type { ClusterPin, MapHousehold } from '../dashboard/MinimalPhMap';
+
+// Leaflet needs a browser; load the map only when it is shown (keeps the first paint light).
+const MinimalPhMap = React.lazy(() => import('../dashboard/MinimalPhMap').then(m => ({ default: m.MinimalPhMap })));
 
 interface Screen2DashboardProps {
   onNavigateToScreen: (screen: ScreenId) => void;
@@ -38,11 +41,17 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
 }) => {
   // Live aggregates for the caller's jurisdiction (GET /insights/overview, DECISION-010).
   const [overview, setOverview] = useState<InsightsOverview | null>(null);
+  const [reviewHouseholds, setReviewHouseholds] = useState<BeneficiaryTriageItem[] | null>(null);
   const [overviewError, setOverviewError] = useState('');
   useEffect(() => {
     const controller = new AbortController();
     fetchInsightsOverview(controller.signal).then(setOverview)
       .catch(failure => { if (!controller.signal.aborted) setOverviewError(apiErrorMessage(failure)); });
+    // Map dots: every household in a review stage (existing triage feed, same jurisdiction scope).
+    Promise.all(['FLAGGED_FOR_REVIEW', 'UNDER_INVESTIGATION', 'NOTICE_OF_INELIGIBILITY']
+      .map(status => fetchTriagePage(1, controller.signal, status, 100)))
+      .then(pages => setReviewHouseholds(pages.flatMap(page => page.items)))
+      .catch(() => { /* the map falls back to the queue page already loaded */ });
     return () => controller.abort();
   }, []);
 
@@ -81,6 +90,11 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
   const STATUS_NAMES: Record<string, string> = { ACTIVE_COMPLIANT: 'Active, compliant', FLAGGED_FOR_REVIEW: 'Flagged for review',
     UNDER_INVESTIGATION: 'Under investigation', NOTICE_OF_INELIGIBILITY: 'Notice of ineligibility', GRADUATED: 'Graduated', CALAMITY_SUSPENDED: 'Calamity-suspended' };
   const zones = overview?.calamity.active_zones ?? [];
+  const mapHouseholds: MapHousehold[] = (reviewHouseholds ?? triageItems).filter(item => Array.isArray(item.address.coordinates)).map(item => ({
+    household_id: item.household_id, name: item.head_of_household.full_name, barangay: item.address.barangay,
+    municipality: item.address.municipality, score: item.composite_risk_score, status: item.status,
+    coordinates: item.address.coordinates as [number, number],
+  }));
 
   return (
     <div className="executive-dashboard">
@@ -488,7 +502,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
             </div>
           </div>
           <div className="flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200 text-xs">
-            {([['map', 'Spatial Map View'], ['matrix', 'Comparative LGU Matrix']] as const).map(([mode, label]) => (
+            {([['map', 'Map'], ['matrix', 'Compare municipalities']] as const).map(([mode, label]) => (
               <button key={mode} type="button" onClick={() => setGeoViewMode(mode)} aria-pressed={geoViewMode === mode}
                 className={`px-3 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${geoViewMode === mode ? 'bg-[#132e4f] text-white shadow-2xs' : 'text-stone-600 hover:text-stone-900'}`}>
                 {label}
@@ -500,7 +514,10 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
         <div className="geography-layout">
           <div className="geography-map min-w-0">
             {geoViewMode === 'map' ? (
-              <MinimalPhMap pins={pins} selectedCluster={activePin.municipality} onSelectCluster={setSelectedCluster} />
+              <React.Suspense fallback={<p className="p-6 text-xs text-stone-500" role="status">Loading map…</p>}>
+                <MinimalPhMap pins={pins} selectedCluster={activePin.municipality} onSelectCluster={setSelectedCluster}
+                  households={mapHouseholds} onOpenHousehold={() => onNavigateToScreen('triage')} />
+              </React.Suspense>
             ) : (
               <div className="p-4 sm:p-6 space-y-4 bg-stone-50/40 min-h-[380px]">
                 <div className="flex flex-wrap items-center justify-between gap-1 pb-2 border-b border-stone-200">

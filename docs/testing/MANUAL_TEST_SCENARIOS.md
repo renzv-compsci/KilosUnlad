@@ -76,7 +76,7 @@ The ledger is empty. Every block you see later was created by your own actions.
 - *Flagged* tab:
   - triggers Meralco > 200 kWh (2), AI Predicted Level 3 (2), Registered Motorcycle (1);
   - severity 2 critical / 2 high / 3 below 70.
-- The map shows one pin, **Calamba (4)**. The inspector shows 7 households.
+- The map is a road map like Google Maps (main roads in yellow and orange, parks, water, street labels) that you can drag and zoom (buttons at the top right). Switch **Streets / Light** at the top left; the round button at the bottom right fits the map to the data. It shows one dot per household under review, coloured by stage: rose = flagged (pulsing halo), amber = visit dispatched, blue = under notice. Click a dot for the name, score and a button to the Triage Queue. Tick **Municipalities** to see the Calamba circle. The inspector shows 7 households.
 - "Current workload → High-risk beneficiaries" also says **4**. Both come from the server with the same scope.
 - No "Sample data" label anywhere.
 

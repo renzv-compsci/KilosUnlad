@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrandMark } from './BrandLogo';
 import type { ScreenId } from '../../types/navigation';
 import type { UserRole } from '../../types/contracts';
 import { 
@@ -51,14 +52,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {
             id: 'dashboard' as ScreenId,
             label: 'Executive Overview',
-            sublabel: 'Regional casemix & LGU map',
+            sublabel: 'Numbers and map',
             icon: LayoutDashboard,
             badge: null
           },
           {
             id: 'triage' as ScreenId,
             label: 'Triage Queue',
-            sublabel: 'Discrepancies (Si ≥ 70)',
+            sublabel: 'Review these first',
             icon: AlertTriangle,
             badge: `${pendingTriageCount}`,
             badgeColor: 'bg-rose-50 text-rose-800 border-rose-200'
@@ -66,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {
             id: 'dispatch_manager' as ScreenId,
             label: 'Caseworker Dispatch',
-            sublabel: 'Field assignments & deadlines',
+            sublabel: 'Home visits in progress',
             icon: Users,
             badge: 'Admin',
             badgeColor: 'bg-stone-100 text-stone-700 border-stone-200'
@@ -74,19 +75,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {
             id: 'due_process' as ScreenId,
             label: '15-Day Due Process',
-            sublabel: 'Statutory appeals dockets',
+            sublabel: 'Notices and appeals',
             icon: Clock,
-            badge: 'Live',
+            badge: dueProcessCount > 0 ? `${dueProcessCount}` : null,
             badgeColor: 'bg-amber-50 text-amber-900 border-amber-200'
           },
           {
             id: 'admin_settings' as ScreenId,
             label: 'Policy Settings',
-            sublabel: 'Enforced thresholds',
+            sublabel: 'Rules in force',
             icon: Sliders,
             badge: null
           },
-          ...(userRole === 'SUPER_ADMIN' ? [{ id: 'audit_ledger' as ScreenId, label: 'Audit Verification', sublabel: 'Read-only chain check', icon: ShieldCheck, badge: null }] : [])
+          ...(userRole === 'SUPER_ADMIN' ? [{ id: 'audit_ledger' as ScreenId, label: 'Audit Verification', sublabel: 'Check the ledger', icon: ShieldCheck, badge: null }] : [])
         ];
 
       case 'CASE_WORKER':
@@ -94,14 +95,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {
             id: 'field_dashboard' as ScreenId,
             label: 'Field Overview',
-            sublabel: 'Your assigned caseload',
+            sublabel: 'Your day at a glance',
             icon: LayoutDashboard,
-            badge: `${assignedTasksCount} ${assignedTasksCount === 1 ? 'task' : 'tasks'}`
+            badge: null
           },
           {
             id: 'field_tasks' as ScreenId,
             label: 'Assigned Tasks',
-            sublabel: 'Priority on-site visits',
+            sublabel: 'Households to visit',
             icon: ClipboardList,
             badge: `${assignedTasksCount}`,
             badgeColor: 'bg-amber-50 text-amber-900 border-amber-200'
@@ -109,14 +110,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {
             id: 'field_verify' as ScreenId,
             label: '5-Step Field Form',
-            sublabel: 'Digital SWDI checklist',
+            sublabel: 'Fill in a home visit',
             icon: CheckCircle2,
             badge: 'Active'
           },
           {
             id: 'field_sync' as ScreenId,
             label: 'Saved Drafts',
-            sublabel: 'Stored on this device',
+            sublabel: 'Waiting to upload',
             icon: RefreshCw,
             badge: `${offlineSyncCount} ${offlineSyncCount === 1 ? 'draft' : 'drafts'}`,
             badgeColor: 'bg-stone-100 text-stone-700 border-stone-200'
@@ -126,30 +127,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
       case 'COA_AUDITOR':
         return [
           {
-            id: 'triage' as ScreenId,
-            label: 'Triage & Flagged Queue',
-            sublabel: 'Read-only review',
-            icon: AlertTriangle,
-            badge: `${pendingTriageCount}`
-          },
-          {
             id: 'coa_dashboard' as ScreenId,
             label: 'Audit Overview',
-            sublabel: 'Register, flags & ledger',
+            sublabel: 'Totals and ledger',
             icon: Scale,
             badge: null
           },
           {
+            id: 'triage' as ScreenId,
+            label: 'Triage & Flagged Queue',
+            sublabel: 'Flagged (read-only)',
+            icon: AlertTriangle,
+            badge: `${pendingTriageCount}`
+          },
+          {
             id: 'audit_ledger' as ScreenId,
             label: 'Audit Verification',
-            sublabel: 'Read-only chain check',
+            sublabel: 'Check the ledger',
             icon: ShieldCheck,
             badge: null
           },
           {
             id: 'coa_sampling' as ScreenId,
             label: 'Audit Sampling',
-            sublabel: 'Flagged households & evidence',
+            sublabel: 'Inspect flagged cases',
             icon: FileCheck2,
             badge: null
           }
@@ -226,7 +227,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       }}
     >
       <div className="sidebar-brand" title={collapsed ? 'Expand navigation' : 'Collapse navigation'}>
-        <span className="sidebar-wordmark">KilosUnlad<span className="brand-period">.</span></span>
+        <BrandMark size={34} className="sidebar-mark" />
+        <span className="sidebar-wordmark">Kilos<span className="brand-period">Unlad</span></span>
       </div>
 
       <div className="sidebar-section-label">{roleInfo.title}</div>
@@ -241,12 +243,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               type="button"
               id={`nav-item-${item.id}`}
               aria-label={`${item.label}${badge ? `, ${badge}` : ''}`}
+              title={collapsed ? undefined : item.sublabel}
               aria-current={isActive ? 'page' : undefined}
               onClick={() => onSelectScreen(item.id)}
               className="sidebar-nav-item"
             >
               <Icon size={20} aria-hidden="true" />
-              <span className="nav-copy">{item.label}</span>
+              <span className="nav-copy"><span className="nav-label">{item.label}</span><small className="nav-sub">{item.sublabel}</small></span>
               {badge && <span className="nav-count">{badge}</span>}
               {collapsed && <span className="nav-tooltip" aria-hidden="true">{item.label}{badge ? ` (${badge})` : ''}</span>}
             </button>

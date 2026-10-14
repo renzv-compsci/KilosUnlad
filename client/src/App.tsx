@@ -437,6 +437,7 @@ export default function App() {
         <Screen1Login onLoginSuccess={handleLoginSuccess} />
       ) : (
         <div className={`app-shell ${sidebarCollapsed ? 'sidebar-minimized' : ''}`}>
+            <a href="#main-content" className="skip-link">Skip to main content</a>
             <Sidebar
               collapsed={sidebarCollapsed}
               onToggleCollapse={toggleSidebar}
@@ -459,8 +460,9 @@ export default function App() {
               sidebarCollapsed={sidebarCollapsed}
               onOpenSidebar={() => setSidebarCollapsed(false)}
               onLogout={clearSession}
+              currentScreen={currentScreen}
             />
-            <main className="app-workspace">
+            <main id="main-content" tabIndex={-1} className="app-workspace">
               <DataSourceNotice screen={currentScreen} />
               {session.user.role === 'CASE_WORKER' && assignmentSource === 'device' && dataState === 'ready' && (
                 <div className="mx-6 mb-3 flex flex-wrap items-center gap-3 text-sm text-stone-700" role="status">

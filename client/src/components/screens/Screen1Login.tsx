@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrandLogo } from '../common/BrandLogo';
 import { UserSession } from '../../types/contracts';
 import { apiErrorMessage, login } from '../../services/api';
 import { Eye, EyeOff, Lock, Mail, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
@@ -84,8 +85,8 @@ export const Screen1Login: React.FC<Screen1LoginProps> = ({
           <div className="login-republic-label">
             Republic of the Philippines
           </div>
-          <h1 id="login-title">
-            KILOSUNLAD MIS
+          <h1 id="login-title" className="login-title-logo">
+            <BrandLogo size={44} tone="dark" />
           </h1>
           <p className="login-brand-description">
             Statutory Welfare Auditing & Beneficiary SWDI Verification System

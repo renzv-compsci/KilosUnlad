@@ -11,7 +11,7 @@
   min-height: 100dvh;
   background: #f6f7f9;
   color: #253044;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: var(--font-sans);
   transition: grid-template-columns 320ms cubic-bezier(.2, .7, .2, 1);
 }
 .app-shell.sidebar-minimized { --sidebar-width: 76px; }
@@ -329,3 +329,75 @@
 @media (prefers-reduced-motion: reduce) {
   .app-shell, .app-shell *, .app-shell *::before, .app-shell *::after { transition: none !important; animation: none !important; }
 }
+
+/* Brand logo (BrandLogo.tsx): mark + two-tone wordmark in the system palette. */
+.brand-logo { display: inline-flex; align-items: center; gap: 10px; line-height: 1; }
+.brand-logo svg { flex: 0 0 auto; display: block; }
+.brand-logo-word { font-weight: 750; font-size: 1.05em; white-space: nowrap; }
+.brand-logo-light .brand-logo-word { color: var(--navy, #132e4f); }
+.brand-logo-light .brand-logo-accent { color: #a8721a; }
+.brand-logo-dark .brand-logo-word { color: #fff; }
+.brand-logo-dark .brand-logo-accent { color: #f1c66f; }
+.sidebar-mark { flex: 0 0 auto; margin-left: -1px; }
+.sidebar-brand { gap: 10px; padding-left: 8px; }
+.sidebar-wordmark .brand-period { color: #a8721a; }
+.login-title-logo { display: flex; justify-content: center; }
+.login-title-logo .brand-logo { font-size: 30px; gap: 12px; }
+.brand-logo.workspace-product-name { display: none; font-size: 18px; }
+.sidebar-minimized .brand-logo.workspace-product-name { display: inline-flex; }
+@media (max-width: 767px) { .brand-logo.workspace-product-name { display: inline-flex; } }
+
+/* Navigation: each item shows a plain-language subtitle so first-time users know where to go. */
+.app-shell { --sidebar-expanded-width: 280px; }
+.sidebar-nav-item { height: 62px; flex-basis: 62px; }
+.nav-copy { display: flex; flex-direction: column; gap: 1px; line-height: 1.3; }
+.nav-label, .nav-sub { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.nav-sub { color: #6b7789; font-size: 12px; font-weight: 400; }
+.sidebar-nav-item[aria-current='page'] .nav-sub { color: #4d5d71; }
+@media (max-width: 767px) { .app-sidebar { --sidebar-expanded-width: 280px; width: 280px; } }
+.workspace-page { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
+.workspace-page strong { color: var(--navy); font-size: 15px; font-weight: 650; }
+.workspace-page span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #5f6c7d; font-size: 13px; }
+
+/* Live map (MinimalPhMap.tsx, Leaflet). The canvas is its own stacking context so map panes
+   never cover the header, sidebar or dialogs. */
+.live-map-canvas { position: relative; z-index: 0; isolation: isolate; height: clamp(320px, 52vh, 520px); overflow: hidden; border: 1px solid var(--line, #e3e8ee); border-radius: 10px; background: #eef1f4; }
+.live-map-canvas .leaflet-container { font-family: var(--font-sans); background: #eef1f4; }
+.map-toggle { display: inline-flex; min-height: 36px; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid #dfe5ec; border-radius: 6px; background: #fff; color: #3f4c5e; cursor: pointer; }
+.map-toggle:hover { border-color: #b6c6d6; }
+.map-toggle input { accent-color: #132e4f; }
+.map-label.leaflet-tooltip { padding: 2px 7px; border: 0; border-radius: 999px; background: rgb(19 46 79 / 88%); color: #fff; font-size: 12px; font-weight: 600; box-shadow: none; }
+.map-label.leaflet-tooltip::before { display: none; }
+.map-popup { display: flex; min-width: 180px; flex-direction: column; gap: 3px; color: #253044; font-size: 13px; }
+.map-popup strong { color: #132e4f; font-size: 14px; }
+.map-popup button { margin-top: 6px; padding: 6px 10px; border-radius: 6px; background: #132e4f; color: #fff; font-weight: 600; cursor: pointer; }
+.map-offline-note { position: absolute; left: 10px; bottom: 10px; z-index: 500; margin: 0; padding: 4px 8px; border-radius: 6px; background: rgb(255 255 255 / 92%); color: #596779; font-size: 12px; }
+.skip-link { position: fixed; left: 12px; top: -60px; z-index: 100; padding: 10px 14px; border-radius: 6px; background: var(--navy); color: #fff; font-weight: 600; }
+.skip-link:focus { top: 12px; }
+#main-content:focus { outline: none; }
+@media (max-width: 767px) { .workspace-page { display: none; } }
+.brand-logo-dark svg { border-radius: 22%; box-shadow: 0 0 0 1.5px rgb(255 255 255 / 60%); }
+.live-map-canvas { height: clamp(380px, 62vh, 640px); }
+.map-dot { width: 10px; height: 10px; border: 1.5px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px rgb(19 46 79 / 18%); }
+.map-popup-stage { display: inline-flex; align-items: center; gap: 6px; }
+.map-popup-stage i { width: 9px; height: 9px; border-radius: 50%; }
+.live-map-canvas .leaflet-control-zoom a { width: 34px; height: 34px; line-height: 34px; color: #132e4f; }
+
+/* Household markers: solid dot + soft halo (pulsing for flagged households). */
+.hh-marker { background: none; border: 0; }
+.hh-marker .hh-halo, .hh-marker .hh-dot { position: absolute; left: 50%; top: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
+.hh-marker .hh-halo { width: 30px; height: 30px; background: color-mix(in srgb, var(--c) 26%, transparent); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
+.hh-marker .hh-dot { width: 12px; height: 12px; background: var(--c); border: 2px solid #fff; box-shadow: 0 1px 3px rgb(19 46 79 / 35%); }
+.hh-marker .hh-pulse { animation: hh-pulse 2.2s ease-out infinite; }
+@keyframes hh-pulse { 0% { transform: translate(-50%, -50%) scale(.55); opacity: .95; } 100% { transform: translate(-50%, -50%) scale(1.35); opacity: 0; } }
+.hh-marker:focus-visible { outline: none; }
+.hh-marker:focus-visible .hh-dot { outline: 3px solid #132e4f; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .hh-marker .hh-pulse { animation: none; } }
+
+/* Floating map controls, styled like the zoom buttons. */
+.map-basemap-switch { position: absolute; left: 10px; top: 10px; z-index: 500; display: inline-flex; overflow: hidden; border-radius: 8px; background: #fff; box-shadow: 0 1px 5px rgb(19 46 79 / 25%); }
+.map-basemap-switch button { min-height: 34px; padding: 4px 12px; color: #3f4c5e; font-size: 12px; font-weight: 600; cursor: pointer; }
+.map-basemap-switch button[aria-pressed='true'] { background: #132e4f; color: #fff; }
+.map-fit-button { position: absolute; right: 12px; bottom: 34px; z-index: 500; display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 50%; background: #132e4f; color: #fff; box-shadow: 0 2px 8px rgb(19 46 79 / 35%); cursor: pointer; }
+.map-fit-button:hover { background: #0c2340; }
+.map-offline-note { left: 10px; bottom: 34px; }

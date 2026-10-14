@@ -8,7 +8,7 @@
   justify-content: center;
   padding: 72px 24px 40px;
   background: #f5f8fc url('/images/login-background.png') center / cover no-repeat;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: var(--font-sans);
   color: #132e4f;
   letter-spacing: 0;
 }
