@@ -20,7 +20,7 @@ cd "$ROOT"
 ADMIN="mongodb://admin_user:RootAdminSecret2026!@localhost:27017/kilosunlad?authSource=admin"
 
 echo "[1/3] Reset to the 80,000-household baseline..."
-if [ -s data-pipeline/snapshots/baseline_80k_beneficiaries.archive.gz ] && [ -s data-pipeline/snapshots/baseline_80k_external_records.archive.gz ]; then
+if [ -s data-pipeline/snapshots/baseline_80k_beneficiaries.archive.gz ] && [ -s data-pipeline/snapshots/baseline_80k_ex ternal_records.archive.gz ]; then
   $COMPOSE run --rm -e RESET_BASELINE=1 reset-demo
 else
   $COMPOSE run --rm reset-demo
