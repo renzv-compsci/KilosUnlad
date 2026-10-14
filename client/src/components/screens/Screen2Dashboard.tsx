@@ -91,7 +91,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
   })), [overview, triggerLabel]);
   const activePin = pins.find((p) => p.municipality === selectedCluster) || pins[0];
   const activeMunicipality = overview?.municipalities.find(m => m.municipality === activePin?.municipality);
-  const BAR_COLORS = ['bg-rose-600', 'bg-amber-600', 'bg-[#132e4f]', 'bg-emerald-600', 'bg-stone-500'];
+  const BAR_COLORS = ['bg-rose-600', 'bg-amber-600', 'bg-[#13233f]', 'bg-emerald-600', 'bg-stone-500'];
   const activeTriggers = (activeMunicipality?.top_triggers ?? []).map((t, idx) => ({
     label: triggerLabel.get(t.code) ?? t.code, count: t.count, color: BAR_COLORS[idx % BAR_COLORS.length],
     pct: pct(t.count, activeMunicipality!.top_triggers.reduce((sum, x) => sum + x.count, 0)),
@@ -233,7 +233,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                 <div className="chart-heading"><h4 id="severity-chart-title">Risk severity</h4><span>Flag threshold: {r.flag_threshold}</span></div>
                 <div className="severity-donut" role="img" aria-label={`${r.high_risk} flagged cases: ${r.critical} critical, ${r.high} high priority`}>
                   <svg viewBox="0 0 240 240" aria-hidden="true">
-                    <circle cx="120" cy="120" r="96" fill="none" stroke="#f7edf0" strokeWidth="22" />
+                    <circle cx="120" cy="120" r="96" fill="none" stroke="#f7eeed" strokeWidth="22" />
                     {r.high > 0 && <circle className="risk-high" cx="120" cy="120" r="96" fill="none" strokeWidth="22" pathLength="100" strokeDasharray={`${100 - criticalPct} ${criticalPct}`} transform={`rotate(${-90 + criticalPct * 3.6} 120 120)`} />}
                     {r.critical > 0 && <circle className="risk-critical" cx="120" cy="120" r="96" fill="none" strokeWidth="22" pathLength="100" strokeDasharray={`${criticalPct} ${100 - criticalPct}`} transform="rotate(-90 120 120)" />}
                   </svg>
@@ -280,7 +280,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                     <div className="space-y-3">
                       {[
                         { label: 'Awaiting home visit', count: openTasks, color: 'bg-amber-600', text: 'text-amber-700', help: 'Dispatched; the caseworker has not submitted a report yet' },
-                        { label: 'Report submitted (pending sign-off)', count: t.by_status.SUBMITTED, color: 'bg-[#132e4f]', text: 'text-[#132e4f]', help: 'Geotagged evidence received and hash-verified' },
+                        { label: 'Report submitted (pending sign-off)', count: t.by_status.SUBMITTED, color: 'bg-[#13233f]', text: 'text-[#13233f]', help: 'Geotagged evidence received and hash-verified' },
                         { label: 'Verified', count: verifiedTasks, color: 'bg-emerald-600', text: 'text-emerald-700', help: `${t.by_status.VERIFIED_GRADUATE} graduate · ${t.by_status.VERIFIED_RETAIN} retain` },
                       ].map(stage => (
                         <div key={stage.label} className="bg-white p-3 rounded-lg border border-stone-200/80">
@@ -315,7 +315,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                         <div key={officer.user_id} className="bg-white p-2.5 rounded-lg border border-stone-200/80 flex flex-wrap items-center justify-between gap-2">
                           <div className="min-w-0">
                             <div className="flex items-center space-x-1.5">
-                              <UserCheck className="w-3.5 h-3.5 text-[#132e4f] shrink-0" />
+                              <UserCheck className="w-3.5 h-3.5 text-[#13233f] shrink-0" />
                               <span className="text-xs font-bold text-stone-900">{officer.full_name}</span>
                             </div>
                             <span className="text-[11px] text-stone-600 block mt-0.5">{officer.open} open · {officer.submitted} submitted · {officer.verified} verified</span>
@@ -328,7 +328,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                     </div>
                   </div>
                   <div className="mt-3 pt-2.5 border-t border-stone-200/80 flex justify-between items-center">
-                    <button onClick={() => onNavigateToScreen('dispatch_manager')} className="text-xs font-semibold text-[#132e4f] hover:underline flex items-center gap-1 cursor-pointer">
+                    <button onClick={() => onNavigateToScreen('dispatch_manager')} className="text-xs font-semibold text-[#13233f] hover:underline flex items-center gap-1 cursor-pointer">
                       <span>Open Caseworker Dispatch</span><ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -373,7 +373,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                             <span className="font-mono font-bold text-stone-900">{lgu.households.toLocaleString()} ({pct(lgu.households, h.total)}%)</span>
                           </div>
                           <div className="w-full bg-stone-200 rounded-full h-2 overflow-hidden">
-                            <div className="bg-[#132e4f] h-full rounded-full" style={{ width: `${pct(lgu.households, h.total)}%` }} />
+                            <div className="bg-[#13233f] h-full rounded-full" style={{ width: `${pct(lgu.households, h.total)}%` }} />
                           </div>
                         </div>
                       ))}
@@ -466,7 +466,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                     </div>
                   </div>
                   <div className="mt-3 pt-2.5 border-t border-stone-200/80 flex justify-between items-center">
-                    <button onClick={() => onNavigateToScreen('due_process')} className="text-xs font-semibold text-[#132e4f] hover:underline flex items-center gap-1 cursor-pointer">
+                    <button onClick={() => onNavigateToScreen('due_process')} className="text-xs font-semibold text-[#13233f] hover:underline flex items-center gap-1 cursor-pointer">
                       <span>Review 15-Day Due Process Dockets</span><ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -512,7 +512,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
       {overview && pins.length > 0 && activePin && <div className="geography-section">
         <div className="geography-heading">
           <div className="flex items-center space-x-2.5">
-            <div className="p-1.5 bg-stone-100 text-[#132e4f] rounded-md border border-stone-200"><Compass className="w-4 h-4" /></div>
+            <div className="p-1.5 bg-stone-100 text-[#13233f] rounded-md border border-stone-200"><Compass className="w-4 h-4" /></div>
             <div>
               <h3 className="text-sm font-semibold text-stone-900 font-display">Operations by municipality</h3>
               <p className="text-xs text-stone-500">{pins.length} municipalit{pins.length === 1 ? 'y' : 'ies'} in your scope</p>
@@ -521,7 +521,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
           <div className="flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200 text-xs">
             {([['map', 'Map'], ['matrix', 'Compare municipalities']] as const).map(([mode, label]) => (
               <button key={mode} type="button" onClick={() => setGeoViewMode(mode)} aria-pressed={geoViewMode === mode}
-                className={`px-3 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${geoViewMode === mode ? 'bg-[#132e4f] text-white shadow-2xs' : 'text-stone-600 hover:text-stone-900'}`}>
+                className={`px-3 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${geoViewMode === mode ? 'bg-[#13233f] text-white shadow-2xs' : 'text-stone-600 hover:text-stone-900'}`}>
                 {label}
               </button>
             ))}
@@ -547,7 +547,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
                     const tone = pin.status === 'RED' ? 'bg-rose-600' : pin.status === 'AMBER' ? 'bg-amber-600' : 'bg-emerald-600';
                     return (
                       <button type="button" key={pin.id} onClick={() => setSelectedCluster(pin.municipality)} aria-pressed={isSelected}
-                        className={`block w-full text-left p-3.5 rounded-xl border transition cursor-pointer ${isSelected ? 'bg-white border-[#132e4f] ring-2 ring-[#132e4f]/20 shadow-xs' : 'bg-white border-stone-200 hover:border-stone-300'}`}>
+                        className={`block w-full text-left p-3.5 rounded-xl border transition cursor-pointer ${isSelected ? 'bg-white border-[#13233f] ring-2 ring-[#13233f]/20 shadow-xs' : 'bg-white border-stone-200 hover:border-stone-300'}`}>
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className={`w-2.5 h-2.5 rounded-full ${tone}`} />
@@ -632,7 +632,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
             </div>
             <div className="pt-4 border-t border-stone-100 mt-4">
               <button id="view-cluster-triage-btn" onClick={() => onNavigateToScreen('triage')}
-                className="w-full py-2.5 bg-[#132e4f] hover:bg-[#0c2340] text-white rounded-lg text-xs font-semibold shadow-2xs transition flex items-center justify-center space-x-1.5 cursor-pointer">
+                className="w-full py-2.5 bg-[#13233f] hover:bg-[#13233f] text-white rounded-lg text-xs font-semibold shadow-2xs transition flex items-center justify-center space-x-1.5 cursor-pointer">
                 <span>Open Triage Queue</span><ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>

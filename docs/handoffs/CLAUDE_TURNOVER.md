@@ -10,12 +10,25 @@ flag register), `docs/decisions/009-ml-vector-and-assessment-contracts.md`, evid
 
 ---
 
+## 0000. Deployment round (2026-10-14, later): data, UI, manual tests, hosting, deck
+
+| Task | Result | Where |
+| --- | --- | --- |
+| Deployment dataset | 20,000 households + Case A in Calamba (Palingon, Lecheria, Real); a caseworker for every barangay; activity created **through the API only**: the model flagged 32 (range 25–40, 0 rule fallbacks), 12 dispatched to caseworkers in the household's barangay, 4 geotagged reports, 1 notice, 1 retention; ledger 1–50 valid. Nothing is preset in the screens. | `data-pipeline/scripts/load_deployment_data.sh`, `add_field_staff.js`, `populate_deployment.js`; check `test_deployment_dataset.js` (12/12) |
+| Field staff accounts | `cw_palingon_1` (Andrea Lim), `cw_palingon_2` (Rafael Mendoza), `cw_lecheria` (Benjo Ramos), `cw_real` (Carmela Dizon); password `FieldStaff2026!`. Existing `users` collection and fields only. | `add_field_staff.js` |
+| UI restyle (theme, CSS and copy only; Iron Law 4) | Civic paper-and-ink palette, Source Serif 4 page titles, JetBrains Mono bundled (no more Courier fallback) and used only for IDs and hashes, sentence-case labels, flat surfaces. Caseworker screens in plain language ("Start this visit", "What to check", "Saved on this phone"), no monospace numbers, task UUID moved to a tooltip, missing dispatch date hidden. Phones: 16px inputs, compact stat cards. | `client/tailwind.config.js`, `client/src/index.css`, `styles/workspace.css`, caseworker components; client tests 69/69, `test_ui_live_data.js` SUCCESS |
+| Manual tests by role | New §R: 33 tests (DIR-01..12, CW-01..07, COA-01..06, ADM-01..04, X-01..04) on the deployment dataset; expected values are read from the screen or API. §D demo order moved to this dataset. Indexed in `MASTER_TEST_CATALOG.md` §9. | `docs/testing/MANUAL_TEST_SCENARIOS.md` |
+| Hosting | `deploy/atlas_seed.sh` seeds the deployment dataset by default (`DATASET=deployment|demo|small`); `ACTIVITY=hosted` copies households only, then `populate_deployment.js` runs against the hosted API so report photos live on the host. Rehearsed against a local stand-in: 40,010 documents restored with indexes, then 32 flags, valid 50-block ledger, 12/12 checks. **The accounts and console steps are yours**: follow `deploy/HOSTING_GUIDE.md` §1–§6. | `deploy/` |
+| Deck | 10 slides: cover, problem, solution, scope and limitations, layers, frontend (new screenshots), backend, database, ML, data pipeline. | Slides artifact (version 15) |
+
+Still open from this round: the Atlas custom role on M0 (HOSTING_GUIDE §1.3 says stop and decide if the UI does not allow it), and real UAT participants.
+
 ## 000. Final state (2026-10-14): what changed today and what is left
 
 **Short answer: the project is done.** The beneficiary lifecycle runs end to end in the UI with no dead ends:
 flag → dispatch → field report → **keep on the program** *or* notice → 15-day window → graduation, or appeal → **hearing outcome**
 (granted: back to active; denied: graduated). The demo dataset is populated, and every claim has a script.
-Full Docker rehearsal **19/19** from clean resets. Hosting is **not** used: the demo runs locally on Docker.
+Full Docker rehearsal **19/19** from clean resets. Hosting files are ready (see §0000); the local Docker stack remains the reference.
 Everything is merged to `main`.
 
 ### Done today

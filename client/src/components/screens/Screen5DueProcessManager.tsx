@@ -223,7 +223,7 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
             
             <div className="bg-stone-50/70 border-b border-stone-200/90 p-5 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-[#132e4f] text-white rounded-lg shadow-2xs">
+                <div className="p-2 bg-[#13233f] text-white rounded-lg shadow-2xs">
                   <Scale className="w-4 h-4" />
                 </div>
                 <div>
@@ -267,7 +267,7 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                   disabled={isFiling}
                   value={appealDocketId}
                   onChange={(e) => setAppealDocketId(e.target.value)}
-                  className="w-full p-2.5 border border-stone-300 rounded-lg font-mono text-xs focus:ring-2 focus:ring-[#132e4f] outline-none"
+                  className="w-full p-2.5 border border-stone-300 rounded-lg font-mono text-xs focus:ring-2 focus:ring-[#13233f] outline-none"
                 />
               </div>
 
@@ -282,7 +282,7 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                   disabled={isFiling}
                   value={hearingDate}
                   onChange={(e) => setHearingDate(e.target.value)}
-                  className="w-full p-2.5 border border-stone-300 rounded-lg font-mono text-xs focus:ring-2 focus:ring-[#132e4f] outline-none"
+                  className="w-full p-2.5 border border-stone-300 rounded-lg font-mono text-xs focus:ring-2 focus:ring-[#13233f] outline-none"
                 />
               </div>
 
@@ -296,7 +296,7 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                   value={appealGrounds}
                   onChange={(e) => setAppealGrounds(e.target.value)}
                   placeholder="State evidence details (e.g., Barangay certification, unauthorized tapping, livelihood asset use)..."
-                  className="w-full p-3 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-[#132e4f] outline-none leading-relaxed"
+                  className="w-full p-3 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-[#13233f] outline-none leading-relaxed"
                 />
               </div>
 
@@ -320,7 +320,7 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
                   id="confirm-appeal-docket-btn"
                   type="submit"
                   disabled={isFiling}
-                  className="px-4 py-2 bg-[#132e4f] hover:bg-[#0c2340] text-white font-semibold rounded-lg text-xs shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
+                  className="px-4 py-2 bg-[#13233f] hover:bg-[#13233f] text-white font-semibold rounded-lg text-xs shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>{live ? (isFiling ? 'Filing appeal…' : 'File Appeal') : 'Preview Appeal Status'}</span>
@@ -351,7 +351,7 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
           }}>
             <header className="flex items-start justify-between gap-4">
               <div>
-                <h3 id="outcome-dialog-title" className="text-lg font-semibold text-[#132e4f]">Record hearing outcome</h3>
+                <h3 id="outcome-dialog-title" className="text-lg font-semibold text-[#13233f]">Record hearing outcome</h3>
                 <p className="text-sm text-stone-600">{hearingFor.head_of_household.full_name} · docket {hearingFor.appeal_docket_id}</p>
               </div>
               <button type="button" onClick={() => setHearingFor(null)} disabled={deciding} aria-label="Close" className="p-2 rounded hover:bg-stone-100"><X size={18} /></button>

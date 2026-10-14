@@ -81,10 +81,10 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
           </div>
           <div className="text-xs sm:text-sm leading-tight">
             <span className="font-semibold">
-              {isOffline ? 'Offline Mode Active' : 'Network Available'}
+              {isOffline ? 'Offline' : 'Online'}
             </span>
             <div className="text-[11px] font-normal text-slate-500 mt-0.5">
-              {`${tasks.filter(task => task.cached_offline).length} of ${tasks.length} tasks available offline`}
+              {`${tasks.filter(task => task.cached_offline).length} of ${tasks.length} visits saved on this phone`}
             </div>
           </div>
         </div>
@@ -119,22 +119,18 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
             {/* Card Header: household_id + Priority pill */}
             <div className="p-4 bg-slate-50/70 border-b border-slate-200/80 flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className="text-xs font-mono font-bold text-blue-900">
+                <span className="text-xs font-semibold text-slate-700 tabular-nums" title={`Task ${task.task_id}`}>
                   {task.household_id}
-                </span>
-                <span className="text-slate-300">|</span>
-                <span className="text-[11px] font-mono text-slate-400">
-                  {task.task_id}
                 </span>
               </div>
 
               <div className="flex items-center space-x-2">
                 <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${getPriorityStyle(task.priority)}`}>
-                  {task.priority} Priority
+                  {task.priority.charAt(0)}{task.priority.slice(1).toLowerCase()} priority
                 </span>
                 {task.cached_offline && (
-                  <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono border border-slate-200/60">
-                    Available offline
+                  <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200/60">
+                    Saved offline
                   </span>
                 )}
               </div>
@@ -145,14 +141,14 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
               
               {/* Family Details: head_of_household.first_name + last_name, address */}
               <div>
-                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Head of Household
+                <div className="text-xs text-slate-500">
+                  Head of household
                 </div>
-                <div className="text-base font-bold text-slate-900 mt-0.5 flex items-baseline justify-between">
+                <div className="text-base font-semibold text-slate-900 mt-0.5 flex flex-wrap items-baseline justify-between gap-x-3">
                   <span>
                     {task.head_of_household.first_name} {task.head_of_household.last_name}
                   </span>
-                  <span className="text-xs font-mono font-normal text-slate-400">
+                  <span className="text-xs font-normal text-slate-500 tabular-nums">
                     {task.head_of_household.national_id}
                   </span>
                 </div>
@@ -172,10 +168,10 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
               >
                 <div className="flex items-center space-x-1.5 text-amber-900 font-semibold text-xs mb-1">
                   <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-                  <span>Investigation Instructions</span>
+                  <span>What to check</span>
                 </div>
                 <p className="text-xs text-amber-950 font-normal leading-relaxed">
-                  &quot;{task.dispatch_instructions}&quot;
+                  {task.dispatch_instructions || 'No extra instructions. Complete the standard household check.'}
                 </p>
                 {showSpecAnnotations && (
                   <span className="text-[9px] font-mono text-amber-800 block mt-1">
@@ -185,9 +181,9 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
               </div>
 
               {/* Metadata row */}
-              <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
-                <span>Dispatched: <time dateTime={task.dispatched_at} title={task.dispatched_at}>{displayDate(task.dispatched_at)}</time></span>
-                <span className="text-slate-600 font-medium">Due: <time dateTime={task.due_date} title={task.due_date}>{displayDate(task.due_date)}</time></span>
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-slate-500 pt-1 tabular-nums">
+                {task.dispatched_at ? <span>Assigned <time dateTime={task.dispatched_at} title={task.dispatched_at}>{displayDate(task.dispatched_at)}</time></span> : <span />}
+                <span className="text-slate-700 font-medium">Due <time dateTime={task.due_date} title={task.due_date}>{displayDate(task.due_date)}</time></span>
               </div>
 
               {/* Action: Large Touch-Friendly Button Start In-Person Verification (>= 44px) */}
@@ -198,7 +194,7 @@ export const Screen7FieldTasksList: React.FC<Screen7FieldTasksListProps> = ({
                   className="w-full min-h-[44px] py-2.5 px-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs rounded-lg shadow-xs transition flex items-center justify-center space-x-2 cursor-pointer active:scale-98"
                 >
                   <ClipboardList className="w-4 h-4" />
-                  <span>Start In-Person Verification</span>
+                  <span>Start in-person visit</span>
                   <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
                 </button>
               </div>
