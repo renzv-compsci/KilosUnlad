@@ -18,7 +18,7 @@
 .app-shell *, .app-shell .font-display { letter-spacing: 0; }
 .app-shell :is(h1, h2, h3, h4) { font-family: inherit; }
 /* Page titles in the text serif; everything else stays in the sans. */
-.app-shell :is(h1, .module-heading h2, .triage-title-row h2) { font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.005em; }
+.app-shell :is(h1, .module-heading h2, .dashboard-heading h2, .triage-title-row h2) { font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.005em; }
 .app-main-column, .app-workspace { min-width: 0; }
 .app-workspace { background: transparent; overflow-x: clip; }
 .icon-control { display: inline-flex; width: 44px; height: 44px; flex: 0 0 44px; align-items: center; justify-content: center; border: 0; border-radius: 6px; color: #827967; transition: color 150ms, background 150ms; }
