@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle2, FileCheck2, ShieldAlert, X } from 'lucide-react';
 import { AccessibleDialog } from '../common/AccessibleDialog';
 import { displayDate, displayDateTime } from '../../utils/displayDate';
-import { fetchEvidenceUrl, fetchTaskReport, issueNotice, NoticeReceipt, resolutionErrorMessage, TaskReport } from '../../services/api';
+import { fetchEvidenceUrl, fetchTaskReport, issueNotice, NoticeReceipt, resolutionErrorMessage, retainHousehold, RetentionReceipt, TaskReport } from '../../services/api';
 
 const RECOMMENDATIONS: Record<string, string> = {
   RECOMMEND_GRADUATION: 'Recommend graduation', RETAIN: 'Retain on the program', INVESTIGATE_FRAUD: 'Investigate possible fraud',
@@ -29,10 +29,11 @@ const EvidencePhoto: React.FC<{ hash: string; capturedAt: string | null }> = ({ 
   );
 };
 
-interface Props { taskId: string; canDecide: boolean; onClose: () => void; onDecided: (receipt: NoticeReceipt) => void }
+interface Props { taskId: string; canDecide: boolean; onClose: () => void; onDecided: (receipt: NoticeReceipt | RetentionReceipt) => void }
 
 // DECISION-011: the director reviews the submitted field report and, when it supports
 // graduation, issues the Notice of Ineligibility (15-day appeal window; grants continue).
+// DECISION-012: when it supports retention, the director keeps the household on the program.
 export const ReportReviewDialog: React.FC<Props> = ({ taskId, canDecide, onClose, onDecided }) => {
   const [report, setReport] = useState<TaskReport | null>(null);
   const [loadError, setLoadError] = useState('');
@@ -40,6 +41,7 @@ export const ReportReviewDialog: React.FC<Props> = ({ taskId, canDecide, onClose
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
   const [receipt, setReceipt] = useState<NoticeReceipt | null>(null);
+  const [kept, setKept] = useState<RetentionReceipt | null>(null);
   useEffect(() => {
     const controller = new AbortController();
     fetchTaskReport(taskId, controller.signal).then(setReport)
@@ -47,14 +49,16 @@ export const ReportReviewDialog: React.FC<Props> = ({ taskId, canDecide, onClose
     return () => controller.abort();
   }, [taskId]);
   const decidable = canDecide && report?.task_status === 'SUBMITTED';
-  const submit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const decide = async (choice: 'notice' | 'retain') => {
     if (pending || !report) return;
     setPending(true); setError('');
-    try { const result = await issueNotice(report.task_id, notes.trim()); setReceipt(result); onDecided(result); }
-    catch (failure) { setError(resolutionErrorMessage(failure)); }
+    try {
+      if (choice === 'notice') { const result = await issueNotice(report.task_id, notes.trim()); setReceipt(result); onDecided(result); }
+      else { const result = await retainHousehold(report.task_id, notes.trim()); setKept(result); onDecided(result); }
+    } catch (failure) { setError(resolutionErrorMessage(failure)); }
     finally { setPending(false); }
   };
+  const submit = (event: React.FormEvent) => { event.preventDefault(); void decide(report?.graduation_supported ? 'notice' : 'retain'); };
   const f = report?.findings;
   return (
     <AccessibleDialog titleId="report-dialog-title" onClose={() => { if (!pending) onClose(); }}
@@ -91,20 +95,32 @@ export const ReportReviewDialog: React.FC<Props> = ({ taskId, canDecide, onClose
             {receipt ? <div role="status" className="space-y-1 text-sm">
               <p className="flex items-center gap-2 text-emerald-800 font-semibold"><CheckCircle2 size={18} aria-hidden="true" />Notice of Ineligibility issued and sealed in the ledger.</p>
               <p>Appeal window: {displayDateTime(receipt.notice_date)} to <strong>{displayDateTime(receipt.appeal_deadline)}</strong>. Grants continue meanwhile. Ledger block #{receipt.audit_receipt.sequence_index}.</p>
-            </div> : decidable && (report.graduation_supported ? (
+            </div> : kept ? <div role="status" className="space-y-1 text-sm">
+              <p className="flex items-center gap-2 text-emerald-800 font-semibold"><CheckCircle2 size={18} aria-hidden="true" />Household kept on the program and sealed in the ledger.</p>
+              <p>Status is back to active and compliant. The model will not re-flag it before <strong>{displayDate(kept.reassessment_allowed_from)}</strong>. Ledger block #{kept.audit_receipt.sequence_index}.</p>
+            </div> : decidable && (report.graduation_supported || report.retention_supported ? (
               <form onSubmit={submit} className="space-y-3 border-t border-stone-200 pt-4" aria-busy={pending}>
-                <label htmlFor="notice-grounds" className="block text-sm font-semibold text-stone-800">Grounds for the Notice of Ineligibility
+                <label htmlFor="notice-grounds" className="block text-sm font-semibold text-stone-800">Grounds for your decision
                   <textarea id="notice-grounds" required minLength={10} maxLength={1000} rows={3} value={notes} onChange={e => setNotes(e.target.value)}
-                    className="mt-1 w-full p-2.5 border border-stone-300 rounded-lg text-sm font-normal" placeholder="e.g. Field visit confirmed Level 3: private sedan and a household business." />
+                    className="mt-1 w-full p-2.5 border border-stone-300 rounded-lg text-sm font-normal"
+                    placeholder={report.graduation_supported ? 'e.g. Field visit confirmed Level 3: private sedan and a household business.' : 'e.g. Field visit confirmed Level 2: no vehicle, irregular income.'} />
                 </label>
-                <p className="text-xs text-stone-600">Approving starts the 15-day appeal window. The household is not delisted now; grants continue until the window ends with no appeal.</p>
+                <p className="text-xs text-stone-600">
+                  {report.graduation_supported && 'Issuing a notice starts the 15-day appeal window; grants continue until it ends with no appeal. '}
+                  {report.retention_supported && 'Keeping the household returns it to active status; the model will not re-flag it for 180 days.'}
+                </p>
                 {error && <p role="alert" className="text-sm text-rose-800">{error}</p>}
-                <button id="issue-notice-btn" type="submit" disabled={pending || notes.trim().length < 10} className="primary-triage-action disabled:opacity-50">
-                  {pending ? 'Issuing…' : 'Approve graduation and issue notice'}
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  {report.graduation_supported && <button id="issue-notice-btn" type="button" onClick={() => void decide('notice')} disabled={pending || notes.trim().length < 10} className="primary-triage-action disabled:opacity-50">
+                    {pending ? 'Saving…' : 'Approve graduation and issue notice'}
+                  </button>}
+                  {report.retention_supported && <button id="retain-household-btn" type="button" onClick={() => void decide('retain')} disabled={pending || notes.trim().length < 10} className={`${report.graduation_supported ? 'record-action' : 'primary-triage-action'} disabled:opacity-50`}>
+                    {pending ? 'Saving…' : 'Keep on the program'}
+                  </button>}
+                </div>
               </form>
             ) : <p className="flex items-start gap-2 text-sm text-amber-900 bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <ShieldAlert size={18} aria-hidden="true" className="shrink-0" />The field report neither recommends graduation nor verifies Level 3, so a notice cannot be issued from it.</p>)}
+                <ShieldAlert size={18} aria-hidden="true" className="shrink-0" />The field report neither supports graduation nor retention (no recommendation and no verified level), so order a new visit.</p>)}
           </>}
         </div>
       </div>

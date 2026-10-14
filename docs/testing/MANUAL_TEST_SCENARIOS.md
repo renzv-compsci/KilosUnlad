@@ -1,6 +1,6 @@
 # KilosUnlad: scenarios to test yourself
 
-Thirteen scenarios you can run by hand, in the browser, from a clean start, plus a 15-minute live-demo run order for the panel (§D). Each scenario lists:
+Fifteen scenarios you can run by hand, in the browser, from a clean start, plus an 18-minute live-demo run order for the panel (§D). Each scenario lists:
 - the account to use;
 - the steps;
 - what you should see;
@@ -247,10 +247,10 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST $API/calamity/toggle -H "Author
 - Due Process lists Case A with the 15-day countdown, grants protected.
 - The early graduation call returns `APPEAL_WINDOW_OPEN`.
 - After step 6, a **Complete graduation** button appears. Clicking it graduates Case A and seals another `BENEFICIARY_GRADUATED` block.
-- Filing an appeal instead (S8) blocks graduation (`APPEAL_HOLD`).
+- Filing an appeal instead (S8) blocks graduation (`APPEAL_HOLD`) until the hearing outcome is recorded (S15).
 
 **Negative checks:**
-- A report that recommends retaining the household cannot be turned into a notice; the dialog explains why.
+- A report that recommends retaining the household cannot be turned into a notice: the dialog offers only **Keep on the program** (S14).
 - A seeded report whose photo was never uploaded says "The photo is not in storage."
 
 **Tamper check (local):** alter the stored photo, then reopen the report. The photo is refused ("no longer matches its recorded hash"). Restore it, and it shows again.
@@ -265,7 +265,52 @@ docker exec kilosunlad-server sh -c 'f=/app/uploads/evidence/$(ls /app/uploads/e
 
 ---
 
-## D. Live demo run order (about 15 minutes, demo dataset)
+## S14. Keep a household on the program (DECISION-012)
+1. Do S7 (Case A flagged) and S4 (dispatch Case A to Test Case Worker).
+2. As the caseworker, do S5 for Case A (location 14.2215, 121.1875), but choose **Level 2** and the recommendation **RETAIN**. Submit.
+3. Director → **Caseworker Dispatch** → Case A → **Review report**.
+4. Write the grounds (at least 10 characters) and click **Keep on the program**.
+5. Try to flag Case A again:
+   ```bash
+   curl -s -X POST $API/beneficiaries/DEMO-4PS-GRAD-0001/assess -H "Authorization: Bearer $DIR" -H 'Content-Type: application/json' -d '{}'
+   ```
+6. As `auditor_test`, open Audit Overview → Latest ledger blocks.
+
+**Expect:**
+- The dialog offers only **Keep on the program**; there is no notice button for this report.
+- The receipt says the household is back to active and compliant, gives the date the model may flag it again (180 days later), and a ledger block number. The task shows **Verified: retain** and **View report**.
+- Executive Overview: Case A no longer counts as under investigation.
+- Step 5 returns `RETENTION_COOLDOWN`.
+- COA sees a **BENEFICIARY RETAINED** block, and Audit Verification still reports the chain valid.
+
+**Negative checks:**
+- A report that recommends graduation (S13) offers no **Keep** button. Through the API it is refused with `FIELD_REPORT_DOES_NOT_SUPPORT_RETENTION`.
+- As `auditor_test` the same call returns **403**.
+- A declared calamity (S9) does **not** block retention; keeping a family on the program is always allowed.
+
+**Proves:** the retention path, the re-flag cooldown, and the one new ledger action.
+
+## S15. Record an appeal hearing outcome (DECISION-012)
+1. Director → **15-Day Due Process** → Lorna Bautista → **File Appeal** with **today** as the hearing date (docket e.g. `APP-CAL-2026-0002`).
+2. The card now shows **Record hearing outcome**. Open it, choose **Granted**, write the grounds, and click **Record outcome**.
+3. Reset (§0), then repeat with **Denied**.
+4. *Optional:* file an appeal with a hearing date in the future. The button does not appear, and the API refuses early:
+   ```bash
+   curl -s -X POST $API/appeals/APP-CAL-2026-0003/decide -H "Authorization: Bearer $DIR" -H 'Content-Type: application/json' \
+     -d '{"outcome":"DENIED","decision_notes":"Hearing upheld the notice grounds."}'
+   ```
+
+**Expect:**
+- **Granted:** "Appeal … granted: Lorna Bautista stays on the program", a ledger block number, and the card leaves the docket. The household is active again, with the same 180-day cooldown as S14. COA sees **BENEFICIARY RETAINED**.
+- **Denied:** "Appeal … denied: Lorna Bautista graduated". COA sees **BENEFICIARY GRADUATED**, and the household is **GRADUATED**.
+- Step 4 returns `HEARING_NOT_YET_HELD`.
+- Recording a second outcome for the same appeal returns `WORKFLOW_CONFLICT`. A COA auditor gets **403**. During a declared calamity (S9), **Denied** is refused (`CALAMITY_MORATORIUM_ACTIVE`) but **Granted** is allowed.
+
+**Proves:** the appeal ends in a recorded, sealed decision, never in a stuck household.
+
+---
+
+## D. Live demo run order (about 18 minutes, demo dataset)
 Load the demo dataset first (§0, `load_demo_data.sh`). Case A and the fixtures stay untouched for this.
 
 | # | Show | Scenario | Pass when |
@@ -276,10 +321,11 @@ Load the demo dataset first (§0, `load_demo_data.sh`). Case A and the fixtures 
 | D4 | Caseworker visit on a phone width, with a photo, inside the 250 m geofence; then outside it | S5, S12 | Accepted in Calamba, refused in Manila |
 | D5 | Offline visit syncs on reconnect | S6 | Pending goes 1 → 0, nothing duplicated |
 | D6 | Director reviews the report and photo, issues the notice | S13 | "Hash verified", 15-day window starts |
-| D7 | Early graduation refused; appeal pauses the window | S13, S8 | `APPEAL_WINDOW_OPEN`; APPEAL FILED block |
+| D7 | Early graduation refused; appeal pauses the window; hearing outcome recorded | S13, S8, S15 | `APPEAL_WINDOW_OPEN`; APPEAL FILED block; granted → active |
 | D8 | Calamity moratorium freezes dispatch | S9 | Banner shown, dispatch refused, director cannot declare |
 | D9 | Tamper with the ledger and a photo; both are caught | S10, S13 | Chain broken at the edited block; photo refused |
 | D10 | Guards hold | S11 | 403 / 400 / 401 as listed |
+| D11 | A family that is still poor is kept on the program | S14 | "Keep on the program"; BENEFICIARY RETAINED block; re-flag refused |
 
 Reset (§0) before a second run. After a session with real users, record their ratings in `docs/testing/uat/` (form + `score_uat.py`).
 
@@ -301,3 +347,5 @@ Reset (§0) before a second run. After a session with real users, record their r
 | S11 | | | | |
 | S12 | | | | |
 | S13 | | | | |
+| S14 | | | | |
+| S15 | | | | |

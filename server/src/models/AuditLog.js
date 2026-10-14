@@ -8,6 +8,8 @@ const AUDIT_ACTIONS = [
   'TASK_DISPATCHED',
   'REPORT_SUBMITTED',
   'BENEFICIARY_GRADUATED',
+  // DECISION-012: the one approved addition to the frozen list (retention, granted appeal).
+  'BENEFICIARY_RETAINED',
   'APPEAL_FILED',
   'CALAMITY_DECLARED',
   'SYSTEM_CONFIG_UPDATED',

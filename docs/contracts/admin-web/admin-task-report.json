@@ -1,7 +1,7 @@
 {
   "contract_name": "admin-task-report",
-  "version": "1.0.0",
-  "revision_note": "2026-10-14 (DECISION-011): the submitted field report a director reviews before deciding. Only tasks whose household is inside the caller's jurisdiction. Evidence is listed by content hash; each `url` is served by GET /api/v1/evidence/:sha256 (admin-evidence-file.json). `graduation_supported` is true when the worker recommended graduation or verified SWDI Level 3.",
+  "version": "1.1.0",
+  "revision_note": "2026-10-14 (DECISION-011): the submitted field report a director reviews before deciding. Only tasks whose household is inside the caller's jurisdiction. Evidence is listed by content hash; each `url` is served by GET /api/v1/evidence/:sha256 (admin-evidence-file.json). `graduation_supported` is true when the worker recommended graduation or verified SWDI Level 3. 1.1.0 (DECISION-012): adds `retention_supported`, true when the worker recommended RETAIN or verified SWDI Level 1 or 2; admin_resolution.decision may be RETAINED_ON_ROSTER.",
   "endpoint": "/api/v1/tasks/:task_id/report",
   "method": "GET",
   "headers": { "Authorization": "Bearer <JWT_ACCESS_TOKEN>" },
@@ -30,6 +30,7 @@
           "captured_at": "2026-10-14T08:40:00.000Z", "url": "/api/v1/evidence/805deeeda86503386a5ac480147d1a88184ced4791809318754395094d70f649" }
       ],
       "graduation_supported": true,
+      "retention_supported": false,
       "admin_resolution": null
     }
   },

@@ -1,7 +1,7 @@
 # CLAUDE_TURNOVER — KilosUnlad Integration Program (Sprints 1–6)
 
 **Prepared for:** Renz Viloria (PM / Lead Integrator)
-**Date:** 2026-10-12, updated 2026-10-13 and 2026-10-14 (final UI, demo dataset, notice issuance; see §000 first)
+**Date:** 2026-10-12, updated 2026-10-13 and 2026-10-14 (final UI, demo dataset, notice issuance, retention and appeal outcome; see §000 first)
 **Branch:** `claude/clever-albattani-8ikzld` (base `e5acd07` = merge of PR #28). Open as
 [PR #29](https://github.com/renzv-compsci/KilosUnlad/pull/29); every push to the branch updates it.
 **Companion documents:** `docs/integration/CHANGELOG_TRACEABILITY.md` (per-commit change log, traceability matrix,
@@ -12,9 +12,11 @@ flag register), `docs/decisions/009-ml-vector-and-assessment-contracts.md`, evid
 
 ## 000. Final state (2026-10-14): what changed today and what is left
 
-**Short answer:** the system is feature-complete for the defense. The beneficiary lifecycle now runs end to end in the UI
-(flag → dispatch → field report → notice → 15-day window → graduation or appeal). The demo dataset is populated,
-and every claim has a script. Full Docker rehearsal **18/18** from clean resets. Hosting is **not** used: the demo runs locally on Docker.
+**Short answer: the project is done.** The beneficiary lifecycle runs end to end in the UI with no dead ends:
+flag → dispatch → field report → **keep on the program** *or* notice → 15-day window → graduation, or appeal → **hearing outcome**
+(granted: back to active; denied: graduated). The demo dataset is populated, and every claim has a script.
+Full Docker rehearsal **19/19** from clean resets. Hosting is **not** used: the demo runs locally on Docker.
+Everything is merged to `main`.
 
 ### Done today
 | Item | Result | Where |
@@ -25,31 +27,37 @@ and every claim has a script. Full Docker rehearsal **18/18** from clean resets.
 | Notice issuance (DECISION-011) | `GET /tasks/:task_id/report`, `POST /tasks/:task_id/resolve` (UNDER_INVESTIGATION → NOTICE_OF_INELIGIBILITY), `POST /beneficiaries/:household_id/graduate` (NOTICE → GRADUATED after 15 days and no appeal). Both sealed as `BENEFICIARY_GRADUATED` (existing enum, your choice); the state delta says which step. Director/Super Admin, jurisdiction-scoped, Joi-validated, calamity hold respected | `docs/decisions/011-notice-issuance-and-evidence-retrieval.md` (**PROPOSED: sign it**), 4 contracts in `docs/contracts/admin-web/` |
 | Evidence photos | `GET /evidence/:sha256` re-hashes the stored file on every read; altered bytes → 409 `EVIDENCE_INTEGRITY_FAILED`. The browser checks the hash again. Stored in the `upload-data` Docker volume, kept across restarts | same decision |
 | UI for the lifecycle | Dispatch screen: **Review report** (findings, photos "Hash verified", notice form). Due Process: **Complete graduation** once the window has passed with no appeal | `client/src/components/persona/ReportReviewDialog.tsx` |
+| Retention and appeal outcome (DECISION-012) | `POST /tasks/:task_id/retain` (UNDER_INVESTIGATION → ACTIVE_COMPLIANT, task `VERIFIED_RETAIN`) and `POST /appeals/:appeal_docket_id/decide` (GRANTED → ACTIVE_COMPLIANT; DENIED → GRADUATED). The model cannot re-flag a retained household for 180 days (409 `RETENTION_COOLDOWN`). **One documented Iron Law 2 exception:** the audit action list gains `BENEFICIARY_RETAINED` (your choice, option C); nothing else in the schema changed | `docs/decisions/012-retention-and-appeal-outcome.md` (**sign it**), contracts `admin-retention.json`, `admin-appeal-decision.json`, `admin-task-report.json` 1.1.0 |
+| UI for retention and hearings | Report review offers **Keep on the program** when the report says retain or Level 1–2. Due Process offers **Record hearing outcome** once the hearing date arrives | `ReportReviewDialog.tsx`, `Screen5DueProcessManager.tsx` |
+| Diagrams | Figures 1–4 updated and re-rendered: use cases for notice, retention and hearing outcome; the activity diagram's full decision path; `Resolution` service and `BENEFICIARY_RETAINED` in the class diagram; architecture text | `docs/diagrams/` (sources in `src/`, captions in `README.md`) |
 | UAT instrument | Rating form + `score_uat.py` (pass = SUS ≥ 68 and ≥ 80% completion). The CSV is empty on purpose: ratings must come from real participants | `docs/testing/uat/` |
-| Manual scenarios | S13 (review, notice, graduation, photo tamper) and **§D live-demo run order** (D1–D10) added; hosting steps removed | `docs/testing/MANUAL_TEST_SCENARIOS.md` |
-| Defense deck | Restructured to 19 slides: overview, problem, solution, case lifecycle, impact, scope and limitations, the four layers (frontend, backend, database, ML incl. data augmentation), Sangla-ATM detector, live-demo placeholder, live-demo test cases D1–D10 | private link in §6 Step 8 |
+| Manual scenarios | S13 (review, notice, graduation, photo tamper), S14 (keep on the program), S15 (hearing outcome) and **§D live-demo run order** (D1–D11) added; hosting steps removed | `docs/testing/MANUAL_TEST_SCENARIOS.md` |
+| Defense deck | Restructured to 19 slides: overview, problem, solution, case lifecycle, impact, scope and limitations, the four layers (frontend, backend, database, ML incl. data augmentation), Sangla-ATM detector, live-demo placeholder, live-demo test cases D1–D11. Limitations slide: notice, evidence and retention resolved | private link in §6 Step 8 |
 
 ### Test results on the final build
 | Level | Result |
 | --- | --- |
-| Server (`npm test`, replica set) | 165 pass / 0 fail / 3 skipped (Docker-only) |
-| Client (`npm test`, typecheck, build) | 68 / 68, build OK |
+| Server (`npm test`, replica set) | 172 pass / 0 fail / 3 skipped (Docker-only) |
+| Client (`npm test`, typecheck, build) | 69 / 69, typecheck clean, build OK |
 | `test_ui_live_data.js` (every role, 390/834/1440 px) | 121 / 121 on the demo dataset; 117 / 117 on the small set |
 | `test_decision011_notice_flow.js` (API + browser + tamper) | 17 / 17 |
-| Capstone `run_capstone_proofs.sh --full` (Docker, clean resets) | **18 / 18** |
+| `test_decision012_retention_flow.js` (API + browser) | 23 / 23 |
+| Capstone `run_capstone_proofs.sh --full` (Docker, clean resets) | **19 / 19** |
 | Section 12 | TC-01 to TC-17 all PASS (TC-11 moved from PARTIAL to PASS). The plan objective macro F1 ≥ 0.85 is still **not met** (v2: 0.6244 on real data) |
 
-Evidence: `docs/integration/evidence/decision011/` (log, screenshot, capstone summary), `ui-live-data/`, `clean-start-main/`.
+Evidence: `docs/integration/evidence/decision012/` (log, screenshots, 19/19 capstone summary), `decision011/`, `ui-live-data/`, `clean-start-main/`.
 
 ### Still yours
-1. Sign DECISION-010 and DECISION-011.
+1. Sign DECISION-010, DECISION-011 and DECISION-012.
 2. Run the UAT sessions with real participants and score them (`score_uat.py`).
-3. Agree the retention rules; `VERIFIED_RETAIN` is still rejected with 400 until then.
-4. Add your real standup notes to `E2E05_CADENCE_LOG.md`.
+3. Add your real standup notes to `E2E05_CADENCE_LOG.md`.
+4. Optional, not needed for the defense: `REINVESTIGATION_ORDERED` (order a second visit) is still not built; decide whether DSWD needs it.
 5. Hosting: not needed for the defense. If you host later, the Atlas append-only role question in §00 applies again.
 
+Known minor UI behaviour: the sidebar's Due Process badge comes from the triage summary loaded at sign-in, so it updates on the next reload after a graduation or hearing outcome.
+
 ### Iron Laws today
-No schema, collection or index changed. No guard removed or weakened. Each new route has a server test written first
+No collection, field or index changed. The only schema change is one value added to the audit action list (`BENEFICIARY_RETAINED`, DECISION-012, your decision). No guard removed or weakened. Each new route has a server test written first
 and an integration script in `data-pipeline/scripts/`. All new requests and responses have a contract in `docs/contracts/`.
 
 ---
@@ -520,7 +528,7 @@ Note: Case A's demo outcome (Level 3) was checked against v1. Re-check it with v
 
 ### 7.3 Your decisions
 * **Notice issuance.** Resolved by DECISION-011 (reuses `BENEFICIARY_GRADUATED`, no enum change). Sign it off.
-  Retention (`VERIFIED_RETAIN`) is still not built: agree the rules first.
+  Retention and the appeal outcome: resolved by DECISION-012 (adds `BENEFICIARY_RETAINED`). Sign it off.
 * **Calamity toggle roles.** It is Super Admin only. Widen it if directors should declare calamities.
 * **v2 promotion** (after the §7.1 run): accept or reject the winning experiment; ML-02 does not guarantee an improvement.
 * **DEF-04 deck:** review it, share it from its Share menu, and update the model and limitations slides after v2.

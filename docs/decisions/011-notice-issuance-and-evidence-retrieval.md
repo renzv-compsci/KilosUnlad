@@ -26,7 +26,7 @@ The frozen audit enum has no "notice issued" action. `PHASE2_GAP_REVIEW.md` requ
 | `POST /tasks/:id/resolve` | `admin-notice-issuance.json` | SUPER_ADMIN, REGIONAL_DIRECTOR | only `APPROVED_GRADUATION`; report must be SUBMITTED and recommend graduation or verify Level 3; blocked by a calamity moratorium; grounds 10–1000 characters |
 | `POST /beneficiaries/:id/graduate` | `admin-graduation.json` | SUPER_ADMIN, REGIONAL_DIRECTOR | only after the 15-day window from the stored notice, with no appeal recorded (fail closed); blocked by a calamity moratorium |
 
-* **Retention is not built.** `RETAINED_ON_ROSTER` and `REINVESTIGATION_ORDERED` are rejected (400): `workflow.service.js` states that retention transitions need their own agreed rules.
+* **Retention was not built here;** it was added in DECISION-012 (`012-retention-and-appeal-outcome.md`).
 * **Server change outside the new service:** CORS now exposes `X-Content-SHA256` so the client can read the server's hash confirmation.
 * **UI:**
   * Caseworker Dispatch gains **Review report** (findings, photos marked "Hash verified", and the notice form).
@@ -46,5 +46,5 @@ The frozen audit enum has no "notice issued" action. `PHASE2_GAP_REVIEW.md` requ
 
 ## 4. Official PM / Tech Lead Resolution
 * [x] Audit action: reuse `BENEFICIARY_GRADUATED` (chosen 2026-10-14)
-* [ ] Retention rules (`RETAINED_ON_ROSTER`, `REINVESTIGATION_ORDERED`): to be agreed
+* [x] Retention (`RETAINED_ON_ROSTER`): built in DECISION-012. `REINVESTIGATION_ORDERED` still not built
 * Signed: ____________  Date: ____________

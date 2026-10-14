@@ -150,6 +150,17 @@ module.exports = function createRouter({ mockMode, production, authService = cre
       res.set('Cache-Control', 'no-store');
       try { res.json(await resolution.graduate(req.params.household_id, req.body, req.user.userId)); } catch (error) { next(error); }
     });
+  // DECISION-012: retention after a field visit, and the outcome of an appeal hearing.
+  router.post('/tasks/:task_id/retain', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
+    scopeJurisdiction, async (req, res, next) => {
+      res.set('Cache-Control', 'no-store');
+      try { res.json(await resolution.retain(req.params.task_id, req.body, req.user.userId)); } catch (error) { next(error); }
+    });
+  router.post('/appeals/:appeal_docket_id/decide', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
+    scopeJurisdiction, async (req, res, next) => {
+      res.set('Cache-Control', 'no-store');
+      try { res.json(await resolution.decideAppeal(req.params.appeal_docket_id, req.body, req.user.userId)); } catch (error) { next(error); }
+    });
 
   return router;
 };

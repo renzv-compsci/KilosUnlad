@@ -5,19 +5,24 @@ const { assertTransition, InvalidStatusTransitionError } = require('../src/servi
 const { PROGRAM_STATUSES } = require('../src/constants/statuses');
 const errorHandler = require('../src/middleware/error.middleware');
 
-test('only the four documented forward transitions are accepted', () => {
-  const lifecycle = ['ACTIVE_COMPLIANT', 'FLAGGED_FOR_REVIEW', 'UNDER_INVESTIGATION',
-    'NOTICE_OF_INELIGIBILITY', 'GRADUATED'];
+test('only the documented lifecycle transitions are accepted', () => {
+  // Forward path, plus the two DECISION-012 returns to ACTIVE_COMPLIANT:
+  // retention after a field visit, and a granted appeal.
+  const allowed = new Set(['ACTIVE_COMPLIANT>FLAGGED_FOR_REVIEW', 'FLAGGED_FOR_REVIEW>UNDER_INVESTIGATION',
+    'UNDER_INVESTIGATION>NOTICE_OF_INELIGIBILITY', 'NOTICE_OF_INELIGIBILITY>GRADUATED',
+    'UNDER_INVESTIGATION>ACTIVE_COMPLIANT', 'NOTICE_OF_INELIGIBILITY>ACTIVE_COMPLIANT']);
   for (const from of Object.values(PROGRAM_STATUSES)) {
     for (const to of Object.values(PROGRAM_STATUSES)) {
-      const index = lifecycle.indexOf(from);
-      if (index >= 0 && index < lifecycle.length - 1 && to === lifecycle[index + 1]) {
+      if (allowed.has(`${from}>${to}`)) {
         assert.doesNotThrow(() => assertTransition(from, to));
       } else {
         assert.throws(() => assertTransition(from, to), InvalidStatusTransitionError);
       }
     }
   }
+  // GRADUATED is final and FLAGGED_FOR_REVIEW cannot skip the field visit.
+  assert.throws(() => assertTransition('GRADUATED', 'ACTIVE_COMPLIANT'), InvalidStatusTransitionError);
+  assert.throws(() => assertTransition('FLAGGED_FOR_REVIEW', 'ACTIVE_COMPLIANT'), InvalidStatusTransitionError);
 });
 
 test('unknown, missing, and structured status inputs cannot bypass the guard', () => {

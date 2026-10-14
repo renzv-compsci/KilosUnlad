@@ -1,12 +1,13 @@
 const { PROGRAM_STATUSES: S } = require('../constants/statuses');
 
-// Only the lifecycle explicitly defined in Mae's roadmap is approved here.
-// Calamity/resumption and retention transitions need their own agreed rules.
-const nextStatus = new Map([
-  [S.ACTIVE_COMPLIANT, S.FLAGGED_FOR_REVIEW],
-  [S.FLAGGED_FOR_REVIEW, S.UNDER_INVESTIGATION],
-  [S.UNDER_INVESTIGATION, S.NOTICE_OF_INELIGIBILITY],
-  [S.NOTICE_OF_INELIGIBILITY, S.GRADUATED]
+// The lifecycle in Mae's roadmap, plus the two DECISION-012 returns to
+// ACTIVE_COMPLIANT: retention after a field visit and a granted appeal.
+// GRADUATED is final; calamity/resumption transitions need their own agreed rules.
+const nextStatuses = new Map([
+  [S.ACTIVE_COMPLIANT, [S.FLAGGED_FOR_REVIEW]],
+  [S.FLAGGED_FOR_REVIEW, [S.UNDER_INVESTIGATION]],
+  [S.UNDER_INVESTIGATION, [S.NOTICE_OF_INELIGIBILITY, S.ACTIVE_COMPLIANT]],
+  [S.NOTICE_OF_INELIGIBILITY, [S.GRADUATED, S.ACTIVE_COMPLIANT]]
 ]);
 
 class InvalidStatusTransitionError extends Error {
@@ -19,7 +20,8 @@ class InvalidStatusTransitionError extends Error {
 }
 
 function assertTransition(currentStatus, requestedStatus) {
-  if (!nextStatus.has(currentStatus) || nextStatus.get(currentStatus) !== requestedStatus) {
+  if (typeof currentStatus !== 'string' || !nextStatuses.has(currentStatus) ||
+      !nextStatuses.get(currentStatus).includes(requestedStatus)) {
     throw new InvalidStatusTransitionError();
   }
 }

@@ -1,0 +1,45 @@
+{
+  "contract_name": "admin-appeal-decision",
+  "version": "1.0.0",
+  "revision_note": "2026-10-14 (DECISION-012): records the outcome of an appeal hearing. The appeal is the hash-verified APPEAL_FILED block for the household's current notice; the outcome can be recorded on or after the hearing date (Asia/Manila). GRANTED: NOTICE_OF_INELIGIBILITY -> ACTIVE_COMPLIANT, sealed as BENEFICIARY_RETAINED (decision APPEAL_GRANTED), with the same 180-day re-flag cooldown as retention. DENIED: NOTICE_OF_INELIGIBILITY -> GRADUATED, sealed as BENEFICIARY_GRADUATED (decision GRADUATION_COMPLETED, appeal_outcome DENIED). A calamity moratorium blocks a DENIED outcome but not a GRANTED one.",
+  "endpoint": "/api/v1/appeals/:appeal_docket_id/decide",
+  "method": "POST",
+  "headers": { "Authorization": "Bearer <JWT_ACCESS_TOKEN>", "Content-Type": "application/json" },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR (jurisdiction-scoped).",
+  "request": {
+    "outcome": "GRANTED",
+    "decision_notes": "Hearing found the sedan belongs to a relative abroad; household income remains below threshold."
+  },
+  "request_rules": {
+    "outcome": "required; GRANTED or DENIED",
+    "decision_notes": "required; 10 to 1000 characters; the hearing's stated grounds. No other field is accepted."
+  },
+  "response": {
+    "status": 200,
+    "data": {
+      "appeal_docket_id": "APP-CAL-2026-0001",
+      "household_id": "TEST-4PS-NOTICE-0001",
+      "outcome": "GRANTED",
+      "household_status": "ACTIVE_COMPLIANT",
+      "decided_at": "2026-10-20T02:00:00.000Z",
+      "reassessment_allowed_from": "2027-04-18T02:00:00.000Z",
+      "audit_receipt": { "sequence_index": 7, "entry_hash": "9e2b5d7c3a8e1f4b6d9c2a4c1f0a9e2b7d3c5a8e6f1b0d9c2a7e4f3b8d6c1a0e" }
+    }
+  },
+  "response_rules": {
+    "reassessment_allowed_from": "present for GRANTED; null for DENIED"
+  },
+  "errors": [
+    { "status": 400, "code": "INVALID_REQUEST" },
+    { "status": 401, "code": "UNAUTHORIZED" },
+    { "status": 403, "code": "FORBIDDEN" },
+    { "status": 403, "code": "OUT_OF_JURISDICTION" },
+    { "status": 404, "code": "APPEAL_NOT_FOUND" },
+    { "status": 409, "code": "AUDIT_ENTRY_INVALID" },
+    { "status": 409, "code": "APPEAL_NOT_CURRENT" },
+    { "status": 409, "code": "HEARING_NOT_YET_HELD" },
+    { "status": 409, "code": "CALAMITY_MORATORIUM_ACTIVE" },
+    { "status": 409, "code": "WORKFLOW_CONFLICT" },
+    { "status": 503, "code": "WORKFLOW_UNAVAILABLE" }
+  ]
+}

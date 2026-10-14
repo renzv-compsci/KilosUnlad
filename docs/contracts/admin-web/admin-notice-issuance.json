@@ -11,7 +11,7 @@
     "admin_notes": "Field visit confirmed Level 3: private sedan, postpaid plan and household business; utility use above lifeline."
   },
   "request_rules": {
-    "decision": "required; only APPROVED_GRADUATION is accepted (retention rules are not yet agreed)",
+    "decision": "required; only APPROVED_GRADUATION is accepted (retention uses POST /tasks/:task_id/retain, DECISION-012)",
     "admin_notes": "required; 10 to 1000 characters; becomes the stated grounds on the notice"
   },
   "response": {

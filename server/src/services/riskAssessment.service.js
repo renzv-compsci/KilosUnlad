@@ -5,6 +5,7 @@ const AuditLog = require('../models/AuditLog');
 const ExternalRecord = require('../models/ExternalRecord');
 const SystemConfig = require('../models/SystemConfig');
 const { sameConnection } = require('../utils/sameConnection');
+const { assertNoRetentionCooldown } = require('./resolution.service');
 const { assertNoCalamityHold } = require('./calamityToggle.service');
 const R = require('../constants/roles');
 const T = require('../constants/thresholds');
@@ -77,6 +78,8 @@ function createRiskAssessment({ beneficiaries = Beneficiary, users = User, audit
     if (household.program_status !== S.ACTIVE_COMPLIANT) {
       throw new WorkflowError(409, 'HOUSEHOLD_NOT_ASSESSABLE', 'Only ACTIVE_COMPLIANT households can be assessed.');
     }
+    // DECISION-012: no re-flag within the cooldown after a retention or granted appeal.
+    await assertNoRetentionCooldown({ audits, householdId });
     // RA 10121: compliance flagging is frozen in a declared calamity zone.
     await assertNoCalamityHold({ configs, address: household.address });
 
@@ -125,7 +128,10 @@ function createRiskAssessment({ beneficiaries = Beneficiary, users = User, audit
     let previous;
     const transition = createWorkflowPersistence({ beneficiaries, users, audits, policy: {
       from: S.ACTIVE_COMPLIANT, to: S.FLAGGED_FOR_REVIEW, action: 'MODEL_FLAG_RAISED', roles: ROLES,
-      precheck: ({ record, session }) => assertNoCalamityHold({ configs, address: record.address, session }),
+      precheck: async ({ record, session }) => {
+        await assertNoRetentionCooldown({ audits, householdId: record.household_id, session });
+        await assertNoCalamityHold({ configs, address: record.address, session });
+      },
       perform: async ({ record, session }) => {
         previous = record.risk_assessment || {};
         const set = Object.fromEntries(Object.entries(assessment).map(([k, v]) => [`risk_assessment.${k}`, v]));

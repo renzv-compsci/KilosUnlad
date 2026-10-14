@@ -420,10 +420,17 @@ export interface TaskReport {
     client_geolocation: { latitude: number; longitude: number; accuracy_meters: number | null; captured_at: string | null } | null };
   evidence: { sha256_hash: string; media_type: string; captured_at: string | null; url: string }[];
   graduation_supported: boolean;
+  retention_supported: boolean;
   admin_resolution: { decision: string; admin_notes: string; finalized_at: string | null } | null;
 }
 export interface NoticeReceipt { task_id: string; household_id: string; task_status: string; household_status: string;
   notice_date: string; appeal_deadline: string; audit_receipt: { sequence_index: number; entry_hash: string } }
+// DECISION-012: retention after a field visit, and the outcome of an appeal hearing.
+export interface RetentionReceipt { task_id: string; household_id: string; task_status: string; household_status: string;
+  retained_at: string; reassessment_allowed_from: string; audit_receipt: { sequence_index: number; entry_hash: string } }
+export interface AppealDecisionReceipt { appeal_docket_id: string; household_id: string; outcome: 'GRANTED' | 'DENIED';
+  household_status: string; decided_at: string; reassessment_allowed_from: string | null;
+  audit_receipt: { sequence_index: number; entry_hash: string } }
 export interface GraduationReceipt { household_id: string; household_status: string; notice_date: string; appeal_deadline: string;
   audit_receipt: { sequence_index: number; entry_hash: string } }
 
@@ -464,10 +471,27 @@ export async function completeGraduation(householdId: string): Promise<Graduatio
   return data as GraduationReceipt;
 }
 
+export async function retainHousehold(taskId: string, adminNotes: string): Promise<RetentionReceipt> {
+  const { data } = await api.post(`/tasks/${encodeURIComponent(taskId)}/retain`, { admin_notes: adminNotes });
+  if (data?.household_status !== 'ACTIVE_COMPLIANT' || !Number.isSafeInteger(data?.audit_receipt?.sequence_index)) {
+    throw new Error('The server did not return a valid retention receipt.');
+  }
+  return data as RetentionReceipt;
+}
+
+export async function decideAppeal(docketId: string, outcome: 'GRANTED' | 'DENIED', decisionNotes: string): Promise<AppealDecisionReceipt> {
+  const { data } = await api.post(`/appeals/${encodeURIComponent(docketId)}/decide`, { outcome, decision_notes: decisionNotes });
+  const expected = outcome === 'GRANTED' ? 'ACTIVE_COMPLIANT' : 'GRADUATED';
+  if (data?.household_status !== expected || !Number.isSafeInteger(data?.audit_receipt?.sequence_index)) {
+    throw new Error('The server did not return a valid hearing outcome receipt.');
+  }
+  return data as AppealDecisionReceipt;
+}
+
 export function resolutionErrorMessage(error: unknown): string {
   const code = axios.isAxiosError(error) ? error.response?.data?.error?.code : undefined;
   const messages: Record<string, string> = {
-    INVALID_REQUEST: 'Write the grounds for the notice (at least 10 characters).',
+    INVALID_REQUEST: 'Write the grounds for your decision (at least 10 characters).',
     TASK_NOT_SUBMITTED: 'This report was already decided. Refresh the list.',
     FIELD_REPORT_DOES_NOT_SUPPORT_GRADUATION: 'The field report neither recommends graduation nor verifies Level 3, so a notice cannot be issued.',
     CALAMITY_MORATORIUM_ACTIVE: 'A calamity moratorium (RA 10121) covers this municipality: notices and graduation are frozen.',
@@ -477,6 +501,12 @@ export function resolutionErrorMessage(error: unknown): string {
     APPEAL_HOLD: 'An appeal was filed, so the household cannot be graduated.',
     EVIDENCE_INTEGRITY_FAILED: 'This photo no longer matches its recorded hash and was not shown.',
     EVIDENCE_NOT_FOUND: 'The photo is not in storage.',
+    FIELD_REPORT_DOES_NOT_SUPPORT_RETENTION: 'The field report neither recommends retention nor verifies Level 1 or 2.',
+    APPEAL_NOT_FOUND: 'No appeal with this docket reference is on record.',
+    APPEAL_NOT_CURRENT: 'This appeal was filed against an earlier notice.',
+    HEARING_NOT_YET_HELD: 'The outcome can be recorded on or after the hearing date.',
+    AUDIT_ENTRY_INVALID: 'The appeal record failed its hash check. Ask the COA auditor to verify the ledger.',
+    RETENTION_COOLDOWN: 'This household was kept on the program recently and cannot be reassessed yet.',
   };
   return (code && messages[code]) || apiErrorMessage(error);
 }

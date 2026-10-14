@@ -79,6 +79,14 @@ class WorkflowPersistence <<service>> {
   +transition(householdId, actorId) : receipt
   +appendAuditEntry(...) : audit_receipt
 }
+class Resolution <<service: resolution.service.js>> {
+  +report(taskId) : TaskReport
+  +evidence(sha256) : verified bytes
+  +resolve(taskId, grounds) : notice receipt
+  +retain(taskId, grounds) : retention receipt
+  +decideAppeal(docketId, outcome, grounds) : receipt
+  +graduate(householdId) : receipt
+}
 
 enum ProgramStatus {
   ACTIVE_COMPLIANT
@@ -100,6 +108,7 @@ enum AuditAction {
   TASK_DISPATCHED
   REPORT_SUBMITTED
   BENEFICIARY_GRADUATED
+  BENEFICIARY_RETAINED
   APPEAL_FILED
   CALAMITY_DECLARED
   SYSTEM_CONFIG_UPDATED
@@ -122,4 +131,6 @@ Authenticate ..> AuthService : uses
 WorkflowPersistence ..> CryptoHelper : uses
 WorkflowPersistence ..> AuditLog : appends
 WorkflowPersistence ..> Beneficiary : updates status
+Resolution ..> WorkflowPersistence : uses
+Resolution ..> VerificationTask : admin_resolution
 @enduml

@@ -1,0 +1,38 @@
+{
+  "contract_name": "admin-retention",
+  "version": "1.0.0",
+  "revision_note": "2026-10-14 (DECISION-012): a director keeps a household on the program after reviewing a submitted field report that recommends retention or verifies SWDI Level 1 or 2. The household returns UNDER_INVESTIGATION -> ACTIVE_COMPLIANT, the task becomes VERIFIED_RETAIN with admin_resolution RETAINED_ON_ROSTER, and one BENEFICIARY_RETAINED block is sealed (the single approved addition to the frozen audit action list). The model may not re-flag the household until `reassessment_allowed_from` (180-day cooldown). A calamity moratorium does not block retention.",
+  "endpoint": "/api/v1/tasks/:task_id/retain",
+  "method": "POST",
+  "headers": { "Authorization": "Bearer <JWT_ACCESS_TOKEN>", "Content-Type": "application/json" },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR (jurisdiction-scoped).",
+  "request": {
+    "admin_notes": "Field visit confirmed Level 2: no vehicle, irregular income; household remains eligible."
+  },
+  "request_rules": {
+    "admin_notes": "required; 10 to 1000 characters; the stated grounds for retention. No other field is accepted."
+  },
+  "response": {
+    "status": 200,
+    "data": {
+      "task_id": "TSK-2026-1d2e3f4a-5b6c-7d8e-9f0a-1b2c3d4e5f6a",
+      "household_id": "TEST-4PS-0003",
+      "task_status": "VERIFIED_RETAIN",
+      "household_status": "ACTIVE_COMPLIANT",
+      "retained_at": "2026-10-14T09:00:00.000Z",
+      "reassessment_allowed_from": "2027-04-12T09:00:00.000Z",
+      "audit_receipt": { "sequence_index": 6, "entry_hash": "4c1f0a9e2b7d3c5a8e6f1b0d9c2a7e4f3b8d6c1a0e9f2b5d7c3a8e1f4b6d9c2a" }
+    }
+  },
+  "errors": [
+    { "status": 400, "code": "INVALID_REQUEST" },
+    { "status": 401, "code": "UNAUTHORIZED" },
+    { "status": 403, "code": "FORBIDDEN" },
+    { "status": 403, "code": "OUT_OF_JURISDICTION" },
+    { "status": 404, "code": "TASK_NOT_FOUND" },
+    { "status": 409, "code": "TASK_NOT_SUBMITTED" },
+    { "status": 409, "code": "FIELD_REPORT_DOES_NOT_SUPPORT_RETENTION" },
+    { "status": 409, "code": "WORKFLOW_CONFLICT" },
+    { "status": 503, "code": "WORKFLOW_UNAVAILABLE" }
+  ]
+}

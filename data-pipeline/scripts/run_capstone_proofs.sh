@@ -90,6 +90,7 @@ if [ $FULL -eq 1 ]; then
   run "E2E-04 SHAP drawer (browser)" "" test_e2e04_drawer_ui SCREENSHOT="$EVIDENCE_DIR/e2e04-drawer.png"
   run "UI live data, phone/tablet/desktop (DECISION-010)" "add_dispatch_test" test_ui_live_data SCREENSHOT_DIR="$EVIDENCE_DIR/ui-live-data"
   run "Notice issuance, evidence integrity, graduation (DECISION-011)" "add_int02_case_a_fixture" test_decision011_notice_flow SCREENSHOT="$EVIDENCE_DIR/decision011-review.png"
+  run "Retention, appeal granted and denied (DECISION-012)" "add_int02_case_a_fixture add_int03_notice_fixture" test_decision012_retention_flow SCREENSHOT="$EVIDENCE_DIR/decision012-retain.png"
   # DAT-01 and STR-03 need the 80k baseline: reset + seed-ingest inside one step.
   WITH_SEED=1
   run "DAT-01 seed conformance (80k)" "" test_dat01_seed_conformance

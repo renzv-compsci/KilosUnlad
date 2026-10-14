@@ -149,7 +149,8 @@ export interface AuditBlock {
     role: string;
     ip_address: string;
   };
-  action: 'BENEFICIARY_GRADUATED' | 'TASK_DISPATCHED' | 'APPEAL_FILED' | 'SWDI_TIER_ADJUSTED' | 'FRAUD_FLAGGED';
+  action: 'MODEL_FLAG_RAISED' | 'TASK_DISPATCHED' | 'REPORT_SUBMITTED' | 'BENEFICIARY_GRADUATED' | 'BENEFICIARY_RETAINED'
+    | 'APPEAL_FILED' | 'CALAMITY_DECLARED' | 'SYSTEM_CONFIG_UPDATED';
   household_id: string;
   state_delta: {
     before: Record<string, unknown>;
