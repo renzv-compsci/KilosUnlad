@@ -258,6 +258,7 @@ def write_report(files):
     REPORT.write_text("\n".join(out).rstrip() + "\n")
 
 
+SCRIPTS = sorted((p.stem for p in (ROOT / "data-pipeline/scripts").glob("test_*.js")), key=len, reverse=True)
 INT_LINE = re.compile(r"^\s*\[(OK|FAIL)\]\s+(.*\S)")
 
 
@@ -266,7 +267,9 @@ def integration_block(folders):
     logs = {}
     for folder in folders:
         for log in sorted(Path(folder).glob("*.log")):
-            script = re.sub(r"^\d+-", "", log.stem)
+            stem = re.sub(r"^\d+-", "", log.stem)
+            # Runner labels add words ("..._browser_offline"); map back to the real script name.
+            script = next((k for k in SCRIPTS if stem == k or stem.startswith(k + "_")), stem)
             lines = log.read_text(errors="replace").splitlines()
             # Only the script's own output: fixtures and resets before "[START]" also print [OK].
             start = next((i for i, l in enumerate(lines) if "[START]" in l), None)

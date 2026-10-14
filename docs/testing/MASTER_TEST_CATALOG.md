@@ -31,7 +31,7 @@
 | UAT scenarios (scripted capability) | UAT-A … UAT-D | 4 | 4 met | participant ratings **pending** |
 | Full rehearsal steps (Docker, clean reset each) | CAP-01 … CAP-19 | 19 | 19 | `run_capstone_proofs.sh --full` |
 | Section 12 runner steps (Docker, clean reset each) | R12-01 … R12-17 | 17 | 17 | `run_section12_plan.sh` |
-| Integration-script checks | IT-001 … | <!-- IT COUNT -->361 | all | §10 |
+| Integration-script checks | IT-001 … | <!-- IT COUNT -->415 | all | §10 |
 | Unit and component cases | UT-001 … UT-212 | <!-- UT COUNT -->208 | all | `UNIT_TEST_REPORT.md` |
 | Manual scenarios (run by a person) | S1 … S15 | 15 | to be recorded | `MANUAL_TEST_SCENARIOS.md` |
 | Live-demo cases (run by a person) | D1 … D11 | 11 | to be recorded | `MANUAL_TEST_SCENARIOS.md` §D |
@@ -178,7 +178,7 @@ Full expected / actual text: `docs/integration/UNIT_TEST_PLAN.md` §12.2 and `do
 
 ## 5. Section 12 defects
 
-Re-checked by `test_section12_defects.js` (21 checks) in R12-12.
+Re-checked by `test_section12_defects.js` (20 checks) in R12-15.
 
 | ID | Defect | Corrective action | Result |
 | --- | --- | --- | :---: |
@@ -291,7 +291,7 @@ Run by a person from `docs/testing/MANUAL_TEST_SCENARIOS.md`; record the result 
 
 ## 10. Integration-script checks
 
-Every `[OK]` line printed by the integration scripts in the latest Docker runs (Section 12 runner and full rehearsal), numbered in script order. <!-- IT COUNT -->361 checks in total.
+Every `[OK]` line printed by the integration scripts in the latest Docker runs (Section 12 runner and full rehearsal), numbered in script order. <!-- IT COUNT -->415 checks in total.
 
 <!-- BEGIN INTEGRATION CHECKS -->
 #### `test_dat01_seed_conformance` (24 checks, log `docs/integration/evidence/capstone-final/18-test_dat01_seed_conformance.log`)
@@ -584,171 +584,235 @@ Every `[OK]` line printed by the integration scripts in the latest Docker runs (
 | IT-214 | evaluated_at is ISO-8601 with zone | **PASS** |
 | IT-215 | 2 transactions -> 400 INSUFFICIENT_TRANSACTION_SAMPLE | **PASS** |
 
+#### `test_section12_defects` (20 checks, log `docs/testing/evidence/section12-final/15-test_section12_defects.log`)
+
+| ID | Check | Result |
+| --- | --- | :---: |
+| IT-216 | db service starts mongod with --replSet rs0 --bind_ip_all | **PASS** |
+| IT-217 | compose runs rs.initiate on first boot | **PASS** |
+| IT-218 | live server is primary of replica set rs0 | **PASS** |
+| IT-219 | session.withTransaction() commits | **PASS** |
+| IT-220 | role grants createIndex and listIndexes on audit_logs | **PASS** |
+| IT-221 | role grants no update or remove on audit_logs | **PASS** |
+| IT-222 | app_user can find and list audit indexes | **PASS** |
+| IT-223 | app_user update and delete on audit_logs -> Unauthorized | **PASS** |
+| IT-224 | all 19 nested sub-schemas declare { _id: false, strict: true } | **PASS** |
+| IT-225 | a built Beneficiary has no _id in address, demographics or head_of_household | **PASS** |
+| IT-226 | compose maps ${MONGO_EXTERNAL_PORT:-27017}:27017 | **PASS** |
+| IT-227 | server Joi schema lists exactly the contract's 6 features | **PASS** |
+| IT-228 | ML service maps the same 6 features | **PASS** |
+| IT-229 | wall_score / roof_score are not part of the vector | **PASS** |
+| IT-230 | priority enum LOW/MEDIUM/HIGH/CRITICAL | **PASS** |
+| IT-231 | due_date is a required Date | **PASS** |
+| IT-232 | assignment_notes aliased as dispatch_instructions | **PASS** |
+| IT-233 | strict mode keeps the three fields on save | **PASS** |
+| IT-234 | AUDIT_ACTIONS includes SYSTEM_CONFIG_UPDATED | **PASS** |
+| IT-235 | CALAMITY_DECLARED remains a separate action | **PASS** |
+
+#### `test_section12_plan` (34 checks, log `docs/testing/evidence/section12-final/04-test_section12_plan.log`)
+
+| ID | Check | Result |
+| --- | --- | :---: |
+| IT-236 | valid credentials -> 200 with Bearer token | **PASS** |
+| IT-237 | token is HS256 with a 900 s lifetime | **PASS** |
+| IT-238 | token carries role and jurisdiction | **PASS** |
+| IT-239 | out-of-scope municipal query -> 403 OUT_OF_JURISDICTION | **PASS** |
+| IT-240 | incorrect password -> 401 INVALID_CREDENTIALS | **PASS** |
+| IT-241 | token past its 900 s window -> 401 TOKEN_EXPIRED | **PASS** |
+| IT-242 | playwright-core available for the client-session check | **PASS** |
+| IT-243 | client cleared the session and returned to the login screen | **PASS** |
+| IT-244 | 200 with SWDI tier 1, 2 or 3 | **PASS** |
+| IT-245 | three class probabilities summing to 1 | **PASS** |
+| IT-246 | signed SHAP attributions returned, ranked by \|weight\| | **PASS** |
+| IT-247 | response within 2500 ms | **PASS** |
+| IT-248 | is_anomalous_batch true | **PASS** |
+| IT-249 | risk score 85.0 / 100 | **PASS** |
+| IT-250 | enrolled Level 1, predicted Level 3 | **PASS** |
+| IT-251 | composite risk score S_i >= 70 | **PASS** |
+| IT-252 | status FLAGGED_FOR_REVIEW | **PASS** |
+| IT-253 | household appears in the triage queue with the same score | **PASS** |
+| IT-254 | failing dispatch writes nothing (transaction rolled back) | **PASS** |
+| IT-255 | 201 Created | **PASS** |
+| IT-256 | VerificationTask created PENDING_DISPATCH | **PASS** |
+| IT-257 | Beneficiary UNDER_INVESTIGATION | **PASS** |
+| IT-258 | TASK_DISPATCHED block hash equals the receipt | **PASS** |
+| IT-259 | 409 ACTIVE_TASK_EXISTS | **PASS** |
+| IT-260 | no duplicate task and no second audit entry | **PASS** |
+| IT-261 | 64-character SHA-256 fingerprint | **PASS** |
+| IT-262 | modified bytes -> 422 EVIDENCE_HASH_MISMATCH | **PASS** |
+| IT-263 | client hashes photos with the Web Crypto API (crypto.subtle.digest SHA-256) | **PASS** |
+| IT-264 | submission 400 m away is not accepted as matched (422 GEOFENCE_VIOLATION) | **PASS** |
+| IT-265 | submission ~12.5 m away -> 200, is_matched true | **PASS** |
+| IT-266 | task status SUBMITTED | **PASS** |
+| IT-267 | photo binary saved to persistent storage and still matches its hash | **PASS** |
+| IT-268 | range 1..3 -> 200 is_chain_valid true | **PASS** |
+| IT-269 | field worker cannot run the verifier (403) | **PASS** |
+
 #### `test_str01_tamper_detection` (9 checks, log `docs/integration/evidence/capstone-final/04-test_str01_tamper_detection.log`)
 
 | ID | Check | Result |
 | --- | --- | :---: |
-| IT-216 | baseline chain 1..5 valid | **PASS** |
-| IT-217 | is_chain_valid false | **PASS** |
-| IT-218 | head_hash = INVALID_HASH_AT_SEQUENCE_3 | **PASS** |
-| IT-219 | exactly block 3 reported | **PASS** |
-| IT-220 | report names the tampered entity | **PASS** |
-| IT-221 | untampered range 1..2 still verifies | **PASS** |
-| IT-222 | untampered range 4..5 still verifies (anchored on block 3 recorded hash) | **PASS** |
-| IT-223 | drawer refuses tampered explanation (409 AUDIT_ENTRY_INVALID) | **PASS** |
-| IT-224 | restored chain verifies again | **PASS** |
+| IT-270 | baseline chain 1..5 valid | **PASS** |
+| IT-271 | is_chain_valid false | **PASS** |
+| IT-272 | head_hash = INVALID_HASH_AT_SEQUENCE_3 | **PASS** |
+| IT-273 | exactly block 3 reported | **PASS** |
+| IT-274 | report names the tampered entity | **PASS** |
+| IT-275 | untampered range 1..2 still verifies | **PASS** |
+| IT-276 | untampered range 4..5 still verifies (anchored on block 3 recorded hash) | **PASS** |
+| IT-277 | drawer refuses tampered explanation (409 AUDIT_ENTRY_INVALID) | **PASS** |
+| IT-278 | restored chain verifies again | **PASS** |
 
 #### `test_str02_airplane_sync` (10 checks, log `docs/integration/evidence/capstone-final/02-test_str02_airplane_sync.log`)
 
 | ID | Check | Result |
 | --- | --- | :---: |
-| IT-225 | browser reports offline | **PASS** |
-| IT-226 | exactly 2 queued drafts on the device (edit replaced, not duplicated) | **PASS** |
-| IT-227 | queued draft holds the edited narrative | **PASS** |
-| IT-228 | nothing reached the server while offline | **PASS** |
-| IT-229 | both reports synced automatically (zero loss) | **PASS** |
-| IT-230 | server holds the edited report 1 | **PASS** |
-| IT-231 | server holds the edited photo hash | **PASS** |
-| IT-232 | exactly one REPORT_SUBMITTED block per task | **PASS** |
-| IT-233 | original photo bytes verified server-side | **PASS** |
-| IT-234 | device marks both drafts SYNCED | **PASS** |
+| IT-279 | browser reports offline | **PASS** |
+| IT-280 | exactly 2 queued drafts on the device (edit replaced, not duplicated) | **PASS** |
+| IT-281 | queued draft holds the edited narrative | **PASS** |
+| IT-282 | nothing reached the server while offline | **PASS** |
+| IT-283 | both reports synced automatically (zero loss) | **PASS** |
+| IT-284 | server holds the edited report 1 | **PASS** |
+| IT-285 | server holds the edited photo hash | **PASS** |
+| IT-286 | exactly one REPORT_SUBMITTED block per task | **PASS** |
+| IT-287 | original photo bytes verified server-side | **PASS** |
+| IT-288 | device marks both drafts SYNCED | **PASS** |
 
 #### `test_str03_concurrency` (10 checks, log `docs/integration/evidence/capstone-final/19-test_str03_concurrency.log`)
 
 | ID | Check | Result |
 | --- | --- | :---: |
-| IT-235 | production volume present (>= 80,000 ACTIVE_COMPLIANT) | **PASS** |
-| IT-236 | all 200, zero 5xx ({"200":60}, 2159 ms) | **PASS** |
-| IT-237 | flagged results carry receipts (15 flagged) | **PASS** |
-| IT-238 | exactly one 201, the rest 409, zero 5xx ({"201":1,"409":19}) | **PASS** |
-| IT-239 | exactly one task for the household in the worker feed | **PASS** |
-| IT-240 | exactly one 200, the rest 409, zero 5xx ({"200":1,"409":19}) | **PASS** |
-| IT-241 | declarations all 201, zero 5xx ({"201":30}, 4828 ms) | **PASS** |
-| IT-242 | lifts all 200, zero 5xx ({"200":30}) | **PASS** |
-| IT-243 | chain 1..77 valid and contiguous | **PASS** |
-| IT-244 | no extra block beyond successful mutations | **PASS** |
+| IT-289 | production volume present (>= 80,000 ACTIVE_COMPLIANT) | **PASS** |
+| IT-290 | all 200, zero 5xx ({"200":60}, 2159 ms) | **PASS** |
+| IT-291 | flagged results carry receipts (15 flagged) | **PASS** |
+| IT-292 | exactly one 201, the rest 409, zero 5xx ({"201":1,"409":19}) | **PASS** |
+| IT-293 | exactly one task for the household in the worker feed | **PASS** |
+| IT-294 | exactly one 200, the rest 409, zero 5xx ({"200":1,"409":19}) | **PASS** |
+| IT-295 | declarations all 201, zero 5xx ({"201":30}, 4828 ms) | **PASS** |
+| IT-296 | lifts all 200, zero 5xx ({"200":30}) | **PASS** |
+| IT-297 | chain 1..77 valid and contiguous | **PASS** |
+| IT-298 | no extra block beyond successful mutations | **PASS** |
 
 #### `test_ui_live_data` (117 checks, log `docs/integration/evidence/capstone-final/15-test_ui_live_data.log`)
 
 | ID | Check | Result |
 | --- | --- | :---: |
-| IT-245 | director 200 with no-store | **PASS** |
-| IT-246 | keys match admin-insights-overview.json | **PASS** |
-| IT-247 | flagged count equals the triage feed (same scope) | **PASS** |
-| IT-248 | investigation and notice counts equal the triage feed | **PASS** |
-| IT-249 | critical + high = flagged; flagged + below = total | **PASS** |
-| IT-250 | director sees only their municipality | **PASS** |
-| IT-251 | director gets no ledger statistics | **PASS** |
-| IT-252 | COA sees national scope (>= director total) with ledger statistics | **PASS** |
-| IT-253 | worker 403 | **PASS** |
-| IT-254 | no token 401 | **PASS** |
-| IT-255 | any query parameter -> 400 INVALID_QUERY | **PASS** |
-| IT-256 | director 200; item keys match contract | **PASS** |
-| IT-257 | case_worker_test listed with the director's barangays | **PASS** |
-| IT-258 | no credentials in the directory | **PASS** |
-| IT-259 | COA 403 | **PASS** |
-| IT-260 | dispatch to the picked caseworker -> 201 | **PASS** |
-| IT-261 | GET /tasks 200; keys match admin-task-list.json | **PASS** |
-| IT-262 | new task listed with the worker name and PENDING_DISPATCH | **PASS** |
-| IT-263 | newest dispatch first | **PASS** |
-| IT-264 | every task is inside the director scope | **PASS** |
-| IT-265 | status filter applies | **PASS** |
-| IT-266 | /tasks?status=NOPE -> 400 | **PASS** |
-| IT-267 | /tasks?limit=101 -> 400 | **PASS** |
-| IT-268 | /tasks?page=0 -> 400 | **PASS** |
-| IT-269 | /tasks?household_id=x -> 400 | **PASS** |
-| IT-270 | COA and worker 403 on /tasks | **PASS** |
-| IT-271 | overview task total includes the new dispatch | **PASS** |
-| IT-272 | COA 200; keys match audit-block-list.json | **PASS** |
-| IT-273 | newest first and the dispatch block is on top | **PASS** |
-| IT-274 | no state deltas exposed | **PASS** |
-| IT-275 | director 403 | **PASS** |
-| IT-276 | before=0 -> 400 | **PASS** |
-| IT-277 | 200; keys match admin-map-density.json | **PASS** |
-| IT-278 | cell counts add up to every household in scope | **PASS** |
-| IT-279 | no household identities in the map cells | **PASS** |
-| IT-280 | worker 403, query 400 | **PASS** |
-| IT-281 | 200; keys match admin-policy.json | **PASS** |
-| IT-282 | enforced values: threshold 70, geofence 250 m, 15-day appeal window | **PASS** |
-| IT-283 | worker 403 | **PASS** |
-| IT-284 | phone login: no horizontal page scroll | **PASS** |
-| IT-285 | phone director dashboard: flagged card = API (3) | **PASS** |
-| IT-286 | phone director dashboard: no sample labels or invented figures | **PASS** |
-| IT-287 | phone director dashboard: map/matrix lists the scoped municipality | **PASS** |
-| IT-288 | phone director map: 'All households in scope' layer shows 6 | **PASS** |
-| IT-289 | phone director map: dots + cluster counts = households under review (4) | **PASS** |
-| IT-290 | phone director map: switching map style keeps every household | **PASS** |
-| IT-291 | phone director map: a household dot opens its popup | **PASS** |
-| IT-292 | phone director dashboard: no horizontal page scroll | **PASS** |
-| IT-293 | phone dispatch screen: lists the new task's household and worker | **PASS** |
-| IT-294 | phone dispatch: no horizontal page scroll | **PASS** |
-| IT-295 | phone policy screen: shows the enforced threshold, read-only | **PASS** |
-| IT-296 | phone policy: no horizontal page scroll | **PASS** |
-| IT-297 | phone triage: no horizontal page scroll | **PASS** |
-| IT-298 | phone due process: no horizontal page scroll | **PASS** |
-| IT-299 | phone COA overview: shows the block count and the dispatch block | **PASS** |
-| IT-300 | phone COA overview: no invented peso or percentage figures | **PASS** |
-| IT-301 | phone COA overview: no horizontal page scroll | **PASS** |
-| IT-302 | phone COA sampling: lists real flagged households | **PASS** |
-| IT-303 | phone COA sampling: no horizontal page scroll | **PASS** |
-| IT-304 | phone audit verification: no horizontal page scroll | **PASS** |
-| IT-305 | phone field overview: caseload KPI = assigned tasks (2) | **PASS** |
-| IT-306 | phone field overview: no sample barangays | **PASS** |
-| IT-307 | phone field overview: no horizontal page scroll | **PASS** |
-| IT-308 | phone assigned tasks: no horizontal page scroll | **PASS** |
-| IT-309 | phone 5-step field form: no horizontal page scroll | **PASS** |
-| IT-310 | tablet login: no horizontal page scroll | **PASS** |
-| IT-311 | tablet director dashboard: flagged card = API (3) | **PASS** |
-| IT-312 | tablet director dashboard: no sample labels or invented figures | **PASS** |
-| IT-313 | tablet director dashboard: map/matrix lists the scoped municipality | **PASS** |
-| IT-314 | tablet director map: 'All households in scope' layer shows 6 | **PASS** |
-| IT-315 | tablet director map: dots + cluster counts = households under review (4) | **PASS** |
-| IT-316 | tablet director map: switching map style keeps every household | **PASS** |
-| IT-317 | tablet director map: a household dot opens its popup | **PASS** |
-| IT-318 | tablet director dashboard: no horizontal page scroll | **PASS** |
-| IT-319 | tablet dispatch screen: lists the new task's household and worker | **PASS** |
-| IT-320 | tablet dispatch: no horizontal page scroll | **PASS** |
-| IT-321 | tablet policy screen: shows the enforced threshold, read-only | **PASS** |
-| IT-322 | tablet policy: no horizontal page scroll | **PASS** |
-| IT-323 | tablet triage: no horizontal page scroll | **PASS** |
-| IT-324 | tablet due process: no horizontal page scroll | **PASS** |
-| IT-325 | tablet COA overview: shows the block count and the dispatch block | **PASS** |
-| IT-326 | tablet COA overview: no invented peso or percentage figures | **PASS** |
-| IT-327 | tablet COA overview: no horizontal page scroll | **PASS** |
-| IT-328 | tablet COA sampling: lists real flagged households | **PASS** |
-| IT-329 | tablet COA sampling: no horizontal page scroll | **PASS** |
-| IT-330 | tablet audit verification: no horizontal page scroll | **PASS** |
-| IT-331 | tablet field overview: caseload KPI = assigned tasks (2) | **PASS** |
-| IT-332 | tablet field overview: no sample barangays | **PASS** |
-| IT-333 | tablet field overview: no horizontal page scroll | **PASS** |
-| IT-334 | tablet assigned tasks: no horizontal page scroll | **PASS** |
-| IT-335 | tablet 5-step field form: no horizontal page scroll | **PASS** |
-| IT-336 | desktop login: no horizontal page scroll | **PASS** |
-| IT-337 | desktop director dashboard: flagged card = API (3) | **PASS** |
-| IT-338 | desktop director dashboard: no sample labels or invented figures | **PASS** |
-| IT-339 | desktop director dashboard: map/matrix lists the scoped municipality | **PASS** |
-| IT-340 | desktop director map: 'All households in scope' layer shows 6 | **PASS** |
-| IT-341 | desktop director map: dots + cluster counts = households under review (4) | **PASS** |
-| IT-342 | desktop director map: switching map style keeps every household | **PASS** |
-| IT-343 | desktop director map: a household dot opens its popup | **PASS** |
-| IT-344 | desktop director dashboard: no horizontal page scroll | **PASS** |
-| IT-345 | desktop dispatch screen: lists the new task's household and worker | **PASS** |
-| IT-346 | desktop dispatch: no horizontal page scroll | **PASS** |
-| IT-347 | desktop policy screen: shows the enforced threshold, read-only | **PASS** |
-| IT-348 | desktop policy: no horizontal page scroll | **PASS** |
-| IT-349 | desktop triage: no horizontal page scroll | **PASS** |
-| IT-350 | desktop due process: no horizontal page scroll | **PASS** |
-| IT-351 | desktop COA overview: shows the block count and the dispatch block | **PASS** |
-| IT-352 | desktop COA overview: no invented peso or percentage figures | **PASS** |
-| IT-353 | desktop COA overview: no horizontal page scroll | **PASS** |
-| IT-354 | desktop COA sampling: lists real flagged households | **PASS** |
-| IT-355 | desktop COA sampling: no horizontal page scroll | **PASS** |
-| IT-356 | desktop audit verification: no horizontal page scroll | **PASS** |
-| IT-357 | desktop field overview: caseload KPI = assigned tasks (2) | **PASS** |
-| IT-358 | desktop field overview: no sample barangays | **PASS** |
-| IT-359 | desktop field overview: no horizontal page scroll | **PASS** |
-| IT-360 | desktop assigned tasks: no horizontal page scroll | **PASS** |
-| IT-361 | desktop 5-step field form: no horizontal page scroll | **PASS** |
+| IT-299 | director 200 with no-store | **PASS** |
+| IT-300 | keys match admin-insights-overview.json | **PASS** |
+| IT-301 | flagged count equals the triage feed (same scope) | **PASS** |
+| IT-302 | investigation and notice counts equal the triage feed | **PASS** |
+| IT-303 | critical + high = flagged; flagged + below = total | **PASS** |
+| IT-304 | director sees only their municipality | **PASS** |
+| IT-305 | director gets no ledger statistics | **PASS** |
+| IT-306 | COA sees national scope (>= director total) with ledger statistics | **PASS** |
+| IT-307 | worker 403 | **PASS** |
+| IT-308 | no token 401 | **PASS** |
+| IT-309 | any query parameter -> 400 INVALID_QUERY | **PASS** |
+| IT-310 | director 200; item keys match contract | **PASS** |
+| IT-311 | case_worker_test listed with the director's barangays | **PASS** |
+| IT-312 | no credentials in the directory | **PASS** |
+| IT-313 | COA 403 | **PASS** |
+| IT-314 | dispatch to the picked caseworker -> 201 | **PASS** |
+| IT-315 | GET /tasks 200; keys match admin-task-list.json | **PASS** |
+| IT-316 | new task listed with the worker name and PENDING_DISPATCH | **PASS** |
+| IT-317 | newest dispatch first | **PASS** |
+| IT-318 | every task is inside the director scope | **PASS** |
+| IT-319 | status filter applies | **PASS** |
+| IT-320 | /tasks?status=NOPE -> 400 | **PASS** |
+| IT-321 | /tasks?limit=101 -> 400 | **PASS** |
+| IT-322 | /tasks?page=0 -> 400 | **PASS** |
+| IT-323 | /tasks?household_id=x -> 400 | **PASS** |
+| IT-324 | COA and worker 403 on /tasks | **PASS** |
+| IT-325 | overview task total includes the new dispatch | **PASS** |
+| IT-326 | COA 200; keys match audit-block-list.json | **PASS** |
+| IT-327 | newest first and the dispatch block is on top | **PASS** |
+| IT-328 | no state deltas exposed | **PASS** |
+| IT-329 | director 403 | **PASS** |
+| IT-330 | before=0 -> 400 | **PASS** |
+| IT-331 | 200; keys match admin-map-density.json | **PASS** |
+| IT-332 | cell counts add up to every household in scope | **PASS** |
+| IT-333 | no household identities in the map cells | **PASS** |
+| IT-334 | worker 403, query 400 | **PASS** |
+| IT-335 | 200; keys match admin-policy.json | **PASS** |
+| IT-336 | enforced values: threshold 70, geofence 250 m, 15-day appeal window | **PASS** |
+| IT-337 | worker 403 | **PASS** |
+| IT-338 | phone login: no horizontal page scroll | **PASS** |
+| IT-339 | phone director dashboard: flagged card = API (3) | **PASS** |
+| IT-340 | phone director dashboard: no sample labels or invented figures | **PASS** |
+| IT-341 | phone director dashboard: map/matrix lists the scoped municipality | **PASS** |
+| IT-342 | phone director map: 'All households in scope' layer shows 6 | **PASS** |
+| IT-343 | phone director map: dots + cluster counts = households under review (4) | **PASS** |
+| IT-344 | phone director map: switching map style keeps every household | **PASS** |
+| IT-345 | phone director map: a household dot opens its popup | **PASS** |
+| IT-346 | phone director dashboard: no horizontal page scroll | **PASS** |
+| IT-347 | phone dispatch screen: lists the new task's household and worker | **PASS** |
+| IT-348 | phone dispatch: no horizontal page scroll | **PASS** |
+| IT-349 | phone policy screen: shows the enforced threshold, read-only | **PASS** |
+| IT-350 | phone policy: no horizontal page scroll | **PASS** |
+| IT-351 | phone triage: no horizontal page scroll | **PASS** |
+| IT-352 | phone due process: no horizontal page scroll | **PASS** |
+| IT-353 | phone COA overview: shows the block count and the dispatch block | **PASS** |
+| IT-354 | phone COA overview: no invented peso or percentage figures | **PASS** |
+| IT-355 | phone COA overview: no horizontal page scroll | **PASS** |
+| IT-356 | phone COA sampling: lists real flagged households | **PASS** |
+| IT-357 | phone COA sampling: no horizontal page scroll | **PASS** |
+| IT-358 | phone audit verification: no horizontal page scroll | **PASS** |
+| IT-359 | phone field overview: caseload KPI = assigned tasks (2) | **PASS** |
+| IT-360 | phone field overview: no sample barangays | **PASS** |
+| IT-361 | phone field overview: no horizontal page scroll | **PASS** |
+| IT-362 | phone assigned tasks: no horizontal page scroll | **PASS** |
+| IT-363 | phone 5-step field form: no horizontal page scroll | **PASS** |
+| IT-364 | tablet login: no horizontal page scroll | **PASS** |
+| IT-365 | tablet director dashboard: flagged card = API (3) | **PASS** |
+| IT-366 | tablet director dashboard: no sample labels or invented figures | **PASS** |
+| IT-367 | tablet director dashboard: map/matrix lists the scoped municipality | **PASS** |
+| IT-368 | tablet director map: 'All households in scope' layer shows 6 | **PASS** |
+| IT-369 | tablet director map: dots + cluster counts = households under review (4) | **PASS** |
+| IT-370 | tablet director map: switching map style keeps every household | **PASS** |
+| IT-371 | tablet director map: a household dot opens its popup | **PASS** |
+| IT-372 | tablet director dashboard: no horizontal page scroll | **PASS** |
+| IT-373 | tablet dispatch screen: lists the new task's household and worker | **PASS** |
+| IT-374 | tablet dispatch: no horizontal page scroll | **PASS** |
+| IT-375 | tablet policy screen: shows the enforced threshold, read-only | **PASS** |
+| IT-376 | tablet policy: no horizontal page scroll | **PASS** |
+| IT-377 | tablet triage: no horizontal page scroll | **PASS** |
+| IT-378 | tablet due process: no horizontal page scroll | **PASS** |
+| IT-379 | tablet COA overview: shows the block count and the dispatch block | **PASS** |
+| IT-380 | tablet COA overview: no invented peso or percentage figures | **PASS** |
+| IT-381 | tablet COA overview: no horizontal page scroll | **PASS** |
+| IT-382 | tablet COA sampling: lists real flagged households | **PASS** |
+| IT-383 | tablet COA sampling: no horizontal page scroll | **PASS** |
+| IT-384 | tablet audit verification: no horizontal page scroll | **PASS** |
+| IT-385 | tablet field overview: caseload KPI = assigned tasks (2) | **PASS** |
+| IT-386 | tablet field overview: no sample barangays | **PASS** |
+| IT-387 | tablet field overview: no horizontal page scroll | **PASS** |
+| IT-388 | tablet assigned tasks: no horizontal page scroll | **PASS** |
+| IT-389 | tablet 5-step field form: no horizontal page scroll | **PASS** |
+| IT-390 | desktop login: no horizontal page scroll | **PASS** |
+| IT-391 | desktop director dashboard: flagged card = API (3) | **PASS** |
+| IT-392 | desktop director dashboard: no sample labels or invented figures | **PASS** |
+| IT-393 | desktop director dashboard: map/matrix lists the scoped municipality | **PASS** |
+| IT-394 | desktop director map: 'All households in scope' layer shows 6 | **PASS** |
+| IT-395 | desktop director map: dots + cluster counts = households under review (4) | **PASS** |
+| IT-396 | desktop director map: switching map style keeps every household | **PASS** |
+| IT-397 | desktop director map: a household dot opens its popup | **PASS** |
+| IT-398 | desktop director dashboard: no horizontal page scroll | **PASS** |
+| IT-399 | desktop dispatch screen: lists the new task's household and worker | **PASS** |
+| IT-400 | desktop dispatch: no horizontal page scroll | **PASS** |
+| IT-401 | desktop policy screen: shows the enforced threshold, read-only | **PASS** |
+| IT-402 | desktop policy: no horizontal page scroll | **PASS** |
+| IT-403 | desktop triage: no horizontal page scroll | **PASS** |
+| IT-404 | desktop due process: no horizontal page scroll | **PASS** |
+| IT-405 | desktop COA overview: shows the block count and the dispatch block | **PASS** |
+| IT-406 | desktop COA overview: no invented peso or percentage figures | **PASS** |
+| IT-407 | desktop COA overview: no horizontal page scroll | **PASS** |
+| IT-408 | desktop COA sampling: lists real flagged households | **PASS** |
+| IT-409 | desktop COA sampling: no horizontal page scroll | **PASS** |
+| IT-410 | desktop audit verification: no horizontal page scroll | **PASS** |
+| IT-411 | desktop field overview: caseload KPI = assigned tasks (2) | **PASS** |
+| IT-412 | desktop field overview: no sample barangays | **PASS** |
+| IT-413 | desktop field overview: no horizontal page scroll | **PASS** |
+| IT-414 | desktop assigned tasks: no horizontal page scroll | **PASS** |
+| IT-415 | desktop 5-step field form: no horizontal page scroll | **PASS** |
 <!-- END INTEGRATION CHECKS -->
 
 ## 11. Unit and component cases

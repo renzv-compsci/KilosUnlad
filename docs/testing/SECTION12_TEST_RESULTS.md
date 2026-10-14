@@ -116,7 +116,7 @@ None of these needed a code change. The plan text (`docs/integration/UNIT_TEST_P
 
 ## 12.3 Defects and Corrective Actions — re-verification
 
-`test_section12_defects.js` re-checks every corrective action. Results: 7/7 resolved, 21/21 checks passed.
+`test_section12_defects.js` re-checks every corrective action. Results: 7/7 resolved, 20/20 checks passed.
 
 | Defect ID | Defect | Corrective action (plan) | Re-verification in this run | Status |
 | :--- | :--- | :--- | :--- | :---: |
