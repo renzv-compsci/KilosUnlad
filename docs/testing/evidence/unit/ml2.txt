@@ -3,21 +3,12 @@ platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0 -- /tmp/claude-0/ml
 cachedir: .pytest_cache
 rootdir: /home/user/KilosUnlad
 plugins: anyio-4.15.1
-collecting ... collected 14 items
+collecting ... collected 5 items
 
-ml-service/scripts/test_sprint2_experiments.py::Sprint2Mechanics::test_all_experiments_ran_on_one_holdout PASSED [  7%]
-ml-service/scripts/test_sprint2_experiments.py::Sprint2Mechanics::test_artifact_serves_the_frozen_vector PASSED [ 14%]
-ml-service/scripts/test_sprint2_experiments.py::Sprint2Mechanics::test_missing_empirical_matrix_names_the_notebooks PASSED [ 21%]
-ml-service/scripts/test_sprint2_experiments.py::Sprint2Mechanics::test_no_holdout_leakage_and_audit_gate_passes PASSED [ 28%]
-ml-service/scripts/test_sprint2_experiments.py::Sprint2Mechanics::test_selection_rule PASSED [ 35%]
-data-pipeline/scripts/test_seed_mapping.py::BeneficiaryMapping::test_address_keeps_real_coordinates_and_assigns_reference_barangay PASSED [ 42%]
-data-pipeline/scripts/test_seed_mapping.py::BeneficiaryMapping::test_demographics_declared_fields_plus_pmt_vector PASSED [ 50%]
-data-pipeline/scripts/test_seed_mapping.py::BeneficiaryMapping::test_labels_and_sensitive_raw_fields_are_not_ingested PASSED [ 57%]
-data-pipeline/scripts/test_seed_mapping.py::BeneficiaryMapping::test_required_model_fields PASSED [ 64%]
-data-pipeline/scripts/test_seed_mapping.py::BeneficiaryMapping::test_single_token_name PASSED [ 71%]
-data-pipeline/scripts/test_seed_mapping.py::ExternalMapping::test_mask_pan PASSED [ 78%]
-data-pipeline/scripts/test_seed_mapping.py::ExternalMapping::test_mismatched_household_rejected PASSED [ 85%]
-data-pipeline/scripts/test_seed_mapping.py::ExternalMapping::test_model_shape PASSED [ 92%]
-data-pipeline/scripts/test_seed_mapping.py::ExternalMapping::test_vehicle_categories PASSED [100%]
+ml-service/scripts/test_sprint2_experiments.py::Sprint2Mechanics::test_all_experiments_ran_on_one_holdout PASSED [ 20%]
+ml-service/scripts/test_sprint2_experiments.py::Sprint2Mechanics::test_artifact_serves_the_frozen_vector PASSED [ 40%]
+ml-service/scripts/test_sprint2_experiments.py::Sprint2Mechanics::test_missing_empirical_matrix_names_the_notebooks PASSED [ 60%]
+ml-service/scripts/test_sprint2_experiments.py::Sprint2Mechanics::test_no_holdout_leakage_and_audit_gate_passes PASSED [ 80%]
+ml-service/scripts/test_sprint2_experiments.py::Sprint2Mechanics::test_selection_rule PASSED [100%]
 
-============================== 14 passed in 7.04s ==============================
+============================== 5 passed in 9.59s ===============================

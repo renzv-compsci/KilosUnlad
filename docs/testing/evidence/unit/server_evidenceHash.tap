@@ -2,31 +2,31 @@ TAP version 13
 # Subtest: matching raw image bytes return a normalized digest without mutation
 ok 1 - matching raw image bytes return a normalized digest without mutation
   ---
-  duration_ms: 3.21471
+  duration_ms: 2.183365
   type: 'test'
   ...
 # Subtest: one-byte changes, truncation and a different valid hash produce contract mismatch
 ok 2 - one-byte changes, truncation and a different valid hash produce contract mismatch
   ---
-  duration_ms: 1.124071
+  duration_ms: 0.70356
   type: 'test'
   ...
 # Subtest: invalid bytes and malformed hashes fail before digest comparison
 ok 3 - invalid bytes and malformed hashes fail before digest comparison
   ---
-  duration_ms: 0.824664
+  duration_ms: 0.523855
   type: 'test'
   ...
 # Subtest: raw buffer slices are hashed as bytes without encoding or backing-buffer changes
 ok 4 - raw buffer slices are hashed as bytes without encoding or backing-buffer changes
   ---
-  duration_ms: 0.385828
+  duration_ms: 0.250948
   type: 'test'
   ...
 # Subtest: existing error middleware emits the exact frozen mismatch response
 ok 5 - existing error middleware emits the exact frozen mismatch response
   ---
-  duration_ms: 0.69747
+  duration_ms: 0.382677
   type: 'test'
   ...
 1..5
@@ -37,4 +37,4 @@ ok 5 - existing error middleware emits the exact frozen mismatch response
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 383.837887
+# duration_ms 364.220808

@@ -72,15 +72,17 @@ frontend changes limited to wiring and copy; contract changes limited to DECISIO
 | Dataset scale contradiction (5k vs 80k) | MAJOR | CLOSED | ADR-001 executed; docs updated. |
 | Integrity counts 54 vs 50 | MINOR | CLOSED | Superseded: 0 issues across 160,012 documents. |
 | Metric discrepancy 0.7726 vs 0.7781 | MODERATE | CLOSED (ML-01, 54f6622) | 0.7726 validation, 0.7771 test-20k (reconciled), 0.7781 not reproducible. |
-| Synthetic-only training / Macro F1 < 0.85 | MAJOR | OPEN (Sprint 2) | ML-04 gate fails P1–P3 on v1 by design. |
+| Synthetic-only training / Macro F1 < 0.85 | MAJOR | CLOSED / DISCLOSED | v2 trained on real FIES data, audit 6/6; macro F1 0.6244 < 0.85, disclosed. |
 | Reset + 80k baseline exceeds the 10 s DoD | MINOR | CLOSED (23e6a9f) | Snapshot restore: 5.6–7.1 s on Docker incl. start-up. |
 | Audit appends serialize globally | MINOR | ACCEPTED | 100 simultaneous flags: 100/100 succeed, burst 24 s. |
-| Notice issuance has no route or audit action | MODERATE | OPEN (decision) | Docket reads the stored approval instant. |
-| Evidence files have no authenticated read route | MINOR | OPEN | Stored content-addressed; viewing is future scope. |
+| Notice issuance has no route or audit action | MODERATE | CLOSED (DECISION-011) | `POST /tasks/:id/resolve`; TC-11, TC-20, TC-21. |
+| Evidence files have no authenticated read route | MINOR | CLOSED (DECISION-011) | `GET /evidence/:sha256`, re-hashed on every read; TC-20. |
 | `docker compose up` started reset-demo and seed jobs | MAJOR | CLOSED (5f02a04) | Found by the Docker clean clone; jobs moved to the `tools` profile. |
 | DAT-01 index check read `Unauthorized` as "missing" under auth | MINOR | CLOSED (23e6a9f) | Test fix only; app role unchanged. |
-| Empirical FIES input file absent | MAJOR | OPEN (input) | Blocks ML-02/03/06 and the program DoD's v2 clause. |
+| Empirical FIES input file absent | MAJOR | CLOSED | File supplied; ML-02/03/06 done; v2 served. |
 | Appeals dialog still preview-only (INT-08) | MINOR | CLOSED (e3ae342) | Screen 5 uses live GET/POST /appeals/docket; `test_int08_appeals_ui.js`. |
 | Docker-stack runs of the rehearsal, clean clone and reset | — | CLOSED | Rehearsal 16/16, clean clone boots, DAT-05 on Docker; foreign-hardware run is turnover §6 Step 1. |
-| DEF-04 deck | — | CLOSED (v1) | Built on the reconciled 0.7771; update the model slide after v2. |
+| DEF-04 deck | — | CLOSED | Final 19-slide deck on v2 metrics with live-demo test cases. |
 | E2E-05 standup cadence evidence | — | CLOSED (repository cadence) | Cadence log from git; standup notes table for the team. |
+| No retention path; appeals never decided | MAJOR | CLOSED (DECISION-012) | `POST /tasks/:id/retain`, `POST /appeals/:docket/decide`, 180-day cooldown; one approved enum value `BENEFICIARY_RETAINED`; TC-22..TC-24. |
+| Test documents out of step with the plan | MINOR | CLOSED (2026-10-14) | Plan rev 3 (Sprint 7, Verification Map); unit report regenerated; TC-18..TC-24; `docs/testing/MASTER_TEST_CATALOG.md` indexes every test. |

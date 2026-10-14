@@ -8,6 +8,8 @@
 #   12.2   TC-01..TC-17 test_section12_plan.js + the sprint scripts that
 #                       already cover a case (offline sync, appeals, tamper,
 #                       calamity, compound index)
+#          TC-18..TC-24 extended cases (live UI, report review and evidence,
+#                       graduation, retention, hearing outcome, cooldown)
 #   12.3   DEF-01..07   test_section12_defects.js
 #   12.4   UAT A..D     scripted walkthroughs (E2E-01, E2E-04 drawer UI, STR-02,
 #                       INT-08, STR-01). Participant ratings are not automated.
@@ -18,6 +20,7 @@
 #   JWT_SECRET, PYTHON, SERVER_TEST_ENV, EVIDENCE_DIR.
 # Browser steps need `npm install playwright-core` on NODE_PATH.
 # ============================================================
+export MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL="*"   # Windows Git Bash: keep container paths as written
 set -u
 
 SCRIPTS="$(cd "$(dirname "$0")" && pwd)"
@@ -77,7 +80,7 @@ echo "Evidence: $EVIDENCE_DIR"
 # 12.1.2 Unit tier
 step "Unit" "server node --test" none "" -- bash -c "cd '$ROOT/server' && env ${SERVER_TEST_ENV:-} npm test"
 step "Unit" "client node --test" none "" -- bash -c "cd '$ROOT/client' && npm test && npm run build && npm run test:pwa"
-step "Unit" "ML pytest" none "" -- "$PYTHON" -m pytest -q "$SCRIPTS/test_section12_ml_unit.py"
+step "Unit" "ML and UAT-scorer pytest" none "" -- "$PYTHON" -m pytest -q "$SCRIPTS/test_section12_ml_unit.py" "$SCRIPTS/test_score_uat.py"
 
 # 12.2 Test cases
 step "TC-01..06, 08, 09, 10, 13, 15" "test_section12_plan" reset "add_int02_case_a_fixture" -- \
@@ -89,6 +92,14 @@ step "TC-14" "test_str01_tamper_detection" reset "add_int02_case_a_fixture" -- n
 step "TC-16" "test_int04_calamity_toggle" reset "" -- node_script test_int04_calamity_toggle
 step "TC-16" "test_e2e02_calamity_freeze" reset "add_dispatch_test" -- node_script test_e2e02_calamity_freeze
 step "TC-17" "verify_compound_index (80k)" seed "" -- "$PYTHON" "$SCRIPTS/verify_compound_index.py"
+
+# 12.2 extended cases TC-18..TC-24 (post-plan scope: DECISION-010, -011, -012)
+step "TC-18, TC-19" "test_ui_live_data (browser, 390/834/1440 px)" reset "add_dispatch_test" -- \
+  env SCREENSHOT_DIR="$EVIDENCE_DIR/ui-live-data" node "$SCRIPTS/test_ui_live_data.js"
+step "TC-11, TC-20, TC-21" "test_decision011_notice_flow (browser)" reset "add_int02_case_a_fixture" -- \
+  env SCREENSHOT="$EVIDENCE_DIR/tc20-report-review.png" node "$SCRIPTS/test_decision011_notice_flow.js"
+step "TC-22, TC-23, TC-24" "test_decision012_retention_flow (browser)" reset "add_int02_case_a_fixture add_int03_notice_fixture" -- \
+  env SCREENSHOT="$EVIDENCE_DIR/tc22-retain.png" node "$SCRIPTS/test_decision012_retention_flow.js"
 
 # 12.3 Defects
 step "DEF-01..07" "test_section12_defects" none "" -- \

@@ -12,6 +12,7 @@
 #   BASE_URL, GATEWAY_URL, ML_URL, CLIENT_URL, MONGO_URI, ADMIN_MONGO_URI, EVIDENCE_DIR.
 # Proof 2 and the drawer UI test need `npm install playwright-core` on NODE_PATH.
 # ============================================================
+export MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL="*"   # Windows Git Bash: keep container paths as written
 set -u
 
 SCRIPTS="$(cd "$(dirname "$0")" && pwd)"

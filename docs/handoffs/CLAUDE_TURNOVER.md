@@ -34,6 +34,12 @@ Everything is merged to `main`.
 | Manual scenarios | S13 (review, notice, graduation, photo tamper), S14 (keep on the program), S15 (hearing outcome) and **§D live-demo run order** (D1–D11) added; hosting steps removed | `docs/testing/MANUAL_TEST_SCENARIOS.md` |
 | Defense deck | Restructured to 19 slides: overview, problem, solution, case lifecycle, impact, scope and limitations, the four layers (frontend, backend, database, ML incl. data augmentation), Sangla-ATM detector, live-demo placeholder, live-demo test cases D1–D11. Limitations slide: notice, evidence and retention resolved | private link in §6 Step 8 |
 
+### Test documentation (2026-10-14, after the merge)
+* `docs/testing/MASTER_TEST_CATALOG.md` lists **every test with its ID**: plan items, TC-01 to TC-24, defects, UAT, CAP-01 to CAP-19, R12-01 to R12-17, S1–S15, D1–D11, every integration check (IT-nnn) and every unit case (UT-nnn).
+* `SCRUM_INTEGRATION_PLAN.md` revision 3 adds **Sprint 7** (UI-01..03, DEMO-01, LIF-01..06, UAT-01) and a **Verification Map** from every item to its tests; `backlog.md` rev 7 closes Sprint 2 and Sprint 7.
+* The Section 12 plan text was corrected to the system and extended with **TC-18 to TC-24**. Its placeholder UAT ratings were removed (they were never collected); the matrix now says pending.
+* The unit report is generated from raw output by `docs/testing/tools/build_test_docs.py`; IDs are permanent.
+
 ### Test results on the final build
 | Level | Result |
 | --- | --- |
@@ -41,7 +47,7 @@ Everything is merged to `main`.
 | Client (`npm test`, typecheck, build) | 69 / 69, typecheck clean, build OK |
 | `test_ui_live_data.js` (every role, 390/834/1440 px) | 121 / 121 on the demo dataset; 117 / 117 on the small set |
 | `test_decision011_notice_flow.js` (API + browser + tamper) | 17 / 17 |
-| `test_decision012_retention_flow.js` (API + browser) | 23 / 23 |
+| `test_decision012_retention_flow.js` (API + browser) | 21 / 21 |
 | Capstone `run_capstone_proofs.sh --full` (Docker, clean resets) | **19 / 19** |
 | Section 12 | TC-01 to TC-17 all PASS (TC-11 moved from PARTIAL to PASS). The plan objective macro F1 ≥ 0.85 is still **not met** (v2: 0.6244 on real data) |
 

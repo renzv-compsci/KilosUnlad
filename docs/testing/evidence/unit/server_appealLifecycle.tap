@@ -2,31 +2,31 @@ TAP version 13
 # Subtest: deadline adds 15 elapsed days across month/year/leap-day boundaries without changing input
 ok 1 - deadline adds 15 elapsed days across month/year/leap-day boundaries without changing input
   ---
-  duration_ms: 1.296437
+  duration_ms: 1.246078
   type: 'test'
   ...
 # Subtest: one millisecond before expiry is blocked; exact expiry and later satisfy timing only
 ok 2 - one millisecond before expiry is blocked; exact expiry and later satisfy timing only
   ---
-  duration_ms: 1.614121
+  duration_ms: 1.469363
   type: 'test'
   ...
 # Subtest: appeals, pauses, and unknown hold information block exit even after expiry
 ok 3 - appeals, pauses, and unknown hold information block exit even after expiry
   ---
-  duration_ms: 0.443974
+  duration_ms: 0.541687
   type: 'test'
   ...
 # Subtest: missing notice and shortened deadlines cannot bypass the window; longer deadlines are respected
 ok 4 - missing notice and shortened deadlines cannot bypass the window; longer deadlines are respected
   ---
-  duration_ms: 0.27769
+  duration_ms: 0.267425
   type: 'test'
   ...
 # Subtest: invalid dates, implicit date coercion and overflow fail closed
 ok 5 - invalid dates, implicit date coercion and overflow fail closed
   ---
-  duration_ms: 1.582007
+  duration_ms: 1.302582
   type: 'test'
   ...
 1..5
@@ -37,4 +37,4 @@ ok 5 - invalid dates, implicit date coercion and overflow fail closed
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 99.493914
+# duration_ms 90.076056

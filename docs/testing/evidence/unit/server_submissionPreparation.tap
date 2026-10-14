@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: submission contract maps into existing field_findings without changing input
 ok 1 - submission contract maps into existing field_findings without changing input
   ---
-  duration_ms: 17.993495
+  duration_ms: 16.962684
   type: 'test'
   ...
 # Subtest: submission rejects missing fields and mismatched route identity
 ok 2 - submission rejects missing fields and mismatched route identity
   ---
-  duration_ms: 7.585873
+  duration_ms: 7.873178
   type: 'test'
   ...
 # Subtest: submission rejects coercion, malformed evidence, coordinates and privileged fields
 ok 3 - submission rejects coercion, malformed evidence, coordinates and privileged fields
   ---
-  duration_ms: 4.736814
+  duration_ms: 4.908096
   type: 'test'
   ...
 # Subtest: preparation permits absent EXIF and empty evidence without claiming evidence verification
 ok 4 - preparation permits absent EXIF and empty evidence without claiming evidence verification
   ---
-  duration_ms: 0.574757
+  duration_ms: 0.595005
   type: 'test'
   ...
 1..4
@@ -31,4 +31,4 @@ ok 4 - preparation permits absent EXIF and empty evidence without claiming evide
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 396.878927
+# duration_ms 418.854667
