@@ -1,0 +1,33 @@
+{
+  "contract_name": "admin-graduation",
+  "version": "1.0.0",
+  "revision_note": "2026-10-14 (DECISION-011): completes graduation (NOTICE_OF_INELIGIBILITY -> GRADUATED) only after the 15-day appeal window from the stored notice has elapsed with no appeal filed (assertAppealWindowElapsed). Seals one BENEFICIARY_GRADUATED block. Refused during a calamity moratorium (RA 10121). No request body.",
+  "endpoint": "/api/v1/beneficiaries/:household_id/graduate",
+  "method": "POST",
+  "headers": { "Authorization": "Bearer <JWT_ACCESS_TOKEN>", "Content-Type": "application/json" },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR (jurisdiction-scoped).",
+  "request": {},
+  "response": {
+    "status": 200,
+    "data": {
+      "household_id": "DEMO-4PS-GRAD-0001",
+      "household_status": "GRADUATED",
+      "notice_date": "2026-09-28T09:00:00.000Z",
+      "appeal_deadline": "2026-10-13T09:00:00.000Z",
+      "audit_receipt": { "sequence_index": 9, "entry_hash": "20e320577f188fb704baa0a30646ccc0964d48de66a36a01525be6be0f5429d4" }
+    }
+  },
+  "errors": [
+    { "status": 400, "code": "INVALID_REQUEST" },
+    { "status": 401, "code": "UNAUTHORIZED" },
+    { "status": 403, "code": "FORBIDDEN" },
+    { "status": 403, "code": "OUT_OF_JURISDICTION" },
+    { "status": 404, "code": "HOUSEHOLD_NOT_FOUND" },
+    { "status": 409, "code": "NOTICE_RECORD_MISSING" },
+    { "status": 409, "code": "APPEAL_WINDOW_OPEN" },
+    { "status": 409, "code": "APPEAL_HOLD" },
+    { "status": 409, "code": "CALAMITY_MORATORIUM_ACTIVE" },
+    { "status": 409, "code": "WORKFLOW_CONFLICT" },
+    { "status": 503, "code": "WORKFLOW_UNAVAILABLE" }
+  ]
+}

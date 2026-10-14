@@ -21,13 +21,24 @@ interface Screen5DueProcessManagerProps {
   loadDocket?: (signal: AbortSignal) => Promise<DueProcessNoticeItem[]>;
   submitAppeal?: (body: AppealFilingRequest) => Promise<AppealFilingReceipt>;
   describeError?: (error: unknown) => string;
+  // DECISION-011: completes graduation once the 15-day window has passed with no appeal.
+  completeGraduation?: (householdId: string) => Promise<{ household_id: string; audit_receipt: { sequence_index: number } }>;
+  // DECISION-012: records the hearing outcome (GRANTED keeps the household; DENIED completes graduation).
+  decideAppeal?: (docketId: string, outcome: 'GRANTED' | 'DENIED', notes: string) =>
+    Promise<{ outcome: 'GRANTED' | 'DENIED'; audit_receipt: { sequence_index: number } }>;
 }
 
 const manilaToday = () => new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10);
 
 export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> = ({
-  showSpecAnnotations = false, loadDocket, submitAppeal, describeError,
+  showSpecAnnotations = false, loadDocket, submitAppeal, describeError, completeGraduation, decideAppeal,
 }) => {
+  const [graduating, setGraduating] = useState<string | null>(null);
+  const [hearingFor, setHearingFor] = useState<DueProcessNoticeItem | null>(null);
+  const [outcome, setOutcome] = useState<'GRANTED' | 'DENIED'>('GRANTED');
+  const [outcomeNotes, setOutcomeNotes] = useState('');
+  const [deciding, setDeciding] = useState(false);
+  const [outcomeError, setOutcomeError] = useState<string | null>(null);
   const live = Boolean(loadDocket && submitAppeal);
   const [notices, setNotices] = useState<DueProcessNoticeItem[]>(live ? [] : MOCK_DUE_PROCESS_NOTICES);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(live ? 'loading' : 'ready');
@@ -181,6 +192,20 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
               </div>
               <div className="record-action-area">
                 {!isUnderAppeal && <button id={`file-appeal-btn-${notice.household_id}`} onClick={() => handleOpenAppealModal(notice)} className="record-action"><Scale size={16} aria-hidden="true" />{live ? 'File Appeal' : 'Preview Appeal'}</button>}
+                {live && completeGraduation && !isUnderAppeal && notice.notice_expiry_date && Date.parse(notice.notice_expiry_date) <= Date.now() &&
+                  <button id={`graduate-btn-${notice.household_id}`} type="button" disabled={graduating !== null} className="record-action" onClick={async () => {
+                    setGraduating(notice.household_id); setFilingError(null); setFiledMessage(null);
+                    try {
+                      const receipt = await completeGraduation(notice.household_id);
+                      setFiledMessage(`${notice.head_of_household.full_name} graduated: the appeal window ended with no appeal. Sealed as ledger block #${receipt.audit_receipt.sequence_index}.`);
+                      const controller = new AbortController(); await reload(controller.signal);
+                    } catch (failure) { setFiledMessage(describeError ? describeError(failure) : 'Graduation could not be completed.'); }
+                    finally { setGraduating(null); }
+                  }}><CheckCircle2 size={16} aria-hidden="true" />{graduating === notice.household_id ? 'Completing…' : 'Complete graduation'}</button>}
+                {live && decideAppeal && isUnderAppeal && notice.appeal_docket_id && notice.hearing_date && notice.hearing_date <= manilaToday() &&
+                  <button id={`hearing-outcome-btn-${notice.household_id}`} type="button" className="record-action" onClick={() => {
+                    setHearingFor(notice); setOutcome('GRANTED'); setOutcomeNotes(''); setOutcomeError(null); setFiledMessage(null);
+                  }}><Scale size={16} aria-hidden="true" />Record hearing outcome</button>}
               </div>
             </article>
           );
@@ -305,6 +330,51 @@ export const Screen5DueProcessManager: React.FC<Screen5DueProcessManagerProps> =
             </form>
 
           </div>
+        </AccessibleDialog>
+      )}
+
+      {hearingFor && decideAppeal && (
+        <AccessibleDialog titleId="outcome-dialog-title" onClose={() => { if (!deciding) setHearingFor(null); }} className="workspace-dialog fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 flex items-center justify-center p-4">
+          <form className="dialog-sheet bg-white rounded-xl shadow-xl border border-stone-200/90 w-full max-w-lg p-5 space-y-4" aria-busy={deciding} onSubmit={async (event) => {
+            event.preventDefault();
+            if (deciding || !hearingFor.appeal_docket_id) return;
+            setDeciding(true); setOutcomeError(null);
+            try {
+              const receipt = await decideAppeal(hearingFor.appeal_docket_id, outcome, outcomeNotes.trim());
+              setFiledMessage(receipt.outcome === 'GRANTED'
+                ? `Appeal ${hearingFor.appeal_docket_id} granted: ${hearingFor.head_of_household.full_name} stays on the program. Sealed as ledger block #${receipt.audit_receipt.sequence_index}.`
+                : `Appeal ${hearingFor.appeal_docket_id} denied: ${hearingFor.head_of_household.full_name} graduated. Sealed as ledger block #${receipt.audit_receipt.sequence_index}.`);
+              setHearingFor(null);
+              await reload(new AbortController().signal);
+            } catch (failure) { setOutcomeError(describeError ? describeError(failure) : 'The outcome could not be recorded.'); }
+            finally { setDeciding(false); }
+          }}>
+            <header className="flex items-start justify-between gap-4">
+              <div>
+                <h3 id="outcome-dialog-title" className="text-lg font-semibold text-[#132e4f]">Record hearing outcome</h3>
+                <p className="text-sm text-stone-600">{hearingFor.head_of_household.full_name} · docket {hearingFor.appeal_docket_id}</p>
+              </div>
+              <button type="button" onClick={() => setHearingFor(null)} disabled={deciding} aria-label="Close" className="p-2 rounded hover:bg-stone-100"><X size={18} /></button>
+            </header>
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-semibold text-stone-800">Outcome</legend>
+              <label className="flex items-start gap-2 text-sm"><input id="outcome-granted" type="radio" name="outcome" checked={outcome === 'GRANTED'} onChange={() => setOutcome('GRANTED')} />
+                <span><strong>Granted</strong>: the household stays on the program and returns to active status.</span></label>
+              <label className="flex items-start gap-2 text-sm"><input id="outcome-denied" type="radio" name="outcome" checked={outcome === 'DENIED'} onChange={() => setOutcome('DENIED')} />
+                <span><strong>Denied</strong>: graduation is completed now.</span></label>
+            </fieldset>
+            <label htmlFor="hearing-notes" className="block text-sm font-semibold text-stone-800">Grounds from the hearing
+              <textarea id="hearing-notes" required minLength={10} maxLength={1000} rows={3} value={outcomeNotes} onChange={e => setOutcomeNotes(e.target.value)}
+                className="mt-1 w-full p-2.5 border border-stone-300 rounded-lg text-sm font-normal" placeholder="e.g. The sedan belongs to a relative abroad; income remains below threshold." />
+            </label>
+            {outcomeError && <p role="alert" className="text-sm text-rose-800">{outcomeError}</p>}
+            <footer className="flex justify-end gap-2">
+              <button type="button" onClick={() => setHearingFor(null)} disabled={deciding} className="px-4 py-2 text-stone-600 font-medium text-xs hover:bg-stone-100 rounded-lg">Cancel</button>
+              <button id="record-outcome-btn" type="submit" disabled={deciding || outcomeNotes.trim().length < 10} className="primary-triage-action disabled:opacity-50">
+                {deciding ? 'Recording…' : 'Record outcome'}
+              </button>
+            </footer>
+          </form>
         </AccessibleDialog>
       )}
 

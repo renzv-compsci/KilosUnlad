@@ -1,0 +1,27 @@
+{
+  "contract_name": "admin-evidence-file",
+  "version": "1.0.0",
+  "revision_note": "2026-10-14 (DECISION-011): returns one stored evidence photo by its SHA-256 content address. The server re-hashes the stored bytes on every read and refuses to serve a file whose hash no longer matches (tamper-evident storage). Only photos attached to a task whose household is inside the caller's jurisdiction are served.",
+  "endpoint": "/api/v1/evidence/:sha256",
+  "method": "GET",
+  "headers": { "Authorization": "Bearer <JWT_ACCESS_TOKEN>" },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR, COA_AUDITOR (jurisdiction-scoped). `:sha256` is 64 hex characters. No query parameters.",
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "the stored media_type (image/jpeg, image/png or image/webp)",
+      "Cache-Control": "private, no-store",
+      "X-Content-SHA256": "the verified hash, equal to :sha256"
+    },
+    "body": "the original photo bytes"
+  },
+  "errors": [
+    { "status": 401, "code": "UNAUTHORIZED" },
+    { "status": 403, "code": "FORBIDDEN" },
+    { "status": 403, "code": "OUT_OF_JURISDICTION" },
+    { "status": 400, "code": "INVALID_EVIDENCE_HASH" },
+    { "status": 404, "code": "EVIDENCE_NOT_FOUND" },
+    { "status": 409, "code": "EVIDENCE_INTEGRITY_FAILED" },
+    { "status": 503, "code": "SERVICE_UNAVAILABLE" }
+  ]
+}

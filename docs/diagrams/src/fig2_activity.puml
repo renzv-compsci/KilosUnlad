@@ -1,6 +1,6 @@
 @startuml fig2_activity
 !include _style.iuml
-title Figure 2. Audit Lifecycle Activity Diagram (ingestion to graduation)
+title Figure 2. Audit Lifecycle Activity Diagram (ingestion to graduation or retention)
 
 |External Feeds / AI Engine|
 start
@@ -14,6 +14,12 @@ POST /beneficiaries/:id/assess;
 if (Active calamity moratorium\nfor the household's municipality?) then (yes)
   :409 CALAMITY_MORATORIUM_ACTIVE
   no flag, no penalty (RA 10121);
+  stop
+else (no)
+endif
+if (Kept on the program in the last 180 days?) then (yes)
+  :409 RETENTION_COOLDOWN
+  no re-flag (DECISION-012);
   stop
 else (no)
 endif
@@ -56,12 +62,22 @@ repeat while (Photo SHA-256 matches and\nGPS within 250 m of residence?) is (no:
 :Task SUBMITTED, evidence stored by hash,
 seal REPORT_SUBMITTED block;
 |Regional Director|
-:Review report and approve graduation
-(admin_resolution APPROVED_GRADUATION);
-note right: Notice issuance and final graduation\nroutes pending decision (services exist)
+:Review report and hash-verified photos
+(GET /tasks/:id/report, GET /evidence/:sha256);
+if (Field report supports?) then (retention: RETAIN or Level 1-2)
+  :Keep household on the program
+  (POST /tasks/:id/retain, grounds required);
+  |Backend & Database|
+  :Task VERIFIED_RETAIN, program_status = ACTIVE_COMPLIANT
+  seal BENEFICIARY_RETAINED block, 180-day re-flag cooldown;
+  stop
+else (graduation: RECOMMEND_GRADUATION or Level 3)
+  :Approve graduation, issue notice
+  (POST /tasks/:id/resolve, grounds required);
+endif
 |Backend & Database|
-:program_status = NOTICE_OF_INELIGIBILITY
-15-day appeal window starts, grants continue;
+:Task VERIFIED_GRADUATE, program_status = NOTICE_OF_INELIGIBILITY
+seal BENEFICIARY_GRADUATED (notice), 15-day window, grants continue;
 if (Appeal filed within 15 days?) then (yes)
   |Regional Director|
   :File appeal docket
@@ -69,9 +85,24 @@ if (Appeal filed within 15 days?) then (yes)
   |Backend & Database|
   :Seal APPEAL_FILED block, docket shows
   UNDER_APPEAL_HEARING, graduation blocked;
-  :Grievance hearing resolves the case;
-  stop
-else (no)
+  |Regional Director|
+  :Record hearing outcome on or after the hearing date
+  (POST /appeals/:docket/decide);
+  |Backend & Database|
+  if (Outcome?) then (granted)
+    :program_status = ACTIVE_COMPLIANT
+    seal BENEFICIARY_RETAINED block, 180-day cooldown;
+    stop
+  else (denied)
+    :program_status = GRADUATED
+    seal BENEFICIARY_GRADUATED block;
+    stop
+  endif
+else (no, window ended)
+  |Regional Director|
+  :Complete graduation
+  (POST /beneficiaries/:id/graduate);
+  |Backend & Database|
   :program_status = GRADUATED
   seal BENEFICIARY_GRADUATED block;
   stop

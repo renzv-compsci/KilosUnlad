@@ -39,27 +39,31 @@ add(f'<text x="{W/2}" y="40" text-anchor="middle" font-size="22" font-weight="70
 add(f'<rect x="330" y="70" width="1000" height="1225" rx="10" fill="none" stroke="{BOX}" stroke-width="2"/>')
 add(f'<text x="345" y="96" font-size="16" font-weight="700" fill="{INK}">KilosUnlad Platform</text>')
 
-rows = {
-  "assess": (140, "Assess Household Risk\n(ML SWDI + composite score Sᵢ)"),
-  "dispatch": (220, "Dispatch Field Investigation Task"),
-  "notice": (300, "Approve Graduation &\nIssue 15-Day Notice"),
-  "appeal": (380, "File Appeal Docket"),
-  "triage": (470, "View Triage Queue &\nFilter Anomalies"),
-  "shap": (550, "View SHAP Explanation\n(sealed assessment)"),
-  "docket": (630, "Review Due Process Docket\n(15-day countdown)"),
-  "auth": (720, "Authenticate & Manage Session\n(JWT HS256, 900 s)"),
-  "chain": (810, "Verify Cryptographic Hash Chain"),
-  "calamity": (890, "Toggle Calamity Moratorium\n(RA 10121)"),
-  "download": (980, "Download Assigned Tasks\nOffline (IndexedDB)"),
-  "field": (1060, "Complete Field Checklist &\nCapture Geotagged Evidence"),
-  "sync": (1140, "Sync Offline Reports"),
-  "ingest": (1230, "Ingest External Records\n(Meralco, water, LTO, LandBank)"),
-}
+order = [
+  ("assess", "Assess Household Risk\n(ML SWDI + composite score Sᵢ)"),
+  ("dispatch", "Dispatch Field Investigation Task"),
+  ("notice", "Review Report & Photos,\nIssue 15-Day Notice"),
+  ("retain", "Keep Household on Program\n(180-day re-flag cooldown)"),
+  ("appeal", "File Appeal Docket"),
+  ("hearing", "Record Hearing Outcome\n(granted / denied)"),
+  ("triage", "View Triage Queue &\nFilter Anomalies"),
+  ("shap", "View SHAP Explanation\n(sealed assessment)"),
+  ("docket", "Review Due Process Docket\n(15-day countdown)"),
+  ("auth", "Authenticate & Manage Session\n(JWT HS256, 900 s)"),
+  ("chain", "Verify Cryptographic Hash Chain"),
+  ("calamity", "Toggle Calamity Moratorium\n(RA 10121)"),
+  ("download", "Download Assigned Tasks\nOffline (IndexedDB)"),
+  ("field", "Complete Field Checklist &\nCapture Geotagged Evidence"),
+  ("sync", "Sync Offline Reports"),
+  ("ingest", "Ingest External Records\n(Meralco, water, LTO, LandBank)"),
+]
+# Evenly spaced rows inside the platform box (y 140 to 1240).
+rows = {key: (round(140 + i * (1240 - 140) / (len(order) - 1)), label) for i, (key, label) in enumerate(order)}
 L, R = CX - RX, CX + RX
-DIR, SA, SCH = (150, 430), (150, 850), (150, 1230)
+DIR, SA, SCH = (150, 430), (150, 870), (150, 1240)
 COA, ML = (1500, 640), (1500, 1060)
 
-for key in ["assess", "dispatch", "notice", "appeal", "triage", "shap", "docket", "auth"]:
+for key in ["assess", "dispatch", "notice", "retain", "appeal", "hearing", "triage", "shap", "docket", "auth"]:
     line(DIR[0] + 30, DIR[1], L, rows[key][0])
 for key in ["chain", "calamity"]:
     line(SA[0] + 30, SA[1], L, rows[key][0])
@@ -73,14 +77,15 @@ add(f'<text x="{SA[0]+10}" y="{(SA[1]+DIR[1])/2 + 30}" font-size="13" fill="{BOX
 
 # Seal Audit Block (include target) in the second column
 SX, SY = 1150, 260
-for key in ["assess", "dispatch", "appeal"]:
+for key in ["assess", "dispatch", "notice", "retain", "appeal", "hearing"]:
     y = rows[key][0]
     line(R, y, SX - 150, SY + (y - SY) * 0.25, dashed=True)
-    add(f'<text x="{(R + SX - 150)/2}" y="{(y + SY + (y - SY) * 0.25)/2 - 6}" text-anchor="middle" font-size="12" fill="{BOX}">«include»</text>')
+# One shared label: the six include arrows converge on the same use case.
+add(f'<text x="{SX - 120}" y="{SY + 62}" text-anchor="start" font-size="12" fill="{BOX}">«include»</text>')
 add(f'<path d="M{R},{rows["sync"][0]} C 1300,{rows["sync"][0]} 1300,520 {SX+60},{SY+29}" fill="none" stroke="{INK}" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#open)"/>')
 add(f'<text x="1225" y="1000" font-size="12" fill="{BOX}">«include»</text>')
 for key, (y, label) in rows.items():
-    usecase(y, label, pending=(key == "notice"))
+    usecase(y, label)
 usecase(SY, "Seal Audit Block\n(SHA-256 hash chain)", cx=SX, rx=150)
 line(CX, rows["download"][0] + RY, CX, rows["field"][0] - RY, dashed=True)
 line(CX, rows["field"][0] + RY, CX, rows["sync"][0] - RY, dashed=True)
@@ -93,8 +98,8 @@ actor(*ML, "Municipal Link\n(CASE_WORKER)")
 
 # Legend / notes
 add(f'<rect x="1340" y="110" width="292" height="120" rx="6" fill="#FFF8E1" stroke="#C9A227"/>')
-for i, t in enumerate(["Dashed oval = pending decision:", "notice issuance has no API route;",
-                       "notice instant is VerificationTask.", "admin_resolution (APPROVED_GRADUATION).",
+for i, t in enumerate(["Every use case has a live route.", "Notice, retention and hearing",
+                       "outcome: DECISION-011 and -012;", "director or super admin only.",
                        "Calamity toggle: SUPER_ADMIN only."]):
     add(f'<text x="1350" y="{134 + i*21}" font-size="12.5">{t}</text>')
 add('</svg>')

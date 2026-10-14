@@ -30,17 +30,18 @@ The UI screenshots come from the running system with real API data (Demo Case A,
 ## Figure captions (ready to paste)
 
 - **Figure 1:** Figure 1 illustrates the functional interactions between system actors and the KilosUnlad platform. It shows the role-based boundaries that enforce the Human-in-the-Loop workflow:
-  - administrators assess and dispatch cases;
+  - administrators assess and dispatch cases, review field reports, issue notices, keep households on the program and record appeal hearing outcomes;
   - field workers conduct verified inspections that sync from offline tablets;
   - the COA auditor independently verifies the continuity of the cryptographic ledger.
 
   Every state-changing use case includes sealing a SHA-256 audit block.
-- **Figure 2:** The audit lifecycle from external-record ingestion to graduation, in four swimlanes:
-  - **Calamity check:** an active calamity moratorium stops the assessment.
+- **Figure 2:** The audit lifecycle from external-record ingestion to graduation or retention, in four swimlanes:
+  - **Calamity check and cooldown:** an active calamity moratorium, or a retention in the last 180 days, stops the assessment.
   - **Flagging:** the composite risk score S_i ≥ 70 raises the flag.
   - **Field visit:** the field report is accepted only when the photo hash matches and the GPS fix is within 250 m.
-  - **Appeal window:** a filed appeal blocks graduation during the 15-day window.
-- **Figure 3:** The six Mongoose domain models with their real attributes, enums and relationships. The services that hold the operations are shown too: `AuthService.login`, `authenticate` token verification, `computeEntryHash` and `WorkflowPersistence`.
+  - **Director decision:** after reviewing the report and its hash-verified photos, the director either keeps the household on the program (`BENEFICIARY_RETAINED`) or issues the notice.
+  - **Appeal window:** grants continue for 15 days. With no appeal, graduation is completed; with an appeal, the hearing outcome decides (granted: back to active; denied: graduated).
+- **Figure 3:** The six Mongoose domain models with their real attributes, enums and relationships. The services that hold the operations are shown too: `AuthService.login`, `authenticate` token verification, `computeEntryHash`, `WorkflowPersistence` and `Resolution` (report review, notice, retention, hearing outcome, graduation). `AuditAction` includes `BENEFICIARY_RETAINED`, the single documented addition to the frozen list (DECISION-012).
 - **Figure 4:** The six-layer decoupled engine as deployed by `docker-compose.yml`, with the ports, versions and guards of each layer.
 - **Figure 5:** The six MongoDB collections, their keys and indexes, the embedded `{_id:false}` sub-documents and the cross-collection references. `audit_logs` is append-only, and each block links to the previous one by hash.
 - **Sequence diagram:** Task dispatch from the desktop client through the gateway and the guards into one MongoDB transaction. The task insert, the beneficiary update and the audit block either all commit or all roll back.
@@ -118,8 +119,8 @@ The diagrams follow the code. Where `DIAGRAM_INTEGRATION.md` says something diff
 | --- | --- |
 | Toggle Calamity Moratorium: actor Director | `POST /calamity/toggle` allows **SUPER_ADMIN only**. Figure 1 adds a Super Admin actor (a specialisation of Director). |
 | Verify Hash Chain: Auditor and Director | `GET /audit/verify-chain` allows **COA_AUDITOR and SUPER_ADMIN**. |
-| Initiate 15-Day Appeal Notice (Director) | There is **no API route yet** for issuing the notice; it is an open decision. Figures 1 and 2 mark it as pending. Filing an appeal (`POST /appeals/docket`) and the due-process docket are live. |
-| Activity: "Transition to GRADUATED" after 15 days | `BENEFICIARY_GRADUATED` and `assertAppealWindowElapsed` exist, but no route performs the final graduation yet (marked pending in Figure 2). |
+| Initiate 15-Day Appeal Notice (Director) | Issued from the report review after the director sees the hash-verified photos (`POST /tasks/:id/resolve`, DECISION-011), sealed as `BENEFICIARY_GRADUATED` with `decision: APPROVED_GRADUATION`. |
+| Activity: "Transition to GRADUATED" after 15 days | `POST /beneficiaries/:id/graduate` (no appeal, window ended) or a denied appeal (`POST /appeals/:docket/decide`). The spec has no retention path; the code adds one (`POST /tasks/:id/retain`, `BENEFICIARY_RETAINED`, DECISION-012), shown in Figures 1 and 2. |
 | Status `UNDER_APPEAL_HEARING` | This is the **docket status**, derived from the sealed `APPEAL_FILED` block. `program_status` keeps `NOTICE_OF_INELIGIBILITY`, because the schema enum is frozen. |
 | `User.login()`, `verifyToken()`, `AuditLog.computeHash()` as model methods | These live in `auth.service.js`, `auth.middleware.js` and `utils/cryptoHelper.js` (`computeEntryHash`). Figure 3 shows them as service and utility classes linked to the models. |
 | `SystemConfig.threshold_configs` only | The model also has `feature_flags` and `updated_by` (shown). |

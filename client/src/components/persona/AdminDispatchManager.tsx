@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MapPin, Plus, RefreshCw, Users } from 'lucide-react';
 import { displayDate } from '../../utils/displayDate';
 import { AdminTaskItem, apiErrorMessage, CaseworkerItem, fetchAdminTasks, fetchCaseworkers } from '../../services/api';
+import { ReportReviewDialog } from './ReportReviewDialog';
 
 interface AdminDispatchManagerProps {
   onSelectHousehold: () => void;
@@ -27,6 +28,7 @@ export const AdminDispatchManager: React.FC<AdminDispatchManagerProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [reload, setReload] = useState(0);
+  const [reviewTaskId, setReviewTaskId] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -53,7 +55,7 @@ export const AdminDispatchManager: React.FC<AdminDispatchManagerProps> = ({
           <Plus size={18} aria-hidden="true" /> Select Household
         </button>
       </header>
-      <p id="dispatch-preview-note" className="preview-note">New dispatches are created from the triage queue. Reassignment is not supported by the server.</p>
+      <p id="dispatch-preview-note" className="preview-note">New dispatches start from the triage queue. When a caseworker submits a report, open <strong>Review report</strong> to see the photos and decide.</p>
 
       <section aria-labelledby="dispatch-list-heading" aria-busy={loading}>
         <div className="operations-toolbar">
@@ -100,7 +102,11 @@ export const AdminDispatchManager: React.FC<AdminDispatchManagerProps> = ({
                 {task.due_date && <span className="record-date-label">Due <time dateTime={task.due_date} title={task.due_date}>{displayDate(task.due_date)}</time></span>}
               </div>
               <div className="record-action-area">
-                <span className="record-date-label">{task.assigned_worker?.full_name ?? 'Unassigned'}</span>
+                {task.task_status === 'SUBMITTED'
+                  ? <button type="button" id={`review-report-btn-${task.task_id}`} className="primary-triage-action" onClick={() => setReviewTaskId(task.task_id)}>Review report</button>
+                  : ['VERIFIED_GRADUATE', 'VERIFIED_RETAIN'].includes(task.task_status)
+                    ? <button type="button" className="record-action" onClick={() => setReviewTaskId(task.task_id)}>View report</button>
+                    : <span className="record-date-label">{task.assigned_worker?.full_name ?? 'Unassigned'}</span>}
               </div>
             </article>
           ))}
@@ -127,6 +133,8 @@ export const AdminDispatchManager: React.FC<AdminDispatchManagerProps> = ({
           {!loading && caseworkers.length === 0 && <p className="operations-empty">No active caseworkers cover your barangays.</p>}
         </div>
       </details>
+      {reviewTaskId && <ReportReviewDialog taskId={reviewTaskId} canDecide onClose={() => setReviewTaskId(null)}
+        onDecided={() => setReload(n => n + 1)} />}
       <details className="context-details">
         <summary>Dispatch policy</summary>
         <p>Assigned verification tasks have statutory 14-day completion clocks under RA 11310. The caseworker must cover the household's barangay.</p>

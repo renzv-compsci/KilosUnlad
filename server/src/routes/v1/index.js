@@ -14,6 +14,7 @@ const R = require('../../constants/roles');
 // --- Feeds & Tasks ---
 const { createReadFeeds } = require('../../services/readFeeds.service');
 const { createInsights } = require('../../services/insights.service');
+const { createResolution } = require('../../services/resolution.service');
 const { createTaskDispatcher } = require('../../services/taskDispatcher.service');
 const { createDispatch, createSubmit } = require('../../controllers/task.controller');
 const { createTaskSubmission } = require('../../services/taskSubmission.service');
@@ -38,7 +39,8 @@ const upload = multer({
 module.exports = function createRouter({ mockMode, production, authService = createAuthService(),
   taskDispatcher = createTaskDispatcher(), readFeeds = createReadFeeds(), chainVerifier,
   appealDocket = createAppealDocket(), calamityToggle = createCalamityToggle(),
-  taskSubmission = createTaskSubmission(), riskAssessment = createRiskAssessment(), insights = createInsights() }) {
+  taskSubmission = createTaskSubmission(), riskAssessment = createRiskAssessment(), insights = createInsights(),
+  resolution = createResolution() }) {
   
   const router = Router();
   
@@ -124,6 +126,41 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   router.get('/system/policy', authenticate,
     allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR), scopeJurisdiction,
     feed(req => insights.policy(req.query, req.user)));
+
+  // DECISION-011: review a submitted report, view its evidence, issue the notice, complete graduation.
+  router.get('/tasks/:task_id/report', authenticate,
+    allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR), scopeJurisdiction,
+    feed(req => resolution.report(req.params.task_id, req.query, req.jurisdictionFilter)));
+  router.get('/evidence/:sha256', authenticate,
+    allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR), scopeJurisdiction, async (req, res, next) => {
+      try {
+        const file = await resolution.evidence(req.params.sha256, req.query, req.jurisdictionFilter);
+        res.set({ 'Content-Type': file.mediaType, 'Cache-Control': 'private, no-store', 'X-Content-SHA256': file.hash,
+          'X-Content-Type-Options': 'nosniff' });
+        res.send(file.bytes);
+      } catch (error) { next(error); }
+    });
+  router.post('/tasks/:task_id/resolve', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
+    scopeJurisdiction, async (req, res, next) => {
+      res.set('Cache-Control', 'no-store');
+      try { res.json(await resolution.resolve(req.params.task_id, req.body, req.user.userId)); } catch (error) { next(error); }
+    });
+  router.post('/beneficiaries/:household_id/graduate', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
+    scopeJurisdiction, async (req, res, next) => {
+      res.set('Cache-Control', 'no-store');
+      try { res.json(await resolution.graduate(req.params.household_id, req.body, req.user.userId)); } catch (error) { next(error); }
+    });
+  // DECISION-012: retention after a field visit, and the outcome of an appeal hearing.
+  router.post('/tasks/:task_id/retain', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
+    scopeJurisdiction, async (req, res, next) => {
+      res.set('Cache-Control', 'no-store');
+      try { res.json(await resolution.retain(req.params.task_id, req.body, req.user.userId)); } catch (error) { next(error); }
+    });
+  router.post('/appeals/:appeal_docket_id/decide', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR),
+    scopeJurisdiction, async (req, res, next) => {
+      res.set('Cache-Control', 'no-store');
+      try { res.json(await resolution.decideAppeal(req.params.appeal_docket_id, req.body, req.user.userId)); } catch (error) { next(error); }
+    });
 
   return router;
 };
