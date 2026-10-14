@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 5000
 
 # 7. Start the server with nodemon for live hot-reloading during development
-CMD ["npm", "run", "dev"]
+CMD ["node", "server.js"]
