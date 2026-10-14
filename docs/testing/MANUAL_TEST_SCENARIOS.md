@@ -30,9 +30,10 @@ done
 ```bash
 bash data-pipeline/scripts/load_demo_data.sh     # Docker Compose v1: COMPOSE=docker-compose bash ...
 ```
-- **Expected (Director):** 80,007 households; **628** flagged (score ≥ 70; average 91.2); **31** under investigation; **33** field tasks.
-- **Triggers:** AI Predicted Level 3 (604), Water > 25 cu.m (433), Meralco > 200 kWh (406), 4-wheel vehicle (169), postpaid telecom (150).
-- **Map:** 629 households under review, grouped into numbered bubbles. Click a bubble, or zoom in, to reach single households.
+- **Expected (Director):** 80,007 households; **627** flagged (score ≥ 70; average 91.2); **31** under investigation; **33** field tasks; 653 ledger blocks.
+- **Triggers:** AI Predicted Level 3 (603), Water > 25 cu.m (432), Meralco > 200 kWh (405), 4-wheel vehicle (168), postpaid telecom (149).
+- **Map:** 628 households under review, grouped into numbered bubbles. Click a bubble, or zoom in, to reach single households.
+- **Live demo:** Case A (`DEMO-4PS-GRAD-0001`) and the fixtures are left untouched, so S4, S7 and S8 can be performed live on this dataset.
 - The scenario numbers below (S2 and so on) are for the small set. On the demo dataset every flow still works, but the totals are the ones above.
 
 **Hosted:** re-run `deploy/atlas_seed.sh` (use `SEED_80K=0` for the small set). Wake both Render services first: open each `/health` URL and wait.

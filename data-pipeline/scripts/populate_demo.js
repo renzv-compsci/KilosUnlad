@@ -54,7 +54,8 @@ const login = async (username, password) => (await call('POST', '/auth/login', {
   const ids = [];
   for (const page of pages) {
     const r = await call('GET', `/beneficiaries/triage-queue?status=ACTIVE_COMPLIANT&limit=100&page=${page}`, { token: admin });
-    ids.push(...(r.data?.items || []).map(i => i.household_id));
+    // Only the synthetic baseline: named demo/test households (Case A, fixtures) stay for live scenarios.
+    ids.push(...(r.data?.items || []).map(i => i.household_id).filter(id => id.startsWith('SYN-')));
   }
   console.log(`    ${ids.length} households from ${pages.length} of ${totalPages} pages\n`);
 

@@ -18,6 +18,9 @@ flag register), `docs/decisions/009-ml-vector-and-assessment-contracts.md`, evid
 | UI shows the data inside the system | Every sample panel replaced by server data. Five new read-only routes and contracts. No schema change, no guard changed | `docs/decisions/010-ui-live-data-read-contracts.md` (**PROPOSED: needs your sign-off**) |
 | Tests | Server 158 pass / 0 fail (replica set); `insights.test.js` 6/6 written first. Client 67/67, typecheck clean, build OK. `test_ui_live_data.js` **101/101** (API + browser at 390/834/1440 px, no sideways scroll). Capstone `--full` re-run **16/16** on the rebuilt stack | `docs/integration/evidence/ui-live-data/` |
 | Manual test scenarios | 12 scenarios (S1–S12) with exact expected numbers; the API steps were executed as written | `docs/testing/MANUAL_TEST_SCENARIOS.md` |
+| Final UI | Logo, Plus Jakarta Sans, street map with household clusters, plain-language navigation; login without seals. Frontend only | `client/`; browser test 114/114 on the demo data |
+| Demo dataset | `load_demo_data.sh`: 80k baseline + fixtures + about 1,500 assessed through the API (627 flagged, sealed) + 30 dispatched. Case A left unassessed for the live demo | `docs/testing/MANUAL_TEST_SCENARIOS.md` §0 |
+| Defense deck | Updated to the final state: v2 model (real data), finished-system slide, hosting slide, current test results | private link in §6 Step 8 |
 | Free hosting | Vercel (client) + Render free (API, ML) + Atlas M0. Blueprint, Vercel config, seeding script; production start and Atlas-style restore rehearsed locally | `deploy/HOSTING_GUIDE.md`, `render.yaml`, `client/vercel.json`, `deploy/atlas_seed.sh` |
 
 **Decisions still yours (new):**
