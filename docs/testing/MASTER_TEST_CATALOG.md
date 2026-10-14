@@ -13,7 +13,7 @@
 6. [User acceptance testing (UAT A–D)](#6-user-acceptance-testing)
 7. [Full rehearsal steps CAP-01 to CAP-19](#7-full-rehearsal-steps)
 8. [Section 12 runner steps R12-01 to R12-17](#8-section-12-runner-steps)
-9. [Manual scenarios S1–S15 and live-demo cases D1–D11](#9-manual-scenarios-and-live-demo-cases)
+9. [Manual tests by role, scenarios S1–S15 and live-demo cases D1–D11](#9-manual-scenarios-and-live-demo-cases)
 10. [Integration-script checks IT-nnn](#10-integration-script-checks)
 11. [Unit and component cases UT-nnn](#11-unit-and-component-cases)
 12. [ML evaluation and leakage audit](#12-ml-evaluation-and-leakage-audit)
@@ -33,7 +33,8 @@
 | Section 12 runner steps (Docker, clean reset each) | R12-01 … R12-17 | 17 | 17 | `run_section12_plan.sh` |
 | Integration-script checks | IT-001 … | <!-- IT COUNT -->415 | all | §10 |
 | Unit and component cases | UT-001 … UT-212 | <!-- UT COUNT -->208 | all | `UNIT_TEST_REPORT.md` |
-| Manual scenarios (run by a person) | S1 … S15 | 15 | to be recorded | `MANUAL_TEST_SCENARIOS.md` |
+| Manual tests by role (run by a person, deployment dataset) | DIR-01 … DIR-12, CW-01 … CW-07, COA-01 … COA-06, ADM-01 … ADM-04, X-01 … X-04 | 33 | to be recorded | `MANUAL_TEST_SCENARIOS.md` §R |
+| Manual scenarios (run by a person, small set) | S1 … S15 | 15 | to be recorded | `MANUAL_TEST_SCENARIOS.md` |
 | Live-demo cases (run by a person) | D1 … D11 | 11 | to be recorded | `MANUAL_TEST_SCENARIOS.md` §D |
 | ML experiments and leakage audit | E1 … E5, F1–F3, P1–P3 | 11 | audit 6/6 | §12 |
 
@@ -52,6 +53,7 @@
 | R12-nn | Step of the Section 12 runner | `data-pipeline/scripts/run_section12_plan.sh` |
 | IT-nnn | One check printed as `[OK]` by an integration script | `data-pipeline/scripts/test_*.js` (numbered here) |
 | UT-nnn | One top-level unit or component test (↳ subtests listed under it) | `UNIT_TEST_REPORT.md`; IDs are permanent |
+| DIR, CW, COA, ADM, X | Manual test by role | `MANUAL_TEST_SCENARIOS.md` §R |
 | S1–S15, D1–D11 | Manual scenario, live-demo case | `MANUAL_TEST_SCENARIOS.md` |
 
 ---
@@ -255,6 +257,46 @@ Ratings come only from real sessions: `docs/testing/uat/UAT_RATING_FORM.md` → 
 
 Run by a person from `docs/testing/MANUAL_TEST_SCENARIOS.md`; record the result in its table. The automated equivalent is listed so a failure can be compared with a script.
 
+Tests by role (deployment dataset, §R). Expected values are read from the screen or API named in each step, not fixed in advance.
+
+| ID | Role | Test | Same flow | Automated equivalent |
+| --- | --- | --- | --- | --- |
+| DIR-01 | Director | Sign in; overview counts come from the database | S1, S2 | `test_deployment_dataset.js` [1], TC-18 |
+| DIR-02 | Director | Flagged count agrees across cards, ring and map | S2 | TC-18 |
+| DIR-03 | Director | Triage queue sorted, filtered, searchable | S3 | CAP-13 |
+| DIR-04 | Director | Sealed model explanation in the details | S3, S7 | CAP-14 |
+| DIR-05 | Director | Picker lists only caseworkers for the barangay | S4 | `test_deployment_dataset.js` [3] |
+| DIR-06 | Director | Dispatch with ledger receipt | S4 | TC-05, TC-06 |
+| DIR-07 | Director | Review report, issue notice | S13 | TC-20, TC-21 |
+| DIR-08 | Director | Keep a family on the program | S14 | TC-22 |
+| DIR-09 | Director | Appeal and hearing outcome | S8, S15 | TC-11, TC-12, TC-23 |
+| DIR-10 | Director | Re-flag refused during cooldown | S14 | TC-24 |
+| DIR-11 | Director | Case A assessed live and flagged | S7 | TC-03, TC-04 |
+| DIR-12 | Director | Policy settings read from the server | S9 | TC-18 |
+| CW-01 | Caseworker | Each caseworker sees only their barangays | S1 | TC-06 |
+| CW-02 | Caseworker | Dispatched task arrives with instructions | S4, S5 | TC-05 |
+| CW-03 | Caseworker | Visit at the house is accepted | S5 | TC-08, TC-09 |
+| CW-04 | Caseworker | Visit from Manila refused by the geofence | S5 | TC-09 |
+| CW-05 | Caseworker | Offline visit waits, then sends once | S6 | TC-07, TC-10 |
+| CW-06 | Caseworker | Server outage loses nothing | S6 | `offline_proof.js` (QA re-check) |
+| CW-07 | Caseworker | Phone layout of every caseworker screen | S12 | TC-19 |
+| COA-01 | COA | Ledger totals by action match the activity | S1, S10 | `test_deployment_dataset.js` [2] |
+| COA-02 | COA | Whole chain verifies | S10 | TC-13 |
+| COA-03 | COA | Triage is read-only | S3 | CAP-13 |
+| COA-04 | COA | Sampling lists real flagged households | S12 | TC-19 |
+| COA-05 | COA | Tampering is detected | S10 | TC-14 |
+| COA-06 | COA | COA cannot write | S11 | UT-062..UT-082 |
+| ADM-01 | Super Admin | Sign in; sees Audit Verification | S1 | TC-01 |
+| ADM-02 | Super Admin | Calamity freezes dispatch | S9 | TC-16 |
+| ADM-03 | Super Admin | Lifting the calamity resumes dispatch | S9 | TC-16 |
+| ADM-04 | Super Admin | Director cannot declare a calamity | S9 | TC-16 |
+| X-01 | All | Six guard checks | S11 | TC-01, TC-02 |
+| X-02 | All | Wrong password refused | S1 | TC-02 |
+| X-03 | All | No sideways scroll at 390, 834, 1440 px | S12 | TC-19 |
+| X-04 | All | Deployment dataset check script | — | `test_deployment_dataset.js` (12 checks) |
+
+Scenarios on the small set:
+
 | ID | Scenario | Proves | Automated equivalent |
 | --- | --- | --- | --- |
 | S1 | Sign-in and role routing | RBAC and safe login | TC-01, TC-02 |
@@ -273,19 +315,19 @@ Run by a person from `docs/testing/MANUAL_TEST_SCENARIOS.md`; record the result 
 | S14 | Keep a household on the program | retention, cooldown, new ledger action | TC-22, TC-24 |
 | S15 | Record an appeal hearing outcome | appeal ends in a sealed decision | TC-23 |
 
-| ID | Live-demo case | Scenarios | Pass when |
+| ID | Live-demo case (deployment dataset) | Tests | Pass when |
 | --- | --- | --- | --- |
-| D1 | Director's dashboard and map are populated | S1, S2 | 80,007 households, 627 flagged, map shading + bubbles |
-| D2 | Assess Case A live; flagged with its SHAP explanation | S7 | Level 3, score ≥ 70, sealed block number |
-| D3 | Dispatch Case A to Test Case Worker | S4 | task ID and ledger receipt |
-| D4 | Caseworker visit at phone width, inside then outside the geofence | S5, S12 | accepted in Calamba, refused in Manila |
-| D5 | Offline visit syncs on reconnect | S6 | pending 1 → 0, nothing duplicated |
-| D6 | Director reviews the report and photo, issues the notice | S13 | "Hash verified", 15-day window starts |
-| D7 | Early graduation refused; appeal; hearing outcome recorded | S13, S8, S15 | `APPEAL_WINDOW_OPEN`; APPEAL FILED; granted → active |
-| D8 | Calamity moratorium freezes dispatch | S9 | banner, dispatch refused, director cannot declare |
-| D9 | Ledger and photo tampering are caught | S10, S13 | chain broken at the edited block; photo refused |
-| D10 | Guards hold | S11 | 403 / 400 / 401 as listed |
-| D11 | A family that is still poor is kept on the program | S14 | "Keep on the program"; BENEFICIARY RETAINED; re-flag refused |
+| D1 | Director's dashboard and map are populated | DIR-01, DIR-02 | 20,001 households, 25–40 flagged, map shading + markers |
+| D2 | Assess Case A live; flagged with its SHAP explanation | DIR-11 | Level 3, score ≥ 70, sealed block number |
+| D3 | Dispatch Case A to Carmela Dizon (Real) | DIR-05, DIR-06 | only Real's caseworkers offered; task ID and ledger receipt |
+| D4 | Caseworker visit at phone width, inside then outside the geofence | CW-03, CW-04, CW-07 | accepted in Calamba, refused in Manila |
+| D5 | Offline visit sends on reconnect | CW-05 | saved on this phone 1 → 0, one ledger block |
+| D6 | Director reviews the report and photo, issues the notice | DIR-07 | "Hash verified", 15-day window starts |
+| D7 | Early graduation refused; appeal; hearing outcome recorded | S13, DIR-09 | `APPEAL_WINDOW_OPEN`; APPEAL FILED; granted → active |
+| D8 | Calamity moratorium freezes dispatch | ADM-02 … ADM-04 | banner, dispatch refused, director cannot declare |
+| D9 | Ledger and photo tampering are caught | COA-05, S13 | chain broken at the edited block; photo refused |
+| D10 | Guards hold | X-01 | 403 / 400 / 401 as listed |
+| D11 | A family that is still poor is kept on the program | DIR-08, DIR-10 | "Keep on the program"; BENEFICIARY RETAINED; re-flag refused |
 
 ---
 
