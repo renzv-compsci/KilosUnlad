@@ -39,22 +39,22 @@ interface MinimalPhMapProps {
 }
 
 // System palette (workspace.css): navy UI, rose for critical, amber for review, green for clear.
-const COLORS = { RED: '#b83f62', AMBER: '#c98a1c', GREEN: '#2f7d5b', NAVY: '#132e4f', HALO: '#e0a84a' };
+const COLORS = { RED: '#b84b3f', AMBER: '#a4661a', GREEN: '#377551', NAVY: '#13233f', HALO: '#a4661a' };
 const LAGUNA_CENTER: LatLngExpression = [14.22, 121.17];
 const toLatLng = ([lon, lat]: [number, number]): [number, number] => [lat, lon];
 const valid = (c?: [number, number]) => Array.isArray(c) && c.length === 2 && c.every(Number.isFinite) && !(c[0] === 0 && c[1] === 0);
 // Household dots are coloured by stage, in the system palette. A household under investigation
 // is split by its field task: visit still open, or report already submitted.
 const STAGES: Record<string, { color: string; label: string }> = {
-  FLAGGED_FOR_REVIEW: { color: '#c2416b', label: 'Flagged, awaiting dispatch' },
-  OPEN_FIELD_TASK: { color: '#d4901f', label: 'Open field task' },
+  FLAGGED_FOR_REVIEW: { color: '#c24e41', label: 'Flagged, awaiting dispatch' },
+  OPEN_FIELD_TASK: { color: '#a4661a', label: 'Open field task' },
   REPORT_SUBMITTED: { color: '#2f7d7a', label: 'Report submitted' },
   NOTICE_OF_INELIGIBILITY: { color: '#2f5d8a', label: 'Notice of ineligibility' },
 };
 const STAGE_ORDER = Object.keys(STAGES);
 const stageKey = (h: MapHousehold) => h.status !== 'UNDER_INVESTIGATION' ? h.status
   : h.task === 'SUBMITTED' ? 'REPORT_SUBMITTED' : 'OPEN_FIELD_TASK';
-const DENSITY_COLOR = '#132e4f';
+const DENSITY_COLOR = '#13233f';
 // Basemaps: "Streets" is the familiar road map (yellow/orange roads, green parks, blue water, labels);
 // "Light" is a muted style. Both are free with the attribution shown on the map.
 const BASEMAPS = {
@@ -79,7 +79,7 @@ function householdIcon(color: string, pulse: boolean): L.DivIcon {
   return iconCache.get(key)!;
 }
 
-const stageOf = (key: string) => STAGES[key] ?? { color: '#6b7789', label: key.replace(/_/g, ' ').toLowerCase() };
+const stageOf = (key: string) => STAGES[key] ?? { color: '#877e6d', label: key.replace(/_/g, ' ').toLowerCase() };
 
 // Keeps the view on the data: fits everything on load and flies to a selected municipality.
 const ViewController: React.FC<{ bounds: LatLngBoundsExpression | null; focus: [number, number] | null; resetKey: number }> = ({ bounds, focus, resetKey }) => {
@@ -218,7 +218,7 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluste
             return (
               <button key={`chip-${pin.id}`} type="button" aria-pressed={isSelected} onClick={() => onSelectCluster(pin.municipality)}
                 className={`min-h-[36px] px-3 py-1 rounded-md border text-[12px] font-medium transition cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  isSelected ? 'bg-[#132e4f] text-white border-[#132e4f]' : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'}`}>
+                  isSelected ? 'bg-[#13233f] text-white border-[#13233f]' : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'}`}>
                 <span className="w-2 h-2 rounded-full shrink-0" style={{ background: COLORS[pin.status] }} />
                 <span>{pin.municipality}</span>
                 <span className={`tabular-nums ${isSelected ? 'text-stone-300' : 'text-stone-400'}`}>({pin.flaggedCount})</span>

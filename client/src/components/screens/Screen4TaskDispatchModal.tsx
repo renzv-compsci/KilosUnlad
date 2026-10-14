@@ -57,7 +57,7 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
   return <AccessibleDialog titleId="dispatch-dialog-title" onClose={close} className="workspace-dialog fixed inset-0 z-50 overflow-y-auto bg-stone-900/50 flex items-center justify-center p-4">
     <div className="dispatch-dialog bg-white rounded-lg shadow-xl border border-stone-200 w-full max-w-xl overflow-hidden">
       <header className="flex items-center justify-between gap-4 p-5 border-b border-stone-200">
-        <h3 id="dispatch-dialog-title" className="text-lg font-semibold text-[#132e4f]">{receipt ? 'Task dispatched' : live ? 'Dispatch investigation' : 'Dispatch preview'}</h3>
+        <h3 id="dispatch-dialog-title" className="text-lg font-semibold text-[#13233f]">{receipt ? 'Task dispatched' : live ? 'Dispatch investigation' : 'Dispatch preview'}</h3>
         <button type="button" onClick={close} disabled={pending} aria-label="Close dispatch dialog" className="p-2 rounded hover:bg-stone-100"><X size={20} /></button>
       </header>
       {receipt ? <div className="p-6 space-y-4">
@@ -68,7 +68,7 @@ export const Screen4TaskDispatchModal: React.FC<Screen4TaskDispatchModalProps> =
       </div> : <form onSubmit={submit} className="p-6 space-y-4" aria-busy={pending}>
         {!live && <p className="preview-note">Design preview only. No assignments are submitted.</p>}
         <div className="border-b border-stone-200 pb-4">
-          <p className="font-semibold text-[#132e4f]">{targetHousehold.head_of_household.full_name}</p>
+          <p className="font-semibold text-[#13233f]">{targetHousehold.head_of_household.full_name}</p>
           <p className="text-sm text-stone-600">{targetHousehold.household_id}</p>
           <p className="text-sm text-stone-600">{targetHousehold.address.barangay}, {targetHousehold.address.municipality}</p>
         </div>

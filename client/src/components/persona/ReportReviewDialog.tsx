@@ -66,7 +66,7 @@ export const ReportReviewDialog: React.FC<Props> = ({ taskId, canDecide, onClose
       <div className="report-dialog bg-white rounded-lg shadow-xl border border-stone-200 w-full max-w-3xl overflow-hidden">
         <header className="flex items-center justify-between gap-4 p-5 border-b border-stone-200">
           <div className="min-w-0">
-            <h3 id="report-dialog-title" className="text-lg font-semibold text-[#132e4f]">Field report review</h3>
+            <h3 id="report-dialog-title" className="text-lg font-semibold text-[#13233f]">Field report review</h3>
             {report && <p className="text-sm text-stone-600">{report.head_of_household.full_name} · {report.household_id} · {report.address.barangay}, {report.address.municipality}</p>}
           </div>
           <button type="button" onClick={onClose} disabled={pending} aria-label="Close report" className="p-2 rounded hover:bg-stone-100"><X size={20} /></button>
@@ -87,7 +87,7 @@ export const ReportReviewDialog: React.FC<Props> = ({ taskId, canDecide, onClose
             </dl>
             {f.narrative_report && <p className="text-sm text-stone-700"><strong>Narrative:</strong> {f.narrative_report}</p>}
             <section aria-label="Evidence photos">
-              <h4 className="text-sm font-semibold text-[#132e4f] mb-2">Evidence photos ({report.evidence.length})</h4>
+              <h4 className="text-sm font-semibold text-[#13233f] mb-2">Evidence photos ({report.evidence.length})</h4>
               {report.evidence.length === 0 ? <p className="text-sm text-stone-500">No photos were attached.</p> :
                 <div className="evidence-grid">{report.evidence.map(e => <EvidencePhoto key={e.sha256_hash} hash={e.sha256_hash} capturedAt={e.captured_at} />)}</div>}
             </section>

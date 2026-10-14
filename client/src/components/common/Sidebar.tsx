@@ -171,7 +171,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           title: 'Executive Administration',
           agency: userRole === 'SUPER_ADMIN' ? 'System Administrator' : 'DSWD Regional Director',
           jurisdiction: 'Region IV-A (Laguna Cluster)',
-          accentColor: 'border-l-[#132e4f] text-[#132e4f]',
+          accentColor: 'border-l-[#13233f] text-[#13233f]',
           badgeText: 'Admin Authority'
         };
       case 'CASE_WORKER':

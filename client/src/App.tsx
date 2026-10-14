@@ -302,7 +302,7 @@ export default function App() {
       <button
         type="button"
         onClick={() => setCurrentScreen(currentRoleConfig.defaultScreen)}
-        className="mt-6 rounded-lg bg-[#132e4f] px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-[#1a3d66]"
+        className="mt-6 rounded-lg bg-[#13233f] px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-[#1a3d66]"
       >
         Return to Dashboard
       </button>
@@ -429,7 +429,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-stone-50 font-sans text-stone-900">
       {toastMessage && (
-        <div role="status" className="workspace-toast fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-stone-700 bg-[#132e4f] px-4 py-3 text-sm text-stone-100 shadow-lg">
+        <div role="status" className="workspace-toast fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-stone-700 bg-[#13233f] px-4 py-3 text-sm text-stone-100 shadow-lg">
           <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{toastMessage}</span>
         </div>

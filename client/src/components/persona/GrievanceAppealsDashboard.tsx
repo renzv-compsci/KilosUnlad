@@ -95,7 +95,7 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
         <div className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs">
           <div className="flex items-center justify-between text-stone-500 text-xs">
             <span>Under Evidentiary Hearing</span>
-            <Scale className="w-4 h-4 text-[#132e4f]" />
+            <Scale className="w-4 h-4 text-[#13233f]" />
           </div>
           <div className="text-3xl font-black text-stone-900 font-display mt-2">{underAppealCount}</div>
           <div className="text-[11px] text-blue-700 mt-1 font-medium">15-day countdown paused</div>
@@ -136,7 +136,7 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
             </div>
             <button
               onClick={() => onNavigateToScreen('due_process')}
-              className="px-3 py-1.5 bg-[#132e4f] text-white rounded-lg text-xs font-semibold hover:bg-[#1a3d66] transition cursor-pointer flex items-center space-x-1"
+              className="px-3 py-1.5 bg-[#13233f] text-white rounded-lg text-xs font-semibold hover:bg-[#1a3d66] transition cursor-pointer flex items-center space-x-1"
             >
               <span>Manage 15-Day Dockets</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -155,7 +155,7 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="font-mono text-xs font-bold text-[#132e4f]">
+                      <span className="font-mono text-xs font-bold text-[#13233f]">
                         {notice.household_id}
                       </span>
                       <span className="text-stone-300">·</span>
@@ -197,7 +197,7 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
         <div className="space-y-4">
           <div className="bg-stone-50 rounded-xl border border-stone-200/90 p-5 space-y-3">
             <h4 className="font-bold text-xs text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
-              <Scale className="w-4 h-4 text-[#132e4f]" />
+              <Scale className="w-4 h-4 text-[#13233f]" />
               <span>Statutory Due Process Rules (RA 11310)</span>
             </h4>
             <div className="space-y-2 text-xs text-stone-600 leading-relaxed">
@@ -227,7 +227,7 @@ export const GrievanceAppealsDashboard: React.FC<GrievanceAppealsDashboardProps>
                 <div key={h.household_id} className="p-2.5 bg-stone-50 rounded-lg border border-stone-200">
                   <div className="font-bold text-stone-900">{h.head_of_household.full_name}</div>
                   <div className="text-[11px] text-stone-500">{displayDate(String(h.hearing_date))}</div>
-                  <div className="text-[11px] text-[#132e4f] font-mono mt-1">Docket: {h.appeal_docket_id}</div>
+                  <div className="text-[11px] text-[#13233f] font-mono mt-1">Docket: {h.appeal_docket_id}</div>
                 </div>
               ))}
             </div>

@@ -18,7 +18,7 @@ const Row: React.FC<{ label: string; help?: string; value: React.ReactNode }> = 
       <div className="text-xs font-bold text-stone-900">{label}</div>
       {help && <p className="text-[11px] text-stone-500">{help}</p>}
     </div>
-    <span className="font-mono font-bold text-sm text-[#132e4f] shrink-0">{value}</span>
+    <span className="font-mono font-bold text-sm text-[#13233f] shrink-0">{value}</span>
   </div>
 );
 
@@ -39,7 +39,7 @@ export const AdminSettingsView: React.FC<AdminSettingsViewProps> = ({ showSpecAn
       )}
       <div className="module-heading">
         <div>
-          <span className="text-[10px] font-semibold bg-[#132e4f] text-white px-2 py-0.5 rounded font-mono">ADMINISTRATIVE GOVERNANCE</span>
+          <span className="text-[10px] font-semibold bg-[#13233f] text-white px-2 py-0.5 rounded font-mono">ADMINISTRATIVE GOVERNANCE</span>
           <h2 className="text-xl font-bold text-stone-900 tracking-tight mt-1 font-display">Policy Settings</h2>
           <p className="text-xs text-stone-500 mt-0.5">The thresholds and timers the server enforces now. They are fixed in the server configuration and cannot be edited here.</p>
         </div>
@@ -49,7 +49,7 @@ export const AdminSettingsView: React.FC<AdminSettingsViewProps> = ({ showSpecAn
       {policy && <div className="space-y-5">
         <section className="bg-white p-4 sm:p-6 rounded-xl border border-stone-200/90 shadow-2xs">
           <div className="flex items-center space-x-2 pb-3 border-b border-stone-100">
-            <Sliders className="w-4 h-4 text-[#132e4f]" />
+            <Sliders className="w-4 h-4 text-[#13233f]" />
             <h3 className="text-sm font-bold text-stone-900 font-display">Composite risk score</h3>
           </div>
           <Row label="Flag threshold" help="Households at or above this score are flagged for field verification." value={`≥ ${policy.risk_score.flag_threshold}`} />
@@ -62,7 +62,7 @@ export const AdminSettingsView: React.FC<AdminSettingsViewProps> = ({ showSpecAn
         </section>
         <section className="bg-white p-4 sm:p-6 rounded-xl border border-stone-200/90 shadow-2xs">
           <div className="flex items-center space-x-2 pb-3 border-b border-stone-100">
-            <Lock className="w-4 h-4 text-[#132e4f]" />
+            <Lock className="w-4 h-4 text-[#13233f]" />
             <h3 className="text-sm font-bold text-stone-900 font-display">Due process and field verification</h3>
           </div>
           <Row label="Appeal window (RA 11310 Sec. 12)" help="Calendar days from the notice to file an appeal." value={`${policy.due_process.appeal_window_days} days`} />
@@ -74,7 +74,7 @@ export const AdminSettingsView: React.FC<AdminSettingsViewProps> = ({ showSpecAn
         </section>
         <section className="bg-white p-4 sm:p-6 rounded-xl border border-stone-200/90 shadow-2xs">
           <div className="flex items-center space-x-2 pb-3 border-b border-stone-100">
-            <CloudRain className="w-4 h-4 text-[#132e4f]" />
+            <CloudRain className="w-4 h-4 text-[#13233f]" />
             <h3 className="text-sm font-bold text-stone-900 font-display">Calamity moratorium declarations (RA 10121)</h3>
           </div>
           {policy.calamity_zones.length === 0 && <p className="text-xs text-stone-500 pt-2">No declarations on record.</p>}

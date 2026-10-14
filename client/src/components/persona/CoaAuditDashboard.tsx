@@ -12,7 +12,7 @@ interface CoaAuditDashboardProps {
 }
 
 const pct = (part: number, whole: number) => whole ? `${((100 * part) / whole).toFixed(1)}%` : '—';
-const BAR = ['bg-[#132e4f]', 'bg-amber-600', 'bg-rose-600', 'bg-emerald-700', 'bg-stone-500'];
+const BAR = ['bg-[#13233f]', 'bg-amber-600', 'bg-rose-600', 'bg-emerald-700', 'bg-stone-500'];
 
 // Live COA overview: GET /insights/overview (national scope) and GET /audit/blocks.
 export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
@@ -51,7 +51,7 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
 
       <div className="module-heading">
         <div className="flex items-center space-x-4 min-w-0">
-          <div className="w-12 h-12 rounded-xl bg-[#0c2340] border border-amber-400/80 text-amber-300 font-bold text-xs flex flex-col items-center justify-center shadow-2xs leading-none shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-[#13233f] border border-amber-400/80 text-amber-300 font-bold text-xs flex flex-col items-center justify-center shadow-2xs leading-none shrink-0">
             <span className="text-[11px] font-black">COA</span>
             <span className="text-[7px] text-amber-200/80 mt-0.5">STATE</span>
           </div>
@@ -107,10 +107,10 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
         </div>
 
         <button type="button" onClick={onNavigateToSampling}
-          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#132e4f] transition cursor-pointer text-left">
+          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#13233f] transition cursor-pointer text-left">
           <div className="flex items-center justify-between text-stone-500 text-xs">
             <span className="font-semibold uppercase tracking-wider text-[10px]">Field verification coverage</span>
-            <FileCheck2 className="w-4 h-4 text-[#132e4f]" />
+            <FileCheck2 className="w-4 h-4 text-[#13233f]" />
           </div>
           <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-2">
             <span className="text-2xl font-bold font-mono text-stone-900">{pct(fieldDone, t.total)}</span>
@@ -123,13 +123,13 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
         </button>
 
         <button type="button" onClick={onNavigateToLedger}
-          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#132e4f] transition cursor-pointer text-left">
+          className="bg-white p-5 rounded-xl border border-stone-200/90 shadow-2xs hover:border-[#13233f] transition cursor-pointer text-left">
           <div className="flex items-center justify-between text-stone-500 text-xs">
             <span className="font-semibold uppercase tracking-wider text-[10px]">Audit hash chain</span>
             <Link2 className="w-4 h-4 text-emerald-700" />
           </div>
           <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-2">
-            <span className="text-2xl font-bold font-mono text-[#132e4f]">{a?.total_blocks ?? 0}</span>
+            <span className="text-2xl font-bold font-mono text-[#13233f]">{a?.total_blocks ?? 0}</span>
             <span className="text-[11px] font-medium text-stone-600">sealed blocks</span>
           </div>
           <div className="mt-2 text-[11px] text-stone-500 flex items-center justify-between gap-2">
@@ -148,7 +148,7 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
                 <h3 className="text-sm font-bold text-stone-900 font-display">Latest ledger blocks</h3>
               </div>
               <button id="coa-launch-chain-inspector-btn" onClick={onNavigateToLedger}
-                className="px-3 py-1.5 bg-[#132e4f] hover:bg-[#0c2340] text-white font-semibold text-xs rounded-lg shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
+                className="px-3 py-1.5 bg-[#13233f] hover:bg-[#13233f] text-white font-semibold text-xs rounded-lg shadow-2xs transition flex items-center space-x-1.5 cursor-pointer">
                 <Link2 className="w-3.5 h-3.5" /><span>Open audit verification</span><ArrowRight className="w-3.5 h-3.5 ml-1" />
               </button>
             </div>
@@ -157,7 +157,7 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
               {blocks.map(b => (
                 <li key={b.sequence_index} className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
                   <div className="min-w-0">
-                    <span className="font-mono font-bold text-[#132e4f]">#{b.sequence_index}</span>{' '}
+                    <span className="font-mono font-bold text-[#13233f]">#{b.sequence_index}</span>{' '}
                     <span className="font-semibold text-stone-800">{b.action.replace(/_/g, ' ')}</span>{' '}
                     <span className="text-stone-500 break-all">{b.target_entity.entity_id}</span>
                   </div>
@@ -223,7 +223,7 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
 
           <div className="bg-stone-50 p-5 rounded-xl border border-stone-200/90 space-y-2.5">
             <div className="flex items-center space-x-2">
-              <Scale className="w-4 h-4 text-[#132e4f]" />
+              <Scale className="w-4 h-4 text-[#13233f]" />
               <h4 className="text-xs font-bold text-stone-900 font-display">Auditor Independent Jurisdiction</h4>
             </div>
             <p className="text-[11px] text-stone-600 leading-relaxed">
@@ -299,7 +299,7 @@ export const CoaAuditDashboard: React.FC<CoaAuditDashboardProps> = ({
                   rows={4}
                   required
                   defaultValue={`Management is advised to expedite on-site SWDI verification of the ${r?.high_risk ?? 0} flagged households to avoid potential Notice of Disallowance under Section 12 of RA 11310.`}
-                  className="w-full p-3 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-[#132e4f] outline-none leading-relaxed"
+                  className="w-full p-3 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-[#13233f] outline-none leading-relaxed"
                 />
               </div>
 

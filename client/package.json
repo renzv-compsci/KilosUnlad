@@ -12,7 +12,9 @@
     "test:pwa": "node --test test/pwa.test.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
+    "@fontsource-variable/source-serif-4": "^5.3.1",
     "axios": "^1.6.8",
     "dexie": "^3.2.7",
     "leaflet": "^1.9.4",
