@@ -20,6 +20,7 @@
 #   JWT_SECRET, PYTHON, SERVER_TEST_ENV, EVIDENCE_DIR.
 # Browser steps need `npm install playwright-core` on NODE_PATH.
 # ============================================================
+export MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL="*"   # Windows Git Bash: keep container paths as written
 set -u
 
 SCRIPTS="$(cd "$(dirname "$0")" && pwd)"
