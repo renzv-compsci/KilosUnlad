@@ -16,7 +16,9 @@
 #      household on the program. Every step is sealed in the audit ledger.
 #
 # Usage (repo root, stack running):  bash data-pipeline/scripts/load_deployment_data.sh
-# Env: COMPOSE (default "docker compose"), BASE_URL, FLAG_TARGET (32), DISPATCH (12), SUBMIT (4)
+# Env: COMPOSE (default "docker compose"), BASE_URL, FLAG_TARGET (32), DISPATCH (12), SUBMIT (4),
+#      POPULATE=0 stops after step 4 (used by deploy/atlas_seed.sh ACTIVITY=hosted, which runs
+#      step 5 against the hosted API so the evidence photos are stored there).
 # WARNING: replaces everything in the local kilosunlad database.
 # ============================================================
 export MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL="*"   # Windows Git Bash: keep container paths as written
@@ -42,5 +44,9 @@ mongo --eval '
   print("      removed " + b + " test households, " + e + " external records, " + t + " preset tasks; ledger blocks: " + db.audit_logs.countDocuments());'
 echo "[4/5] Field staff (a caseworker for every barangay)..."
 fixture add_field_staff
+if [ "${POPULATE:-1}" = "0" ]; then
+  echo "[5/5] Skipped (POPULATE=0): run populate_deployment.js against the API that should hold the activity."
+  exit 0
+fi
 echo "[5/5] Activity through the API (assess, dispatch, reports, decisions)..."
 node data-pipeline/scripts/populate_deployment.js

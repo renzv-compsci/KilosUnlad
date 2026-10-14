@@ -18,7 +18,7 @@ You create the three accounts and paste the secrets. Nothing secret is committed
 | A free Render service sleeps after 15 minutes without traffic. Waking takes up to about a minute. | The first login after a pause fails with "Cannot reach the API" (the client waits 8 s). The first risk assessment after a pause may use the rule-based fallback (`EVALUATED_VIA_FALLBACK`), because the API waits only 2.5 s for the ML service. | Before a demo, open `https://<api>/health` and `https://<ml>/health` and wait for both to answer. Then use the app. |
 | The free Render filesystem is ephemeral (no disk). | Uploaded evidence photos are lost when the API restarts or sleeps. The SHA-256 hash, GPS and EXIF data stay in MongoDB and in the audit ledger. | Acceptable for a demo. Production needs a paid disk or object storage, which is out of scope. |
 | Render gives 750 free instance hours per month, shared by all free services. | Two services running all day use about 1,440 hours. Because they sleep when idle, normal demo use fits. | Do not ping them to keep them awake. |
-| Atlas M0: about 512 MB of storage, shared CPU, no backups. | Measured: the 80k baseline is 160,015 documents, about 102 MB of data plus indexes (8.4 MB compressed dump). It fits. The national overview took 0.35 s locally on 80k; expect a few seconds on shared M0. `SEED_80K=0` gives a small, fast demo database. | Re-run `deploy/atlas_seed.sh` to reset the demo. |
+| Atlas M0: about 512 MB of storage, shared CPU, no backups. | Measured: the deployment dataset (the default) is 40,010 documents before activity, a 2.2 MB compressed dump. The optional 80k baseline is 160,015 documents, about 102 MB plus indexes (8.4 MB dump). Both fit. | Re-run `deploy/atlas_seed.sh` to reset the demo. |
 | The dashboard map loads street tiles from OpenStreetMap ("Streets", the default) or CARTO ("Light"). Both are free with the on-map attribution, which is shown. They are meant for light, non-commercial use; a capstone demo is fine, heavy production traffic is not. | The map needs internet. Offline, the dots still show on a plain background. | Nothing to configure. |
 | Render free services have no fixed outbound IP. | Atlas must accept connections from anywhere (`0.0.0.0/0`). | The connection is TLS and password-protected. Use long random passwords. |
 
@@ -57,17 +57,30 @@ These limits were checked against Render's [free-tier documentation](https://ren
 
 ## 2. Load the data into Atlas (from your computer)
 
-This needs the local Docker stack (validation guide, Step 1) and Node.js 18 or later on your computer. The populated demo is created through the local API, so every flag is sealed in the ledger exactly as in normal use. The script seeds the database locally with the project's own reset, seed and fixture scripts, then copies the `kilosunlad` database to Atlas with `mongodump`/`mongorestore`. It does not create or change any schema: collections and indexes arrive exactly as they are locally.
+This needs the local Docker stack (validation guide, Step 1) and **Node.js 20.15 or later** on your computer (the activity script uses `zlib.crc32`). The script builds the database locally with the project's own reset, seed and fixture scripts, then copies the `kilosunlad` database to Atlas with `mongodump`/`mongorestore`. It does not create or change any schema: collections and indexes arrive exactly as they are locally.
 
+The default is the **deployment dataset**: 20,000 households in Calamba plus Case A, a caseworker for every barangay, and activity created through the API (the model flags 25–40 households, 12 are dispatched, 4 reports come back with a photo, one notice, one retention). See `docs/testing/MANUAL_TEST_SCENARIOS.md` §0.4.
+
+There are two ways to create the activity. Choose **B** if you want the report photos to open on the hosted site.
+
+**A. Everything in one step (activity made locally).** Simplest. The 4 seeded reports' photos stay on your computer, so on the hosted site those reports say "The photo is not in storage". New visits made on the hosted site have their photos.
 ```bash
 docker compose up -d
 ATLAS_ADMIN_URI='mongodb+srv://kilosunlad_admin:<ADMIN_PW>@<HOST>/?retryWrites=true&w=majority' \
-  bash deploy/atlas_seed.sh                 # populated demo: 80k baseline, fixtures, ~1,500 assessed, 30 dispatched
-# or, for a small demo database:
-SEED_80K=0 ATLAS_ADMIN_URI='...' bash deploy/atlas_seed.sh
+  bash deploy/atlas_seed.sh
 ```
 
-**Expect:** `[OK] Atlas now holds the seeded kilosunlad database.` A rehearsal against a local stand-in restored 160,015 documents with all indexes in about 40 s. In Atlas, **Browse Collections** shows the six collections.
+**B. Households now, activity through the hosted API after §3 (recommended).**
+```bash
+ACTIVITY=hosted ATLAS_ADMIN_URI='...' bash deploy/atlas_seed.sh
+# after §3, with both /health URLs answering:
+BASE_URL=https://kilosunlad-api.onrender.com/api/v1 node data-pipeline/scripts/populate_deployment.js
+```
+The second command must end with `ledger 1-50 valid: true` and `[SUCCESS] Deployment dataset populated.` If it reports a rule fallback, the ML service was still waking up: re-seed with the first command and run it again once `/health` answers.
+
+Other datasets: `DATASET=small` (the 7 test households of the manual scenarios S1–S15) or `DATASET=demo` (the 80k baseline).
+
+**Expect:** `[OK] Atlas now holds the seeded kilosunlad database (deployment).` A rehearsal of path B against a local stand-in restored 40,010 documents with all indexes; the activity step then produced 32 model flags and a valid 50-block ledger, and `test_deployment_dataset.js` passed 12/12. In Atlas, **Browse Collections** shows the six collections.
 
 > `--drop` replaces the `kilosunlad` database on Atlas. Run it again whenever you want a clean demo.
 
@@ -113,7 +126,15 @@ On Render, open `kilosunlad-api` → **Environment** and set `CORS_ORIGIN` to th
 
 ## 6. Prove the hosted system works (Iron Law 1)
 
-Wake both services (§0), then run the same integration script used locally against the hosted URLs. It reads, dispatches one fixture household, and walks every persona at phone, tablet and desktop width:
+Wake both services (§0), then check the hosted data through the hosted API (12 checks: 20,001 households, 25–40 model flags, a caseworker for every barangay, every lifecycle stage, valid ledger):
+
+```bash
+BASE_URL=https://kilosunlad-api.onrender.com/api/v1 node data-pipeline/scripts/test_deployment_dataset.js
+```
+
+**Expect** `[SUCCESS] Deployment dataset verified.` Then run the role tests in `docs/testing/MANUAL_TEST_SCENARIOS.md` §R on the Vercel URL.
+
+The browser check below walks every persona at phone, tablet and desktop width. It dispatches the fixture household `TEST-4PS-DISPATCH-0001`, so it needs the small set (`DATASET=small`, §2) and a re-seed before each run:
 
 ```bash
 npm install --prefix /tmp/kt playwright-core && export NODE_PATH=/tmp/kt/node_modules
@@ -122,7 +143,7 @@ BASE_URL=https://kilosunlad-api.onrender.com/api/v1 CLIENT_URL=https://kilosunla
   node data-pipeline/scripts/test_ui_live_data.js
 ```
 
-**Expect** `[SUCCESS] UI live-data routes and screens verified.` It needs a freshly seeded database (§2), because it dispatches `TEST-4PS-DISPATCH-0001`. Re-seed before running it again.
+**Expect** `[SUCCESS] UI live-data routes and screens verified.`
 
 Optional: the full chain through the hosted API.
 
@@ -136,7 +157,8 @@ BASE_URL=https://kilosunlad-api.onrender.com/api/v1 node data-pipeline/scripts/t
 | --- | --- | --- |
 | Super Admin | `super_admin_test` | `SuperAdminTest2026!` |
 | Regional Director (Calamba: Palingon, Real, Lecheria) | `director_test` | `DirectorTest2026!` |
-| Case Worker (Calamba: Palingon) | `case_worker_test` | `CaseWorkerTest2026!` |
+| Case Worker (Calamba: Palingon, Real) | `case_worker_test` | `CaseWorkerTest2026!` |
+| Case Workers, deployment dataset: Andrea Lim, Rafael Mendoza (Palingon); Benjo Ramos (Lecheria); Carmela Dizon (Real) | `cw_palingon_1`, `cw_palingon_2`, `cw_lecheria`, `cw_real` | `FieldStaff2026!` |
 | COA Auditor | `auditor_test` | `AuditorTest2026!` |
 
 > These passwords are public in this repository. Anyone who finds your URL can sign in. Share the link only with your panel and team, and delete or pause the services after the defense.
