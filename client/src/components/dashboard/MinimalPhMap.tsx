@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, ZoomControl, useMap } from 'react-leaflet';
+import { CircleMarker, MapContainer, Marker, Popup, TileLayer, Tooltip, ZoomControl, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import type { LatLngBoundsExpression, LatLngExpression } from 'leaflet';
 import { Crosshair, Layers, MapPin } from 'lucide-react';
 
@@ -44,6 +45,30 @@ const STAGES: Record<string, { color: string; label: string }> = {
   UNDER_INVESTIGATION: { color: '#d4901f', label: 'Under investigation (visit dispatched)' },
   NOTICE_OF_INELIGIBILITY: { color: '#2f5d8a', label: 'Notice of ineligibility' },
 };
+// Basemaps: "Streets" is the familiar road map (yellow/orange roads, green parks, blue water, labels);
+// "Light" is a muted style. Both are free with the attribution shown on the map.
+const BASEMAPS = {
+  streets: { label: 'Streets', url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', subdomains: undefined as string | undefined,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' },
+  light: { label: 'Light', url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', subdomains: 'abcd',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>' },
+};
+type BasemapKey = keyof typeof BASEMAPS;
+
+// Household marker: a solid dot with a soft halo; flagged households pulse so they stand out.
+const iconCache = new Map<string, L.DivIcon>();
+function householdIcon(color: string, pulse: boolean): L.DivIcon {
+  const key = `${color}-${pulse}`;
+  if (!iconCache.has(key)) {
+    iconCache.set(key, L.divIcon({
+      className: 'hh-marker',
+      html: `<span class="hh-halo${pulse ? ' hh-pulse' : ''}" style="--c:${color}"></span><span class="hh-dot" style="--c:${color}"></span>`,
+      iconSize: [34, 34], iconAnchor: [17, 17], popupAnchor: [0, -12], tooltipAnchor: [0, -12],
+    }));
+  }
+  return iconCache.get(key)!;
+}
+
 const stageOf = (status: string) => STAGES[status] ?? { color: '#6b7789', label: status.replace(/_/g, ' ').toLowerCase() };
 
 // Keeps the view on the data: fits everything on load and flies to a selected municipality.
@@ -65,6 +90,7 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluste
   const [showMunicipalities, setShowMunicipalities] = useState(households.length === 0);
   const [showHouseholds, setShowHouseholds] = useState(true);
   const [tilesFailed, setTilesFailed] = useState(false);
+  const [basemap, setBasemap] = useState<BasemapKey>('streets');
   const [resetKey, setResetKey] = useState(0);
   const mappedHouseholds = households.filter(h => valid(h.coordinates));
   const bounds = useMemo<LatLngBoundsExpression | null>(() => {
@@ -99,18 +125,18 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluste
           <span className="flex items-center gap-1 text-stone-500"><Layers className="w-3.5 h-3.5" aria-hidden="true" />Show:</span>
           <label className="map-toggle"><input type="checkbox" checked={showMunicipalities} onChange={e => setShowMunicipalities(e.target.checked)} />Municipalities</label>
           <label className="map-toggle"><input type="checkbox" checked={showHouseholds} onChange={e => setShowHouseholds(e.target.checked)} />Households under review ({mappedHouseholds.length})</label>
-          <button type="button" className="map-toggle" onClick={() => setResetKey(k => k + 1)}><Crosshair className="w-3.5 h-3.5" aria-hidden="true" />Fit to data</button>
         </div>
       </div>
 
       <div className="live-map-canvas" role="region" aria-label="Interactive map of municipalities and flagged households. Use the municipality buttons above for keyboard access.">
         <MapContainer center={LAGUNA_CENTER} zoom={13} scrollWheelZoom={false} zoomControl={false} className="h-full w-full" attributionControl>
           <ZoomControl position="topright" />
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            subdomains="abcd" maxZoom={19}
-            eventHandlers={{ tileerror: () => setTilesFailed(true) }}
+          <TileLayer key={basemap}
+            url={BASEMAPS[basemap].url}
+            attribution={BASEMAPS[basemap].attribution}
+            {...(BASEMAPS[basemap].subdomains ? { subdomains: BASEMAPS[basemap].subdomains } : {})}
+            maxZoom={19}
+            eventHandlers={{ tileerror: () => setTilesFailed(true), tileload: () => setTilesFailed(false) }}
           />
           <ViewController bounds={bounds} focus={focus} resetKey={resetKey} />
           {showMunicipalities && pins.filter(p => valid(p.coordinates)).map(pin => {
@@ -129,8 +155,8 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluste
             );
           })}
           {showHouseholds && mappedHouseholds.map(h => (
-            <CircleMarker key={h.household_id} center={toLatLng(h.coordinates)} radius={6}
-              pathOptions={{ color: '#ffffff', weight: 1.5, fillColor: stageOf(h.status).color, fillOpacity: 1 }}>
+            <Marker key={h.household_id} position={toLatLng(h.coordinates)} title={`${h.name}, ${stageOf(h.status).label}`}
+              icon={householdIcon(stageOf(h.status).color, h.status === 'FLAGGED_FOR_REVIEW')}>
               <Popup>
                 <div className="map-popup">
                   <strong>{h.name}</strong>
@@ -141,10 +167,18 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluste
                   {onOpenHousehold && <button type="button" onClick={() => onOpenHousehold(h.household_id)}>Open Triage Queue</button>}
                 </div>
               </Popup>
-              <Tooltip direction="top" offset={[0, -6]}>{h.name} · score {h.score.toFixed(0)}</Tooltip>
-            </CircleMarker>
+              <Tooltip direction="top">{h.name} · score {h.score.toFixed(0)}</Tooltip>
+            </Marker>
           ))}
         </MapContainer>
+        <div className="map-basemap-switch" role="group" aria-label="Map style">
+          {(Object.keys(BASEMAPS) as BasemapKey[]).map(key => (
+            <button key={key} type="button" aria-pressed={basemap === key} onClick={() => setBasemap(key)}>{BASEMAPS[key].label}</button>
+          ))}
+        </div>
+        <button type="button" className="map-fit-button" onClick={() => setResetKey(k => k + 1)} aria-label="Fit map to the data" title="Fit map to the data">
+          <Crosshair className="w-5 h-5" aria-hidden="true" />
+        </button>
         {tilesFailed && <p className="map-offline-note" role="status">Map background unavailable (offline?). Markers still show your data.</p>}
       </div>
 

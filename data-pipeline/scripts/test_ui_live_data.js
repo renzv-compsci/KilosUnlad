@@ -183,9 +183,15 @@ async function browserChecks(t, facts) {
         const r = await call('GET', `/beneficiaries/triage-queue?status=${status}&limit=100`, { token: t.director.token });
         expectedDots += r.data.items.filter(i => Array.isArray(i.address?.coordinates)).length;
       }
-      await page.locator('.live-map-canvas path.leaflet-interactive').first().waitFor({ timeout: 15000 });
-      const dots = await page.locator('.live-map-canvas path.leaflet-interactive').count();
+      await page.locator('.live-map-canvas .hh-marker').first().waitFor({ timeout: 15000 });
+      const dots = await page.locator('.live-map-canvas .hh-marker').count();
       check(`${size} director map: one dot per household under review (${expectedDots})`, dots === expectedDots, dots);
+      await page.locator('.map-basemap-switch button', { hasText: 'Light' }).click();
+      await page.locator('.map-basemap-switch button', { hasText: 'Streets' }).click();
+      await page.locator('.live-map-canvas .hh-marker').first().click();
+      check(`${size} director map: style switch keeps the dots and a dot opens its popup`,
+        (await page.locator('.live-map-canvas .hh-marker').count()) === expectedDots &&
+        await page.locator('.leaflet-popup .map-popup').isVisible());
       await noOverflow(page, `${size} director dashboard`); await shot(page, `${size}-director-dashboard`);
       await nav(page, /Caseworker Dispatch/);
       await page.getByText('UI live-data check').first().waitFor({ state: 'attached', timeout: 10000 }).catch(() => {});

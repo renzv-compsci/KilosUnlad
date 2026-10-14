@@ -382,3 +382,22 @@
 .map-popup-stage { display: inline-flex; align-items: center; gap: 6px; }
 .map-popup-stage i { width: 9px; height: 9px; border-radius: 50%; }
 .live-map-canvas .leaflet-control-zoom a { width: 34px; height: 34px; line-height: 34px; color: #132e4f; }
+
+/* Household markers: solid dot + soft halo (pulsing for flagged households). */
+.hh-marker { background: none; border: 0; }
+.hh-marker .hh-halo, .hh-marker .hh-dot { position: absolute; left: 50%; top: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
+.hh-marker .hh-halo { width: 30px; height: 30px; background: color-mix(in srgb, var(--c) 26%, transparent); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
+.hh-marker .hh-dot { width: 12px; height: 12px; background: var(--c); border: 2px solid #fff; box-shadow: 0 1px 3px rgb(19 46 79 / 35%); }
+.hh-marker .hh-pulse { animation: hh-pulse 2.2s ease-out infinite; }
+@keyframes hh-pulse { 0% { transform: translate(-50%, -50%) scale(.55); opacity: .95; } 100% { transform: translate(-50%, -50%) scale(1.35); opacity: 0; } }
+.hh-marker:focus-visible { outline: none; }
+.hh-marker:focus-visible .hh-dot { outline: 3px solid #132e4f; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .hh-marker .hh-pulse { animation: none; } }
+
+/* Floating map controls, styled like the zoom buttons. */
+.map-basemap-switch { position: absolute; left: 10px; top: 10px; z-index: 500; display: inline-flex; overflow: hidden; border-radius: 8px; background: #fff; box-shadow: 0 1px 5px rgb(19 46 79 / 25%); }
+.map-basemap-switch button { min-height: 34px; padding: 4px 12px; color: #3f4c5e; font-size: 12px; font-weight: 600; cursor: pointer; }
+.map-basemap-switch button[aria-pressed='true'] { background: #132e4f; color: #fff; }
+.map-fit-button { position: absolute; right: 12px; bottom: 34px; z-index: 500; display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 50%; background: #132e4f; color: #fff; box-shadow: 0 2px 8px rgb(19 46 79 / 35%); cursor: pointer; }
+.map-fit-button:hover { background: #0c2340; }
+.map-offline-note { left: 10px; bottom: 34px; }
