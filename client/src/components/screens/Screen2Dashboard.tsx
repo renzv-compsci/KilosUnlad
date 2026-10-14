@@ -48,9 +48,14 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
     fetchInsightsOverview(controller.signal).then(setOverview)
       .catch(failure => { if (!controller.signal.aborted) setOverviewError(apiErrorMessage(failure)); });
     // Map dots: every household in a review stage (existing triage feed, same jurisdiction scope).
-    Promise.all(['FLAGGED_FOR_REVIEW', 'UNDER_INVESTIGATION', 'NOTICE_OF_INELIGIBILITY']
-      .map(status => fetchTriagePage(1, controller.signal, status, 100)))
-      .then(pages => setReviewHouseholds(pages.flatMap(page => page.items)))
+    const allPages = async (status: string) => {   // up to 1,000 households per stage
+      const first = await fetchTriagePage(1, controller.signal, status, 100);
+      const rest = await Promise.all(Array.from({ length: Math.max(0, Math.min(first.pagination.total_pages, 10) - 1) },
+        (_, i) => fetchTriagePage(i + 2, controller.signal, status, 100)));
+      return [first, ...rest].flatMap(page => page.items);
+    };
+    Promise.all(['FLAGGED_FOR_REVIEW', 'UNDER_INVESTIGATION', 'NOTICE_OF_INELIGIBILITY'].map(allPages))
+      .then(stages => setReviewHouseholds(stages.flat()))
       .catch(() => { /* the map falls back to the queue page already loaded */ });
     return () => controller.abort();
   }, []);

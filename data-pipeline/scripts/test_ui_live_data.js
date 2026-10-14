@@ -180,18 +180,35 @@ async function browserChecks(t, facts) {
         (await page.locator('.geography-section').innerText()).includes(facts.overview.municipalities[0]?.municipality ?? '?'));
       let expectedDots = 0;
       for (const status of ['FLAGGED_FOR_REVIEW', 'UNDER_INVESTIGATION', 'NOTICE_OF_INELIGIBILITY']) {
-        const r = await call('GET', `/beneficiaries/triage-queue?status=${status}&limit=100`, { token: t.director.token });
-        expectedDots += r.data.items.filter(i => Array.isArray(i.address?.coordinates)).length;
+        for (let page = 1; page <= 10; page++) {   // the dashboard loads up to 10 pages per stage
+          const r = await call('GET', `/beneficiaries/triage-queue?status=${status}&limit=100&page=${page}`, { token: t.director.token });
+          expectedDots += r.data.items.filter(i => Array.isArray(i.address?.coordinates)).length;
+          if (page >= r.data.pagination.total_pages) break;
+        }
       }
-      await page.locator('.live-map-canvas .hh-marker').first().waitFor({ timeout: 15000 });
-      const dots = await page.locator('.live-map-canvas .hh-marker').count();
-      check(`${size} director map: one dot per household under review (${expectedDots})`, dots === expectedDots, dots);
+      const mapTotal = async () => page.evaluate(() => {
+        const canvas = document.querySelector('.live-map-canvas');
+        const singles = canvas.querySelectorAll('.hh-marker').length;
+        const clustered = [...canvas.querySelectorAll('.hh-cluster')].reduce((sum, el) => sum + Number(el.textContent), 0);
+        return { singles, clusters: canvas.querySelectorAll('.hh-cluster').length, total: singles + clustered };
+      });
+      await page.locator('.live-map-canvas :is(.hh-marker, .hh-cluster-marker)').first().waitFor({ timeout: 15000 });
+      const shown = await mapTotal();
+      check(`${size} director map: dots + cluster counts = households under review (${expectedDots})`, shown.total === expectedDots, shown);
       await page.locator('.map-basemap-switch button', { hasText: 'Light' }).click();
       await page.locator('.map-basemap-switch button', { hasText: 'Streets' }).click();
-      await page.locator('.live-map-canvas .hh-marker').first().click();
-      check(`${size} director map: style switch keeps the dots and a dot opens its popup`,
-        (await page.locator('.live-map-canvas .hh-marker').count()) === expectedDots &&
-        await page.locator('.leaflet-popup .map-popup').isVisible());
+      check(`${size} director map: switching map style keeps every household`, (await mapTotal()).total === expectedDots);
+      if (shown.clusters) {
+        await page.locator('.live-map-canvas .hh-cluster-marker').first().evaluate(el => el.click());
+        await page.waitForTimeout(900);
+        check(`${size} director map: clicking a cluster zooms in and still shows every household`,
+          (await mapTotal()).total === expectedDots, await mapTotal());
+      }
+      for (let zoomIns = 0; zoomIns < 6 && !(await page.locator('.live-map-canvas .hh-marker').count()); zoomIns++) {
+        await page.locator('.leaflet-control-zoom-in').click(); await page.waitForTimeout(450);
+      }
+      await page.locator('.live-map-canvas .hh-marker').first().evaluate(el => el.click());
+      check(`${size} director map: a household dot opens its popup`, await page.locator('.leaflet-popup .map-popup').isVisible());
       await noOverflow(page, `${size} director dashboard`); await shot(page, `${size}-director-dashboard`);
       await nav(page, /Caseworker Dispatch/);
       await page.getByText('UI live-data check').first().waitFor({ state: 'attached', timeout: 10000 }).catch(() => {});

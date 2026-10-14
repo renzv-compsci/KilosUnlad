@@ -401,3 +401,9 @@
 .map-fit-button { position: absolute; right: 12px; bottom: 34px; z-index: 500; display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 50%; background: #132e4f; color: #fff; box-shadow: 0 2px 8px rgb(19 46 79 / 35%); cursor: pointer; }
 .map-fit-button:hover { background: #0c2340; }
 .map-offline-note { left: 10px; bottom: 34px; }
+
+/* Household clusters: count bubble in the most serious stage colour inside. */
+.hh-cluster-marker { background: none; border: 0; }
+.hh-cluster { display: flex; width: var(--s); height: var(--s); align-items: center; justify-content: center; border: 3px solid #fff; border-radius: 50%; background: var(--c); color: #fff; font-size: 13px; font-weight: 700; box-shadow: 0 0 0 5px color-mix(in srgb, var(--c) 28%, transparent), 0 2px 6px rgb(19 46 79 / 30%); cursor: pointer; }
+.hh-cluster-marker:focus-visible { outline: none; }
+.hh-cluster-marker:focus-visible .hh-cluster { outline: 3px solid #132e4f; outline-offset: 3px; }

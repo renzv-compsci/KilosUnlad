@@ -57,12 +57,12 @@ These limits were checked against Render's [free-tier documentation](https://ren
 
 ## 2. Load the data into Atlas (from your computer)
 
-This needs the local Docker stack (validation guide, Step 1). The script seeds the database locally with the project's own reset, seed and fixture scripts, then copies the `kilosunlad` database to Atlas with `mongodump`/`mongorestore`. It does not create or change any schema: collections and indexes arrive exactly as they are locally.
+This needs the local Docker stack (validation guide, Step 1) and Node.js 18 or later on your computer. The populated demo is created through the local API, so every flag is sealed in the ledger exactly as in normal use. The script seeds the database locally with the project's own reset, seed and fixture scripts, then copies the `kilosunlad` database to Atlas with `mongodump`/`mongorestore`. It does not create or change any schema: collections and indexes arrive exactly as they are locally.
 
 ```bash
 docker compose up -d
 ATLAS_ADMIN_URI='mongodb+srv://kilosunlad_admin:<ADMIN_PW>@<HOST>/?retryWrites=true&w=majority' \
-  bash deploy/atlas_seed.sh                 # 80k baseline + test fixtures
+  bash deploy/atlas_seed.sh                 # populated demo: 80k baseline, fixtures, ~1,500 assessed, 30 dispatched
 # or, for a small demo database:
 SEED_80K=0 ATLAS_ADMIN_URI='...' bash deploy/atlas_seed.sh
 ```

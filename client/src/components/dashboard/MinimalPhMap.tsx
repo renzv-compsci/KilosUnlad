@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { CircleMarker, MapContainer, Marker, Popup, TileLayer, Tooltip, ZoomControl, useMap } from 'react-leaflet';
+import { CircleMarker, MapContainer, Marker, Popup, TileLayer, Tooltip, ZoomControl, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import type { LatLngBoundsExpression, LatLngExpression } from 'leaflet';
 import { Crosshair, Layers, MapPin } from 'lucide-react';
@@ -76,7 +76,11 @@ const ViewController: React.FC<{ bounds: LatLngBoundsExpression | null; focus: [
   const map = useMap();
   const firstFocus = useRef(true);
   useEffect(() => {
-    if (bounds) map.fitBounds(bounds, { padding: [48, 48], maxZoom: 15 });
+    if (!bounds) return;
+    // The map mounts lazily; measure the final box size before fitting, or the zoom comes out too close.
+    const fit = () => { map.invalidateSize(); map.fitBounds(bounds, { padding: [48, 48], maxZoom: 15 }); };
+    const timer = window.setTimeout(fit, 60);
+    return () => window.clearTimeout(timer);
   }, [map, bounds, resetKey]);
   useEffect(() => {
     // The first selection is the default one: keep the fitted view. Later picks fly there.
@@ -84,6 +88,78 @@ const ViewController: React.FC<{ bounds: LatLngBoundsExpression | null; focus: [
     if (focus) map.flyTo(focus, Math.max(map.getZoom(), 14), { duration: 0.6 });
   }, [map, focus]);
   return null;
+};
+
+// Stage order used for the cluster tooltip breakdown.
+const STAGE_RANK = ['NOTICE_OF_INELIGIBILITY', 'FLAGGED_FOR_REVIEW', 'UNDER_INVESTIGATION'];
+const CLUSTER_CELL_PX = 80;
+const CLUSTER_UNTIL_ZOOM = 17;
+
+function clusterIcon(count: number, color: string): L.DivIcon {
+  const size = Math.round(Math.min(56, 30 + Math.log2(count) * 5));
+  return L.divIcon({
+    className: 'hh-cluster-marker',
+    html: `<span class="hh-cluster" style="--c:${color};--s:${size}px">${count}</span>`,
+    iconSize: [size, size], iconAnchor: [size / 2, size / 2],
+  });
+}
+
+const HouseholdPopup: React.FC<{ h: MapHousehold; onOpenHousehold?: (id: string) => void }> = ({ h, onOpenHousehold }) => (
+  <Popup>
+    <div className="map-popup">
+      <strong>{h.name}</strong>
+      <span>{h.household_id}</span>
+      <span>{h.barangay}, {h.municipality}</span>
+      <span>Risk score <b>{h.score.toFixed(1)}</b> / 100</span>
+      <span className="map-popup-stage"><i style={{ background: stageOf(h.status).color }} />{stageOf(h.status).label}</span>
+      {onOpenHousehold && <button type="button" onClick={() => onOpenHousehold(h.household_id)}>Open Triage Queue</button>}
+    </div>
+  </Popup>
+);
+
+// Groups nearby households into count bubbles (like Google Maps) until the map is zoomed in close.
+// Clicking a bubble zooms into it. Grouping is recomputed only when the zoom level changes.
+const HouseholdLayer: React.FC<{ households: MapHousehold[]; onOpenHousehold?: (id: string) => void }> = ({ households, onOpenHousehold }) => {
+  const map = useMap();
+  const [zoom, setZoom] = useState(map.getZoom());
+  useMapEvents({ zoomend: () => setZoom(map.getZoom()) });
+  const groups = useMemo(() => {
+    if (zoom >= CLUSTER_UNTIL_ZOOM || households.length <= 40) return households.map(h => ({ key: h.household_id, members: [h] }));
+    const cells = new Map<string, MapHousehold[]>();
+    for (const h of households) {
+      const p = map.project(toLatLng(h.coordinates), zoom);
+      const key = `${Math.floor(p.x / CLUSTER_CELL_PX)}:${Math.floor(p.y / CLUSTER_CELL_PX)}`;
+      cells.set(key, [...(cells.get(key) ?? []), h]);
+    }
+    return [...cells.entries()].map(([key, members]) => ({ key, members }));
+  }, [households, zoom, map]);
+
+  return <>{groups.map(({ key, members }) => {
+    if (members.length === 1) {
+      const h = members[0];
+      return (
+        <Marker key={key} position={toLatLng(h.coordinates)} title={`${h.name}, ${stageOf(h.status).label}`}
+          icon={householdIcon(stageOf(h.status).color, h.status === 'FLAGGED_FOR_REVIEW')}>
+          <HouseholdPopup h={h} onOpenHousehold={onOpenHousehold} />
+          <Tooltip direction="top">{h.name} · score {h.score.toFixed(0)}</Tooltip>
+        </Marker>
+      );
+    }
+    const lat = members.reduce((sum, h) => sum + h.coordinates[1], 0) / members.length;
+    const lng = members.reduce((sum, h) => sum + h.coordinates[0], 0) / members.length;
+    // Bubble colour = the stage most households inside are in; the tooltip gives the exact breakdown.
+    const tally = new Map<string, number>();
+    for (const h of members) tally.set(h.status, (tally.get(h.status) ?? 0) + 1);
+    const majority = [...tally.entries()].sort((a, b) => b[1] - a[1])[0][0];
+    const counts = STAGE_RANK.map(stage => [stageOf(stage).label, members.filter(h => h.status === stage).length] as const).filter(([, n]) => n);
+    return (
+      <Marker key={key} position={[lat, lng]} title={`${members.length} households. Click to zoom in.`}
+        icon={clusterIcon(members.length, stageOf(majority).color)}
+        eventHandlers={{ click: () => map.flyTo([lat, lng], Math.min(map.getZoom() + 2, 18), { duration: 0.5 }) }}>
+        <Tooltip direction="top">{members.length} households: {counts.map(([label, n]) => `${n} ${label.toLowerCase()}`).join(', ')}</Tooltip>
+      </Marker>
+    );
+  })}</>;
 };
 
 export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluster, onSelectCluster, households = [], onOpenHousehold }) => {
@@ -124,7 +200,7 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluste
         <div className="flex flex-wrap items-center gap-2 text-[12px]">
           <span className="flex items-center gap-1 text-stone-500"><Layers className="w-3.5 h-3.5" aria-hidden="true" />Show:</span>
           <label className="map-toggle"><input type="checkbox" checked={showMunicipalities} onChange={e => setShowMunicipalities(e.target.checked)} />Municipalities</label>
-          <label className="map-toggle"><input type="checkbox" checked={showHouseholds} onChange={e => setShowHouseholds(e.target.checked)} />Households under review ({mappedHouseholds.length})</label>
+          <label className="map-toggle"><input type="checkbox" checked={showHouseholds} onChange={e => setShowHouseholds(e.target.checked)} />Households under review ({mappedHouseholds.length.toLocaleString()})</label>
         </div>
       </div>
 
@@ -154,22 +230,7 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluste
               </React.Fragment>
             );
           })}
-          {showHouseholds && mappedHouseholds.map(h => (
-            <Marker key={h.household_id} position={toLatLng(h.coordinates)} title={`${h.name}, ${stageOf(h.status).label}`}
-              icon={householdIcon(stageOf(h.status).color, h.status === 'FLAGGED_FOR_REVIEW')}>
-              <Popup>
-                <div className="map-popup">
-                  <strong>{h.name}</strong>
-                  <span>{h.household_id}</span>
-                  <span>{h.barangay}, {h.municipality}</span>
-                  <span>Risk score <b>{h.score.toFixed(1)}</b> / 100</span>
-                  <span className="map-popup-stage"><i style={{ background: stageOf(h.status).color }} />{stageOf(h.status).label}</span>
-                  {onOpenHousehold && <button type="button" onClick={() => onOpenHousehold(h.household_id)}>Open Triage Queue</button>}
-                </div>
-              </Popup>
-              <Tooltip direction="top">{h.name} · score {h.score.toFixed(0)}</Tooltip>
-            </Marker>
-          ))}
+          {showHouseholds && <HouseholdLayer households={mappedHouseholds} onOpenHousehold={onOpenHousehold} />}
         </MapContainer>
         <div className="map-basemap-switch" role="group" aria-label="Map style">
           {(Object.keys(BASEMAPS) as BasemapKey[]).map(key => (

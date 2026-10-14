@@ -58,33 +58,8 @@ export const Screen1Login: React.FC<Screen1LoginProps> = ({
       {/* Main Login Card */}
       <section aria-labelledby="login-title" className="login-panel">
         
-        {/* Card Header with Official Government Badges */}
+        {/* Card header: KilosUnlad logo and system name */}
         <div className="login-brand-header">
-          <div className="login-seals">
-            
-            {/* Republic Seal */}
-            <div className="login-seal login-republic-seal">
-              <svg viewBox="0 0 100 100" width="72" height="72" aria-hidden="true">
-                <circle cx="50" cy="50" r="46" fill="#0c2340" stroke="#b48c36" strokeWidth="2.5" />
-                <circle cx="50" cy="50" r="42" fill="#ffffff" />
-                <path d="M50 14 L50 86" stroke="#b48c36" strokeWidth="1" strokeDasharray="2 2" />
-                <path d="M14 50 L86 50" stroke="#b48c36" strokeWidth="1" strokeDasharray="2 2" />
-                <path d="M50 20 L60 42 L84 42 L64 56 L72 78 L50 64 L28 78 L36 56 L16 42 L40 42 Z" fill="#b48c36" />
-                <circle cx="50" cy="50" r="10" fill="#0038a8" />
-              </svg>
-            </div>
-
-            {/* DSWD Seal Badge */}
-            <div className="login-seal login-dswd-seal">
-              <span>DSWD</span>
-              <small>4Ps</small>
-            </div>
-
-          </div>
-
-          <div className="login-republic-label">
-            Republic of the Philippines
-          </div>
           <h1 id="login-title" className="login-title-logo">
             <BrandLogo size={44} tone="dark" />
           </h1>
