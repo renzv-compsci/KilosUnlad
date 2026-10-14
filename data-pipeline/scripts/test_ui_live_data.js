@@ -9,6 +9,7 @@
  *   GET /api/v1/users/caseworkers   (admin-caseworker-directory.json)
  *   GET /api/v1/audit/blocks        (audit-block-list.json)
  *   GET /api/v1/system/policy       (admin-policy.json)
+ *   GET /api/v1/insights/map        (admin-map-density.json)
  *
  * Prerequisites:
  * 1. Stack running; reset_demo.sh, then add_dispatch_test.js (one flagged
@@ -125,6 +126,18 @@ async function api(t) {
   check('before=0 -> 400', (await call('GET', '/audit/blocks?before=0', { token: t.auditor.token })).status === 400);
   console.log('');
 
+  console.log('[3b] GET /insights/map...');
+  const m = await call('GET', '/insights/map', { token: t.director.token });
+  check('200; keys match admin-map-density.json', m.status === 200 && keys(m.data) === keys(contract('admin-map-density')) &&
+    keys(m.data.cells[0]) === keys(contract('admin-map-density').cells[0]), m.data && Object.keys(m.data));
+  const mapOverview = (await call('GET', '/insights/overview', { token: t.director.token })).data;
+  check('cell counts add up to every household in scope', m.data.total_households === mapOverview.households.total &&
+    m.data.cells.reduce((sum, c) => sum + c.households, 0) === mapOverview.households.total, [m.data.total_households, mapOverview.households.total]);
+  check('no household identities in the map cells', !/household_id|national_id|full_name/.test(JSON.stringify(m.data)));
+  check('worker 403, query 400', (await call('GET', '/insights/map', { token: t.worker.token })).status === 403 &&
+    (await call('GET', '/insights/map?x=1', { token: t.director.token })).status === 400);
+  console.log('');
+
   console.log('[4] GET /system/policy...');
   const p = await call('GET', '/system/policy', { token: t.director.token });
   check('200; keys match admin-policy.json', p.status === 200 && keys(p.data) === keys(contract('admin-policy')), p.data);
@@ -193,6 +206,10 @@ async function browserChecks(t, facts) {
         return { singles, clusters: canvas.querySelectorAll('.hh-cluster').length, total: singles + clustered };
       });
       await page.locator('.live-map-canvas :is(.hh-marker, .hh-cluster-marker)').first().waitFor({ timeout: 15000 });
+      const total = (await call('GET', '/insights/overview', { token: t.director.token })).data.households.total;
+      await page.locator('.map-layer-bar', { hasText: 'All households in scope' }).waitFor({ timeout: 15000 });
+      check(`${size} director map: 'All households in scope' layer shows ${total.toLocaleString('en-US')}`,
+        (await page.locator('.map-layer-bar').innerText()).includes(`All households in scope (${total.toLocaleString('en-US')})`));
       const shown = await mapTotal();
       check(`${size} director map: dots + cluster counts = households under review (${expectedDots})`, shown.total === expectedDots, shown);
       await page.locator('.map-basemap-switch button', { hasText: 'Light' }).click();

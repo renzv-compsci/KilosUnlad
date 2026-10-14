@@ -1,0 +1,34 @@
+{
+  "contract_name": "admin-map-density",
+  "version": "1.0.0",
+  "revision_note": "2026-10-14 (UI live data, DECISION-010 addendum): household counts per map cell for the dashboard map's 'All households' layer, so every household in the caller's jurisdiction can be drawn without sending 80,000 records. Cells are 0.002 degrees (about 220 m) on a side, keyed by the cell's lower-left corner; `center` is the cell centre. Counts use the same jurisdiction filter as the triage feed. No household identifiers or names are returned.",
+  "endpoint": "/api/v1/insights/map",
+  "method": "GET",
+  "headers": {
+    "Authorization": "Bearer <JWT_ACCESS_TOKEN>"
+  },
+  "access": "SUPER_ADMIN, REGIONAL_DIRECTOR, COA_AUDITOR (jurisdiction-scoped). No query parameters.",
+  "response": {
+    "status": 200,
+    "data": {
+      "generated_at": "2026-10-14T09:00:00.000Z",
+      "cell_size_deg": 0.002,
+      "total_households": 80007,
+      "cells": [
+        {
+          "center": [121.165, 14.211],
+          "households": 42,
+          "active_compliant": 39,
+          "under_review": 3
+        }
+      ]
+    }
+  },
+  "errors": [
+    { "status": 401, "code": "UNAUTHORIZED" },
+    { "status": 403, "code": "FORBIDDEN" },
+    { "status": 403, "code": "OUT_OF_JURISDICTION" },
+    { "status": 400, "code": "INVALID_QUERY" },
+    { "status": 503, "code": "SERVICE_UNAVAILABLE" }
+  ]
+}

@@ -112,6 +112,9 @@ module.exports = function createRouter({ mockMode, production, authService = cre
   router.get('/insights/overview', authenticate,
     allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR), scopeJurisdiction,
     feed(req => insights.overview(req.query, req.jurisdictionFilter, req.user)));
+  router.get('/insights/map', authenticate,
+    allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR, R.COA_AUDITOR), scopeJurisdiction,
+    feed(req => insights.mapDensity(req.query, req.jurisdictionFilter)));
   router.get('/tasks', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR), scopeJurisdiction,
     feed(req => insights.tasksList(req.query, req.jurisdictionFilter)));
   router.get('/users/caseworkers', authenticate, allowRoles(R.SUPER_ADMIN, R.REGIONAL_DIRECTOR), scopeJurisdiction,

@@ -140,6 +140,23 @@ test('UI live-data read routes: scope, roles, validation and contract shapes', {
     for (const q of ['limit=101', 'before=0', 'before=x']) assert.equal((await get('coa', 'audit/blocks?' + q)).status, 400, q);
   });
 
+  await t.test('GET /insights/map returns scoped household counts per cell, no identities', async () => {
+    const d = await get('director', 'insights/map');
+    assert.equal(d.status, 200); assert.equal(d.cache, 'no-store');
+    assert.deepEqual(keys(d.data), keys(contract('admin-map-density')));
+    assert.deepEqual(keys(d.data.cells[0]), keys(contract('admin-map-density').cells[0]));
+    assert.equal(d.data.total_households, 4, 'same scope as the overview');
+    assert.equal(d.data.cells.reduce((sum, c) => sum + c.households, 0), 4);
+    assert.equal(d.data.cells.reduce((sum, c) => sum + c.active_compliant, 0), 1);
+    assert.equal(d.data.cells.reduce((sum, c) => sum + c.under_review, 0), 3, 'flagged + investigation + notice');
+    assert.ok(d.data.cells.every(c => Math.abs(c.center[0] - 121.161) < 0.002 && Math.abs(c.center[1] - 14.211) < 0.002), 'cell centre near the points');
+    assert.equal(/H-[A-Z]|NID-|Ana/.test(JSON.stringify(d.data)), false, 'no household identities');
+    assert.equal((await get('coa', 'insights/map')).data.total_households, 6);
+    assert.equal((await get('worker', 'insights/map')).status, 403);
+    assert.equal((await get(null, 'insights/map')).status, 401);
+    assert.equal((await get('director', 'insights/map?precision=5')).status, 400);
+  });
+
   await t.test('GET /system/policy reports the enforced values', async () => {
     const d = await get('director', 'system/policy');
     assert.equal(d.status, 200);

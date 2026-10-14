@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { ScreenId } from '../../types/navigation';
 import type { BeneficiaryTriageItem } from '../../types/contracts';
-import { apiErrorMessage, fetchInsightsOverview, fetchTriagePage, InsightsOverview, type TriageSummary } from '../../services/api';
+import { apiErrorMessage, fetchAdminTasks, fetchInsightsOverview, fetchMapDensity, fetchTriagePage, InsightsOverview, type MapDensity, type TriageSummary } from '../../services/api';
 import { displayDate } from '../../utils/displayDate';
 import { 
   Users, 
@@ -42,6 +42,8 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
   // Live aggregates for the caller's jurisdiction (GET /insights/overview, DECISION-010).
   const [overview, setOverview] = useState<InsightsOverview | null>(null);
   const [reviewHouseholds, setReviewHouseholds] = useState<BeneficiaryTriageItem[] | null>(null);
+  const [density, setDensity] = useState<MapDensity | null>(null);
+  const [taskByHousehold, setTaskByHousehold] = useState<Map<string, string>>(new Map());
   const [overviewError, setOverviewError] = useState('');
   useEffect(() => {
     const controller = new AbortController();
@@ -57,6 +59,16 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
     Promise.all(['FLAGGED_FOR_REVIEW', 'UNDER_INVESTIGATION', 'NOTICE_OF_INELIGIBILITY'].map(allPages))
       .then(stages => setReviewHouseholds(stages.flat()))
       .catch(() => { /* the map falls back to the queue page already loaded */ });
+    // All households in scope as map-cell counts, and each household's latest field-task status.
+    fetchMapDensity(controller.signal).then(setDensity).catch(() => { /* the layer is simply not shown */ });
+    (async () => {
+      const first = await fetchAdminTasks({ page: 1, limit: 100 }, controller.signal);
+      const rest = await Promise.all(Array.from({ length: Math.max(0, Math.min(first.pagination.total_pages, 10) - 1) },
+        (_, i) => fetchAdminTasks({ page: i + 2, limit: 100 }, controller.signal)));
+      const latest = new Map<string, string>();   // tasks come newest first
+      for (const task of [first, ...rest].flatMap(page => page.items)) if (!latest.has(task.household_id)) latest.set(task.household_id, task.task_status);
+      setTaskByHousehold(latest);
+    })().catch(() => { /* without tasks, dispatched households show as open field tasks */ });
     return () => controller.abort();
   }, []);
 
@@ -97,7 +109,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
   const zones = overview?.calamity.active_zones ?? [];
   const mapHouseholds: MapHousehold[] = (reviewHouseholds ?? triageItems).filter(item => Array.isArray(item.address.coordinates)).map(item => ({
     household_id: item.household_id, name: item.head_of_household.full_name, barangay: item.address.barangay,
-    municipality: item.address.municipality, score: item.composite_risk_score, status: item.status,
+    municipality: item.address.municipality, score: item.composite_risk_score, status: item.status, task: taskByHousehold.get(item.household_id),
     coordinates: item.address.coordinates as [number, number],
   }));
 
@@ -521,7 +533,7 @@ export const Screen2Dashboard: React.FC<Screen2DashboardProps> = ({
             {geoViewMode === 'map' ? (
               <React.Suspense fallback={<p className="p-6 text-xs text-stone-500" role="status">Loading map…</p>}>
                 <MinimalPhMap pins={pins} selectedCluster={activePin.municipality} onSelectCluster={setSelectedCluster}
-                  households={mapHouseholds} onOpenHousehold={() => onNavigateToScreen('triage')} />
+                  households={mapHouseholds} density={density?.cells ?? []} onOpenHousehold={() => onNavigateToScreen('triage')} />
               </React.Suspense>
             ) : (
               <div className="p-4 sm:p-6 space-y-4 bg-stone-50/40 min-h-[380px]">

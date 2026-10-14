@@ -398,3 +398,13 @@ export async function fetchPolicy(signal?: AbortSignal): Promise<PolicySnapshot>
   if (!data?.risk_score) throw new Error('Policy response did not match the contract.');
   return data as PolicySnapshot;
 }
+
+export interface MapDensity { generated_at: string; cell_size_deg: number; total_households: number;
+  cells: { center: [number, number]; households: number; active_compliant: number; under_review: number }[] }
+
+// Household counts per map cell for the dashboard map (admin-map-density.json).
+export async function fetchMapDensity(signal?: AbortSignal): Promise<MapDensity> {
+  const { data } = await api.get('/insights/map', { signal });
+  if (!Array.isArray(data?.cells) || !Number.isSafeInteger(data?.total_households)) throw new Error('Map response did not match the contract.');
+  return data as MapDensity;
+}
