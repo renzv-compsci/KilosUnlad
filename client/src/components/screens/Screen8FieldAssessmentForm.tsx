@@ -42,7 +42,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
   const [roofConstruction, setRoofConstruction] = useState<1 | 2 | 3 | null>(null);
   const [waterAccess, setWaterAccess] = useState<1 | 2 | 3 | null>(null);
 
-  // Section 2: Livelihood Asset Verification (The Motorcycle Check)
+  // 2. Vehicles and work assets (The Motorcycle Check)
   const [isMotorcyclePresent, setIsMotorcyclePresent] = useState<boolean | null>(null);
   const [isProductiveAsset, setIsProductiveAsset] = useState<boolean | null>(null);
   const [proofType, setProofType] = useState<
@@ -50,12 +50,12 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
   >('');
   const [franchiseNumber, setFranchiseNumber] = useState('');
 
-  // Section 3: Anti-Loan Shark Check (Sangla-ATM)
+  // 3. The 4Ps cash card
   const [physicalCardPresented, setPhysicalCardPresented] = useState<boolean | null>(null);
   const [cardMatchesBeneficiary, setCardMatchesBeneficiary] = useState<boolean | null>(null);
   const [pawningSuspected, setPawningSuspected] = useState<boolean | null>(null);
 
-  // Section 4: Geotagged Camera Capture
+  // 4. Photo of the house
   const [photoCaptured, setPhotoCaptured] = useState(false);
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [clientSideHash, setClientSideHash] = useState('');
@@ -162,10 +162,10 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
   };
 
   const steps = [
-    { num: 1, title: 'Living Conditions', icon: Home },
-    { num: 2, title: 'Asset Check', icon: Bike },
-    { num: 3, title: 'Anti-Loan Shark', icon: CreditCard },
-    { num: 4, title: 'Geotagged Camera', icon: Camera },
+    { num: 1, title: 'Living conditions', icon: Home },
+    { num: 2, title: 'Assets', icon: Bike },
+    { num: 3, title: 'Cash card', icon: CreditCard },
+    { num: 4, title: 'Photo', icon: Camera },
     { num: 5, title: 'Recommendation', icon: FileText }
   ];
 
@@ -180,12 +180,12 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
           className="min-h-[38px] px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 rounded-lg flex items-center space-x-1.5 shadow-xs cursor-pointer"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span>Back to Field Tasks</span>
+          <span>Back to visits</span>
         </button>
 
         <div className="text-right">
-          <span className="text-[10px] font-mono text-slate-400 block">
-            Target: {task.household_id}
+          <span className="text-[11px] text-slate-500 block tabular-nums">
+            {task.household_id}
           </span>
           <span className="text-xs font-bold text-slate-800">
             {task.head_of_household.first_name} {task.head_of_household.last_name}
@@ -250,11 +250,11 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <div className="flex items-center space-x-2 text-blue-900">
                 <Home className="w-4 h-4 text-blue-700" />
                 <h3 className="text-base font-bold text-slate-900">
-                  Section 1: Living Conditions (SWDI Scoring)
+                  1. The house
                 </h3>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Standardized DSWD Social Welfare and Development Indicator physical criteria.
+                Check the walls, roof and water source. These follow the DSWD SWDI criteria.
               </p>
             </div>
 
@@ -354,7 +354,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <div className="flex items-center space-x-2 text-blue-900">
                 <Bike className="w-4 h-4 text-blue-700" />
                 <h3 className="text-base font-bold text-slate-900">
-                  Section 2: Livelihood Asset Verification
+                  2. Vehicles and work assets
                 </h3>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -462,7 +462,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                     value={franchiseNumber}
                     onChange={(e) => setFranchiseNumber(e.target.value)}
                     placeholder="e.g. MV-2024-88190 or MTOP-CAL-110"
-                    className="w-full min-h-[40px] px-3 border border-slate-200 rounded-lg text-xs font-mono bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-700"
+                    className="w-full min-h-[40px] px-3 border border-slate-200 rounded-lg text-xs bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-700"
                   />
                 </div>
 
@@ -478,7 +478,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <div className="flex items-center space-x-2 text-blue-900">
                 <CreditCard className="w-4 h-4 text-blue-700" />
                 <h3 className="text-base font-bold text-slate-900">
-                  Section 3: Anti-Loan Shark Check (Sangla-ATM)
+                  3. The 4Ps cash card
                 </h3>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -516,11 +516,11 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <div className="flex items-center space-x-2 text-blue-900">
                 <Camera className="w-4 h-4 text-blue-700" />
                 <h3 className="text-base font-bold text-slate-900">
-                  Section 4: Geotagged Camera Capture
+                  4. Photo of the house
                 </h3>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Photo evidence with device location and a SHA-256 file checksum.
+                Take one clear photo of the house from outside. The phone adds its location and time.
               </p>
             </div>
 
@@ -530,8 +530,8 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                 <div className="relative w-full h-full bg-slate-800 flex items-center justify-center">
                   <img src={photoDataUrl} alt="Captured field evidence" className="h-full w-full object-contain" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent flex flex-col justify-end p-4">
-                    <span className="text-[10px] font-mono text-emerald-400 font-semibold uppercase">
-                      Evidence Captured & Geotagged
+                    <span className="text-xs text-emerald-300 font-semibold">
+                      Photo saved with its location
                     </span>
                     <span className="text-xs font-medium text-white">
                       Field verification evidence
@@ -558,13 +558,13 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80">
                 <div className="flex items-center space-x-1.5 text-xs font-semibold text-slate-700 mb-0.5">
                   <MapPin className="w-3.5 h-3.5 text-red-600" />
-                  <span>GPS Coordinates</span>
+                  <span>Location</span>
                 </div>
-                <div className="font-mono text-xs font-semibold text-slate-900">
-                  {photoCaptured && gpsData ? `Lat: ${gpsData.latitude.toFixed(6)}, Lon: ${gpsData.longitude.toFixed(6)}` : 'Waiting for device location'}
+                <div className="text-xs font-semibold text-slate-900 tabular-nums">
+                  {photoCaptured && gpsData ? `${gpsData.latitude.toFixed(6)}, ${gpsData.longitude.toFixed(6)}` : 'Waiting for device location'}
                 </div>
                 <div className="text-[10px] text-emerald-700 mt-0.5">
-                  {photoCaptured && gpsData ? `Accuracy: +/-${gpsData.accuracy_m.toFixed(1)}m` : 'High-accuracy GPS will be requested with the photo'}
+                  {photoCaptured && gpsData ? `Within ${gpsData.accuracy_m.toFixed(0)} m` : 'Your phone is asked for its location when you take the photo'}
                 </div>
               </div>
 
@@ -572,13 +572,13 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80">
                 <div className="flex items-center space-x-1.5 text-xs font-semibold text-blue-900 mb-0.5">
                   <Hash className="w-3.5 h-3.5 text-blue-700" />
-                  <span>SHA-256 Checksum</span>
+                  <span>Photo fingerprint</span>
                 </div>
                 <div className="font-mono text-xs font-medium text-blue-950 truncate">
                   {clientSideHash || 'Waiting for photo'}
                 </div>
                 <div className="text-[10px] text-slate-400 mt-0.5">
-                  Calculated automatically upon photo capture
+                  SHA-256, made on this phone. Shows the photo was not changed later.
                 </div>
               </div>
 
@@ -602,7 +602,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
                 className="w-full min-h-[42px] py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg text-xs flex items-center justify-center space-x-2 transition cursor-pointer"
               >
                 {isProcessingPhoto || isLocating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4 text-amber-300" />}
-                <span>{isProcessingPhoto || isLocating ? 'Securing Photo & GPS...' : photoCaptured ? 'Retake Photo Evidence' : 'Capture Photo Evidence'}</span>
+                <span>{isProcessingPhoto || isLocating ? 'Getting location…' : photoCaptured ? 'Retake photo' : 'Take photo'}</span>
               </button>
               {(captureError || gpsError) && (
                 <p className="mt-2 text-xs text-red-700" role="alert">{captureError || gpsError}</p>
@@ -619,7 +619,7 @@ export const Screen8FieldAssessmentForm: React.FC<Screen8FieldAssessmentFormProp
               <div className="flex items-center space-x-2 text-blue-900">
                 <FileText className="w-4 h-4 text-blue-700" />
                 <h3 className="text-base font-bold text-slate-900">
-                  Section 5: Recommendation & Narrative
+                  5. Your recommendation
                 </h3>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">

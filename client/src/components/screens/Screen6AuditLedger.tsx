@@ -155,7 +155,7 @@ export const Screen6AuditLedger: React.FC<Screen6AuditLedgerProps> = ({
         <div className="flex items-center justify-between pb-3 border-b border-stone-100">
           <div>
             <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2 font-display">
-              <Link2 className="w-4 h-4 text-[#132e4f]" />
+              <Link2 className="w-4 h-4 text-[#13233f]" />
               <span>Sequential Block Lineage</span>
             </h3>
             <p className="text-xs text-stone-500 mt-0.5">
@@ -183,8 +183,8 @@ export const Screen6AuditLedger: React.FC<Screen6AuditLedgerProps> = ({
                 className="relative group"
               >
                 {/* Node Connector Circle */}
-                <div className="absolute -left-[27px] sm:-left-[31px] top-4 w-4 h-4 rounded-full bg-white border-2 border-[#132e4f] flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#132e4f]"></div>
+                <div className="absolute -left-[27px] sm:-left-[31px] top-4 w-4 h-4 rounded-full bg-white border-2 border-[#13233f] flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#13233f]"></div>
                 </div>
 
                 {/* Block Card */}
@@ -193,7 +193,7 @@ export const Screen6AuditLedger: React.FC<Screen6AuditLedgerProps> = ({
                   {/* Block Header */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-stone-200/90">
                     <div className="flex items-center space-x-2.5">
-                      <span className="font-mono font-bold text-xs text-[#132e4f] bg-stone-100 px-2 py-0.5 rounded border border-stone-200">
+                      <span className="font-mono font-bold text-xs text-[#13233f] bg-stone-100 px-2 py-0.5 rounded border border-stone-200">
                         Block #{block.sequence_index}
                       </span>
                       <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 font-mono border border-stone-200/80">
@@ -218,7 +218,7 @@ export const Screen6AuditLedger: React.FC<Screen6AuditLedgerProps> = ({
                         <span className="truncate text-stone-600">{block.previous_entry_hash}</span>
                         <button
                           onClick={() => handleCopyHash(block.previous_entry_hash)}
-                          className="text-stone-400 hover:text-[#132e4f] ml-1.5 shrink-0 cursor-pointer"
+                          className="text-stone-400 hover:text-[#13233f] ml-1.5 shrink-0 cursor-pointer"
                           title="Copy hash"
                         >
                           {copiedHash === block.previous_entry_hash ? (
@@ -232,14 +232,14 @@ export const Screen6AuditLedger: React.FC<Screen6AuditLedgerProps> = ({
 
                     {/* Current Entry Hash */}
                     <div className="bg-white p-2.5 rounded-lg border border-stone-200/90">
-                      <span className="text-[10px] font-semibold text-[#132e4f] uppercase tracking-wider block font-sans">
+                      <span className="text-[10px] font-semibold text-[#13233f] uppercase tracking-wider block font-sans">
                         Current Entry Hash
                       </span>
                       <div className="flex items-center justify-between text-stone-900 font-semibold mt-1">
                         <span className="truncate">{block.entry_hash}</span>
                         <button
                           onClick={() => handleCopyHash(block.entry_hash)}
-                          className="text-stone-400 hover:text-[#132e4f] ml-1.5 shrink-0 cursor-pointer"
+                          className="text-stone-400 hover:text-[#13233f] ml-1.5 shrink-0 cursor-pointer"
                           title="Copy hash"
                         >
                           {copiedHash === block.entry_hash ? (
@@ -266,7 +266,7 @@ export const Screen6AuditLedger: React.FC<Screen6AuditLedgerProps> = ({
 
                     <div className="flex items-center space-x-1 font-mono text-[11px] text-stone-500">
                       <span>Target Household:</span>
-                      <span className="font-semibold text-[#132e4f]">{block.household_id}</span>
+                      <span className="font-semibold text-[#13233f]">{block.household_id}</span>
                     </div>
                   </div>
 
@@ -275,7 +275,7 @@ export const Screen6AuditLedger: React.FC<Screen6AuditLedgerProps> = ({
                     <button
                       id={`toggle-delta-block-${block.sequence_index}`}
                       onClick={() => setExpandedBlockIndex(isExpanded ? null : block.sequence_index)}
-                      className="text-xs font-semibold text-[#132e4f] hover:text-[#0c2340] flex items-center space-x-1 cursor-pointer"
+                      className="text-xs font-semibold text-[#13233f] hover:text-[#13233f] flex items-center space-x-1 cursor-pointer"
                     >
                       <FileCode className="w-3.5 h-3.5" />
                       <span>{isExpanded ? 'Hide State Delta' : 'View State Delta JSON Diff'}</span>

@@ -1,14 +1,19 @@
 # KilosUnlad: scenarios to test yourself
 
-Fifteen scenarios you can run by hand, in the browser, from a clean start, plus an 18-minute live-demo run order for the panel (§D). Each scenario lists:
+Manual tests for every role, run by hand in the browser. The document has three parts:
+- **§R, tests by role** (Director, Caseworker, COA Auditor, Super Admin) on the 20,000-household **deployment dataset**. Start here.
+- **S1–S15**, the same flows written step by step on a small 7-household set, for when you need exact numbers.
+- **§D**, an 18-minute live-demo run order for the panel.
+
+Each test lists:
 - the account to use;
 - the steps;
 - what you should see;
 - what it proves.
 
-Each scenario's ID (S1–S15, D1–D11) and its automated equivalent (TC, CAP, UT) are indexed in `MASTER_TEST_CATALOG.md` §9.
+Each test's ID (DIR, CW, COA, ADM, X; S1–S15; D1–D11) and its automated equivalent (TC, CAP, UT) are indexed in `MASTER_TEST_CATALOG.md` §9.
 
-They run on the local Docker stack. (The free-hosting files in `deploy/` are kept but are not used for the demo.)
+They run on the local Docker stack, or on the hosted copy (`deploy/HOSTING_GUIDE.md`): there, replace `http://localhost` with your site's address and skip the `docker` steps.
 - A few actions have no button in the UI: the risk assessment, the calamity declaration, the early-graduation check and the tamper steps. For those, the scenario gives one `curl` or `docker exec` command.
 - **Every run starts with §0** (current build, then a data reset). §0.6 says which reset each scenario needs.
 - If something looks wrong, check §T (Troubleshooting) before filing a bug: most reports come from an out-of-date image.
@@ -45,13 +50,20 @@ set +H                      # stop "!" in passwords from triggering "event not f
 The scripts in `data-pipeline/scripts/` already do this for themselves. WSL, Linux and macOS need nothing.
 
 ### 0.4 Reset the data
+**Deployment dataset (for §R and §D):**
+```bash
+bash data-pipeline/scripts/load_deployment_data.sh
+node data-pipeline/scripts/test_deployment_dataset.js     # optional: 12 checks, all [OK]
+```
+About a minute. It loads 20,000 households in Calamba (Palingon, Lecheria, Real) plus Case A, adds a caseworker for every barangay, and then creates the activity **through the API**, as real users would: the model assesses households until 32 are flagged (range 25–40), 12 are dispatched, 4 field reports come back with a photo, and the director issues one notice and keeps one family on the program. Expect the last lines `ledger 1-50 valid: true` and `[SUCCESS] Deployment dataset populated.`
+
 **Small set (for S1–S15):**
 ```bash
 bash data-pipeline/scripts/reset_test_data.sh
 ```
 Expect the last lines: `households: 7, tasks: 3, ledger blocks: 0` and `Ready.` It runs `reset-demo` (users, indexes, 5 test households, empty ledger) and loads the three fixtures (Case A, Lorna Bautista under notice, Dispatch TestSubject). Then open <http://localhost>.
 
-**Demo dataset (for presenting to the panel, §D):**
+**80k demo dataset (optional, a larger load):**
 ```bash
 bash data-pipeline/scripts/reset_test_data.sh demo
 ```
@@ -69,6 +81,7 @@ It loads the 80,000-household baseline, the fixtures, and realistic activity cre
 | Super Admin | `super_admin_test` | `SuperAdminTest2026!` |
 | Case Worker (Municipal Link) | `case_worker_test` | `CaseWorkerTest2026!` |
 | COA Auditor | `auditor_test` | `AuditorTest2026!` |
+| Caseworkers, deployment dataset only | `cw_palingon_1`, `cw_palingon_2`, `cw_lecheria`, `cw_real` | `FieldStaff2026!` |
 
 Paste this into the same terminal (passwords and the database address are in single quotes on purpose):
 ```bash
@@ -85,16 +98,17 @@ Tokens expire after 15 minutes; re-run the last three lines if a `curl` returns 
 ### 0.6 Which reset each scenario needs
 | Scenario | Start from | Notes |
 | --- | --- | --- |
+| §R (DIR, CW, COA, ADM, X) | 0.4 deployment dataset | run in the order written; reload after COA-05 (it breaks the ledger on purpose) |
 | S1, S2, S3, S11, S12 | 0.4 small set | read-only; can run one after another without a reset |
 | S4 → S5 | 0.4 small set | S5 continues from S4 (the task you dispatched) |
-| S6 | 0.4 small set | uses Rosa Villanueva's existing task |
+| S6 | 0.4 small set | uses Rosa Villanueva's existing task; reset between part A and part B |
 | S7 | 0.4 small set | Case A must not have been assessed yet |
 | S8 | 0.4 small set | Lorna Bautista's notice must not have an appeal yet |
 | S9, S10 | 0.4 small set | reset afterwards (S9 leaves a calamity record; S10 breaks the ledger on purpose) |
 | S13 | 0.4 small set | chains S7 → S4 → S5 for Case A |
 | S14 | 0.4 small set | chains S7 → S4 → S5 for Case A, with a "retain" report |
 | S15 | 0.4 small set | uses Lorna Bautista; reset between "Granted" and "Denied" |
-| D1–D11 | 0.4 demo dataset | in the order of §D |
+| D1–D11 | 0.4 deployment dataset | in the order of §D |
 
 ### What the clean data contains (small set)
 
@@ -110,7 +124,94 @@ Tokens expire after 15 minutes; re-run the last three lines if a `curl` returns 
 
 The ledger is empty. Every block you see later was created by your own actions.
 
+## R. Tests by role (deployment dataset)
+
+These tests run on the **deployment dataset** (§0.4). Nothing in them is a fixed answer written into the app: every number and name comes from the database, so the steps tell you **where to read the expected value** instead of printing it. The figures in *italics* are what a standard load (`load_deployment_data.sh`) produces; if you assessed or dispatched something yourself, your numbers move with it, and that is the point.
+
+How the dataset is built, so you know what to expect:
+- 20,000 generated households plus Case A (`DEMO-4PS-GRAD-0001`), all in Calamba, Laguna, in the barangays Palingon, Lecheria and Real.
+- The model assessed households barangay by barangay until **32** scored 70 or more (allowed range 25–40). Each flag is a `MODEL_FLAG_RAISED` ledger block with its SHAP explanation.
+- 12 of them were dispatched, each to a caseworker who covers that barangay. Four reports came back with a geotagged photo (two recommend graduation, two recommend keeping the family). The director then issued one notice and kept one family on the program.
+
+Test IDs: **DIR** = Regional Director, **CW** = Caseworker, **COA** = COA Auditor, **ADM** = Super Admin, **X** = across roles. The last column points to the detailed small-set scenario (S#) with the same flow.
+
+### R.1 Regional Director (`director_test`)
+
+| ID | Steps | Expect | Same flow |
+| --- | --- | --- | --- |
+| DIR-01 | Sign in. Open **Executive Overview**. | Lands on Executive Overview. *Households in Scope* reads *20,001*; *Flagged by Risk Score* is between 25 and 40 (*32*); *Open Field Tasks* *8*. The menu has Executive Overview, Triage Queue, Caseworker Dispatch, 15-Day Due Process, Policy Settings, and no audit screens. | S1, S2 |
+| DIR-02 | On the same page, compare *Flagged by Risk Score* with **Current workload → High-risk beneficiaries**, then switch the tabs (Flagged, Field Dispatched, Caseload, Graduated). | The two flagged numbers are equal. The *Risk severity* ring adds up to the flagged number, and *Below threshold* is households minus flagged. The map shades all 20,001 households and marks the households under review. | S2 |
+| DIR-03 | Open **Triage Queue**. Note the household at the top. Use the **Severity** and **Municipality** filters, then the search box with that household's ID. | The header shows the number of households still waiting for dispatch (*20*). The list is sorted by risk score, highest first. Search finds the household by name, household ID or PhilSys ID. | S3 |
+| DIR-04 | Open **Details** on the top household. | The trigger badges (e.g. *Meralco > 200 kWh*, *AI Predicted Level 3*), the score, and the sealed model explanation with its ledger block number. | S3, S7 |
+| DIR-05 | Click **Dispatch** on the top household. Open the **Caseworker** list. | Only active caseworkers who cover that household's barangay are listed: Palingon → Andrea Lim, Rafael Mendoza, Test Case Worker; Lecheria → Benjo Ramos; Real → Carmela Dizon, Test Case Worker. The busiest caseworker shows the most open tasks. | S4 |
+| DIR-06 | Choose a caseworker, write instructions, set a future deadline, confirm. Open **Caseworker Dispatch**, then reload **Executive Overview**. | "Task dispatched" with a task ID and the next ledger sequence number (*51* on a fresh load). The household leaves the Triage Queue (count drops by 1) and appears first in Caseworker Dispatch as *Awaiting visit*. *Open Field Tasks* goes up by 1. **Write down the caseworker and household for CW-02.** | S4 |
+| DIR-07 | In **Caseworker Dispatch**, open a task marked **Review report** whose report recommends graduation. Write grounds (10+ characters) and click **Approve graduation and issue notice**. | The photo shows **Hash verified**. The receipt shows the 15-day appeal window and a ledger block. The household now appears in **15-Day Due Process**. | S13 |
+| DIR-08 | Open the other **Review report** task (the one recommending the family stays). Write grounds and click **Keep on the program**. | Only **Keep on the program** is offered. The receipt gives the date (180 days later) before the model may flag the family again. The task shows *Verified: retain*. | S14 |
+| DIR-09 | Open **15-Day Due Process**. Pick the household under notice (*Leslie A. Thomas*, Lecheria, on a fresh load). **File Appeal** with a docket reference, a hearing date of **today**, and grounds. Then **Record hearing outcome** → **Granted**. | The countdown shows, then pauses when the appeal is filed. After the outcome, "Appeal … granted", a ledger block number, and the household is active again. Filing a second appeal on the same notice is refused. | S8, S15 |
+| DIR-10 | Try to flag a household that was just kept on the program (DIR-08), using its household ID: `curl -s -X POST $API/beneficiaries/<ID>/assess -H "Authorization: Bearer $DIR" -H 'Content-Type: application/json' -d '{}'` | `RETENTION_COOLDOWN`: the model may not flag the family again for 180 days. | S14 |
+| DIR-11 | Assess Case A live: `curl -s -X POST $API/beneficiaries/DEMO-4PS-GRAD-0001/assess -H "Authorization: Bearer $DIR" -H 'Content-Type: application/json' -d '{}'`. Reload Triage Queue. | `predicted_swdi_level: 3`, score ≥ 70, status `FLAGGED_FOR_REVIEW`. Case A (Miguel Villanueva) appears in the queue, and the flagged count on Executive Overview goes up by 1. | S7 |
+| DIR-12 | Open **Policy Settings**. | The flag threshold (70), the 15-day appeal window, the 250 m geofence and any calamity declarations, read from the server. They are shown read-only ("cannot be edited here"). | S9 |
+
+### R.2 Caseworker (Municipal Link)
+
+Use the caseworker who covers the household you dispatched in DIR-06, or any of these (password `FieldStaff2026!`; `case_worker_test` keeps `CaseWorkerTest2026!`):
+
+| Username | Name | Covers |
+| --- | --- | --- |
+| `cw_palingon_1` | Andrea Lim | Palingon |
+| `cw_palingon_2` | Rafael Mendoza | Palingon |
+| `cw_lecheria` | Benjo Ramos | Lecheria |
+| `cw_real` | Carmela Dizon | Real |
+| `case_worker_test` | Test Case Worker | Palingon, Real |
+
+To stand "at" a household, you need its coordinates. Print them for the caseworker you are testing (the pairs are **longitude, latitude**):
+```bash
+CWX=$(tok cw_lecheria 'FieldStaff2026!')      # change to the caseworker you are testing
+curl -s $API/tasks/assigned -H "Authorization: Bearer $CWX" | grep -o '"household_id":"[^"]*"\|"target_coordinates":\[[^]]*\]'
+```
+
+| ID | Steps | Expect | Same flow |
+| --- | --- | --- | --- |
+| CW-01 | Sign in as each caseworker in turn. Open **Field Overview**, then **Assigned Tasks**. | Each sees only tasks in the barangays they cover (Benjo Ramos: Lecheria only). *Assigned visits* on Field Overview equals the number of cards on Assigned Tasks and the `assigned_tasks_count` from the command above. The menu has no director or audit screens. | S1 |
+| CW-02 | As the caseworker from DIR-06, open **Assigned Tasks**. | The household you dispatched is listed, with the instructions you wrote under **What to check** and your deadline. | S4, S5 |
+| CW-03 | Open DevTools (F12) and keep it open. In ⋮ → More tools → **Sensors** → Location → *Other*, enter that household's **latitude** and **longitude** from the command above. Click **Start in-person visit** and complete the 5 steps with a photo; on step 5, click **Save Report on This Device**. | Step 4 shows the location and the photo fingerprint (SHA-256). The report sends by itself; *Saved drafts* returns to 0 and the task leaves the list. The director's Caseworker Dispatch shows **Review report** for it. | S5 |
+| CW-04 | Repeat CW-03 on another task with Sensors set to Manila (14.5995, 120.9842). | The server refuses it (outside the 250 m geofence). The report stays on the device as **Rejected by server**; it is not retried forever. | S5 |
+| CW-05 | Offline: on Assigned Tasks, set DevTools → Network → **Offline**, do a visit, save it. Then set the network back. | While offline: the report waits in **Saved drafts**, the Field Overview card *Saved on this phone* shows 1, and the button reads *Connect to the internet to send*. Back online: it sends once; the COA ledger gains exactly one `REPORT_SUBMITTED` block. | S6 |
+| CW-06 | Server outage: start a visit, run `docker compose stop server`, save the report, then `docker compose start server` and `docker compose restart gateway`. | The report waits on the device and is sent after the server returns (*Send now* if it has not gone by itself). Nothing is lost or sent twice. | S6 |
+| CW-07 | Open the app at phone width (DevTools device toolbar, 390 px). Visit Field Overview, Assigned Tasks and all 5 form steps. | No sideways scrolling; buttons are at least 44 px tall; typing in a field does not zoom the page. | S12 |
+
+### R.3 COA Auditor (`auditor_test`)
+
+| ID | Steps | Expect | Same flow |
+| --- | --- | --- | --- |
+| COA-01 | Sign in. Open **Audit Overview**. | Lands on Audit Overview. Ledger totals by action, on a fresh load: *MODEL_FLAG_RAISED 32* (equal to the director's flagged number), *TASK_DISPATCHED 12*, *REPORT_SUBMITTED 4*, *BENEFICIARY_GRADUATED 1* (the notice) and *BENEFICIARY_RETAINED 1*: 50 blocks. Every action you take in R.1 and R.2 adds one block. | S1, S10 |
+| COA-02 | Open **Audit Verification**. Verify from 1 to the last sequence number shown on Audit Overview. | **Chain valid**, every block checked. | S10 |
+| COA-03 | Open **Triage & Flagged Queue** and a household's details. | The same households the director sees, with **no Dispatch button** (read-only). | S3 |
+| COA-04 | Open **Audit Sampling**. | A sample drawn from the real flagged households, each with its score and ledger reference; no placeholder names. | S12 |
+| COA-05 | *Local only.* Tamper with block 1 (S10 step 2), then verify again. Reload the data afterwards (§0.4). | The chain is reported broken at sequence 1. | S10 |
+| COA-06 | Try to write: `curl -s -o /dev/null -w "%{http_code}\n" -X POST $API/calamity/toggle -H "Authorization: Bearer $COA" -H 'Content-Type: application/json' -d '{}'` | **403**. COA can read everything in scope but cannot change anything. | S11 |
+
+### R.4 Super Admin (`super_admin_test`)
+
+| ID | Steps | Expect | Same flow |
+| --- | --- | --- | --- |
+| ADM-01 | Sign in. | Lands on Executive Overview with the same numbers as DIR-01, plus **Audit Verification** in the menu. | S1 |
+| ADM-02 | Declare a calamity for Calamba (S9 command, with `$ADMIN`). Reload Executive Overview; as the director, try to dispatch any flagged household. | The *Calamity moratorium active: Calamba* banner. Policy Settings lists the declaration. Dispatch is refused ("Dispatch is frozen…"). Keeping a family on the program (DIR-08) is still allowed. | S9 |
+| ADM-03 | Lift the declaration (S9 second command). | The banner disappears and dispatch works again. | S9 |
+| ADM-04 | Send the same declaration with the director's token (`$DIR`). | **403**: only a Super Admin can declare a calamity. | S9 |
+
+### R.5 Across roles
+
+| ID | Steps | Expect | Same flow |
+| --- | --- | --- | --- |
+| X-01 | Run the six `curl` lines of S11. | 403, 403, 403, 400, 401, 403, in that order. | S11 |
+| X-02 | Sign in with a wrong password. | "Incorrect username or password."; not signed in. | S1 |
+| X-03 | Every role, every screen, at 390, 834 and 1440 px. | No sideways scrolling; the menu opens with ☰ on a phone and closes after a choice. | S12 |
+| X-04 | Run the automated check of this dataset: `node data-pipeline/scripts/test_deployment_dataset.js` | 12 checks `[OK]` on a fresh load: 20,001 households, 25–40 flags all from the model, a caseworker for every barangay, every lifecycle stage present, ledger valid. | — |
+
 ---
+
+## Detailed scenarios on the small set
 
 ## S1. Sign-in and role routing
 1. Sign in as each account in turn (accounts in §0.5). Each lands on its own screen:
@@ -171,33 +272,50 @@ The ledger is empty. Every block you see later was created by your own actions.
 
 ## S5. Field visit with geotagged evidence (continue from S4)
 1. Sign in as `case_worker_test` → **Assigned Tasks**. Rosa Villanueva and Dispatch TestSubject are listed.
-2. The geofence needs you to "stand" within 250 m of the household. **Before starting**, in Chrome open **DevTools → ⋮ → More tools → Sensors → Location → Other** and set latitude **14.2120**, longitude **121.1660** (Dispatch TestSubject). Allow location when the browser asks.
-3. Click **Start In-Person Verification** on Dispatch TestSubject and complete the 5 steps:
+2. The geofence needs you to "stand" within 250 m of the household. **Before starting**, open Chrome DevTools (F12) on the app's tab and **keep it open for the whole visit** (the location override only works while DevTools is open). Then open **DevTools → ⋮ → More tools → Sensors → Location → Other** and set latitude **14.2120**, longitude **121.1660** (Dispatch TestSubject). Allow location when the browser asks.
+3. Click **Start in-person visit** on Dispatch TestSubject and complete the 5 steps:
    - Step 1: pick one option for wall, roof and water.
    - Step 2: answer the vehicle question.
    - Step 3: answer the three LandBank card questions.
-   - Step 4: attach a photo (any JPEG/PNG). Wait until its SHA-256 hash is shown.
+   - Step 4: attach a photo (any JPEG/PNG). Wait until its **Photo fingerprint** (SHA-256) is shown.
    - Step 5: choose the verified SWDI level and a recommendation, write the narrative, then click **Save Report on This Device** (it queues the report for sync).
-4. The **Saved Drafts** panel opens. Online, the report syncs by itself within a few seconds (the button reads *Synchronizing…*); if it is still pending, click **Sync Now (1 Pending)**.
+4. The **Saved Drafts** panel opens. Online, the report syncs by itself within a few seconds (the button reads *Sending reports…*); if it is still waiting, click **Send now (1 waiting)**.
 5. Repeat steps 3–4 for **Rosa Villanueva** with the location set to Manila (14.5995, 120.9842).
 
 **Expect:**
 - With the Calamba location, the report is accepted and the task leaves your list.
 - The director's Caseworker Dispatch shows *Report submitted*.
 - The COA ledger shows a **REPORT_SUBMITTED** block.
-- With the Manila location, the server rejects the submission (outside the 250 m geofence). The report stays saved on the device as pending.
-- The sync button never reads *Submission unavailable*. If it does, the client image is out of date (§T).
+- With the Manila location, the server rejects the submission (outside the 250 m geofence). The report stays on the device as **Rejected by server**.
+- The send button never reads *Submission unavailable*. If it does, the client image is out of date (§T).
 
 **Proves:** geofencing, the SHA-256 photo check, and the audit trail. The director can now open this report and its photo (S13).
 
-## S6. Offline visit (airplane mode)
-1. As the caseworker, with a task in the list, open **DevTools → Network → Offline** (or use the in-app *Work Offline* toggle).
-2. Fill in and save the report. It appears in **Saved Drafts** as pending, and the Field Overview card shows **1 Pending**.
-3. Go back online.
+## S6. Offline visit (airplane mode) and a server outage
+Both parts are real on localhost: in part A the browser itself has no network; in part B the server container is actually stopped. Use **Rosa Villanueva**'s task and set DevTools → Sensors → Location to **14.2130, 121.1680** (her house) before starting. Reset (§0.4) between A and B.
 
-**Expect:** the draft syncs by itself, and the pending count returns to 0. No data is lost, and nothing is sent twice.
+**Part A: the browser goes offline**
+1. Sign in as `case_worker_test` and open **Assigned Tasks** while online (the tasks are cached on the device).
+2. In DevTools → **Network**, change *No throttling* to **Offline**. (The in-app **Work Offline** button does the same inside the app.)
+3. Start Rosa's visit, complete the 5 steps with a photo, and click **Save Report on This Device**.
+4. Check: **Saved Drafts** shows the report as pending, the Field Overview card *Saved on this phone* shows **1**, and the button reads *Connect to the internet to send*. In DevTools → **Application → IndexedDB → kilosunlad_field**, the draft is stored with `PENDING_SYNC`.
+5. Set Network back to **No throttling**.
 
-**Proves:** the offline-first PWA (STR-02).
+**Part B: the server is down (stronger proof)**
+1. Same as A1, but stay online.
+2. Start Rosa's visit and fill in the 5 steps, but do **not** save yet.
+3. In a terminal: `docker compose stop server`
+4. Click **Save Report on This Device**. The sync attempt fails (DevTools → Network shows a 502 from the gateway); the report stays in **Saved Drafts** with **Send now (1 waiting)**.
+5. `docker compose start server`, wait about 10 seconds, then `docker compose restart gateway`.
+6. Click **Send now** if the report has not already gone by itself.
+
+**Expect (both parts):**
+- While offline or while the server is down, nothing is lost: the report waits on the device.
+- When the connection or the server returns, the report uploads, the waiting count returns to **0**, and Rosa's task leaves Assigned Tasks.
+- The director's Caseworker Dispatch shows *Report submitted* for Rosa, and the COA ledger gains **one** REPORT_SUBMITTED block (not two: nothing is sent twice).
+- A report the server refuses for a reason that will not change (for example outside the geofence, S5 step 5) is kept on the device as **ERROR** instead of being retried forever.
+
+**Proves:** the offline-first PWA (STR-02): local storage in IndexedDB, automatic retry on reconnect, no loss and no duplicates. Automated equivalent: `test_str02_airplane_sync.js` (TC-07, TC-10); part B was also re-checked by script on 2026-10-14 (`evidence/qa-recheck-2026-10-14/`).
 
 ## S7. Case A: the model catches graduation drift (API step)
 ```bash
@@ -366,22 +484,22 @@ docker exec kilosunlad-server sh -c 'f=/app/uploads/evidence/$(ls /app/uploads/e
 
 ---
 
-## D. Live demo run order (about 18 minutes, demo dataset)
-Load the demo dataset first (§0, `load_demo_data.sh`). Case A and the fixtures stay untouched for this.
+## D. Live demo run order (about 18 minutes, deployment dataset)
+Load the deployment dataset first (§0.4, `load_deployment_data.sh`). Case A stays unassessed for D2.
 
 | # | Show | Scenario | Pass when |
 | --- | --- | --- | --- |
-| D1 | Sign in as Director; the dashboard and map are populated | S1, S2 | 80,007 households, 627 flagged, map shading + bubbles |
-| D2 | Assess Case A live; it is flagged with its SHAP explanation | S7 | Level 3 predicted, score ≥ 70, sealed block number |
-| D3 | Dispatch Case A to Test Case Worker | S4 | Task ID and ledger receipt |
-| D4 | Caseworker visit on a phone width, with a photo, inside the 250 m geofence; then outside it | S5, S12 | Accepted in Calamba, refused in Manila |
-| D5 | Offline visit syncs on reconnect | S6 | Pending goes 1 → 0, nothing duplicated |
-| D6 | Director reviews the report and photo, issues the notice | S13 | "Hash verified", 15-day window starts |
-| D7 | Early graduation refused; appeal pauses the window; hearing outcome recorded | S13, S8, S15 | `APPEAL_WINDOW_OPEN`; APPEAL FILED block; granted → active |
-| D8 | Calamity moratorium freezes dispatch | S9 | Banner shown, dispatch refused, director cannot declare |
-| D9 | Tamper with the ledger and a photo; both are caught | S10, S13 | Chain broken at the edited block; photo refused |
-| D10 | Guards hold | S11 | 403 / 400 / 401 as listed |
-| D11 | A family that is still poor is kept on the program | S14 | "Keep on the program"; BENEFICIARY RETAINED block; re-flag refused |
+| D1 | Sign in as Director; the dashboard and map are populated | DIR-01, DIR-02 | 20,001 households, 25–40 flagged, map shading + markers |
+| D2 | Assess Case A live; it is flagged with its SHAP explanation | DIR-11 | Level 3 predicted, score ≥ 70, sealed block number |
+| D3 | Dispatch Case A to Carmela Dizon (Real) | DIR-05, DIR-06 | Only Real's caseworkers offered; task ID and ledger receipt |
+| D4 | `cw_real` visits Case A on a phone width (location 14.2215, 121.1875), with a photo; then a visit from Manila | CW-03, CW-04, CW-07 | Accepted at the house, refused in Manila |
+| D5 | Offline visit sends on reconnect | CW-05 | Saved on this phone 1 → 0, one ledger block |
+| D6 | Director reviews Case A's report and photo, issues the notice | DIR-07 | "Hash verified", 15-day window starts |
+| D7 | Early graduation refused; appeal pauses the window; hearing outcome recorded | S13, DIR-09 | `APPEAL_WINDOW_OPEN`; appeal filed; granted → active |
+| D8 | Calamity moratorium freezes dispatch | ADM-02 to ADM-04 | Banner shown, dispatch refused, director cannot declare |
+| D9 | Tamper with the ledger and a photo; both are caught | COA-02, COA-05, S13 | Chain broken at the edited block; photo refused |
+| D10 | Guards hold | X-01 | 403 / 400 / 401 as listed |
+| D11 | A family that is still poor is kept on the program | DIR-08, DIR-10 | "Keep on the program"; BENEFICIARY RETAINED block; re-flag refused |
 
 Reset (§0) before a second run. After a session with real users, record their ratings in `docs/testing/uat/` (form + `score_uat.py`).
 
@@ -395,23 +513,61 @@ Reset (§0) before a second run. After a session with real users, record their r
 | `GET /api/v1/insights/overview` returns **404** in the Network tab | Server image built before DECISION-010 | §0.1; §0.2 must print `401` |
 | Dispatch dialog asks for a **Caseworker account ID** with "A staff directory is not available yet" | Old client image | §0.1 |
 | Dispatch dialog asks for an account ID with "The caseworker directory could not be loaded" | Current client, but `GET /users/caseworkers` failed (server down or old) | §0.2; check `docker compose ps` |
-| Sync button reads **Submission unavailable** | Client image from before Sprint 5 (offline sync release) | §0.1 |
+| Send button reads **Submission unavailable** | Client image from before Sprint 5 (offline sync release) | §0.1 |
+| A §R number differs from the italic figure | You (or an earlier test) assessed, dispatched or decided something; every action moves the numbers | Read the expected value where the step says; reload with §0.4 for the standard figures |
+| A caseworker sees no tasks | That caseworker has none in the standard load, or is not the one for the household's barangay | Use the R.2 table; dispatch one to them (DIR-06) |
 | Field operations list shows tasks that are not in the small set | Demo dataset loaded, or an old image with built-in samples | §0.4 small set; §0.1 |
 | **502 Bad Gateway** after a rebuild | nginx still points at the old containers | `docker compose restart gateway` |
 | `bash: !@localhost: event not found` | Git Bash history expansion on `!` inside double quotes | §0.3 (`set +H`) and single quotes as in §0.5 |
 | `docker cp` / `docker exec` cannot find `/tmp/...` or `/app/...` | Git Bash rewrote the path to a Windows folder | §0.3 (`export MSYS_NO_PATHCONV=1`), or use `reset_test_data.sh` |
 | `curl` returns **401** in the middle of a session | Tokens last 15 minutes | re-run the last three lines of §0.5 |
 | A scenario's numbers differ from the document | Data from an earlier scenario, or the demo dataset | §0.6 and §0.4 |
+| Photo step says **Location request timed out. Move to an open area, then retry.** (any image) | The browser got no GPS fix within 15 s. A laptop has no GPS, so without a location override Chrome waits on Windows location services and times out. The photo is fine. | Open DevTools (F12) **on that tab and keep it open**, ⋮ → More tools → **Sensors** → Location → *Other…* → 14.2120 / 121.1660 (S5), then capture again. Closing DevTools removes the override. |
+| Photo step says **Location permission was denied** | Location blocked for the site | Click the icon left of the address bar → Location → Allow, then retry |
+| Photo step says **Location is unavailable** | Sensors set to *Location unavailable*, or Windows location services off | Pick a location in Sensors, or turn on Windows Settings → Privacy & security → Location |
 
 ---
 
 ### Record your results
 Write the build you tested (`git log -1 --oneline`, §0.2) at the top of every run:
 
-**Build:** __________ **§0.2 printed 401 / 401:** yes / no **Dataset:** small / demo
+**Build:** __________ **§0.2 printed 401 / 401:** yes / no **Dataset:** deployment / small / demo
 
-| Scenario | Date | Tester | Pass / Fail | Notes |
+| Test | Date | Tester | Pass / Fail | Notes |
 | --- | --- | --- | --- | --- |
+| DIR-01 | | | | |
+| DIR-02 | | | | |
+| DIR-03 | | | | |
+| DIR-04 | | | | |
+| DIR-05 | | | | |
+| DIR-06 | | | | |
+| DIR-07 | | | | |
+| DIR-08 | | | | |
+| DIR-09 | | | | |
+| DIR-10 | | | | |
+| DIR-11 | | | | |
+| DIR-12 | | | | |
+| CW-01 | | | | |
+| CW-02 | | | | |
+| CW-03 | | | | |
+| CW-04 | | | | |
+| CW-05 | | | | |
+| CW-06 | | | | |
+| CW-07 | | | | |
+| COA-01 | | | | |
+| COA-02 | | | | |
+| COA-03 | | | | |
+| COA-04 | | | | |
+| COA-05 | | | | |
+| COA-06 | | | | |
+| ADM-01 | | | | |
+| ADM-02 | | | | |
+| ADM-03 | | | | |
+| ADM-04 | | | | |
+| X-01 | | | | |
+| X-02 | | | | |
+| X-03 | | | | |
+| X-04 | | | | |
 | S1 | | | | |
 | S2 | | | | |
 | S3 | | | | |

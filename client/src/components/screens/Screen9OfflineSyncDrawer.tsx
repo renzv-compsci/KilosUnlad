@@ -101,7 +101,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
           <div className="flex items-center space-x-2">
             {isOffline ? <WifiOff className="w-3.5 h-3.5 text-amber-600" /> : <Wifi className="w-3.5 h-3.5 text-emerald-600" />}
             <span className="font-medium">
-              {isOffline ? 'Offline mode' : 'Online mode'}
+              {isOffline ? 'Offline' : 'Online'}
             </span>
           </div>
 
@@ -116,9 +116,9 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
         {/* List of Pending Reports Stored in IndexedDB */}
         <div className="p-4 sm:p-5 overflow-y-auto space-y-3 flex-1 text-xs">
           
-          <div className="flex items-center justify-between text-slate-400 text-[10px] uppercase tracking-wider font-semibold">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
             <span>Saved on this device</span>
-            <span>{submissions.length} Total Records</span>
+            <span className="tabular-nums">{submissions.length} {submissions.length === 1 ? 'report' : 'reports'}</span>
           </div>
 
           {submissions.length === 0 ? (
@@ -145,22 +145,19 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
 
                     <div>
                       <div className="flex items-center space-x-2">
-                        <span className="font-mono font-bold text-slate-900">
+                        <span className="font-semibold text-slate-900 tabular-nums" title={`Task ${sub.task_id}`}>
                           {sub.household_id}
-                        </span>
-                        <span className="text-[10px] bg-white border border-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-mono">
-                          {sub.task_id}
                         </span>
                       </div>
 
                       <p className="text-[11px] text-slate-600 line-clamp-1 mt-0.5">
-                        Recommendation: <span className="font-semibold text-blue-900">{sub.worker_recommendation}</span> — {sub.narrative_report}
+                        Recommendation: <span className="font-semibold text-blue-900">{sub.worker_recommendation === 'RECOMMEND_GRADUATION' ? 'Graduate' : sub.worker_recommendation === 'RETAIN' ? 'Keep on program' : 'Investigate'}</span> — {sub.narrative_report}
                       </p>
 
-                      <div className="flex items-center space-x-2 text-[10px] text-slate-400 mt-1 font-mono">
-                        <span>Captured: {sub.timestamp ? new Date(sub.timestamp).toLocaleTimeString() : 'Recent'}</span>
+                      <div className="flex items-center space-x-2 text-[11px] text-slate-500 mt-1 tabular-nums">
+                        <span>Saved {sub.timestamp ? new Date(sub.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : 'recently'}</span>
                         <span>·</span>
-                        <span>Evidence: {sub.evidence_attachments?.length || 0} photo</span>
+                        <span>{sub.evidence_attachments?.length || 0} {(sub.evidence_attachments?.length || 0) === 1 ? 'photo' : 'photos'}</span>
                       </div>
                     </div>
                   </div>
@@ -169,7 +166,7 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
                     <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                       isPending ? 'bg-amber-100 text-amber-900 border border-amber-200' : isRejected ? 'bg-rose-100 text-rose-900 border border-rose-200' : 'bg-emerald-100 text-emerald-900 border border-emerald-200'
                     }`}>
-                      {isPending ? 'Not submitted' : isRejected ? 'Rejected by server' : 'Synced'}
+                      {isPending ? 'Not sent yet' : isRejected ? 'Rejected by server' : 'Sent'}
                     </span>
                   </div>
                 </div>
@@ -182,8 +179,8 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
         <div className="p-4 bg-slate-50/70 border-t border-slate-200/80 space-y-2.5">
           
           <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>Pending: <strong className="text-slate-800">{pendingCount} reports</strong></span>
-            <span>Synced: <strong className="text-slate-800">{syncedCount} uploaded</strong></span>
+            <span>Waiting: <strong className="text-slate-800 tabular-nums">{pendingCount}</strong></span>
+            <span>Sent: <strong className="text-slate-800 tabular-nums">{syncedCount}</strong></span>
           </div>
 
           <button
@@ -201,15 +198,15 @@ export const Screen9OfflineSyncDrawer: React.FC<Screen9OfflineSyncDrawerProps> =
             {isSyncing ? (
               <>
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                <span>Synchronizing Batch to Central MIS...</span>
+                <span>Sending reports…</span>
               </>
             ) : (
               <>
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>
                   {!submissionAvailable ? 'Submission unavailable' : isOffline
-                    ? 'Connect Wi-Fi to Push Data'
-                    : `Sync Now (${pendingCount} Pending)`}
+                    ? 'Connect to the internet to send'
+                    : `Send now (${pendingCount} waiting)`}
                 </span>
               </>
             )}

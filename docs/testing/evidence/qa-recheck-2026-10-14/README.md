@@ -13,3 +13,12 @@
 | 5B. `!` in the password triggers "event not found" | Real when the command is typed in an interactive Git Bash with double quotes. | Fixed: manual §0.3 (`set +H`) and §0.5 (single quotes, `$MONGO_ADMIN`) |
 
 **Why the tester saw old screens:** `docker compose up -d` reuses images that already exist; it rebuilds only with `--build`. Manual §0.1 now requires `--build`, and §0.2 adds a check that prints `401` on the current build and `404` on an old one.
+
+## Offline and server-outage check (S6)
+
+`offline_proof.js` stops the **server container** while the caseworker is filling in Rosa Villanueva's report:
+1. Report saved with the server down → kept on the device as **Sync Now (1 Pending)**, stored in the browser's IndexedDB database `kilosunlad_field` (`server-down-pending.jpg`).
+2. `docker compose start server` and a gateway restart → the draft uploads by itself (Saved Drafts: 0).
+3. The server then holds the task as **SUBMITTED**.
+
+The browser-offline variant (DevTools → Network → Offline) is covered by `test_str02_airplane_sync.js` in every full rehearsal.

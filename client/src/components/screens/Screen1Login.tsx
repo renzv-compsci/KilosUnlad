@@ -48,7 +48,7 @@ export const Screen1Login: React.FC<Screen1LoginProps> = ({
       {/* Spec Annotation Badge */}
       {showSpecAnnotations && (
         <div className="max-w-md mx-auto w-full mb-3 bg-stone-100 border border-stone-300 rounded-lg p-2.5 text-[10px] font-mono text-stone-800 shadow-2xs">
-          <div className="font-bold uppercase tracking-wider text-[#132e4f]">Screen 1 Spec & Contract Binding:</div>
+          <div className="font-bold uppercase tracking-wider text-[#13233f]">Screen 1 Spec & Contract Binding:</div>
           <div>Endpoint: <span className="font-bold">POST /api/v1/auth/login</span></div>
           <div>Contract: <span className="font-bold">/docs/contracts/auth/auth-session.json</span></div>
           <div>Fields: <code className="text-rose-700">username</code>, <code className="text-rose-700">password</code>, <code className="text-emerald-700">access_token</code></div>

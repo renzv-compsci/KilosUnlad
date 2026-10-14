@@ -263,15 +263,15 @@ async function browserChecks(t, facts) {
       // Case worker: field overview KPIs.
       ({ context, page } = await session(ACCOUNTS.worker));
       await nav(page, /Field Overview/);
-      await page.getByText('Active Assigned Caseload').waitFor({ timeout: 15000 });
+      await page.getByText('Assigned visits', { exact: true }).waitFor({ timeout: 15000 });
       const assigned = (await call('GET', '/tasks/assigned', { token: t.worker.token })).data.assigned_tasks_count;
       const fieldText = await page.locator('.field-dashboard').innerText();
       check(`${size} field overview: caseload KPI = assigned tasks (${assigned})`,
-        new RegExp(`Active Assigned Caseload\\s*${assigned}\\b`, "i").test(fieldText), fieldText.slice(0, 200));
+        new RegExp(`Assigned visits\\s*${assigned}\\b`, "i").test(fieldText), fieldText.slice(0, 200));
       check(`${size} field overview: no sample barangays`, !/Makiling|Canlubang|Bucal|6\.4 km/.test(fieldText));
       await noOverflow(page, `${size} field overview`); await shot(page, `${size}-worker-overview`);
       await nav(page, /Assigned Tasks/); await page.waitForTimeout(1000); await noOverflow(page, `${size} assigned tasks`);
-      await page.getByRole('button', { name: /Start In-Person Verification/ }).first().click();
+      await page.getByRole('button', { name: /Start in-person visit/ }).first().click();
       await page.waitForTimeout(1000); await noOverflow(page, `${size} 5-step field form`); await shot(page, `${size}-worker-form`);
       await context.close();
     }

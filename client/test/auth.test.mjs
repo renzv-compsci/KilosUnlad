@@ -78,8 +78,8 @@ test('assessment step navigation retains accessible names and current-step conte
   }));
   assert.equal((html.match(/aria-label="Step [1-5]:/g) ?? []).length, 5);
   assert.equal((html.match(/aria-current="step"/g) ?? []).length, 1);
-  assert.match(html, /aria-live="polite">1\. Living Conditions/);
-  assert.match(html, /Back to Field Tasks/);
+  assert.match(html, /aria-live="polite">1\. Living conditions/);
+  assert.match(html, /Back to visits/);
   assert.doesNotMatch(html, /data-complete="true"|aria-pressed="true"/);
 });
 
@@ -572,7 +572,7 @@ test('empty assigned tasks renders empty state and authenticated worker identity
   }));
   assert.match(html, /No tasks are assigned to this account/);
   assert.match(html, /Synthetic Test User/);
-  assert.doesNotMatch(html, /Marvin Bautista|Start In-Person Verification/);
+  assert.doesNotMatch(html, /Marvin Bautista|Start in-person visit/);
 });
 test('cached assignments are isolated per owner and empty results clear only that owner', async () => {
   await app.cacheAssignedTasks('worker-a', [{ task_id: 'shared-task', household_id: 'house-a' }]);
@@ -668,7 +668,7 @@ test('an API-returned Palingon task renders its actual fields and verification a
     user: fixture('CASE_WORKER').user, tasks, isOffline: false,
     onToggleOffline() {}, onStartVerification() {}, onOpenSyncDrawer() {},
   }));
-  for (const content of ['synthetic-palingon-pending', 'Test Household', 'Palingon', 'Synthetic visit instructions', '2026-10-05T08:00:00.000Z', 'Start In-Person Verification']) {
+  for (const content of ['synthetic-palingon-pending', 'Test Household', 'Palingon', 'Synthetic visit instructions', '2026-10-05T08:00:00.000Z', 'Start in-person visit']) {
     assert.ok(html.includes(content), `Missing expected task content: ${content}`);
   }
   assert.doesNotMatch(html, /Lecheria|No tasks are assigned to this account/);

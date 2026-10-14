@@ -102,7 +102,7 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
               placeholder="Search PhilSys, Household ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 pr-3 py-1.5 border border-stone-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-[#132e4f] bg-white w-full sm:w-64"
+              className="pl-8 pr-3 py-1.5 border border-stone-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-[#13233f] bg-white w-full sm:w-64"
             />
           </div>
         </div>
@@ -137,12 +137,12 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedItem(item); } }}
                   onClick={() => setSelectedItem(item)}
                   className={`p-4 cursor-pointer transition flex items-center justify-between gap-3 ${
-                    isSelected ? 'bg-stone-100/90 border-l-3 border-l-[#132e4f]' : 'hover:bg-stone-50'
+                    isSelected ? 'bg-stone-100/90 border-l-3 border-l-[#13233f]' : 'hover:bg-stone-50'
                   }`}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center space-x-2">
-                      <span className="font-mono font-bold text-xs text-[#132e4f]">{item.household_id}</span>
+                      <span className="font-mono font-bold text-xs text-[#13233f]">{item.household_id}</span>
                       <span className="text-stone-300">·</span>
                       <span className="font-semibold text-xs text-stone-900 truncate">
                         {item.head_of_household.full_name}
@@ -185,7 +185,7 @@ export const CoaEvidentiarySampling: React.FC<CoaEvidentiarySamplingProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-stone-100">
             <div>
               <div className="flex flex-wrap items-center gap-x-2">
-                <span className="font-mono font-bold text-base text-[#132e4f]">
+                <span className="font-mono font-bold text-base text-[#13233f]">
                   {selectedItem.household_id}
                 </span>
                 <span className="text-stone-300">|</span>
