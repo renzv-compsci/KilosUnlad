@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: mapped draft passes the server Joi schema and matches the contract keys
 ok 1 - mapped draft passes the server Joi schema and matches the contract keys
   ---
-  duration_ms: 16.7692
+  duration_ms: 16.236831
   type: 'test'
   ...
 # Subtest: local-only fields never leave the device
 ok 2 - local-only fields never leave the device
   ---
-  duration_ms: 0.315333
+  duration_ms: 0.360751
   type: 'test'
   ...
 # Subtest: legacy drafts without a verified level or evidence are rejected locally
 ok 3 - legacy drafts without a verified level or evidence are rejected locally
   ---
-  duration_ms: 0.584114
+  duration_ms: 0.480449
   type: 'test'
   ...
 # Subtest: motorcycle absent maps to proof_type NONE and empty franchise
 ok 4 - motorcycle absent maps to proof_type NONE and empty franchise
   ---
-  duration_ms: 3.624605
+  duration_ms: 3.018535
   type: 'test'
   ...
 1..4
@@ -31,4 +31,4 @@ ok 4 - motorcycle absent maps to proof_type NONE and empty franchise
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 501.53422
+# duration_ms 490.687282

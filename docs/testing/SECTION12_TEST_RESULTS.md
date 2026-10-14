@@ -4,17 +4,19 @@
 **Executed:** 2026-10-13 (run `20261013T101137Z`), one scripted run of the whole plan from clean resets
 **Source of truth:** the Section 12 test plan (12.1 to 12.4). Every case below was executed as written. The *Expected Result* column is copied from the plan. The *Actual Result* column is what the system returned in this run.
 **Raw evidence:** [`evidence/section12-local/`](evidence/section12-local/) has one log per step, `SUMMARY.md`, `tc_api_cases.json` (every observed value) and `defects.json`.
+**Final run (2026-10-14, final build):** the updated runner (17 steps, now including TC-18 to TC-24) was run on the Docker stack from clean resets; see `evidence/section12-final/SUMMARY.md`. Every unit file was also re-run on its own with every opt-in suite, including the two Docker-only tests (`UNIT_TEST_REPORT.md`). All IDs are indexed in `MASTER_TEST_CATALOG.md`.
 **Docker re-run (2026-10-13):** the whole plan was run again on the Docker Compose stack of a fresh clone. All 14 steps passed (`evidence/section12-docker/SUMMARY.md`), and DEF-02 was checked against the real `app_user` role created by `init-mongo.js`. In that run the server unit step ran without the opt-in replica-set suites; the full unit counts are in `UNIT_TEST_REPORT.md`.
 
 ## Summary
 
 | Area | Executed | Passed | Notes |
 | --- | :---: | :---: | --- |
-| 12.1.2 Unit tier (server, client, ML) | 234 tests | 231 | 3 server tests skipped: they need Docker. None failed. |
-| 12.2 Test cases TC-01 to TC-17 | 17 | 17 PASS | 7 of the PASS cases differ from the plan's wording; they are listed under "Status key" below. |
+| 12.1.2 Unit tier (server, client, ML, UAT scorer) | 208 top-level cases (275 counted by the runners) | 208 | Nothing skipped: the Docker-only tests ran too. None failed. |
+| 12.2 Test cases TC-01 to TC-17 | 17 | 17 PASS | 7 of the PASS cases differed from the plan's original wording; the plan text was corrected on 2026-10-14 (see "Deviations"). |
+| 12.2.1 Extended test cases TC-18 to TC-24 | 7 | 7 PASS | Post-plan scope (Sprint 7): live UI, report review and evidence, graduation, retention, hearing outcome, cooldown. |
 | 12.3 Defects DEF-01 to DEF-07 | 7 | 7 verified resolved | Each corrective action re-checked in code and against a live database. |
 | 12.4 UAT scenarios A to D | 4 scripted walkthroughs | 4 | **Participant feedback and ratings were not collected.** They need real users (see 12.4). |
-| 12.1.1 Objective: macro F1 ≥ 85 % | measured | **NOT MET** | LightGBM v1 scores **0.7771** macro F1 on the untouched synthetic 20k test split (ML-01). |
+| 12.1.1 Objective: macro F1 ≥ 85 % | measured | **NOT MET** | The served model v2 (trained on real PSA FIES data) scores **0.6244** macro F1 on the 6,232-row empirical holdout. v1's 0.7771 was on synthetic data and is not comparable (ML-01 to ML-07). |
 
 **Status key:**
 - **PASS:** the expected result was met exactly.
@@ -32,7 +34,7 @@
 All five subsystems in the plan were exercised:
 - **Frontend (React 18 PWA):** login, role views, Web Crypto hashing, geolocation, IndexedDB offline queue, Due Process screen, chain inspector. Browser tests ran in Chromium with Playwright.
 - **Backend (Node/Express):** JWT, RBAC, jurisdiction scoping, state transitions, transactional dispatch/submit/appeal/calamity, contracts.
-- **ML (FastAPI):** SWDI classification, SHAP, Sangla-ATM heuristic. The macro F1 objective is reported as **not met** (0.7771 vs ≥ 0.85).
+- **ML (FastAPI):** SWDI classification, SHAP, Sangla-ATM heuristic. The macro F1 objective is reported as **not met** (v2: 0.6244 on real data vs ≥ 0.85).
 - **Database (MongoDB replica set):** transactions, compound/2dsphere indexes, append-only role.
 - **Digital Seal:** hash-chain verification, tamper detection, tampered-explanation refusal.
 
@@ -40,7 +42,7 @@ All five subsystems in the plan were exercised:
 
 | Level | What ran | Result |
 | --- | --- | --- |
-| Unit | **Server:** 155 tests (`node --test`). These include canonical JSON serialisation and entry hashing (`cryptoHelper.test.js`, 5) and the Haversine geofence with its 250 m inclusive boundary (`geoFence.test.js`, 4). **Client:** 66 tests plus 2 PWA tests (`node --test`). **ML:** 11 tests (pytest, `test_section12_ml_unit.py`), covering SHAP attribution extraction (top 3, signed, predicted class, additivity to the model margin) and the Sangla-ATM heuristic (6 parameterised cases). | 152 pass, 3 skipped (need Docker), 0 fail. 68/68 pass. 11/11 pass. |
+| Unit | **Final build (2026-10-14):** server 175/175 runner-counted (all opt-in suites, Docker tests included), client 69/69 + PWA 2/2, Python 29/29 (ML 11, Sprint 2 mechanics 5, seed mapping 9, UAT scorer 4); details in `UNIT_TEST_REPORT.md`. **Earlier run (2026-10-13):** **Server:** 155 tests (`node --test`). These include canonical JSON serialisation and entry hashing (`cryptoHelper.test.js`, 5) and the Haversine geofence with its 250 m inclusive boundary (`geoFence.test.js`, 4). **Client:** 66 tests plus 2 PWA tests (`node --test`). **ML:** 11 tests (pytest, `test_section12_ml_unit.py`), covering SHAP attribution extraction (top 3, signed, predicted class, additivity to the model margin) and the Sangla-ATM heuristic (6 parameterised cases). | 152 pass, 3 skipped (need Docker), 0 fail. 68/68 pass. 11/11 pass. |
 | Integration | `test_section12_plan.js` (11 cases) plus sprint scripts INT-03, INT-04, INT-08, E2E-01, E2E-02, over HTTP against server, ML and MongoDB. | all pass |
 | Adversarial / penetration | **Tampering:** a block is altered directly in MongoDB (STR-01). **Forged / expired token:** checked in TC-02. **Hostile requests:** out-of-scope, wrong-role, client-supplied status and malformed JSON, checked in INT-03, INT-04 and TC-01. **Database role:** app_user is denied update/delete on `audit_logs` (DEF-02). | all pass |
 | Offline / edge | **Airplane mode:** Chromium `setOffline`, 2 reports completed offline, edit replaced and not duplicated, zero-loss sync (STR-02). **GPS:** simulated location for geofence and capture. **Corruption:** corrupted evidence bytes (TC-09). | all pass |
@@ -79,9 +81,21 @@ All five subsystems in the plan were exercised:
 | **TC-16** | Calamity Moratorium Compliance Freeze | Toggling a State of Calamity for Calamba under RA 10121 freezes automated compliance penalties in that zone. | INT-04: Super Admin declares a Calamba, Laguna zone with NDRRMC reference → **201 `hold_active: true`**, affected households counted, and the declaration and lift are both sealed in the chain. A director declaring → 403. E2E-02: in the zone, **assessment → 409 `CALAMITY_MORATORIUM_ACTIVE`** (no flag raised) and **dispatch → 409** (no task). Both resume after expiry or lift. | **PASS (deviation)** |
 | **TC-17** | Compound Index Spatial Query Performance | Querying flagged households in Calamba via the compound index runs as `IXSCAN` with zero collection scans. | On the full 80k seed baseline, `explain("executionStats")`: **flagged Calamba query** → keys 3 / docs 3 / returned 3, IXSCAN on `risk_assessment.is_flagged_1_address.municipality_1`, **no COLLSCAN**. **At-volume query (80,002 unflagged)** → keys = docs = returned = 80,002, IXSCAN, no COLLSCAN. | **PASS (deviation)** |
 
-### Deviations from the plan's wording (for correcting the plan text)
+### 12.2.1 Extended test cases (post-plan scope, executed 2026-10-14)
 
-None of these needed a code change. The plan text should be updated to match the system:
+| Test Case ID | Feature / Transaction | Expected Result (plan) | Actual Result | Status |
+| :--- | :--- | :--- | :--- | :---: |
+| **TC-18** | Live dashboard and map data | Every number, list and map layer comes from the server for the caller's scope; no sample data; out-of-role → 403. | `test_ui_live_data.js`: for every role, the overview, map density total, task list, caseworker directory, audit blocks and policy match the API; worker and COA scopes enforced; no "Sample data" label. `insights.test.js` (UT-200): scope, roles, query validation and contract shapes. | **PASS** |
+| **TC-19** | Responsive layout | Every screen of every role at 390, 834 and 1440 px with no sideways scroll. | `test_ui_live_data.js` visits every screen at the three widths; no horizontal overflow, menus usable on a phone. | **PASS** |
+| **TC-20** | Report review and evidence integrity | Report and photos are viewable; the server re-hashes each photo; an altered file → 409 `EVIDENCE_INTEGRITY_FAILED`; the browser re-checks the hash. | `test_decision011_notice_flow.js`: photo shown with "Hash verified"; file altered on disk → 409; restored → served; COA may view, caseworker → 403. UT-201. | **PASS** |
+| **TC-21** | Final graduation after the window | Only after 15 days with no appeal; earlier → 409 `APPEAL_WINDOW_OPEN`; with an appeal → 409 `APPEAL_HOLD`. | Refused while open; completed from the Due Process screen after the window (test data moved back 16 days); `GRADUATED`; whole ledger verifies. UT-201. | **PASS** |
+| **TC-22** | Retention after a field visit | Report recommends retention or verifies Level 1–2 → director keeps the household: task `VERIFIED_RETAIN`, household `ACTIVE_COMPLIANT`, sealed `BENEFICIARY_RETAINED`. | Kept from the report review in the browser; graduation report → 409 `FIELD_REPORT_DOES_NOT_SUPPORT_RETENTION`; COA → 403; allowed during a calamity. `test_decision012_retention_flow.js`, UT-202. | **PASS** |
+| **TC-23** | Appeal hearing outcome | On or after the hearing date: GRANTED → `ACTIVE_COMPLIANT`; DENIED → `GRADUATED`. Early → 409 `HEARING_NOT_YET_HELD`; repeated → 409 `WORKFLOW_CONFLICT`. | Granted from the Due Process screen; denied through the API; early, repeated, forged (hash fails), stale, unknown and out-of-role attempts refused. UT-202. | **PASS** |
+| **TC-24** | Re-flag cooldown | Assessment → 409 `RETENTION_COOLDOWN` for 180 days after retention or a granted appeal; then proceeds. | 409 during the cooldown; with the block moved back 181 days the assessment reaches the model again. UT-202, `test_decision012_retention_flow.js`. | **PASS** |
+
+### Deviations from the plan's wording (corrected in the plan on 2026-10-14)
+
+None of these needed a code change. The plan text (`docs/integration/UNIT_TEST_PLAN.md`) was updated on 2026-10-14 to match the system:
 
 - **TC-03:**
   - The service returns the **top 3** attributions ranked by absolute weight, signed, rather than "top 2 positive / negative".
@@ -154,7 +168,7 @@ The plan's matrix includes participant quotes, ratings (4.9 / 4.8 / 5.0) and an 
   - `test_section12_defects.js`
   - `test_section12_ml_unit.py`
   - runner: `run_section12_plan.sh`
-- **Schema:** no model, collection or index was created, altered or dropped.
+- **Schema:** no collection, field or index was created, altered or dropped. The one approved exception in the post-plan scope is the audit action value `BENEFICIARY_RETAINED` (DECISION-012).
 - **Security:** no guard was weakened. The out-of-scope 403, the expired-token 401, the geofence 422 and the hash-mismatch 422 were all asserted as correct behaviour.
-- **Frontend:** no client code changed in this cycle.
+- **Frontend:** no client code changed in the original cycle; the post-plan UI work (TC-18 to TC-24) stayed within existing screens and dialogs.
 - **Contracts:** responses were checked against the frozen contracts (`auth-session`, `ml-swdi-inference`, `ml-atm-telemetry`, `admin-task-dispatch`, `field-task-submission`, `admin-due-process-docket`, `audit-chain-verification`).

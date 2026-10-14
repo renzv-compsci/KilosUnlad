@@ -1,0 +1,13 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0 -- /tmp/claude-0/mlvenv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/user/KilosUnlad
+plugins: anyio-4.15.1
+collecting ... collected 4 items
+
+data-pipeline/scripts/test_score_uat.py::test_sus_known_values PASSED    [ 25%]
+data-pipeline/scripts/test_score_uat.py::test_sus_rejects_bad_answers PASSED [ 50%]
+data-pipeline/scripts/test_score_uat.py::test_verdict_and_completion_rates PASSED [ 75%]
+data-pipeline/scripts/test_score_uat.py::test_no_responses_never_invents_a_score PASSED [100%]
+
+============================== 4 passed in 0.03s ===============================

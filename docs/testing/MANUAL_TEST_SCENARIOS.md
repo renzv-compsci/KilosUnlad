@@ -6,6 +6,8 @@ Fifteen scenarios you can run by hand, in the browser, from a clean start, plus 
 - what you should see;
 - what it proves.
 
+Each scenario's ID (S1–S15, D1–D11) and its automated equivalent (TC, CAP, UT) are indexed in `MASTER_TEST_CATALOG.md` §9.
+
 They run on the local Docker stack. (The free-hosting files in `deploy/` are kept but are not used for the demo.)
 - A few actions have no button in the UI: the risk assessment, the calamity declaration, the early-graduation check and the tamper steps. For those, the scenario gives one `curl` or `docker exec` command.
 - **Every scenario starts from §0 (clean start)** unless it says "continue".

@@ -1,0 +1,11 @@
+=== ML-04 Leakage & Provenance Audit: lightgbm_swdi_v2.joblib ===
+Frozen vector (contract v1.1.0): ['demographics.head_education_level', 'demographics.head_formal_employment', 'demographics.remittance_income_flag', 'demographics.housing_material_score', 'demographics.appliance_density_index', 'demographics.dependency_ratio']
+
+  [PASS] F1 metadata feature_names equal the frozen vector (order included) — ['demographics.head_education_level', 'demographics.head_formal_employment', 'demographics.remittance_income_flag', 'demographics.housing_material_score', 'demographics.appliance_density_index', 'demographics.dependency_ratio']
+  [PASS] F2 fitted model expects exactly 6 features with the frozen names — n_features_in_=6, names=['demographics.head_education_level', 'demographics.head_formal_employment', 'demographics.remittance_income_flag', 'demographics.housing_material_score', 'demographics.appliance_density_index', 'demographics.dependency_ratio']
+  [PASS] F3 target classes are [1, 2, 3] — [1, 2, 3]
+  [PASS] P1 split hashes recorded for train/validation/test — ['empirical_source_sha256', 'synthetic_source_sha256', 'test', 'train', 'validation']
+  [PASS] P2 empirical test rows excluded from all training blends — empirical_test_rows_in_training=0
+  [PASS] P3 seed, library versions and row counts recorded
+
+6/6 checks passed.

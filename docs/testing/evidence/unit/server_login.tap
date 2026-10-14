@@ -1,88 +1,88 @@
 TAP version 13
-# [0mPOST /api/v1/auth/login [32m200[0m 369.826 ms - 807[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 428.301 ms - 807[0m
 # Subtest: real bcrypt login follows contract shape, issues a 900s JWT, and exposes no password hash
 ok 1 - real bcrypt login follows contract shape, issues a 900s JWT, and exposes no password hash
   ---
-  duration_ms: 747.13913
+  duration_ms: 910.408726
   type: 'test'
   ...
-# [0mPOST /api/v1/auth/login [33m401[0m 341.902 ms - 100[0m
-# [0mPOST /api/v1/auth/login [33m401[0m 340.068 ms - 100[0m
-# [0mPOST /api/v1/auth/login [33m401[0m 0.475 ms - 100[0m
-# [0mPOST /api/v1/auth/login [33m401[0m 0.394 ms - 100[0m
-# [0mPOST /api/v1/auth/login [33m401[0m 0.324 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 360.850 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 332.928 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 0.471 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 0.401 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 0.712 ms - 100[0m
 # Subtest: incorrect, unknown, invalid and injection-shaped credentials share contract error
 ok 2 - incorrect, unknown, invalid and injection-shaped credentials share contract error
   ---
-  duration_ms: 703.912615
+  duration_ms: 727.266177
   type: 'test'
   ...
-# [0mPOST /api/v1/auth/login [33m403[0m 344.105 ms - 110[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 1.396 ms - 110[0m
+# [0mPOST /api/v1/auth/login [33m403[0m 392.552 ms - 110[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 5.587 ms - 110[0m
 # Subtest: deactivation blocks login and an already-issued token
 ok 3 - deactivation blocks login and an already-issued token
   ---
-  duration_ms: 353.103578
+  duration_ms: 419.886277
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Calamba [32m200[0m 1.423 ms - 119[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 0.600 ms - 85[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Calamba [32m200[0m 4.783 ms - 119[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 3.013 ms - 85[0m
 # Subtest: triage handler receives current jurisdiction after authentication
 ok 4 - triage handler receives current jurisdiction after authentication
   ---
-  duration_ms: 9.806615
+  duration_ms: 25.523937
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Other [33m403[0m 0.685 ms - 122[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Other [33m403[0m 3.268 ms - 122[0m
 # Subtest: outside-jurisdiction response matches the triage contract
 ok 5 - outside-jurisdiction response matches the triage contract
   ---
-  duration_ms: 3.596117
+  duration_ms: 6.681569
   type: 'test'
   ...
-# [0mGET /api/v1/tasks/assigned [33m401[0m 0.608 ms - 99[0m
+# [0mGET /api/v1/tasks/assigned [33m401[0m 0.735 ms - 99[0m
 # Subtest: expired token matches assigned-task contract error
 ok 6 - expired token matches assigned-task contract error
   ---
-  duration_ms: 3.524416
+  duration_ms: 4.64236
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 0.791 ms - 67[0m
-# [0mGET /api/v1/tasks/assigned?worker_id=60c72b2f9b1e8a001c8a1101 [32m200[0m 0.698 ms - 51[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 6.274 ms - 67[0m
+# [0mGET /api/v1/tasks/assigned?worker_id=60c72b2f9b1e8a001c8a1101 [32m200[0m 3.786 ms - 51[0m
 # Subtest: current role changes take effect immediately and assigned handler receives authenticated identity
 ok 7 - current role changes take effect immediately and assigned handler receives authenticated identity
   ---
-  duration_ms: 5.350733
+  duration_ms: 26.780031
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.197 ms - 90[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.471 ms - 90[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.337 ms - 90[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.348 ms - 90[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.661 ms - 90[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.663 ms - 90[0m
 # Subtest: missing, forged and placeholder tokens cannot access mounted handlers
 ok 8 - missing, forged and placeholder tokens cannot access mounted handlers
   ---
-  duration_ms: 5.818197
+  duration_ms: 9.110365
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue [31m503[0m 1.023 ms - 85[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [31m503[0m 4.027 ms - 85[0m
 # Subtest: production has real login but never serves protected fixture data
 ok 9 - production has real login but never serves protected fixture data
   ---
-  duration_ms: 8.894618
+  duration_ms: 13.872742
   type: 'test'
   ...
-# [0mPOST /api/v1/auth/login [31m503[0m 0.408 ms - 85[0m
+# [0mPOST /api/v1/auth/login [31m503[0m 0.433 ms - 85[0m
 # Subtest: repository errors fail closed without exposing database details
 ok 10 - repository errors fail closed without exposing database details
   ---
-  duration_ms: 11.312529
+  duration_ms: 14.111882
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.742 ms - 90[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 2.767 ms - 90[0m
 # Subtest: deleted user tokens are rejected
 ok 11 - deleted user tokens are rejected
   ---
-  duration_ms: 2.891058
+  duration_ms: 10.606082
   type: 'test'
   ...
 1..11
@@ -93,4 +93,4 @@ ok 11 - deleted user tokens are rejected
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2763.655026
+# duration_ms 3140.884479

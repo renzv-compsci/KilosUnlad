@@ -1,16 +1,16 @@
 TAP version 13
 # Subtest: audit role requires listIndexes independently of createIndex and blocks mutation
-ok 1 - audit role requires listIndexes independently of createIndex and blocks mutation # SKIP
+ok 1 - audit role requires listIndexes independently of createIndex and blocks mutation
   ---
-  duration_ms: 0.971752
+  duration_ms: 9085.189219
   type: 'test'
   ...
 1..1
 # tests 1
 # suites 0
-# pass 0
+# pass 1
 # fail 0
 # cancelled 0
-# skipped 1
+# skipped 0
 # todo 0
-# duration_ms 100.410505
+# duration_ms 9213.632349

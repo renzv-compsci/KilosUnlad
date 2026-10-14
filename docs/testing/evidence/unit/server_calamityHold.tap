@@ -3,37 +3,37 @@ TAP version 13
     # Subtest: no configuration document: no hold
     ok 1 - no configuration document: no hold
       ---
-      duration_ms: 63.030045
+      duration_ms: 67.925093
       type: 'test'
       ...
     # Subtest: active zone freezes dispatch and assessment with zero writes
     ok 2 - active zone freezes dispatch and assessment with zero writes
       ---
-      duration_ms: 47.663811
+      duration_ms: 61.628992
       type: 'test'
       ...
     # Subtest: other municipality and inactive zones are not held
     ok 3 - other municipality and inactive zones are not held
       ---
-      duration_ms: 49.872397
+      duration_ms: 54.885613
       type: 'test'
       ...
     # Subtest: expiry releases the hold
     ok 4 - expiry releases the hold
       ---
-      duration_ms: 1050.16701
+      duration_ms: 1054.689786
       type: 'test'
       ...
     # Subtest: malformed stored configuration fails closed (503), never silently clears
     ok 5 - malformed stored configuration fails closed (503), never silently clears
       ---
-      duration_ms: 15.337441
+      duration_ms: 16.385912
       type: 'test'
       ...
     1..5
 ok 1 - E2E-02 calamity moratorium freezes dispatch and flagging, releases on expiry/lift
   ---
-  duration_ms: 2411.917119
+  duration_ms: 2448.035846
   type: 'test'
   ...
 1..1
@@ -44,4 +44,4 @@ ok 1 - E2E-02 calamity moratorium freezes dispatch and flagging, releases on exp
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2949.495076
+# duration_ms 2984.828688
