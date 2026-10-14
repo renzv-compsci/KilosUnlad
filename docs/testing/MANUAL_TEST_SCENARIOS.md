@@ -26,6 +26,15 @@ done
 - Open <http://localhost>.
 - To use the 80,000-household baseline instead, run `docker compose run --rm -e RESET_BASELINE=1 reset-demo` (or `seed-ingest`) before the fixtures. Totals then show 80,007 households; every other number below stays the same.
 
+**Demo dataset (for presenting to the panel):** one command loads the 80,000-household baseline, the test fixtures, and realistic activity created through the API. About 1,500 households are assessed by the model (each flag sealed in the ledger), and 30 flagged households are dispatched to the test caseworker. It takes about a minute and gives the same result every time.
+```bash
+bash data-pipeline/scripts/load_demo_data.sh     # Docker Compose v1: COMPOSE=docker-compose bash ...
+```
+- **Expected (Director):** 80,007 households; **628** flagged (score ≥ 70; average 91.2); **31** under investigation; **33** field tasks.
+- **Triggers:** AI Predicted Level 3 (604), Water > 25 cu.m (433), Meralco > 200 kWh (406), 4-wheel vehicle (169), postpaid telecom (150).
+- **Map:** 629 households under review, grouped into numbered bubbles. Click a bubble, or zoom in, to reach single households.
+- The scenario numbers below (S2 and so on) are for the small set. On the demo dataset every flow still works, but the totals are the ones above.
+
 **Hosted:** re-run `deploy/atlas_seed.sh` (use `SEED_80K=0` for the small set). Wake both Render services first: open each `/health` URL and wait.
 
 **Helper for the `curl` steps** (paste into Git Bash or WSL; set `API` to the hosted URL when testing online):

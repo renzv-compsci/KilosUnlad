@@ -9,7 +9,7 @@
 #
 # Usage (from the repo root, local stack running):
 #   ATLAS_ADMIN_URI='mongodb+srv://kilosunlad_admin:<pw>@<cluster-host>/?retryWrites=true&w=majority' \
-#     bash deploy/atlas_seed.sh            # 80,000-household baseline + test fixtures
+#     bash deploy/atlas_seed.sh            # populated demo: 80k baseline, fixtures, ~1,500 assessed, 30 dispatched
 #   SEED_80K=0 bash deploy/atlas_seed.sh   # test households only (smaller, faster)
 #
 # ATLAS_ADMIN_URI must belong to an Atlas user that can write the
@@ -26,19 +26,18 @@ ADMIN_LOCAL="mongodb://admin_user:RootAdminSecret2026!@localhost:27017/?authSour
 OUT="$ROOT/deploy/kilosunlad.archive.gz"
 cd "$ROOT"
 
-echo "[1/4] Reset the local database (users, indexes, test households)..."
-$COMPOSE run --rm reset-demo
 if [ "$SEED_80K" = "1" ]; then
-  echo "[2/4] Ingest the 80,000-household baseline..."
-  $COMPOSE run --rm seed-ingest
+  echo "[1-2/4] Load the populated demo dataset (80k baseline, fixtures, assessed sample, dispatches)..."
+  COMPOSE="$COMPOSE" bash data-pipeline/scripts/load_demo_data.sh
 else
-  echo "[2/4] Skipping the 80k baseline (SEED_80K=0)."
+  echo "[1-2/4] Reset to the small test set (SEED_80K=0)..."
+  $COMPOSE run --rm reset-demo
+  for fixture in add_int02_case_a_fixture add_int03_notice_fixture add_dispatch_test; do
+    docker cp "data-pipeline/scripts/$fixture.js" "kilosunlad-db:/tmp/$fixture.js" >/dev/null
+    docker exec kilosunlad-db mongosh "mongodb://admin_user:RootAdminSecret2026!@localhost:27017/kilosunlad?authSource=admin" \
+      --quiet "/tmp/$fixture.js" >/dev/null
+  done
 fi
-for fixture in add_int02_case_a_fixture add_int03_notice_fixture add_dispatch_test; do
-  docker cp "data-pipeline/scripts/$fixture.js" "kilosunlad-db:/tmp/$fixture.js" >/dev/null
-  docker exec kilosunlad-db mongosh "mongodb://admin_user:RootAdminSecret2026!@localhost:27017/kilosunlad?authSource=admin" \
-    --quiet "/tmp/$fixture.js" >/dev/null
-done
 
 echo "[3/4] Dump the local kilosunlad database..."
 docker exec kilosunlad-db mongodump --uri "$ADMIN_LOCAL" --db kilosunlad --archive --gzip > "$OUT"
