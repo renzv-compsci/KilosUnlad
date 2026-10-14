@@ -1,102 +1,102 @@
 TAP version 13
-# [0mPOST /api/v1/auth/login [32m200[0m 33.450 ms - 749[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 9.849 ms - 646[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 11.606 ms - 652[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 10.497 ms - 729[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 10.864 ms - 739[0m
-# [0mPOST /api/v1/appeals/docket [32m201[0m 33.910 ms - 433[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 36.259 ms - 749[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 10.772 ms - 646[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 9.465 ms - 652[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 12.530 ms - 729[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 8.978 ms - 739[0m
+# [0mPOST /api/v1/appeals/docket [32m201[0m 33.435 ms - 433[0m
 # Subtest: INT-03 POST /api/v1/appeals/docket against a disposable MongoDB replica set
     # Subtest: the frontend appeal dialog payload is accepted: 201, countdown paused, audit sealed
     ok 1 - the frontend appeal dialog payload is accepted: 201, countdown paused, audit sealed
       ---
-      duration_ms: 62.487411
+      duration_ms: 71.747682
       type: 'test'
       ...
-# [0mPOST /api/v1/appeals/docket [32m201[0m 23.826 ms - 439[0m
+# [0mPOST /api/v1/appeals/docket [32m201[0m 37.844 ms - 439[0m
     # Subtest: SUPER_ADMIN may docket; chain stays contiguous and verifiable
     ok 2 - SUPER_ADMIN may docket; chain stays contiguous and verifiable
       ---
-      duration_ms: 51.378808
+      duration_ms: 56.648801
       type: 'test'
       ...
-# [0mPOST /api/v1/appeals/docket [33m400[0m 4.120 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.126 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.112 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 2.838 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.086 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.252 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.762 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.633 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 2.835 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 2.712 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 2.808 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 2.728 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 2.576 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 2.675 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 14.806 ms - 102[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 5.378 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 4.013 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 4.144 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 2.933 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 3.286 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 2.311 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 2.972 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 2.354 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 2.146 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 2.125 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 1.992 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 2.059 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 3.161 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 4.175 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 18.203 ms - 102[0m
     # Subtest: 400 root causes are rejected at the boundary with no writes
     ok 3 - 400 root causes are rejected at the boundary with no writes
       ---
-      duration_ms: 117.807922
+      duration_ms: 139.226267
       type: 'test'
       ...
-# [0mPOST /api/v1/appeals/docket [33m401[0m 0.288 ms - 90[0m
-# [0mPOST /api/v1/appeals/docket [33m401[0m 0.577 ms - 99[0m
-# [0mPOST /api/v1/appeals/docket [33m403[0m 2.877 ms - 67[0m
-# [0mPOST /api/v1/appeals/docket [33m403[0m 2.281 ms - 67[0m
-# [0mPOST /api/v1/appeals/docket [33m403[0m 7.983 ms - 122[0m
+# [0mPOST /api/v1/appeals/docket [33m401[0m 0.445 ms - 90[0m
+# [0mPOST /api/v1/appeals/docket [33m401[0m 0.822 ms - 99[0m
+# [0mPOST /api/v1/appeals/docket [33m403[0m 3.458 ms - 67[0m
+# [0mPOST /api/v1/appeals/docket [33m403[0m 3.351 ms - 67[0m
+# [0mPOST /api/v1/appeals/docket [33m403[0m 9.784 ms - 122[0m
     # Subtest: security guards: 401, role 403, auditor 403, jurisdiction 403
     ok 4 - security guards: 401, role 403, auditor 403, jurisdiction 403
       ---
-      duration_ms: 40.070584
+      duration_ms: 52.329135
       type: 'test'
       ...
-# [0mPOST /api/v1/appeals/docket [33m404[0m 8.853 ms - 91[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 19.579 ms - 108[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 11.097 ms - 107[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 10.322 ms - 107[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 10.440 ms - 107[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 10.078 ms - 91[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 12.736 ms - 100[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 13.463 ms - 98[0m
+# [0mPOST /api/v1/appeals/docket [33m404[0m 16.225 ms - 91[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 6.912 ms - 108[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 7.886 ms - 107[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 7.602 ms - 107[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 9.043 ms - 107[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 10.776 ms - 91[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 9.993 ms - 100[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 11.647 ms - 98[0m
     # Subtest: due-process prerequisites: 404, 409 status/notice/window/duplicate
     ok 5 - due-process prerequisites: 404, 409 status/notice/window/duplicate
       ---
-      duration_ms: 187.248974
+      duration_ms: 159.847863
       type: 'test'
       ...
-# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 34.941 ms - 4284[0m
-# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 41.569 ms - 5199[0m
-# [0mGET /api/v1/appeals/docket?limit=1&page=2 [32m200[0m 41.290 ms - 577[0m
-# [0mGET /api/v1/appeals/docket [32m200[0m 29.891 ms - 5198[0m
-# [0mGET /api/v1/appeals/docket [33m401[0m 0.189 ms - 90[0m
-# [0mGET /api/v1/appeals/docket [33m403[0m 1.832 ms - 67[0m
-# [0mGET /api/v1/appeals/docket?limit=0 [33m400[0m 1.783 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?limit=101 [33m400[0m 1.668 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?page=0 [33m400[0m 1.711 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?page=x [33m400[0m 2.078 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?status=GRADUATED [33m400[0m 1.713 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?limit=1&limit=2 [33m400[0m 1.736 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?limit=100 [33m409[0m 23.837 ms - 87[0m
-# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 27.837 ms - 4284[0m
+# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 30.939 ms - 4284[0m
+# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 41.962 ms - 5199[0m
+# [0mGET /api/v1/appeals/docket?limit=1&page=2 [32m200[0m 8.959 ms - 577[0m
+# [0mGET /api/v1/appeals/docket [32m200[0m 26.690 ms - 5198[0m
+# [0mGET /api/v1/appeals/docket [33m401[0m 0.188 ms - 90[0m
+# [0mGET /api/v1/appeals/docket [33m403[0m 1.750 ms - 67[0m
+# [0mGET /api/v1/appeals/docket?limit=0 [33m400[0m 1.707 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?limit=101 [33m400[0m 1.906 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?page=0 [33m400[0m 1.893 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?page=x [33m400[0m 2.252 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?status=GRADUATED [33m400[0m 1.684 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?limit=1&limit=2 [33m400[0m 2.534 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?limit=100 [33m409[0m 21.239 ms - 87[0m
+# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 24.855 ms - 4284[0m
     # Subtest: INT-08 GET /appeals/docket lists notices with deadlines and verified appeals
     ok 6 - INT-08 GET /appeals/docket lists notices with deadlines and verified appeals
       ---
-      duration_ms: 275.764567
+      duration_ms: 238.193789
       type: 'test'
       ...
-# [0mPOST /api/v1/appeals/docket [32m201[0m 29.722 ms - 437[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 36.396 ms - 100[0m
+# [0mPOST /api/v1/appeals/docket [32m201[0m 22.274 ms - 437[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 36.164 ms - 100[0m
     # Subtest: simultaneous filings for one household yield exactly one appeal
     ok 7 - simultaneous filings for one household yield exactly one appeal
       ---
-      duration_ms: 57.075602
+      duration_ms: 63.414594
       type: 'test'
       ...
     1..7
 ok 1 - INT-03 POST /api/v1/appeals/docket against a disposable MongoDB replica set
   ---
-  duration_ms: 2136.051113
+  duration_ms: 2889.656569
   type: 'test'
   ...
 1..1
@@ -107,4 +107,4 @@ ok 1 - INT-03 POST /api/v1/appeals/docket against a disposable MongoDB replica s
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 3054.23332
+# duration_ms 3972.209331

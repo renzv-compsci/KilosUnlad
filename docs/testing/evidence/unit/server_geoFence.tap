@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: geofence uses longitude-first GeoJSON and matches identical locations
 ok 1 - geofence uses longitude-first GeoJSON and matches identical locations
   ---
-  duration_ms: 2.129538
+  duration_ms: 2.288847
   type: 'test'
   ...
 # Subtest: geofence compares unrounded distance at the inclusive 250 metre boundary
 ok 2 - geofence compares unrounded distance at the inclusive 250 metre boundary
   ---
-  duration_ms: 0.264503
+  duration_ms: 0.324296
   type: 'test'
   ...
 # Subtest: malformed and non-finite coordinates fail closed
 ok 3 - malformed and non-finite coordinates fail closed
   ---
-  duration_ms: 0.415172
+  duration_ms: 0.436847
   type: 'test'
   ...
 # Subtest: distance remains finite at antipodes and crosses the date line correctly
 ok 4 - distance remains finite at antipodes and crosses the date line correctly
   ---
-  duration_ms: 0.22126
+  duration_ms: 0.249936
   type: 'test'
   ...
 1..4
@@ -31,4 +31,4 @@ ok 4 - distance remains finite at antipodes and crosses the date line correctly
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 90.973979
+# duration_ms 108.204251

@@ -1,0 +1,92 @@
+TAP version 13
+# [0mPOST /api/v1/auth/login [32m200[0m 43.865 ms - 754[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 16.208 ms - 657[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 10.069 ms - 734[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 12.584 ms - 744[0m
+# [0mGET /api/v1/tasks/TSK-HH-KEEP/report [32m200[0m 15.383 ms - 784[0m
+# [0mPOST /api/v1/tasks/TSK-HH-KEEP/retain [32m200[0m 43.597 ms - 333[0m
+# [0mGET /api/v1/tasks/TSK-HH-KEEP/report [32m200[0m 8.528 ms - 961[0m
+# [0mPOST /api/v1/tasks/TSK-HH-KEEP/retain [33m409[0m 12.579 ms - 97[0m
+# Subtest: DECISION-012 retention, appeal outcome and re-flag cooldown on a disposable replica set
+    # Subtest: POST /tasks/:id/retain returns the household to ACTIVE_COMPLIANT and seals BENEFICIARY_RETAINED
+    ok 1 - POST /tasks/:id/retain returns the household to ACTIVE_COMPLIANT and seals BENEFICIARY_RETAINED
+      ---
+      duration_ms: 136.872926
+      type: 'test'
+      ...
+    # Subtest: the model cannot re-flag a retained household for 180 days
+    ok 2 - the model cannot re-flag a retained household for 180 days
+      ---
+      duration_ms: 23.019453
+      type: 'test'
+      ...
+# [0mPOST /api/v1/tasks/TSK-HH-RICH/retain [33m409[0m 14.592 ms - 150[0m
+# [0mPOST /api/v1/tasks/TSK-HH-PENDING/retain [33m409[0m 16.441 ms - 97[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [33m400[0m 5.358 ms - 117[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [33m400[0m 4.046 ms - 117[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [33m403[0m 2.924 ms - 67[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [33m403[0m 3.298 ms - 67[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [33m401[0m 0.303 ms - 90[0m
+# [0mPOST /api/v1/tasks/TSK-HH-FAR/retain [33m403[0m 10.070 ms - 122[0m
+# [0mPOST /api/v1/tasks/TSK-NOPE/retain [33m404[0m 4.736 ms - 63[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [32m200[0m 30.351 ms - 333[0m
+    # Subtest: retain refuses graduation reports, bad input, wrong roles and other jurisdictions; calamity does not block it
+    ok 3 - retain refuses graduation reports, bad input, wrong roles and other jurisdictions; calamity does not block it
+      ---
+      duration_ms: 215.062893
+      type: 'test'
+      ...
+# [0mPOST /api/v1/appeals/docket [32m201[0m 26.521 ms - 435[0m
+# [0mPOST /api/v1/appeals/APP-T-0001/decide [32m200[0m 23.616 ms - 327[0m
+# [0mGET /api/v1/appeals/docket [32m200[0m 7.589 ms - 89[0m
+# [0mPOST /api/v1/appeals/APP-T-0001/decide [33m409[0m 12.388 ms - 100[0m
+    # Subtest: POST /appeals/:docket/decide GRANTED returns the household to ACTIVE_COMPLIANT
+    ok 4 - POST /appeals/:docket/decide GRANTED returns the household to ACTIVE_COMPLIANT
+      ---
+      duration_ms: 102.912637
+      type: 'test'
+      ...
+# [0mPOST /api/v1/appeals/docket [32m201[0m 17.835 ms - 436[0m
+# [0mPOST /api/v1/appeals/APP-T-0002/decide [32m200[0m 29.273 ms - 298[0m
+    # Subtest: DENIED completes the graduation, sealed as BENEFICIARY_GRADUATED
+    ok 5 - DENIED completes the graduation, sealed as BENEFICIARY_GRADUATED
+      ---
+      duration_ms: 71.547762
+      type: 'test'
+      ...
+# [0mPOST /api/v1/appeals/docket [32m201[0m 22.375 ms - 437[0m
+# [0mPOST /api/v1/appeals/docket [32m201[0m 16.654 ms - 437[0m
+# [0mPOST /api/v1/appeals/docket [32m201[0m 19.118 ms - 436[0m
+# [0mPOST /api/v1/appeals/APP-T-0003/decide [33m409[0m 10.624 ms - 111[0m
+# [0mPOST /api/v1/appeals/APP-T-0004/decide [33m409[0m 9.100 ms - 105[0m
+# [0mPOST /api/v1/appeals/APP-T-FORGED/decide [33m409[0m 8.840 ms - 87[0m
+# [0mPOST /api/v1/appeals/APP-T-NOPE/decide [33m404[0m 3.971 ms - 100[0m
+# [0mPOST /api/v1/appeals/bad%20id/decide [33m404[0m 2.018 ms - 100[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m400[0m 2.612 ms - 121[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m400[0m 4.974 ms - 121[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m400[0m 2.510 ms - 121[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m403[0m 3.155 ms - 67[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m403[0m 2.071 ms - 67[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m403[0m 8.376 ms - 122[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m409[0m 37.186 ms - 153[0m
+    # Subtest: decide refuses early hearings, stale or forged appeals, bad input, wrong roles and calamity holds
+    ok 6 - decide refuses early hearings, stale or forged appeals, bad input, wrong roles and calamity holds
+      ---
+      duration_ms: 272.543491
+      type: 'test'
+      ...
+    1..6
+ok 1 - DECISION-012 retention, appeal outcome and re-flag cooldown on a disposable replica set
+  ---
+  duration_ms: 2156.745361
+  type: 'test'
+  ...
+1..1
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3077.92686

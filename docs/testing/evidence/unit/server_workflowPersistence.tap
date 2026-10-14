@@ -2,117 +2,117 @@ TAP version 13
 # Subtest: workflow persistence requires an explicit policy and approved transition/action
 ok 1 - workflow persistence requires an explicit policy and approved transition/action
   ---
-  duration_ms: 1.255576
+  duration_ms: 1.451526
   type: 'test'
   ...
 # Subtest: transactional workflow against a disposable MongoDB replica set
     # Subtest: successful update and audit use the accepted hash format
     ok 1 - successful update and audit use the accepted hash format
       ---
-      duration_ms: 43.738138
+      duration_ms: 48.259031
       type: 'test'
       ...
     # Subtest: current role, deactivation and jurisdiction are read from MongoDB
     ok 2 - current role, deactivation and jurisdiction are read from MongoDB
       ---
-      duration_ms: 101.911374
+      duration_ms: 146.583951
       type: 'test'
       ...
     # Subtest: failed prerequisites roll back associated writes
     ok 3 - failed prerequisites roll back associated writes
       ---
-      duration_ms: 19.10075
+      duration_ms: 22.551527
       type: 'test'
       ...
     # Subtest: audit failure rolls back the status update
     ok 4 - audit failure rolls back the status update
       ---
-      duration_ms: 18.70438
+      duration_ms: 21.172135
       type: 'test'
       ...
     # Subtest: simultaneous changes to one household yield one winner and one audit
     ok 5 - simultaneous changes to one household yield one winner and one audit
       ---
-      duration_ms: 30.28219
+      duration_ms: 35.458145
       type: 'test'
       ...
     # Subtest: independent concurrent changes form one contiguous audit chain
     ok 6 - independent concurrent changes form one contiguous audit chain
       ---
-      duration_ms: 48.329765
+      duration_ms: 56.87854
       type: 'test'
       ...
     # Subtest: invalid input, unknown actor and missing household fail closed
     ok 7 - invalid input, unknown actor and missing household fail closed
       ---
-      duration_ms: 10.162954
+      duration_ms: 16.458843
       type: 'test'
       ...
     # Subtest: unexpected database status cannot be skipped or overwritten
     ok 8 - unexpected database status cannot be skipped or overwritten
       ---
-      duration_ms: 21.604364
+      duration_ms: 22.462349
       type: 'test'
       ...
-# [0mPOST /api/v1/auth/login [32m200[0m 28.935 ms - 738[0m
-# [0mPOST /api/v1/auth/login [33m401[0m 6.806 ms - 100[0m
-# [0mPOST /api/v1/tasks/dispatch [33m401[0m 0.962 ms - 90[0m
-# [0mPOST /api/v1/tasks/dispatch [33m403[0m 3.568 ms - 67[0m
-# [0mPOST /api/v1/tasks/dispatch [33m400[0m 5.946 ms - 102[0m
-# [0mPOST /api/v1/tasks/dispatch [33m400[0m 4.340 ms - 102[0m
-# [0mPOST /api/v1/tasks/dispatch [33m400[0m 19.666 ms - 103[0m
-# [0mPOST /api/v1/tasks/dispatch [33m403[0m 12.461 ms - 122[0m
-# [0mPOST /api/v1/tasks/dispatch [32m201[0m 36.201 ms - 375[0m
-# [0mGET /api/v1/tasks/assigned [32m200[0m 9.705 ms - 726[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?status=UNDER_INVESTIGATION&limit=100 [32m200[0m 11.675 ms - 2027[0m
-# [0mGET /api/v1/tasks/assigned [32m200[0m 5.248 ms - 120[0m
-# [0mGET /api/v1/tasks/assigned [32m200[0m 8.164 ms - 120[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 9.272 ms - 193[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?barangay=Palingon [33m403[0m 2.821 ms - 122[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 40.783 ms - 738[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 8.480 ms - 100[0m
+# [0mPOST /api/v1/tasks/dispatch [33m401[0m 0.740 ms - 90[0m
+# [0mPOST /api/v1/tasks/dispatch [33m403[0m 4.041 ms - 67[0m
+# [0mPOST /api/v1/tasks/dispatch [33m400[0m 6.818 ms - 102[0m
+# [0mPOST /api/v1/tasks/dispatch [33m400[0m 9.042 ms - 102[0m
+# [0mPOST /api/v1/tasks/dispatch [33m400[0m 22.451 ms - 103[0m
+# [0mPOST /api/v1/tasks/dispatch [33m403[0m 17.519 ms - 122[0m
+# [0mPOST /api/v1/tasks/dispatch [32m201[0m 33.369 ms - 375[0m
+# [0mGET /api/v1/tasks/assigned [32m200[0m 15.571 ms - 726[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?status=UNDER_INVESTIGATION&limit=100 [32m200[0m 11.235 ms - 2027[0m
+# [0mGET /api/v1/tasks/assigned [32m200[0m 5.672 ms - 120[0m
+# [0mGET /api/v1/tasks/assigned [32m200[0m 6.712 ms - 120[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 13.990 ms - 193[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?barangay=Palingon [33m403[0m 3.196 ms - 122[0m
     # Subtest: dispatch HTTP contract, authorization, metadata and atomic rollback
         # Subtest: dispatched task appears in live feeds with current-user isolation
         ok 1 - dispatched task appears in live feeds with current-user isolation
           ---
-          duration_ms: 88.909826
+          duration_ms: 100.926437
           type: 'test'
           ...
-# [0mPOST /api/v1/auth/login [32m200[0m 9.192 ms - 739[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [33m403[0m 3.286 ms - 67[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [32m200[0m 7.819 ms - 281[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [33m403[0m 3.492 ms - 110[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 11.280 ms - 739[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [33m403[0m 2.633 ms - 67[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [32m200[0m 9.606 ms - 281[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [33m403[0m 3.363 ms - 110[0m
         # Subtest: auditor verifies the dispatch ledger through the authenticated live route
         ok 2 - auditor verifies the dispatch ledger through the authenticated live route
           ---
-          duration_ms: 47.00941
+          duration_ms: 47.798239
           type: 'test'
           ...
-# [0mPOST /api/v1/tasks/dispatch [33m409[0m 11.189 ms - 113[0m
-# [0mPOST /api/v1/tasks/dispatch [33m404[0m 6.297 ms - 91[0m
-# [0mPOST /api/v1/tasks/dispatch [32m201[0m 34.627 ms - 372[0m
-# [0mPOST /api/v1/tasks/dispatch [33m409[0m 38.117 ms - 113[0m
-# [0mPOST /api/v1/tasks/dispatch [31m503[0m 15.309 ms - 85[0m
+# [0mPOST /api/v1/tasks/dispatch [33m409[0m 17.391 ms - 113[0m
+# [0mPOST /api/v1/tasks/dispatch [33m404[0m 10.128 ms - 91[0m
+# [0mPOST /api/v1/tasks/dispatch [32m201[0m 47.045 ms - 372[0m
+# [0mPOST /api/v1/tasks/dispatch [33m409[0m 56.845 ms - 113[0m
+# [0mPOST /api/v1/tasks/dispatch [31m503[0m 24.068 ms - 85[0m
         1..2
     ok 9 - dispatch HTTP contract, authorization, metadata and atomic rollback
       ---
-      duration_ms: 1036.664902
+      duration_ms: 1206.596995
       type: 'test'
       ...
     # Subtest: verifier reads persisted workflow hashes and detects tampering in 1000 MongoDB blocks
     ok 10 - verifier reads persisted workflow hashes and detects tampering in 1000 MongoDB blocks
       ---
-      duration_ms: 596.144337
+      duration_ms: 894.635618
       type: 'test'
       ...
     # Subtest: missing unique audit sequence index prevents all writes
     ok 11 - missing unique audit sequence index prevents all writes
       ---
-      duration_ms: 19.095468
+      duration_ms: 23.856433
       type: 'test'
       ...
     1..11
 ok 2 - transactional workflow against a disposable MongoDB replica set
   ---
-  duration_ms: 3151.566029
+  duration_ms: 3765.746888
   type: 'test'
   ...
 1..2
@@ -123,4 +123,4 @@ ok 2 - transactional workflow against a disposable MongoDB replica set
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 3485.147656
+# duration_ms 4131.626992

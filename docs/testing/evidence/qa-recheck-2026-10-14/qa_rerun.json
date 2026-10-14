@@ -1,0 +1,67 @@
+[
+  [
+    "PASS",
+    "S2: GET /api/v1/insights/overview returns 200 (not 404)",
+    [
+      200
+    ]
+  ],
+  [
+    "PASS",
+    "S2: no \"Sample data\" label, no 4,850, no ML-04 names",
+    ""
+  ],
+  [
+    "PASS",
+    "S2: API reports the seeded 7 households",
+    7
+  ],
+  [
+    "PASS",
+    "S2: the page shows \"7\" next to Households in scope",
+    "Live · Oct 14, 2026 Households in Scope 7"
+  ],
+  [
+    "PASS",
+    "S4: caseworker is a dropdown (not an account-ID text box)",
+    [
+      "Choose a caseworker",
+      "Test Case Worker (1 open)"
+    ]
+  ],
+  [
+    "PASS",
+    "S4: the list contains Test Case Worker",
+    ""
+  ],
+  [
+    "PASS",
+    "S4: \"Task dispatched\" with audit sequence 1",
+    "Task dispatched Assignment confirmed by the server. Task TSK-2026-4a658375-a7d9-487b-91f7-831c0034471d Household TEST-4PS-DISPATCH-0001 Audit sequence 1 The triage queue is refreshing. The assigned ca"
+  ],
+  [
+    "PASS",
+    "Item 4: dispatch view lists only seeded households (no ML-04/ML-07 names)",
+    ""
+  ],
+  [
+    "PASS",
+    "Item 4: Field staff shows Test Case Worker with 2 open tasks",
+    "Test Case Worker\nLorna Bautista"
+  ],
+  [
+    "PASS",
+    "S5: sync button is enabled (not \"Submission unavailable\")",
+    "Synchronizing Batch to Central MIS..."
+  ],
+  [
+    "PASS",
+    "S5: the server stored the report (task SUBMITTED, photo listed)",
+    "SUBMITTED"
+  ],
+  [
+    "PASS",
+    "S5: the director sees \"Report submitted\" with a Review report button",
+    ""
+  ]
+]

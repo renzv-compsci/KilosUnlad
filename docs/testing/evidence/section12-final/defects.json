@@ -1,0 +1,178 @@
+[
+  {
+    "id": "DEF-01",
+    "title": "Multi-document transactions need a replica set",
+    "checks": [
+      {
+        "label": "db service starts mongod with --replSet rs0 --bind_ip_all",
+        "pass": true
+      },
+      {
+        "label": "compose runs rs.initiate on first boot",
+        "pass": true
+      },
+      {
+        "label": "live server is primary of replica set rs0",
+        "pass": true
+      },
+      {
+        "label": "session.withTransaction() commits",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "hello": {
+        "setName": "rs0",
+        "isWritablePrimary": true
+      }
+    }
+  },
+  {
+    "id": "DEF-02",
+    "title": "app_user may inspect audit indexes but never update or delete",
+    "checks": [
+      {
+        "label": "role grants createIndex and listIndexes on audit_logs",
+        "pass": true
+      },
+      {
+        "label": "role grants no update or remove on audit_logs",
+        "pass": true
+      },
+      {
+        "label": "app_user can find and list audit indexes",
+        "pass": true
+      },
+      {
+        "label": "app_user update and delete on audit_logs -> Unauthorized",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "audit_logs_actions": [
+        "find",
+        "insert",
+        "createIndex",
+        "listIndexes"
+      ],
+      "app_user_probes": {
+        "find": "ALLOWED",
+        "listIndexes": "ALLOWED",
+        "update": "Unauthorized",
+        "delete": "Unauthorized"
+      }
+    }
+  },
+  {
+    "id": "DEF-03",
+    "title": "No _id auto-injected into nested sub-documents",
+    "checks": [
+      {
+        "label": "all 19 nested sub-schemas declare { _id: false, strict: true }",
+        "pass": true
+      },
+      {
+        "label": "a built Beneficiary has no _id in address, demographics or head_of_household",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "sub_schemas": 19
+    }
+  },
+  {
+    "id": "DEF-04",
+    "title": "Host port collision on 27017",
+    "checks": [
+      {
+        "label": "compose maps ${MONGO_EXTERNAL_PORT:-27017}:27017",
+        "pass": true
+      }
+    ],
+    "observed": {}
+  },
+  {
+    "id": "DEF-05",
+    "title": "ML feature contract mismatch",
+    "checks": [
+      {
+        "label": "server Joi schema lists exactly the contract's 6 features",
+        "pass": true
+      },
+      {
+        "label": "ML service maps the same 6 features",
+        "pass": true
+      },
+      {
+        "label": "wall_score / roof_score are not part of the vector",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "server_joi_features": [
+        "appliance_density_index",
+        "dependency_ratio",
+        "head_education_level",
+        "head_formal_employment",
+        "housing_material_score",
+        "remittance_income_flag"
+      ]
+    }
+  },
+  {
+    "id": "DEF-06",
+    "title": "Dispatch metadata persisted on VerificationTask",
+    "checks": [
+      {
+        "label": "priority enum LOW/MEDIUM/HIGH/CRITICAL",
+        "pass": true
+      },
+      {
+        "label": "due_date is a required Date",
+        "pass": true
+      },
+      {
+        "label": "assignment_notes aliased as dispatch_instructions",
+        "pass": true
+      },
+      {
+        "label": "strict mode keeps the three fields on save",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "priority_enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    }
+  },
+  {
+    "id": "DEF-07",
+    "title": "General configuration audit action",
+    "checks": [
+      {
+        "label": "AUDIT_ACTIONS includes SYSTEM_CONFIG_UPDATED",
+        "pass": true
+      },
+      {
+        "label": "CALAMITY_DECLARED remains a separate action",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "audit_actions": [
+        "MODEL_FLAG_RAISED",
+        "TASK_DISPATCHED",
+        "REPORT_SUBMITTED",
+        "BENEFICIARY_GRADUATED",
+        "BENEFICIARY_RETAINED",
+        "APPEAL_FILED",
+        "CALAMITY_DECLARED",
+        "SYSTEM_CONFIG_UPDATED"
+      ]
+    }
+  }
+]

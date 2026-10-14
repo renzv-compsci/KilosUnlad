@@ -1,23 +1,23 @@
 TAP version 13
-# [0mGET /api/v1/beneficiaries/triage-queue?status=FLAGGED_FOR_REVIEW&limit=1 [32m200[0m 36.436 ms - 805[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?page=2&limit=1 [32m200[0m 10.650 ms - 806[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Other [33m403[0m 0.860 ms - 122[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?page=0 [33m400[0m 0.992 ms - 77[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?limit=101 [33m400[0m 0.758 ms - 77[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?status=NOPE [33m400[0m 0.620 ms - 77[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?status[$ne]=x [33m400[0m 0.646 ms - 77[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?page=1&page=2 [33m400[0m 0.788 ms - 77[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 9.005 ms - 2037[0m
-# [0mGET /api/v1/tasks/assigned [33m403[0m 1.043 ms - 67[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 0.638 ms - 67[0m
-# [0mGET /api/v1/tasks/assigned [32m200[0m 8.625 ms - 1063[0m
-# [0mGET /api/v1/tasks/assigned?worker_id=6ace05fe62e15e2ad021cee5 [33m400[0m 0.822 ms - 77[0m
-# [0mGET /api/v1/tasks/assigned [32m200[0m 3.434 ms - 120[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 5.800 ms - 193[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?status=FLAGGED_FOR_REVIEW&limit=1 [32m200[0m 20.925 ms - 805[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?page=2&limit=1 [32m200[0m 11.093 ms - 806[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Other [33m403[0m 1.339 ms - 122[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?page=0 [33m400[0m 1.944 ms - 77[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?limit=101 [33m400[0m 1.968 ms - 77[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?status=NOPE [33m400[0m 1.194 ms - 77[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?status[$ne]=x [33m400[0m 1.010 ms - 77[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?page=1&page=2 [33m400[0m 1.241 ms - 77[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 12.134 ms - 2037[0m
+# [0mGET /api/v1/tasks/assigned [33m403[0m 0.950 ms - 67[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 0.751 ms - 67[0m
+# [0mGET /api/v1/tasks/assigned [32m200[0m 9.415 ms - 1063[0m
+# [0mGET /api/v1/tasks/assigned?worker_id=6acf06309461b5186d85a6f8 [33m400[0m 0.961 ms - 77[0m
+# [0mGET /api/v1/tasks/assigned [32m200[0m 4.293 ms - 120[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 7.977 ms - 193[0m
 # Subtest: live feeds enforce contracts, pagination and data isolation in production
 ok 1 - live feeds enforce contracts, pagination and data isolation in production
   ---
-  duration_ms: 469.055016
+  duration_ms: 425.163984
   type: 'test'
   ...
 1..1
@@ -28,4 +28,4 @@ ok 1 - live feeds enforce contracts, pagination and data isolation in production
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 1364.60255
+# duration_ms 1396.079283

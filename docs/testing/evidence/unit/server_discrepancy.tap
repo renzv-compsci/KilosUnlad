@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: zero risk and individual documented contributions
 ok 1 - zero risk and individual documented contributions
   ---
-  duration_ms: 6.262109
+  duration_ms: 5.589513
   type: 'test'
   ...
 # Subtest: flagging threshold is inclusive at 70 and the score caps at 100
 ok 2 - flagging threshold is inclusive at 70 and the score caps at 100
   ---
-  duration_ms: 0.813853
+  duration_ms: 0.569667
   type: 'test'
   ...
 # Subtest: missing, unknown or coerced inputs cannot silently become zero risk
 ok 3 - missing, unknown or coerced inputs cannot silently become zero risk
   ---
-  duration_ms: 3.792276
+  duration_ms: 3.482639
   type: 'test'
   ...
 # Subtest: calculation is deterministic and does not mutate input
 ok 4 - calculation is deterministic and does not mutate input
   ---
-  duration_ms: 0.332153
+  duration_ms: 0.286408
   type: 'test'
   ...
 1..4
@@ -31,4 +31,4 @@ ok 4 - calculation is deterministic and does not mutate input
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 170.551386
+# duration_ms 142.752472

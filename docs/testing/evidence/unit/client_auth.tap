@@ -2,381 +2,399 @@ TAP version 13
 # Subtest: dates preserve calendar dates, use Philippine time, and retain missing/invalid values
 ok 1 - dates preserve calendar dates, use Philippine time, and retain missing/invalid values
   ---
-  duration_ms: 2.448246
+  duration_ms: 2.217449
   type: 'test'
   ...
-# Subtest: dispatch puts assignments before collapsed staff details and identifies sample data
-ok 2 - dispatch puts assignments before collapsed staff details and identifies sample data
+# Subtest: dispatch puts assignments before collapsed staff details and loads server records only
+ok 2 - dispatch puts assignments before collapsed staff details and loads server records only
   ---
-  duration_ms: 9.909599
+  duration_ms: 8.960816
   type: 'test'
   ...
 # Subtest: due process preserves notices, protected grants and appeal actions while collapsing details
 ok 3 - due process preserves notices, protected grants and appeal actions while collapsing details
   ---
-  duration_ms: 6.996307
+  duration_ms: 4.603706
   type: 'test'
   ...
 # Subtest: assessment step navigation retains accessible names and current-step context
 ok 4 - assessment step navigation retains accessible names and current-step context
   ---
-  duration_ms: 6.552303
+  duration_ms: 4.005301
   type: 'test'
   ...
 # Subtest: assessment completion requires recorded answers rather than visited steps
 ok 5 - assessment completion requires recorded answers rather than visited steps
   ---
-  duration_ms: 2.816241
+  duration_ms: 2.091685
   type: 'test'
   ...
-# Subtest: dashboard separates live workload from samples and has one analytics selector
-ok 6 - dashboard separates live workload from samples and has one analytics selector
+# Subtest: dashboard shows the live workload first and loads the regional snapshot from the server
+ok 6 - dashboard shows the live workload first and loads the regional snapshot from the server
   ---
-  duration_ms: 21.990653
+  duration_ms: 9.408766
   type: 'test'
   ...
 # Subtest: audit navigation does not claim verification or present sample percentages as live
 ok 7 - audit navigation does not claim verification or present sample percentages as live
   ---
-  duration_ms: 1.643352
+  duration_ms: 1.980333
   type: 'test'
   ...
 # Subtest: audit overview identifies the authenticated reviewer and keeps AOM explicitly preview-only
 ok 8 - audit overview identifies the authenticated reviewer and keeps AOM explicitly preview-only
   ---
-  duration_ms: 3.085781
+  duration_ms: 1.464517
   type: 'test'
   ...
 # Subtest: data notices are compact disclosures and never imply successful verification
 ok 9 - data notices are compact disclosures and never imply successful verification
   ---
-  duration_ms: 2.558492
+  duration_ms: 2.285872
   type: 'test'
   ...
 # Subtest: field tasks use plain-language titles and distinguish local copies from submissions
 ok 10 - field tasks use plain-language titles and distinguish local copies from submissions
   ---
-  duration_ms: 1.556067
+  duration_ms: 1.379129
   type: 'test'
   ...
 # Subtest: notice deadlines are concise, timezone-aware, and never imply an eligibility decision
 ok 11 - notice deadlines are concise, timezone-aware, and never imply an eligibility decision
   ---
-  duration_ms: 0.53339
+  duration_ms: 0.526758
   type: 'test'
   ...
 # Subtest: due process sorts active deadlines before paused cases without changing source data
 ok 12 - due process sorts active deadlines before paused cases without changing source data
   ---
-  duration_ms: 2.244314
+  duration_ms: 2.369056
   type: 'test'
   ...
 # Subtest: dashboard renders API households only when counts are available and excludes stale loading data
 ok 13 - dashboard renders API households only when counts are available and excludes stale loading data
   ---
-  duration_ms: 25.708375
+  duration_ms: 5.2463
   type: 'test'
   ...
 # Subtest: triage keeps four primary columns with complete, collapsed evidence and backend severity labels
 ok 14 - triage keeps four primary columns with complete, collapsed evidence and backend severity labels
   ---
-  duration_ms: 4.137898
+  duration_ms: 5.010875
   type: 'test'
   ...
-# Subtest: policy settings clearly identifies non-persistent previews
-ok 15 - policy settings clearly identifies non-persistent previews
+# Subtest: policy settings is read-only and waits for the server policy
+ok 15 - policy settings is read-only and waits for the server policy
   ---
-  duration_ms: 1.249516
+  duration_ms: 1.010563
   type: 'test'
   ...
 # Subtest: sidebar toggles only from non-navigation clicks in either width state
 ok 16 - sidebar toggles only from non-navigation clicks in either width state
   ---
-  duration_ms: 0.646122
+  duration_ms: 0.909704
   type: 'test'
   ...
 # Subtest: workload summary preserves zeros and rejects missing, partial or invalid counts
 ok 17 - workload summary preserves zeros and rejects missing, partial or invalid counts
   ---
-  duration_ms: 3.671422
+  duration_ms: 3.806355
   type: 'test'
   ...
 # Subtest: dashboard separates API workload semantics from sample chart metrics
 ok 18 - dashboard separates API workload semantics from sample chart metrics
   ---
-  duration_ms: 7.033126
+  duration_ms: 1.706617
   type: 'test'
   ...
 # Subtest: audit ranges enforce inclusive 1000-block limit and positive safe integers
 ok 19 - audit ranges enforce inclusive 1000-block limit and positive safe integers
   ---
-  duration_ms: 0.685376
+  duration_ms: 0.655726
   type: 'test'
   ...
 # Subtest: audit transport sends authenticated read-only range and handles broken HTTP 200
 ok 20 - audit transport sends authenticated read-only range and handles broken HTTP 200
   ---
-  duration_ms: 2.510348
+  duration_ms: 2.413784
   type: 'test'
   ...
 # Subtest: audit malformed results cannot report verified and unavailable responses stay errors
 ok 21 - audit malformed results cannot report verified and unavailable responses stay errors
   ---
-  duration_ms: 3.130832
+  duration_ms: 3.006465
   type: 'test'
   ...
 # Subtest: audit starts unverified with no simulated blocks and role access matches contract
 ok 22 - audit starts unverified with no simulated blocks and role access matches contract
   ---
-  duration_ms: 1.052751
+  duration_ms: 1.109682
   type: 'test'
   ...
 # Subtest: dispatch dates use Philippine end-of-day and reject invalid fields
 ok 23 - dispatch dates use Philippine end-of-day and reject invalid fields
   ---
-  duration_ms: 0.758513
+  duration_ms: 0.701186
   type: 'test'
   ...
 # Subtest: dispatch posts exact authenticated contract and requires a matching 201 receipt
 ok 24 - dispatch posts exact authenticated contract and requires a matching 201 receipt
   ---
-  duration_ms: 2.379029
+  duration_ms: 2.735787
   type: 'test'
   ...
 # Subtest: dispatch rejects forbidden roles before transport and explains backend conflicts
 ok 25 - dispatch rejects forbidden roles before transport and explains backend conflicts
   ---
-  duration_ms: 1.941305
+  duration_ms: 1.986036
   type: 'test'
   ...
 # Subtest: dispatch source keeps QA writes disabled and does not import fabricated staff
 ok 26 - dispatch source keeps QA writes disabled and does not import fabricated staff
   ---
-  duration_ms: 0.32135
+  duration_ms: 0.410388
   type: 'test'
   ...
 # Subtest: accepts backend-shaped session and restores SUPER_ADMIN
 ok 27 - accepts backend-shaped session and restores SUPER_ADMIN
   ---
-  duration_ms: 0.251412
+  duration_ms: 0.34089
   type: 'test'
   ...
 # Subtest: accepts backend-shaped session and restores REGIONAL_DIRECTOR
 ok 28 - accepts backend-shaped session and restores REGIONAL_DIRECTOR
   ---
-  duration_ms: 0.242048
+  duration_ms: 0.217499
   type: 'test'
   ...
 # Subtest: accepts backend-shaped session and restores CASE_WORKER
 ok 29 - accepts backend-shaped session and restores CASE_WORKER
   ---
-  duration_ms: 0.239972
+  duration_ms: 0.162374
   type: 'test'
   ...
 # Subtest: accepts backend-shaped session and restores COA_AUDITOR
 ok 30 - accepts backend-shaped session and restores COA_AUDITOR
   ---
-  duration_ms: 0.158327
+  duration_ms: 0.148095
   type: 'test'
   ...
 # Subtest: rejects unknown and legacy roles instead of assigning admin
 ok 31 - rejects unknown and legacy roles instead of assigning admin
   ---
-  duration_ms: 0.271262
+  duration_ms: 0.337639
   type: 'test'
   ...
 # Subtest: rejects placeholder tokens, mismatched claims, expiry and future activation
 ok 32 - rejects placeholder tokens, mismatched claims, expiry and future activation
   ---
-  duration_ms: 0.431733
+  duration_ms: 0.404437
   type: 'test'
   ...
 # Subtest: clears malformed, expired and mismatched stored sessions
 ok 33 - clears malformed, expired and mismatched stored sessions
   ---
-  duration_ms: 0.357914
+  duration_ms: 0.302082
   type: 'test'
   ...
 # Subtest: login sends credentials without bearer and stores only accepted response
 ok 34 - login sends credentials without bearer and stores only accepted response
   ---
-  duration_ms: 0.76195
+  duration_ms: 0.933181
   type: 'test'
   ...
 # Subtest: invalid login never falls back or stores a session
 ok 35 - invalid login never falls back or stores a session
   ---
-  duration_ms: 0.572585
+  duration_ms: 0.95348
   type: 'test'
   ...
 # Subtest: network failure never creates a session
 ok 36 - network failure never creates a session
   ---
-  duration_ms: 0.665864
+  duration_ms: 1.035331
   type: 'test'
   ...
 # Subtest: rejects mock mode and malformed successful login responses
 ok 37 - rejects mock mode and malformed successful login responses
   ---
-  duration_ms: 0.959902
+  duration_ms: 1.331251
   type: 'test'
   ...
 # Subtest: protected request requires a session before contacting backend
 ok 38 - protected request requires a session before contacting backend
   ---
-  duration_ms: 32.240961
+  duration_ms: 41.799983
   type: 'test'
   ...
 # Subtest: bearer attached to requests; valid empty fixture responses stay empty
 ok 39 - bearer attached to requests; valid empty fixture responses stay empty
   ---
-  duration_ms: 1.209453
+  duration_ms: 1.37385
+  type: 'test'
+  ...
+# Subtest: UI live-data reads call the DECISION-010 routes with the bearer and reject malformed bodies
+ok 40 - UI live-data reads call the DECISION-010 routes with the bearer and reject malformed bodies
+  ---
+  duration_ms: 3.705552
+  type: 'test'
+  ...
+# Subtest: DECISION-011 calls: report, evidence, notice and graduation use the routes and verify receipts
+ok 41 - DECISION-011 calls: report, evidence, notice and graduation use the routes and verify receipts
+  ---
+  duration_ms: 40.648172
+  type: 'test'
+  ...
+# Subtest: DECISION-012 calls: retention and hearing outcome use the routes and verify receipts
+ok 42 - DECISION-012 calls: retention and hearing outcome use the routes and verify receipts
+  ---
+  duration_ms: 1.680966
   type: 'test'
   ...
 # Subtest: protected 401 or deactivated account clears session
-ok 40 - protected 401 or deactivated account clears session
+ok 43 - protected 401 or deactivated account clears session
   ---
-  duration_ms: 0.893976
+  duration_ms: 0.855815
   type: 'test'
   ...
 # Subtest: role/jurisdiction 403 retains identity and reports access denial
-ok 41 - role/jurisdiction 403 retains identity and reports access denial
+ok 44 - role/jurisdiction 403 retains identity and reports access denial
   ---
-  duration_ms: 0.48605
+  duration_ms: 0.601233
   type: 'test'
   ...
 # Subtest: late 401 from old identity does not clear newer login
-ok 42 - late 401 from old identity does not clear newer login
+ok 45 - late 401 from old identity does not clear newer login
   ---
-  duration_ms: 0.630991
+  duration_ms: 0.440717
   type: 'test'
   ...
 # Subtest: role navigation follows endpoint RBAC; COA cannot dispatch
-ok 43 - role navigation follows endpoint RBAC; COA cannot dispatch
+ok 46 - role navigation follows endpoint RBAC; COA cannot dispatch
   ---
-  duration_ms: 0.157711
+  duration_ms: 0.197105
   type: 'test'
   ...
 # Subtest: COA triage renders without dispatch controls
-ok 44 - COA triage renders without dispatch controls
+ok 47 - COA triage renders without dispatch controls
   ---
-  duration_ms: 2.756984
+  duration_ms: 5.195339
   type: 'test'
   ...
 # Subtest: empty assigned tasks renders empty state and authenticated worker identity
-ok 45 - empty assigned tasks renders empty state and authenticated worker identity
+ok 48 - empty assigned tasks renders empty state and authenticated worker identity
   ---
-  duration_ms: 0.593388
+  duration_ms: 1.021449
   type: 'test'
   ...
 # Subtest: cached assignments are isolated per owner and empty results clear only that owner
-ok 46 - cached assignments are isolated per owner and empty results clear only that owner
+ok 49 - cached assignments are isolated per owner and empty results clear only that owner
   ---
-  duration_ms: 46.907545
+  duration_ms: 22.61065
   type: 'test'
   ...
 # Subtest: drafts and sync statuses never cross worker boundaries or load legacy unowned drafts
-ok 47 - drafts and sync statuses never cross worker boundaries or load legacy unowned drafts
+ok 50 - drafts and sync statuses never cross worker boundaries or load legacy unowned drafts
   ---
-  duration_ms: 4.180099
+  duration_ms: 6.024155
   type: 'test'
   ...
 # Subtest: triage requests explicit pages of flagged records without truncating total count
-ok 48 - triage requests explicit pages of flagged records without truncating total count
+ok 51 - triage requests explicit pages of flagged records without truncating total count
   ---
-  duration_ms: 0.705848
+  duration_ms: 0.690361
   type: 'test'
   ...
 # Subtest: missing or mismatched pagination is reported instead of hiding additional rows
-ok 49 - missing or mismatched pagination is reported instead of hiding additional rows
+ok 52 - missing or mismatched pagination is reported instead of hiding additional rows
   ---
-  duration_ms: 0.953606
+  duration_ms: 0.853253
   type: 'test'
   ...
 # Subtest: null SWDI prediction and evaluation time do not invent a level or timestamp
-ok 50 - null SWDI prediction and evaluation time do not invent a level or timestamp
+ok 53 - null SWDI prediction and evaluation time do not invent a level or timestamp
   ---
-  duration_ms: 0.45073
+  duration_ms: 0.442024
   type: 'test'
   ...
 # Subtest: live assigned API gets no worker override and preserves missing optional data
-ok 51 - live assigned API gets no worker override and preserves missing optional data
+ok 54 - live assigned API gets no worker override and preserves missing optional data
   ---
-  duration_ms: 0.576586
+  duration_ms: 0.619551
   type: 'test'
   ...
 # Subtest: triage pagination shows total, page count, and disabled boundary controls
-ok 52 - triage pagination shows total, page count, and disabled boundary controls
+ok 55 - triage pagination shows total, page count, and disabled boundary controls
   ---
-  duration_ms: 2.051936
+  duration_ms: 3.666715
   type: 'test'
   ...
 # Subtest: an API-returned Palingon task renders its actual fields and verification action
-ok 53 - an API-returned Palingon task renders its actual fields and verification action
+ok 56 - an API-returned Palingon task renders its actual fields and verification action
   ---
-  duration_ms: 1.531938
+  duration_ms: 2.341639
   type: 'test'
   ...
 # Subtest: assigned-task API failures reject instead of manufacturing a successful empty or sample feed
-ok 54 - assigned-task API failures reject instead of manufacturing a successful empty or sample feed
+ok 57 - assigned-task API failures reject instead of manufacturing a successful empty or sample feed
   ---
-  duration_ms: 0.677739
+  duration_ms: 0.647091
   type: 'test'
   ...
 # Subtest: saved drafts and exact evidence survive database reopen; resave replaces only the same owner/task
-ok 55 - saved drafts and exact evidence survive database reopen; resave replaces only the same owner/task
+ok 58 - saved drafts and exact evidence survive database reopen; resave replaces only the same owner/task
   ---
-  duration_ms: 5.028467
+  duration_ms: 5.529689
   type: 'test'
   ...
 # Subtest: offline assignments restore only an authenticated worker cache without a network request
-ok 56 - offline assignments restore only an authenticated worker cache without a network request
+ok 59 - offline assignments restore only an authenticated worker cache without a network request
   ---
-  duration_ms: 1.847675
+  duration_ms: 2.095045
   type: 'test'
   ...
 # Subtest: network-only failure can restore cache; 401/403/503 and cancellation never do
-ok 57 - network-only failure can restore cache; 401/403/503 and cancellation never do
+ok 60 - network-only failure can restore cache; 401/403/503 and cancellation never do
   ---
-  duration_ms: 34.784658
+  duration_ms: 43.438996
   type: 'test'
   ...
 # Subtest: a successful empty assignment response clears stale tasks without deleting saved drafts
-ok 58 - a successful empty assignment response clears stale tasks without deleting saved drafts
+ok 61 - a successful empty assignment response clears stale tasks without deleting saved drafts
   ---
-  duration_ms: 4.615136
+  duration_ms: 4.766834
   type: 'test'
   ...
 # Subtest: SHA-256 matches a known vector and fingerprints original bytes
-ok 59 - SHA-256 matches a known vector and fingerprints original bytes
+ok 62 - SHA-256 matches a known vector and fingerprints original bytes
   ---
-  duration_ms: 1.798841
+  duration_ms: 2.251435
   type: 'test'
   ...
 # Subtest: evidence photo validation rejects empty, oversized, unsupported and disguised files
-ok 60 - evidence photo validation rejects empty, oversized, unsupported and disguised files
+ok 63 - evidence photo validation rejects empty, oversized, unsupported and disguised files
   ---
-  duration_ms: 8.807326
+  duration_ms: 11.776826
   type: 'test'
   ...
 # Subtest: location preserves device accuracy and requests a fresh high-accuracy reading
-ok 61 - location preserves device accuracy and requests a fresh high-accuracy reading
+ok 64 - location preserves device accuracy and requests a fresh high-accuracy reading
   ---
-  duration_ms: 0.551551
+  duration_ms: 0.615208
   type: 'test'
   ...
 # Subtest: location denial, timeout, unavailable hardware and invalid coordinates have actionable errors
-ok 62 - location denial, timeout, unavailable hardware and invalid coordinates have actionable errors
+ok 65 - location denial, timeout, unavailable hardware and invalid coordinates have actionable errors
   ---
-  duration_ms: 0.426296
+  duration_ms: 0.650248
   type: 'test'
   ...
-1..62
-# tests 62
+1..65
+# tests 65
 # suites 0
-# pass 62
+# pass 65
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 972.962505
+# duration_ms 1223.594616

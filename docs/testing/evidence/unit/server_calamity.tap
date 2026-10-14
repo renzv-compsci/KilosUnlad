@@ -2,37 +2,37 @@ TAP version 13
 # Subtest: moratorium matches both province and municipality
 ok 1 - moratorium matches both province and municipality
   ---
-  duration_ms: 1.354678
+  duration_ms: 1.419211
   type: 'test'
   ...
 # Subtest: provisional interval includes declaration and excludes exact expiry
 ok 2 - provisional interval includes declaration and excludes exact expiry
   ---
-  duration_ms: 0.267725
+  duration_ms: 0.438045
   type: 'test'
   ...
 # Subtest: inactive declarations and open-ended declarations retain distinct behavior
 ok 3 - inactive declarations and open-ended declarations retain distinct behavior
   ---
-  duration_ms: 0.277986
+  duration_ms: 0.252114
   type: 'test'
   ...
 # Subtest: overlapping valid zones preserve a hold regardless of ordering
 ok 4 - overlapping valid zones preserve a hold regardless of ordering
   ---
-  duration_ms: 0.183882
+  duration_ms: 0.176006
   type: 'test'
   ...
 # Subtest: malformed data throws instead of returning permission to continue
 ok 5 - malformed data throws instead of returning permission to continue
   ---
-  duration_ms: 0.996693
+  duration_ms: 1.026978
   type: 'test'
   ...
 # Subtest: checking a stored zone does not mutate it
 ok 6 - checking a stored zone does not mutate it
   ---
-  duration_ms: 1.43289
+  duration_ms: 1.681915
   type: 'test'
   ...
 1..6
@@ -43,4 +43,4 @@ ok 6 - checking a stored zone does not mutate it
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 90.72024
+# duration_ms 116.65539

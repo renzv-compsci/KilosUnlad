@@ -2,1172 +2,1408 @@ TAP version 13
 # Subtest: age is counted on the Asia/Manila calendar date
 ok 1 - age is counted on the Asia/Manila calendar date
   ---
-  duration_ms: 1.239998
+  duration_ms: 1.464112
   type: 'test'
   ...
 # Subtest: RA 11310 Sec. 6: eligible until the 19th birthday
 ok 2 - RA 11310 Sec. 6: eligible until the 19th birthday
   ---
-  duration_ms: 1.541813
+  duration_ms: 2.358548
   type: 'test'
   ...
 # Subtest: ISO strings from legacy inserts are accepted; invalid dates keep the stored flag as unknown
 ok 3 - ISO strings from legacy inserts are accepted; invalid dates keep the stored flag as unknown
   ---
-  duration_ms: 0.361078
+  duration_ms: 0.557283
   type: 'test'
   ...
 # Subtest: future birthdates are unknown, never eligible-by-default changes
 ok 4 - future birthdates are unknown, never eligible-by-default changes
   ---
-  duration_ms: 0.232023
+  duration_ms: 0.339077
   type: 'test'
   ...
 # Subtest: empty or missing registry
 ok 5 - empty or missing registry
   ---
-  duration_ms: 0.149759
+  duration_ms: 0.282925
   type: 'test'
   ...
-# 127.0.0.1 - - [13/Oct/2026:10:22:27 +0000] "GET /health HTTP/1.1" 200 109 "-" "-"
-# 127.0.0.1 - - [13/Oct/2026:10:22:27 +0000] "GET /api/v1 HTTP/1.1" 200 82 "-" "-"
+# 127.0.0.1 - - [14/Oct/2026:04:34:18 +0000] "GET /health HTTP/1.1" 200 109 "-" "-"
+# 127.0.0.1 - - [14/Oct/2026:04:34:18 +0000] "GET /api/v1 HTTP/1.1" 200 82 "-" "-"
 # Subtest: health and API discovery respond successfully
 ok 6 - health and API discovery respond successfully
   ---
-  duration_ms: 31.388859
+  duration_ms: 50.755258
   type: 'test'
   ...
-# 127.0.0.1 - - [13/Oct/2026:10:22:27 +0000] "POST /api/v1/auth/login HTTP/1.1" 200 674 "-" "-"
+# 127.0.0.1 - - [14/Oct/2026:04:34:18 +0000] "POST /api/v1/auth/login HTTP/1.1" 200 674 "-" "-"
 # Subtest: POST /api/v1/auth/login matches the frozen response data
 ok 7 - POST /api/v1/auth/login matches the frozen response data
   ---
-  duration_ms: 12.896346
+  duration_ms: 10.919021
   type: 'test'
   ...
-# 127.0.0.1 - - [13/Oct/2026:10:22:27 +0000] "GET /api/v1/beneficiaries/triage-queue?municipality=Calamba&status=FLAGGED_FOR_REVIEW&page=1&limit=10 HTTP/1.1" 200 836 "-" "-"
+# 127.0.0.1 - - [14/Oct/2026:04:34:18 +0000] "GET /api/v1/beneficiaries/triage-queue?municipality=Calamba&status=FLAGGED_FOR_REVIEW&page=1&limit=10 HTTP/1.1" 200 836 "-" "-"
 # Subtest: GET /api/v1/beneficiaries/triage-queue?municipality=Calamba&status=FLAGGED_FOR_REVIEW&page=1&limit=10 matches the frozen response data
 ok 8 - GET /api/v1/beneficiaries/triage-queue?municipality=Calamba&status=FLAGGED_FOR_REVIEW&page=1&limit=10 matches the frozen response data
   ---
-  duration_ms: 12.565767
+  duration_ms: 4.164236
   type: 'test'
   ...
-# 127.0.0.1 - - [13/Oct/2026:10:22:27 +0000] "GET /api/v1/tasks/assigned HTTP/1.1" 200 852 "-" "-"
+# 127.0.0.1 - - [14/Oct/2026:04:34:18 +0000] "GET /api/v1/tasks/assigned HTTP/1.1" 200 852 "-" "-"
 # Subtest: GET /api/v1/tasks/assigned matches the frozen response data
 ok 9 - GET /api/v1/tasks/assigned matches the frozen response data
   ---
-  duration_ms: 11.814841
+  duration_ms: 3.091721
   type: 'test'
   ...
 # Subtest: browser login preflight allows JSON and authorization headers
 ok 10 - browser login preflight allows JSON and authorization headers
   ---
-  duration_ms: 21.679827
+  duration_ms: 2.231943
   type: 'test'
   ...
 # Subtest: legacy unauthenticated mock mode is rejected in production
 ok 11 - legacy unauthenticated mock mode is rejected in production
   ---
-  duration_ms: 2.2907
+  duration_ms: 1.313322
   type: 'test'
   ...
-# [0mPOST /api/v1/auth/login [32m200[0m 32.626 ms - 749[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 21.051 ms - 646[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 9.112 ms - 652[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 11.443 ms - 729[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 10.093 ms - 739[0m
-# [0mPOST /api/v1/appeals/docket [32m201[0m 34.493 ms - 433[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 56.733 ms - 749[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 25.532 ms - 646[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 16.277 ms - 652[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 14.727 ms - 729[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 14.550 ms - 739[0m
+# [0mPOST /api/v1/appeals/docket [32m201[0m 38.455 ms - 433[0m
 # Subtest: INT-03 POST /api/v1/appeals/docket against a disposable MongoDB replica set
     # Subtest: the frontend appeal dialog payload is accepted: 201, countdown paused, audit sealed
     ok 1 - the frontend appeal dialog payload is accepted: 201, countdown paused, audit sealed
       ---
-      duration_ms: 67.116837
+      duration_ms: 111.14862
       type: 'test'
       ...
-# [0mPOST /api/v1/appeals/docket [32m201[0m 33.911 ms - 439[0m
+# [0mPOST /api/v1/appeals/docket [32m201[0m 28.931 ms - 439[0m
     # Subtest: SUPER_ADMIN may docket; chain stays contiguous and verifiable
     ok 2 - SUPER_ADMIN may docket; chain stays contiguous and verifiable
       ---
-      duration_ms: 53.962983
+      duration_ms: 48.82779
       type: 'test'
       ...
-# [0mPOST /api/v1/appeals/docket [33m400[0m 5.070 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.604 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.160 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.356 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.158 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 2.618 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 4.581 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.897 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.499 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.158 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.185 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.416 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.249 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 3.591 ms - 87[0m
-# [0mPOST /api/v1/appeals/docket [33m400[0m 18.790 ms - 102[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 4.773 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 3.867 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 3.248 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 3.127 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 3.408 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 2.475 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 5.874 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 3.248 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 3.827 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 4.185 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 4.142 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 3.930 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 3.898 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 3.829 ms - 87[0m
+# [0mPOST /api/v1/appeals/docket [33m400[0m 19.663 ms - 102[0m
     # Subtest: 400 root causes are rejected at the boundary with no writes
     ok 3 - 400 root causes are rejected at the boundary with no writes
       ---
-      duration_ms: 148.857223
+      duration_ms: 160.728198
       type: 'test'
       ...
-# [0mPOST /api/v1/appeals/docket [33m401[0m 0.370 ms - 90[0m
-# [0mPOST /api/v1/appeals/docket [33m401[0m 0.675 ms - 99[0m
-# [0mPOST /api/v1/appeals/docket [33m403[0m 4.428 ms - 67[0m
-# [0mPOST /api/v1/appeals/docket [33m403[0m 2.729 ms - 67[0m
-# [0mPOST /api/v1/appeals/docket [33m403[0m 8.492 ms - 122[0m
+# [0mPOST /api/v1/appeals/docket [33m401[0m 0.475 ms - 90[0m
+# [0mPOST /api/v1/appeals/docket [33m401[0m 0.806 ms - 99[0m
+# [0mPOST /api/v1/appeals/docket [33m403[0m 17.162 ms - 67[0m
+# [0mPOST /api/v1/appeals/docket [33m403[0m 3.473 ms - 67[0m
+# [0mPOST /api/v1/appeals/docket [33m403[0m 19.586 ms - 122[0m
     # Subtest: security guards: 401, role 403, auditor 403, jurisdiction 403
     ok 4 - security guards: 401, role 403, auditor 403, jurisdiction 403
       ---
-      duration_ms: 57.748548
+      duration_ms: 94.018926
       type: 'test'
       ...
-# [0mPOST /api/v1/appeals/docket [33m404[0m 17.472 ms - 91[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 16.923 ms - 108[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 22.045 ms - 107[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 12.102 ms - 107[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 13.701 ms - 107[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 13.198 ms - 91[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 12.343 ms - 100[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 13.236 ms - 98[0m
+# [0mPOST /api/v1/appeals/docket [33m404[0m 7.341 ms - 91[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 8.689 ms - 108[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 9.319 ms - 107[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 7.771 ms - 107[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 11.282 ms - 107[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 8.583 ms - 91[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 11.298 ms - 100[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 16.242 ms - 98[0m
     # Subtest: due-process prerequisites: 404, 409 status/notice/window/duplicate
     ok 5 - due-process prerequisites: 404, 409 status/notice/window/duplicate
       ---
-      duration_ms: 219.648555
+      duration_ms: 217.762602
       type: 'test'
       ...
-# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 31.303 ms - 4284[0m
-# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 34.182 ms - 5199[0m
-# [0mGET /api/v1/appeals/docket?limit=1&page=2 [32m200[0m 17.623 ms - 577[0m
-# [0mGET /api/v1/appeals/docket [32m200[0m 35.936 ms - 5198[0m
-# [0mGET /api/v1/appeals/docket [33m401[0m 0.225 ms - 90[0m
-# [0mGET /api/v1/appeals/docket [33m403[0m 1.964 ms - 67[0m
-# [0mGET /api/v1/appeals/docket?limit=0 [33m400[0m 2.303 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?limit=101 [33m400[0m 12.387 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?page=0 [33m400[0m 2.628 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?page=x [33m400[0m 3.572 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?status=GRADUATED [33m400[0m 3.393 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?limit=1&limit=2 [33m400[0m 3.209 ms - 92[0m
-# [0mGET /api/v1/appeals/docket?limit=100 [33m409[0m 34.354 ms - 87[0m
-# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 35.483 ms - 4284[0m
+# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 34.339 ms - 4284[0m
+# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 65.448 ms - 5199[0m
+# [0mGET /api/v1/appeals/docket?limit=1&page=2 [32m200[0m 14.328 ms - 577[0m
+# [0mGET /api/v1/appeals/docket [32m200[0m 113.331 ms - 5198[0m
+# [0mGET /api/v1/appeals/docket [33m401[0m 0.276 ms - 90[0m
+# [0mGET /api/v1/appeals/docket [33m403[0m 2.737 ms - 67[0m
+# [0mGET /api/v1/appeals/docket?limit=0 [33m400[0m 2.609 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?limit=101 [33m400[0m 3.440 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?page=0 [33m400[0m 3.202 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?page=x [33m400[0m 2.458 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?status=GRADUATED [33m400[0m 3.743 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?limit=1&limit=2 [33m400[0m 2.660 ms - 92[0m
+# [0mGET /api/v1/appeals/docket?limit=100 [33m409[0m 63.686 ms - 87[0m
+# [0mGET /api/v1/appeals/docket?limit=100 [32m200[0m 29.235 ms - 4284[0m
     # Subtest: INT-08 GET /appeals/docket lists notices with deadlines and verified appeals
     ok 6 - INT-08 GET /appeals/docket lists notices with deadlines and verified appeals
       ---
-      duration_ms: 294.88943
+      duration_ms: 450.035344
       type: 'test'
       ...
-# [0mPOST /api/v1/appeals/docket [32m201[0m 24.928 ms - 437[0m
-# [0mPOST /api/v1/appeals/docket [33m409[0m 32.029 ms - 100[0m
+# [0mPOST /api/v1/appeals/docket [32m201[0m 68.407 ms - 439[0m
+# [0mPOST /api/v1/appeals/docket [33m409[0m 79.592 ms - 100[0m
     # Subtest: simultaneous filings for one household yield exactly one appeal
     ok 7 - simultaneous filings for one household yield exactly one appeal
       ---
-      duration_ms: 54.055678
+      duration_ms: 103.037909
       type: 'test'
       ...
     1..7
 ok 12 - INT-03 POST /api/v1/appeals/docket against a disposable MongoDB replica set
   ---
-  duration_ms: 2279.934671
+  duration_ms: 3632.287434
   type: 'test'
   ...
 # Subtest: deadline adds 15 elapsed days across month/year/leap-day boundaries without changing input
 ok 13 - deadline adds 15 elapsed days across month/year/leap-day boundaries without changing input
   ---
-  duration_ms: 1.972861
+  duration_ms: 1.365096
   type: 'test'
   ...
 # Subtest: one millisecond before expiry is blocked; exact expiry and later satisfy timing only
 ok 14 - one millisecond before expiry is blocked; exact expiry and later satisfy timing only
   ---
-  duration_ms: 2.231943
+  duration_ms: 1.536681
   type: 'test'
   ...
 # Subtest: appeals, pauses, and unknown hold information block exit even after expiry
 ok 15 - appeals, pauses, and unknown hold information block exit even after expiry
   ---
-  duration_ms: 19.768893
+  duration_ms: 0.476148
   type: 'test'
   ...
 # Subtest: missing notice and shortened deadlines cannot bypass the window; longer deadlines are respected
 ok 16 - missing notice and shortened deadlines cannot bypass the window; longer deadlines are respected
   ---
-  duration_ms: 0.444477
+  duration_ms: 0.823164
   type: 'test'
   ...
 # Subtest: invalid dates, implicit date coercion and overflow fail closed
 ok 17 - invalid dates, implicit date coercion and overflow fail closed
   ---
-  duration_ms: 3.807123
+  duration_ms: 8.307743
   type: 'test'
   ...
 # Subtest: audit role requires listIndexes independently of createIndex and blocks mutation
-ok 18 - audit role requires listIndexes independently of createIndex and blocks mutation # SKIP
+ok 18 - audit role requires listIndexes independently of createIndex and blocks mutation
   ---
-  duration_ms: 1.185976
+  duration_ms: 8031.707777
   type: 'test'
   ...
 # Subtest: verified contract-style claims become req.user without extra token claims
 ok 19 - verified contract-style claims become req.user without extra token claims
   ---
-  duration_ms: 66.587123
+  duration_ms: 74.711001
   type: 'test'
   ...
 # Subtest: missing, malformed, expired, future, forged, unsigned and wrong-algorithm tokens return 401
 ok 20 - missing, malformed, expired, future, forged, unsigned and wrong-algorithm tokens return 401
   ---
-  duration_ms: 74.680695
+  duration_ms: 36.15976
   type: 'test'
   ...
 # Subtest: unconfigured authentication fails closed
 ok 21 - unconfigured authentication fails closed
   ---
-  duration_ms: 6.239543
+  duration_ms: 2.853687
   type: 'test'
   ...
 # Subtest: explicit role permissions and auditor read-only access are enforced
 ok 22 - explicit role permissions and auditor read-only access are enforced
   ---
-  duration_ms: 20.748404
+  duration_ms: 24.600773
   type: 'test'
   ...
 # Subtest: both scoped roles receive enforced filters when callers omit jurisdiction
 ok 23 - both scoped roles receive enforced filters when callers omit jurisdiction
   ---
-  duration_ms: 8.282477
+  duration_ms: 8.761902
   type: 'test'
   ...
 # Subtest: out-of-scope or operator-shaped query filters cannot bypass jurisdiction
 ok 24 - out-of-scope or operator-shaped query filters cannot bypass jurisdiction
   ---
-  duration_ms: 16.424612
+  duration_ms: 11.200833
   type: 'test'
   ...
 # Subtest: missing or invalid jurisdiction fails closed for scoped users
 ok 25 - missing or invalid jurisdiction fails closed for scoped users
   ---
-  duration_ms: 7.525064
+  duration_ms: 7.025478
   type: 'test'
   ...
 # Subtest: record checks use trusted address, not spoofed body jurisdiction
 ok 26 - record checks use trusted address, not spoofed body jurisdiction
   ---
-  duration_ms: 28.132069
+  duration_ms: 25.505121
   type: 'test'
   ...
 # Subtest: national roles have no geographic filter but still require explicit route permission
 ok 27 - national roles have no geographic filter but still require explicit route permission
   ---
-  duration_ms: 8.754237
+  duration_ms: 12.227422
   type: 'test'
   ...
 # Subtest: invalid middleware configuration is rejected
 ok 28 - invalid middleware configuration is rejected
   ---
-  duration_ms: 1.089465
+  duration_ms: 0.890722
   type: 'test'
   ...
 # Subtest: moratorium matches both province and municipality
 ok 29 - moratorium matches both province and municipality
   ---
-  duration_ms: 1.674992
+  duration_ms: 1.913896
   type: 'test'
   ...
 # Subtest: provisional interval includes declaration and excludes exact expiry
 ok 30 - provisional interval includes declaration and excludes exact expiry
   ---
-  duration_ms: 0.281995
+  duration_ms: 0.536688
   type: 'test'
   ...
 # Subtest: inactive declarations and open-ended declarations retain distinct behavior
 ok 31 - inactive declarations and open-ended declarations retain distinct behavior
   ---
-  duration_ms: 0.275715
+  duration_ms: 0.397168
   type: 'test'
   ...
 # Subtest: overlapping valid zones preserve a hold regardless of ordering
 ok 32 - overlapping valid zones preserve a hold regardless of ordering
   ---
-  duration_ms: 0.174857
+  duration_ms: 0.346821
   type: 'test'
   ...
 # Subtest: malformed data throws instead of returning permission to continue
 ok 33 - malformed data throws instead of returning permission to continue
   ---
-  duration_ms: 1.05208
+  duration_ms: 1.592488
   type: 'test'
   ...
 # Subtest: checking a stored zone does not mutate it
 ok 34 - checking a stored zone does not mutate it
   ---
-  duration_ms: 1.616486
+  duration_ms: 1.947904
   type: 'test'
   ...
 # Subtest: E2E-02 calamity moratorium freezes dispatch and flagging, releases on expiry/lift
     # Subtest: no configuration document: no hold
     ok 1 - no configuration document: no hold
       ---
-      duration_ms: 64.966531
+      duration_ms: 62.020834
       type: 'test'
       ...
     # Subtest: active zone freezes dispatch and assessment with zero writes
     ok 2 - active zone freezes dispatch and assessment with zero writes
       ---
-      duration_ms: 89.449587
+      duration_ms: 65.03648
       type: 'test'
       ...
     # Subtest: other municipality and inactive zones are not held
     ok 3 - other municipality and inactive zones are not held
       ---
-      duration_ms: 77.321209
+      duration_ms: 62.402685
       type: 'test'
       ...
     # Subtest: expiry releases the hold
     ok 4 - expiry releases the hold
       ---
-      duration_ms: 1079.417194
+      duration_ms: 1073.977162
       type: 'test'
       ...
     # Subtest: malformed stored configuration fails closed (503), never silently clears
     ok 5 - malformed stored configuration fails closed (503), never silently clears
       ---
-      duration_ms: 18.739284
+      duration_ms: 19.423607
       type: 'test'
       ...
     1..5
 ok 35 - E2E-02 calamity moratorium freezes dispatch and flagging, releases on expiry/lift
   ---
-  duration_ms: 2616.150491
+  duration_ms: 3531.662847
   type: 'test'
   ...
-# [0mPOST /api/v1/auth/login [32m200[0m 34.837 ms - 646[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 10.978 ms - 749[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 10.116 ms - 652[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 13.181 ms - 729[0m
-# [0mPOST /api/v1/calamity/toggle [33m401[0m 0.657 ms - 90[0m
-# [0mPOST /api/v1/calamity/toggle [33m401[0m 2.246 ms - 99[0m
-# [0mPOST /api/v1/calamity/toggle [33m403[0m 4.486 ms - 67[0m
-# [0mPOST /api/v1/calamity/toggle [33m403[0m 2.927 ms - 67[0m
-# [0mPOST /api/v1/calamity/toggle [33m403[0m 3.182 ms - 67[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 48.775 ms - 646[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 24.710 ms - 749[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 15.399 ms - 652[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 14.159 ms - 729[0m
+# [0mPOST /api/v1/calamity/toggle [33m401[0m 0.898 ms - 90[0m
+# [0mPOST /api/v1/calamity/toggle [33m401[0m 2.043 ms - 99[0m
+# [0mPOST /api/v1/calamity/toggle [33m403[0m 4.774 ms - 67[0m
+# [0mPOST /api/v1/calamity/toggle [33m403[0m 3.757 ms - 67[0m
+# [0mPOST /api/v1/calamity/toggle [33m403[0m 4.045 ms - 67[0m
 # Subtest: INT-04 POST /api/v1/calamity/toggle against a disposable MongoDB replica set
     # Subtest: security guards: 401, director 403, worker 403, auditor 403
     ok 1 - security guards: 401, director 403, worker 403, auditor 403
       ---
-      duration_ms: 51.190809
+      duration_ms: 57.412454
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 9.941 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 5.186 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.790 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 4.807 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 7.438 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 4.336 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.752 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.870 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.645 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.487 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.550 ms - 92[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 8.989 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 6.894 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.892 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 5.563 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.535 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.442 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 8.232 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.020 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.111 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.237 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.422 ms - 92[0m
     # Subtest: boundary validation: 400 with no writes
     ok 2 - boundary validation: 400 with no writes
       ---
-      duration_ms: 107.028946
+      duration_ms: 98.647632
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [33m409[0m 12.660 ms - 103[0m
+# [0mPOST /api/v1/calamity/toggle [33m409[0m 14.470 ms - 103[0m
     # Subtest: lifting with no declared zone is a 409 and creates nothing
     ok 3 - lifting with no declared zone is a 409 and creates nothing
       ---
-      duration_ms: 22.663961
+      duration_ms: 25.067178
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [32m201[0m 26.040 ms - 420[0m
+# [0mPOST /api/v1/calamity/toggle [32m201[0m 37.174 ms - 420[0m
     # Subtest: declaration returns the hold for the matching zone and seals CALAMITY_DECLARED
     ok 4 - declaration returns the hold for the matching zone and seals CALAMITY_DECLARED
       ---
-      duration_ms: 33.763154
+      duration_ms: 45.041168
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [33m409[0m 9.712 ms - 110[0m
+# [0mPOST /api/v1/calamity/toggle [33m409[0m 9.524 ms - 110[0m
     # Subtest: a second declaration for an active zone is a 409 with no writes
     ok 5 - a second declaration for an active zone is a 409 with no writes
       ---
-      duration_ms: 24.455759
+      duration_ms: 21.908469
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [32m200[0m 28.825 ms - 423[0m
-# [0mPOST /api/v1/calamity/toggle [33m409[0m 10.251 ms - 103[0m
+# [0mPOST /api/v1/calamity/toggle [32m200[0m 32.968 ms - 423[0m
+# [0mPOST /api/v1/calamity/toggle [33m409[0m 8.108 ms - 103[0m
     # Subtest: lifting releases the hold, keeps history and seals SYSTEM_CONFIG_UPDATED
     ok 6 - lifting releases the hold, keeps history and seals SYSTEM_CONFIG_UPDATED
       ---
-      duration_ms: 60.922301
+      duration_ms: 61.758594
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [32m201[0m 27.704 ms - 398[0m
-# [0mPOST /api/v1/calamity/toggle [32m201[0m 34.724 ms - 426[0m
+# [0mPOST /api/v1/calamity/toggle [32m201[0m 24.965 ms - 398[0m
+# [0mPOST /api/v1/calamity/toggle [32m201[0m 25.619 ms - 426[0m
     # Subtest: open-ended re-declaration appends a new zone; expired zones do not block
     ok 7 - open-ended re-declaration appends a new zone; expired zones do not block
       ---
-      duration_ms: 87.464129
+      duration_ms: 63.607248
       type: 'test'
       ...
     # Subtest: audit chain stays contiguous across toggles
     ok 8 - audit chain stays contiguous across toggles
       ---
-      duration_ms: 8.745519
+      duration_ms: 3.611236
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [32m201[0m 32.528 ms - 418[0m
-# [0mPOST /api/v1/calamity/toggle [33m409[0m 36.435 ms - 110[0m
+# [0mPOST /api/v1/calamity/toggle [32m201[0m 42.097 ms - 418[0m
+# [0mPOST /api/v1/calamity/toggle [33m409[0m 68.611 ms - 110[0m
     # Subtest: simultaneous first declarations create one config and one active zone
     ok 9 - simultaneous first declarations create one config and one active zone
       ---
-      duration_ms: 60.107523
+      duration_ms: 83.505005
       type: 'test'
       ...
     1..9
 ok 36 - INT-04 POST /api/v1/calamity/toggle against a disposable MongoDB replica set
   ---
-  duration_ms: 1926.365863
+  duration_ms: 1955.078215
   type: 'test'
   ...
 # Subtest: SHA-256 matches the standard known vector
 ok 37 - SHA-256 matches the standard known vector
   ---
-  duration_ms: 2.799584
+  duration_ms: 2.633383
   type: 'test'
   ...
 # Subtest: reordered keys produce identical canonical JSON and entry hashes
 ok 38 - reordered keys produce identical canonical JSON and entry hashes
   ---
-  duration_ms: 0.792281
+  duration_ms: 0.765191
   type: 'test'
   ...
 # Subtest: canonical JSON preserves falsy values and array ordering
 ok 39 - canonical JSON preserves falsy values and array ordering
   ---
-  duration_ms: 0.524599
+  duration_ms: 0.552588
   type: 'test'
   ...
 # Subtest: Date objects and equivalent ISO timestamps hash identically
 ok 40 - Date objects and equivalent ISO timestamps hash identically
   ---
-  duration_ms: 0.222957
+  duration_ms: 0.211584
   type: 'test'
   ...
 # Subtest: the seal binds every field using the existing colon-separated format
 ok 41 - the seal binds every field using the existing colon-separated format
   ---
-  duration_ms: 0.445301
+  duration_ms: 0.351049
   type: 'test'
   ...
 # Subtest: connection observers are installed once, survive runtime errors and sanitize logs
 ok 42 - connection observers are installed once, survive runtime errors and sanitize logs
   ---
-  duration_ms: 1.218112
+  duration_ms: 1.550502
   type: 'test'
   ...
 # Subtest: startup rejection is sanitized and preserves documented pool settings
 ok 43 - startup rejection is sanitized and preserves documented pool settings
   ---
-  duration_ms: 1.999126
+  duration_ms: 1.877285
   type: 'test'
   ...
+# [0mPOST /api/v1/auth/login [33m401[0m 372.314 ms - 100[0m
+# [0mGET /health [32m200[0m 0.692 ms - 116[0m
+# [0mPOST /api/v1/auth/login [31m503[0m 5003.178 ms - 85[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 378.749 ms - 100[0m
 # Subtest: isolated Docker MongoDB outage preserves HTTP service and recovers queries
-ok 44 - isolated Docker MongoDB outage preserves HTTP service and recovers queries # SKIP
+ok 44 - isolated Docker MongoDB outage preserves HTTP service and recovers queries
   ---
-  duration_ms: 0.2497
+  duration_ms: 18821.321021
   type: 'test'
   ...
 # Subtest: zero risk and individual documented contributions
 ok 45 - zero risk and individual documented contributions
   ---
-  duration_ms: 4.650332
+  duration_ms: 4.311053
   type: 'test'
   ...
 # Subtest: flagging threshold is inclusive at 70 and the score caps at 100
 ok 46 - flagging threshold is inclusive at 70 and the score caps at 100
   ---
-  duration_ms: 0.501311
+  duration_ms: 1.980066
   type: 'test'
   ...
 # Subtest: missing, unknown or coerced inputs cannot silently become zero risk
 ok 47 - missing, unknown or coerced inputs cannot silently become zero risk
   ---
-  duration_ms: 3.998708
+  duration_ms: 3.782027
   type: 'test'
   ...
 # Subtest: calculation is deterministic and does not mutate input
 ok 48 - calculation is deterministic and does not mutate input
   ---
-  duration_ms: 0.310949
+  duration_ms: 0.294115
   type: 'test'
   ...
 # Subtest: HTTP error boundary sanitizes malformed requests and remains available
 ok 49 - HTTP error boundary sanitizes malformed requests and remains available
   ---
-  duration_ms: 128.521422
+  duration_ms: 150.309296
   type: 'test'
   ...
 # Subtest: matching raw image bytes return a normalized digest without mutation
 ok 50 - matching raw image bytes return a normalized digest without mutation
   ---
-  duration_ms: 3.043811
+  duration_ms: 2.366415
   type: 'test'
   ...
 # Subtest: one-byte changes, truncation and a different valid hash produce contract mismatch
 ok 51 - one-byte changes, truncation and a different valid hash produce contract mismatch
   ---
-  duration_ms: 1.171414
+  duration_ms: 0.79291
   type: 'test'
   ...
 # Subtest: invalid bytes and malformed hashes fail before digest comparison
 ok 52 - invalid bytes and malformed hashes fail before digest comparison
   ---
-  duration_ms: 0.592109
+  duration_ms: 1.477717
   type: 'test'
   ...
 # Subtest: raw buffer slices are hashed as bytes without encoding or backing-buffer changes
 ok 53 - raw buffer slices are hashed as bytes without encoding or backing-buffer changes
   ---
-  duration_ms: 0.316228
+  duration_ms: 0.371642
   type: 'test'
   ...
 # Subtest: existing error middleware emits the exact frozen mismatch response
 ok 54 - existing error middleware emits the exact frozen mismatch response
   ---
-  duration_ms: 0.483445
+  duration_ms: 0.418383
   type: 'test'
   ...
 # Subtest: geofence uses longitude-first GeoJSON and matches identical locations
 ok 55 - geofence uses longitude-first GeoJSON and matches identical locations
   ---
-  duration_ms: 2.110934
+  duration_ms: 2.29872
   type: 'test'
   ...
 # Subtest: geofence compares unrounded distance at the inclusive 250 metre boundary
 ok 56 - geofence compares unrounded distance at the inclusive 250 metre boundary
   ---
-  duration_ms: 0.2715
+  duration_ms: 0.269163
   type: 'test'
   ...
 # Subtest: malformed and non-finite coordinates fail closed
 ok 57 - malformed and non-finite coordinates fail closed
   ---
-  duration_ms: 0.515151
+  duration_ms: 0.581879
   type: 'test'
   ...
 # Subtest: distance remains finite at antipodes and crosses the date line correctly
 ok 58 - distance remains finite at antipodes and crosses the date line correctly
   ---
-  duration_ms: 0.297661
+  duration_ms: 0.205861
   type: 'test'
   ...
 # Subtest: all unfinished integration boundaries reject rather than report success
 ok 59 - all unfinished integration boundaries reject rather than report success
   ---
-  duration_ms: 2.265229
+  duration_ms: 2.378003
   type: 'test'
   ...
 # Subtest: audit controller forwards service failure and emits no valid-chain response
 ok 60 - audit controller forwards service failure and emits no valid-chain response
   ---
-  duration_ms: 0.860082
+  duration_ms: 0.827079
   type: 'test'
   ...
 # Subtest: audit placeholder blocks mutations and allows reads through
 ok 61 - audit placeholder blocks mutations and allows reads through
   ---
-  duration_ms: 0.336764
+  duration_ms: 0.285309
   type: 'test'
   ...
 # Subtest: Joi middleware retains validated body and rejects invalid input without details
 ok 62 - Joi middleware retains validated body and rejects invalid input without details
   ---
-  duration_ms: 4.317748
+  duration_ms: 4.631681
   type: 'test'
   ...
 # Subtest: 1000 valid blocks match the frozen response keys and partial ranges anchor to predecessor
 ok 63 - 1000 valid blocks match the frozen response keys and partial ranges anchor to predecessor
   ---
-  duration_ms: 20.52937
+  duration_ms: 20.1391
   type: 'test'
   ...
 # Subtest: changed delta and recomputed broken link identify exact compromised sequence
 ok 64 - changed delta and recomputed broken link identify exact compromised sequence
   ---
-  duration_ms: 16.838422
+  duration_ms: 21.039333
   type: 'test'
   ...
 # Subtest: genesis, missing blocks, missing predecessor, malformed entry and storage failures fail safely
 ok 65 - genesis, missing blocks, missing predecessor, malformed entry and storage failures fail safely
   ---
-  duration_ms: 2.066676
+  duration_ms: 2.247912
   type: 'test'
   ...
 # Subtest: ranges reject missing, repeated, unknown, unsafe, negative and oversized parameters
 ok 66 - ranges reject missing, repeated, unknown, unsafe, negative and oversized parameters
   ---
-  duration_ms: 0.582587
+  duration_ms: 0.801203
   type: 'test'
   ...
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m401[0m 2.159 ms - 90[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m401[0m 0.827 ms - 90[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [32m200[0m 1.703 ms - 281[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [32m200[0m 0.690 ms - 281[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m403[0m 0.688 ms - 67[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m403[0m 0.558 ms - 67[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m401[0m 0.505 ms - 90[0m
-# [0mGET /api/v1/audit/verify-chain [33m400[0m 1.046 ms - 112[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&start_sequence=2&end_sequence=2 [33m400[0m 1.132 ms - 112[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence[$gt]=0&end_sequence=2 [33m400[0m 0.692 ms - 112[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1001 [33m400[0m 0.766 ms - 112[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=2 [33m409[0m 0.724 ms - 108[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [31m503[0m 0.516 ms - 85[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m401[0m 2.168 ms - 90[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m401[0m 1.199 ms - 90[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [32m200[0m 2.261 ms - 281[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [32m200[0m 0.729 ms - 281[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m403[0m 0.706 ms - 67[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m403[0m 0.540 ms - 67[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [33m401[0m 0.663 ms - 90[0m
+# [0mGET /api/v1/audit/verify-chain [33m400[0m 1.568 ms - 112[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&start_sequence=2&end_sequence=2 [33m400[0m 1.407 ms - 112[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence[$gt]=0&end_sequence=2 [33m400[0m 1.438 ms - 112[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1001 [33m400[0m 0.896 ms - 112[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=2 [33m409[0m 0.693 ms - 108[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=1 [31m503[0m 0.728 ms - 85[0m
 # Subtest: live route enforces current role, authentication, query errors and sanitized storage failures
 ok 67 - live route enforces current role, authentication, query errors and sanitized storage failures
   ---
-  duration_ms: 85.622247
+  duration_ms: 107.851064
   type: 'test'
   ...
-# [0mPOST /api/v1/auth/login [32m200[0m 367.132 ms - 807[0m
+# [0mGET /api/v1/insights/overview [32m200[0m 53.385 ms - 1344[0m
+# [0mGET /api/v1/insights/overview [32m200[0m 53.589 ms - 1978[0m
+# [0mGET /api/v1/insights/overview [33m403[0m 3.568 ms - 67[0m
+# [0mGET /api/v1/insights/overview [33m401[0m 1.421 ms - 90[0m
+# [0mGET /api/v1/insights/overview?municipality=Calamba [33m400[0m 4.246 ms - 72[0m
+# Subtest: UI live-data read routes: scope, roles, validation and contract shapes
+    # Subtest: GET /insights/overview is scoped and role-shaped
+    ok 1 - GET /insights/overview is scoped and role-shaped
+      ---
+      duration_ms: 189.208611
+      type: 'test'
+      ...
+# [0mGET /api/v1/tasks?limit=10 [32m200[0m 7.557 ms - 950[0m
+# [0mGET /api/v1/tasks?status=PENDING_DISPATCH [32m200[0m 8.852 ms - 513[0m
+# [0mGET /api/v1/tasks [32m200[0m 6.643 ms - 1397[0m
+# [0mGET /api/v1/tasks?status=NOPE [33m400[0m 4.021 ms - 72[0m
+# [0mGET /api/v1/tasks?limit=101 [33m400[0m 3.857 ms - 72[0m
+# [0mGET /api/v1/tasks?page=0 [33m400[0m 3.292 ms - 72[0m
+# [0mGET /api/v1/tasks?x=1 [33m400[0m 2.486 ms - 72[0m
+# [0mGET /api/v1/tasks [33m403[0m 2.395 ms - 67[0m
+# [0mGET /api/v1/tasks [33m403[0m 1.921 ms - 67[0m
+    # Subtest: GET /tasks lists scoped tasks with worker names
+    ok 2 - GET /tasks lists scoped tasks with worker names
+      ---
+      duration_ms: 74.388227
+      type: 'test'
+      ...
+# [0mGET /api/v1/users/caseworkers [32m200[0m 6.702 ms - 207[0m
+# [0mGET /api/v1/users/caseworkers [32m200[0m 5.203 ms - 416[0m
+# [0mGET /api/v1/users/caseworkers [33m403[0m 2.361 ms - 67[0m
+# [0mGET /api/v1/users/caseworkers?x=1 [33m400[0m 2.162 ms - 72[0m
+    # Subtest: GET /users/caseworkers returns assignable workers only
+    ok 3 - GET /users/caseworkers returns assignable workers only
+      ---
+      duration_ms: 27.423089
+      type: 'test'
+      ...
+# [0mGET /api/v1/audit/blocks?limit=2 [32m200[0m 8.683 ms - 802[0m
+# [0mGET /api/v1/audit/blocks?limit=2&before=3 [32m200[0m 7.014 ms - 805[0m
+# [0mGET /api/v1/audit/blocks [33m403[0m 2.478 ms - 67[0m
+# [0mGET /api/v1/audit/blocks?limit=101 [33m400[0m 2.487 ms - 72[0m
+# [0mGET /api/v1/audit/blocks?before=0 [33m400[0m 2.342 ms - 72[0m
+# [0mGET /api/v1/audit/blocks?before=x [33m400[0m 2.324 ms - 72[0m
+    # Subtest: GET /audit/blocks pages newest first for auditors
+    ok 4 - GET /audit/blocks pages newest first for auditors
+      ---
+      duration_ms: 40.242605
+      type: 'test'
+      ...
+# [0mGET /api/v1/insights/map [32m200[0m 5.306 ms - 177[0m
+# [0mGET /api/v1/insights/map [32m200[0m 4.746 ms - 177[0m
+# [0mGET /api/v1/insights/map [33m403[0m 3.101 ms - 67[0m
+# [0mGET /api/v1/insights/map [33m401[0m 0.201 ms - 90[0m
+# [0mGET /api/v1/insights/map?precision=5 [33m400[0m 2.662 ms - 72[0m
+    # Subtest: GET /insights/map returns scoped household counts per cell, no identities
+    ok 5 - GET /insights/map returns scoped household counts per cell, no identities
+      ---
+      duration_ms: 27.995263
+      type: 'test'
+      ...
+# [0mGET /api/v1/system/policy [32m200[0m 4.914 ms - 642[0m
+# [0mGET /api/v1/system/policy [32m200[0m 5.532 ms - 800[0m
+# [0mGET /api/v1/system/policy [33m403[0m 2.610 ms - 67[0m
+    # Subtest: GET /system/policy reports the enforced values
+    ok 6 - GET /system/policy reports the enforced values
+      ---
+      duration_ms: 21.207379
+      type: 'test'
+      ...
+    1..6
+ok 68 - UI live-data read routes: scope, roles, validation and contract shapes
+  ---
+  duration_ms: 1688.787747
+  type: 'test'
+  ...
+# [0mPOST /api/v1/auth/login [32m200[0m 366.596 ms - 807[0m
 # Subtest: real bcrypt login follows contract shape, issues a 900s JWT, and exposes no password hash
-ok 68 - real bcrypt login follows contract shape, issues a 900s JWT, and exposes no password hash
+ok 69 - real bcrypt login follows contract shape, issues a 900s JWT, and exposes no password hash
   ---
-  duration_ms: 912.810366
+  duration_ms: 876.350761
   type: 'test'
   ...
-# [0mPOST /api/v1/auth/login [33m401[0m 374.294 ms - 100[0m
-# [0mPOST /api/v1/auth/login [33m401[0m 406.268 ms - 100[0m
-# [0mPOST /api/v1/auth/login [33m401[0m 0.393 ms - 100[0m
-# [0mPOST /api/v1/auth/login [33m401[0m 0.466 ms - 100[0m
-# [0mPOST /api/v1/auth/login [33m401[0m 0.409 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 346.060 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 347.499 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 0.736 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 0.687 ms - 100[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 1.166 ms - 100[0m
 # Subtest: incorrect, unknown, invalid and injection-shaped credentials share contract error
-ok 69 - incorrect, unknown, invalid and injection-shaped credentials share contract error
+ok 70 - incorrect, unknown, invalid and injection-shaped credentials share contract error
   ---
-  duration_ms: 812.818127
+  duration_ms: 729.211665
   type: 'test'
   ...
-# [0mPOST /api/v1/auth/login [33m403[0m 345.895 ms - 110[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 4.388 ms - 110[0m
+# [0mPOST /api/v1/auth/login [33m403[0m 345.583 ms - 110[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 4.866 ms - 110[0m
 # Subtest: deactivation blocks login and an already-issued token
-ok 70 - deactivation blocks login and an already-issued token
+ok 71 - deactivation blocks login and an already-issued token
   ---
-  duration_ms: 367.761634
+  duration_ms: 372.856319
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Calamba [32m200[0m 4.358 ms - 119[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 3.331 ms - 85[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Calamba [32m200[0m 6.111 ms - 119[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 2.944 ms - 85[0m
 # Subtest: triage handler receives current jurisdiction after authentication
-ok 71 - triage handler receives current jurisdiction after authentication
+ok 72 - triage handler receives current jurisdiction after authentication
   ---
-  duration_ms: 28.903566
+  duration_ms: 33.545292
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Other [33m403[0m 3.521 ms - 122[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Other [33m403[0m 3.198 ms - 122[0m
 # Subtest: outside-jurisdiction response matches the triage contract
-ok 72 - outside-jurisdiction response matches the triage contract
+ok 73 - outside-jurisdiction response matches the triage contract
   ---
-  duration_ms: 7.07259
+  duration_ms: 7.070512
   type: 'test'
   ...
-# [0mGET /api/v1/tasks/assigned [33m401[0m 0.671 ms - 99[0m
+# [0mGET /api/v1/tasks/assigned [33m401[0m 0.773 ms - 99[0m
 # Subtest: expired token matches assigned-task contract error
-ok 73 - expired token matches assigned-task contract error
+ok 74 - expired token matches assigned-task contract error
   ---
-  duration_ms: 4.56461
+  duration_ms: 4.613514
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 3.579 ms - 67[0m
-# [0mGET /api/v1/tasks/assigned?worker_id=60c72b2f9b1e8a001c8a1101 [32m200[0m 3.867 ms - 51[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 4.559 ms - 67[0m
+# [0mGET /api/v1/tasks/assigned?worker_id=60c72b2f9b1e8a001c8a1101 [32m200[0m 3.848 ms - 51[0m
 # Subtest: current role changes take effect immediately and assigned handler receives authenticated identity
-ok 74 - current role changes take effect immediately and assigned handler receives authenticated identity
+ok 75 - current role changes take effect immediately and assigned handler receives authenticated identity
   ---
-  duration_ms: 22.366818
+  duration_ms: 29.732611
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.462 ms - 90[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.553 ms - 90[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.531 ms - 90[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.321 ms - 90[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.597 ms - 90[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 0.532 ms - 90[0m
 # Subtest: missing, forged and placeholder tokens cannot access mounted handlers
-ok 75 - missing, forged and placeholder tokens cannot access mounted handlers
+ok 76 - missing, forged and placeholder tokens cannot access mounted handlers
   ---
-  duration_ms: 8.428333
+  duration_ms: 7.323429
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue [31m503[0m 4.490 ms - 85[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [31m503[0m 3.160 ms - 85[0m
 # Subtest: production has real login but never serves protected fixture data
-ok 76 - production has real login but never serves protected fixture data
+ok 77 - production has real login but never serves protected fixture data
   ---
-  duration_ms: 12.100033
+  duration_ms: 9.65722
   type: 'test'
   ...
-# [0mPOST /api/v1/auth/login [31m503[0m 0.431 ms - 85[0m
+# [0mPOST /api/v1/auth/login [31m503[0m 0.443 ms - 85[0m
 # Subtest: repository errors fail closed without exposing database details
-ok 77 - repository errors fail closed without exposing database details
+ok 78 - repository errors fail closed without exposing database details
   ---
-  duration_ms: 13.158081
+  duration_ms: 13.787369
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 2.771 ms - 90[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m401[0m 2.430 ms - 90[0m
 # Subtest: deleted user tokens are rejected
-ok 78 - deleted user tokens are rejected
+ok 79 - deleted user tokens are rejected
   ---
-  duration_ms: 10.776508
+  duration_ms: 8.877032
   type: 'test'
   ...
 # Subtest: ML request and successful response match the frozen contract
-ok 79 - ML request and successful response match the frozen contract
+ok 80 - ML request and successful response match the frozen contract
   ---
-  duration_ms: 40.193761
+  duration_ms: 34.232741
   type: 'test'
   ...
 # Subtest: invalid feature vectors are rejected before network access
-ok 80 - invalid feature vectors are rejected before network access
+ok 81 - invalid feature vectors are rejected before network access
   ---
-  duration_ms: 12.222916
+  duration_ms: 7.462455
   type: 'test'
   ...
 # Subtest: malformed, wrong-household and invalid prediction responses are rejected
-ok 81 - malformed, wrong-household and invalid prediction responses are rejected
+ok 82 - malformed, wrong-household and invalid prediction responses are rejected
   ---
-  duration_ms: 24.07827
+  duration_ms: 24.207912
   type: 'test'
   ...
 # Subtest: upstream rejection, errors and redirects are sanitized without retries
-ok 82 - upstream rejection, errors and redirects are sanitized without retries
+ok 83 - upstream rejection, errors and redirects are sanitized without retries
   ---
-  duration_ms: 14.513854
+  duration_ms: 7.239141
   type: 'test'
   ...
 # Subtest: hung ML request aborts at the 2500 ms deadline
-ok 83 - hung ML request aborts at the 2500 ms deadline
+ok 84 - hung ML request aborts at the 2500 ms deadline
   ---
-  duration_ms: 2506.516049
+  duration_ms: 2504.34639
   type: 'test'
   ...
 # Subtest: connection errors are sanitized and invalid service origins rejected
-ok 84 - connection errors are sanitized and invalid service origins rejected
+ok 85 - connection errors are sanitized and invalid service origins rejected
   ---
-  duration_ms: 4.618873
+  duration_ms: 4.238079
   type: 'test'
   ...
 # Subtest: streaming responses cannot extend the overall ML deadline
-ok 85 - streaming responses cannot extend the overall ML deadline
+ok 86 - streaming responses cannot extend the overall ML deadline
   ---
-  duration_ms: 2502.683562
+  duration_ms: 2502.825718
   type: 'test'
   ...
 # Subtest: oversized ML responses fail safely
-ok 86 - oversized ML responses fail safely
+ok 87 - oversized ML responses fail safely
   ---
-  duration_ms: 20.385511
+  duration_ms: 19.297203
   type: 'test'
   ...
-# [0mGET /api/v1/beneficiaries/triage-queue?status=FLAGGED_FOR_REVIEW&limit=1 [32m200[0m 26.307 ms - 805[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?page=2&limit=1 [32m200[0m 11.717 ms - 806[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Other [33m403[0m 0.820 ms - 122[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?page=0 [33m400[0m 1.167 ms - 77[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?limit=101 [33m400[0m 3.482 ms - 77[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?status=NOPE [33m400[0m 1.601 ms - 77[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?status[$ne]=x [33m400[0m 1.600 ms - 77[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?page=1&page=2 [33m400[0m 1.163 ms - 77[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 9.460 ms - 2037[0m
-# [0mGET /api/v1/tasks/assigned [33m403[0m 0.821 ms - 67[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 0.658 ms - 67[0m
-# [0mGET /api/v1/tasks/assigned [32m200[0m 10.541 ms - 1063[0m
-# [0mGET /api/v1/tasks/assigned?worker_id=6ace06695b733ea5e5e1fb36 [33m400[0m 0.960 ms - 77[0m
-# [0mGET /api/v1/tasks/assigned [32m200[0m 3.337 ms - 120[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 9.467 ms - 193[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?status=FLAGGED_FOR_REVIEW&limit=1 [32m200[0m 18.751 ms - 805[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?page=2&limit=1 [32m200[0m 9.385 ms - 806[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?municipality=Other [33m403[0m 0.796 ms - 122[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?page=0 [33m400[0m 1.481 ms - 77[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?limit=101 [33m400[0m 1.104 ms - 77[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?status=NOPE [33m400[0m 0.725 ms - 77[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?status[$ne]=x [33m400[0m 0.615 ms - 77[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?page=1&page=2 [33m400[0m 1.012 ms - 77[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 8.304 ms - 2037[0m
+# [0mGET /api/v1/tasks/assigned [33m403[0m 0.815 ms - 67[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [33m403[0m 0.554 ms - 67[0m
+# [0mGET /api/v1/tasks/assigned [32m200[0m 10.155 ms - 1063[0m
+# [0mGET /api/v1/tasks/assigned?worker_id=6acf065685d3020d2507b097 [33m400[0m 0.771 ms - 77[0m
+# [0mGET /api/v1/tasks/assigned [32m200[0m 4.023 ms - 120[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 6.378 ms - 193[0m
 # Subtest: live feeds enforce contracts, pagination and data isolation in production
-ok 87 - live feeds enforce contracts, pagination and data isolation in production
+ok 88 - live feeds enforce contracts, pagination and data isolation in production
   ---
-  duration_ms: 425.715469
+  duration_ms: 378.269628
   type: 'test'
   ...
-# [0mPOST /api/v1/auth/login [32m200[0m 32.334 ms - 749[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 16.811 ms - 646[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 10.903 ms - 652[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 8.619 ms - 729[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 11.508 ms - 739[0m
-# [0mPOST /api/v1/beneficiaries/HH-A/assess [32m200[0m 63.756 ms - 1518[0m
-# [0mPOST /api/v1/beneficiaries/HH-A/assess [33m409[0m 6.305 ms - 107[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 42.552 ms - 754[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 10.642 ms - 651[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 8.979 ms - 657[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 8.721 ms - 734[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 8.679 ms - 744[0m
+# [0mGET /api/v1/tasks/TSK-HH-REPORT/report [32m200[0m 17.672 ms - 1033[0m
+# [0mGET /api/v1/tasks/TSK-HH-REPORT/report [32m200[0m 9.762 ms - 1033[0m
+# [0mGET /api/v1/tasks/TSK-HH-REPORT/report [33m403[0m 6.104 ms - 122[0m
+# [0mGET /api/v1/tasks/TSK-HH-REPORT/report [33m403[0m 3.657 ms - 67[0m
+# [0mGET /api/v1/tasks/TSK-NOPE/report [33m404[0m 4.294 ms - 63[0m
+# [0mGET /api/v1/tasks/TSK-HH-REPORT/report?x=1 [33m400[0m 2.410 ms - 81[0m
+# Subtest: DECISION-011 review, evidence, notice issuance and graduation on a disposable replica set
+    # Subtest: GET /tasks/:id/report returns the field report in the contract shape, scoped
+    ok 1 - GET /tasks/:id/report returns the field report in the contract shape, scoped
+      ---
+      duration_ms: 87.376796
+      type: 'test'
+      ...
+# [0mGET /api/v1/evidence/68476bac47e29ace773eb97f9344f1241026ad39b90d17bede659f3d8402458d [32m200[0m 6.927 ms - 47[0m
+# [0mGET /api/v1/evidence/68476bac47e29ace773eb97f9344f1241026ad39b90d17bede659f3d8402458d [32m200[0m 6.006 ms - 47[0m
+# [0mGET /api/v1/evidence/68476bac47e29ace773eb97f9344f1241026ad39b90d17bede659f3d8402458d [33m403[0m 5.974 ms - 122[0m
+# [0mGET /api/v1/evidence/68476bac47e29ace773eb97f9344f1241026ad39b90d17bede659f3d8402458d [33m403[0m 2.739 ms - 67[0m
+# [0mGET /api/v1/evidence/68476bac47e29ace773eb97f9344f1241026ad39b90d17bede659f3d8402458d [33m401[0m 0.296 ms - 90[0m
+# [0mGET /api/v1/evidence/not-a-hash [33m400[0m 2.177 ms - 108[0m
+# [0mGET /api/v1/evidence/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa [33m404[0m 3.303 ms - 92[0m
+# [0mGET /api/v1/evidence/0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5 [33m409[0m 6.527 ms - 111[0m
+    # Subtest: GET /evidence/:sha256 serves verified bytes and refuses a tampered file
+    ok 2 - GET /evidence/:sha256 serves verified bytes and refuses a tampered file
+      ---
+      duration_ms: 61.660939
+      type: 'test'
+      ...
+# [0mPOST /api/v1/tasks/TSK-HH-GRAD/resolve [32m200[0m 41.685 ms - 332[0m
+# [0mGET /api/v1/appeals/docket [32m200[0m 15.931 ms - 576[0m
+# [0mPOST /api/v1/tasks/TSK-HH-GRAD/resolve [33m409[0m 12.717 ms - 97[0m
+    # Subtest: POST /tasks/:id/resolve issues the notice, seals it and opens the docket
+    ok 3 - POST /tasks/:id/resolve issues the notice, seals it and opens the docket
+      ---
+      duration_ms: 103.227159
+      type: 'test'
+      ...
+# [0mPOST /api/v1/tasks/TSK-HH-RETAIN/resolve [33m409[0m 10.185 ms - 147[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/resolve [33m400[0m 3.737 ms - 124[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/resolve [33m400[0m 2.527 ms - 124[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/resolve [33m400[0m 2.522 ms - 124[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/resolve [33m403[0m 1.960 ms - 67[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/resolve [33m403[0m 2.088 ms - 67[0m
+# [0mPOST /api/v1/tasks/TSK-HH-REAL/resolve [33m403[0m 9.926 ms - 122[0m
+# [0mPOST /api/v1/tasks/TSK-NOPE/resolve [33m404[0m 3.833 ms - 63[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/resolve [33m409[0m 14.868 ms - 153[0m
+    # Subtest: resolve refuses unsupported reports, bad input, wrong roles, other jurisdictions and calamity holds
+    ok 4 - resolve refuses unsupported reports, bad input, wrong roles, other jurisdictions and calamity holds
+      ---
+      duration_ms: 121.21012
+      type: 'test'
+      ...
+# [0mPOST /api/v1/beneficiaries/HH-DONE/graduate [32m200[0m 22.803 ms - 260[0m
+# [0mPOST /api/v1/beneficiaries/HH-OPEN/graduate [33m409[0m 11.137 ms - 86[0m
+# [0mPOST /api/v1/beneficiaries/HH-APPEALED/graduate [33m409[0m 19.973 ms - 95[0m
+# [0mPOST /api/v1/beneficiaries/HH-DONE/graduate [33m409[0m 7.751 ms - 100[0m
+# [0mPOST /api/v1/beneficiaries/HH-OPEN/graduate [33m400[0m 2.480 ms - 80[0m
+# [0mPOST /api/v1/beneficiaries/HH-OPEN/graduate [33m403[0m 2.241 ms - 67[0m
+# [0mPOST /api/v1/beneficiaries/HH-OPEN/graduate [33m403[0m 7.992 ms - 122[0m
+    # Subtest: POST /beneficiaries/:id/graduate only after the 15-day window with no appeal
+    ok 5 - POST /beneficiaries/:id/graduate only after the 15-day window with no appeal
+      ---
+      duration_ms: 156.260429
+      type: 'test'
+      ...
+    1..5
+ok 89 - DECISION-011 review, evidence, notice issuance and graduation on a disposable replica set
+  ---
+  duration_ms: 1964.398928
+  type: 'test'
+  ...
+# [0mPOST /api/v1/auth/login [32m200[0m 29.195 ms - 754[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 9.901 ms - 657[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 10.514 ms - 734[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 12.629 ms - 744[0m
+# [0mGET /api/v1/tasks/TSK-HH-KEEP/report [32m200[0m 22.038 ms - 784[0m
+# [0mPOST /api/v1/tasks/TSK-HH-KEEP/retain [32m200[0m 44.404 ms - 333[0m
+# [0mGET /api/v1/tasks/TSK-HH-KEEP/report [32m200[0m 8.691 ms - 961[0m
+# [0mPOST /api/v1/tasks/TSK-HH-KEEP/retain [33m409[0m 14.990 ms - 97[0m
+# Subtest: DECISION-012 retention, appeal outcome and re-flag cooldown on a disposable replica set
+    # Subtest: POST /tasks/:id/retain returns the household to ACTIVE_COMPLIANT and seals BENEFICIARY_RETAINED
+    ok 1 - POST /tasks/:id/retain returns the household to ACTIVE_COMPLIANT and seals BENEFICIARY_RETAINED
+      ---
+      duration_ms: 150.253356
+      type: 'test'
+      ...
+    # Subtest: the model cannot re-flag a retained household for 180 days
+    ok 2 - the model cannot re-flag a retained household for 180 days
+      ---
+      duration_ms: 25.091687
+      type: 'test'
+      ...
+# [0mPOST /api/v1/tasks/TSK-HH-RICH/retain [33m409[0m 21.860 ms - 150[0m
+# [0mPOST /api/v1/tasks/TSK-HH-PENDING/retain [33m409[0m 9.332 ms - 97[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [33m400[0m 3.793 ms - 117[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [33m400[0m 3.040 ms - 117[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [33m403[0m 2.482 ms - 67[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [33m403[0m 2.071 ms - 67[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [33m401[0m 0.296 ms - 90[0m
+# [0mPOST /api/v1/tasks/TSK-HH-FAR/retain [33m403[0m 8.488 ms - 122[0m
+# [0mPOST /api/v1/tasks/TSK-NOPE/retain [33m404[0m 3.683 ms - 63[0m
+# [0mPOST /api/v1/tasks/TSK-HH-HOLD/retain [32m200[0m 27.424 ms - 333[0m
+    # Subtest: retain refuses graduation reports, bad input, wrong roles and other jurisdictions; calamity does not block it
+    ok 3 - retain refuses graduation reports, bad input, wrong roles and other jurisdictions; calamity does not block it
+      ---
+      duration_ms: 181.850552
+      type: 'test'
+      ...
+# [0mPOST /api/v1/appeals/docket [32m201[0m 22.431 ms - 435[0m
+# [0mPOST /api/v1/appeals/APP-T-0001/decide [32m200[0m 19.090 ms - 327[0m
+# [0mGET /api/v1/appeals/docket [32m200[0m 11.333 ms - 89[0m
+# [0mPOST /api/v1/appeals/APP-T-0001/decide [33m409[0m 8.572 ms - 100[0m
+    # Subtest: POST /appeals/:docket/decide GRANTED returns the household to ACTIVE_COMPLIANT
+    ok 4 - POST /appeals/:docket/decide GRANTED returns the household to ACTIVE_COMPLIANT
+      ---
+      duration_ms: 89.182087
+      type: 'test'
+      ...
+# [0mPOST /api/v1/appeals/docket [32m201[0m 17.002 ms - 436[0m
+# [0mPOST /api/v1/appeals/APP-T-0002/decide [32m200[0m 29.007 ms - 298[0m
+    # Subtest: DENIED completes the graduation, sealed as BENEFICIARY_GRADUATED
+    ok 5 - DENIED completes the graduation, sealed as BENEFICIARY_GRADUATED
+      ---
+      duration_ms: 90.940404
+      type: 'test'
+      ...
+# [0mPOST /api/v1/appeals/docket [32m201[0m 17.374 ms - 437[0m
+# [0mPOST /api/v1/appeals/docket [32m201[0m 21.031 ms - 437[0m
+# [0mPOST /api/v1/appeals/docket [32m201[0m 18.149 ms - 436[0m
+# [0mPOST /api/v1/appeals/APP-T-0003/decide [33m409[0m 10.879 ms - 111[0m
+# [0mPOST /api/v1/appeals/APP-T-0004/decide [33m409[0m 10.068 ms - 105[0m
+# [0mPOST /api/v1/appeals/APP-T-FORGED/decide [33m409[0m 9.204 ms - 87[0m
+# [0mPOST /api/v1/appeals/APP-T-NOPE/decide [33m404[0m 3.284 ms - 100[0m
+# [0mPOST /api/v1/appeals/bad%20id/decide [33m404[0m 2.388 ms - 100[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m400[0m 3.471 ms - 121[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m400[0m 2.610 ms - 121[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m400[0m 2.695 ms - 121[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m403[0m 2.118 ms - 67[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m403[0m 2.172 ms - 67[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m403[0m 8.900 ms - 122[0m
+# [0mPOST /api/v1/appeals/APP-T-0005/decide [33m409[0m 15.532 ms - 153[0m
+    # Subtest: decide refuses early hearings, stale or forged appeals, bad input, wrong roles and calamity holds
+    ok 6 - decide refuses early hearings, stale or forged appeals, bad input, wrong roles and calamity holds
+      ---
+      duration_ms: 253.557319
+      type: 'test'
+      ...
+    1..6
+ok 90 - DECISION-012 retention, appeal outcome and re-flag cooldown on a disposable replica set
+  ---
+  duration_ms: 2156.514864
+  type: 'test'
+  ...
+# [0mPOST /api/v1/auth/login [32m200[0m 32.829 ms - 749[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 14.787 ms - 646[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 15.940 ms - 652[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 14.374 ms - 729[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 11.003 ms - 739[0m
+# [0mPOST /api/v1/beneficiaries/HH-A/assess [32m200[0m 59.882 ms - 1518[0m
+# [0mPOST /api/v1/beneficiaries/HH-A/assess [33m409[0m 6.407 ms - 107[0m
 # Subtest: INT-05 POST /api/v1/beneficiaries/:household_id/assess against a disposable replica set
     # Subtest: graduation drift: ML Level 3 vs enrolled 1 flags and seals MODEL_FLAG_RAISED
     ok 1 - graduation drift: ML Level 3 vs enrolled 1 flags and seals MODEL_FLAG_RAISED
       ---
-      duration_ms: 105.086446
+      duration_ms: 103.708792
       type: 'test'
       ...
-# [0mPOST /api/v1/beneficiaries/HH-LOW/assess [32m200[0m 14.089 ms - 898[0m
+# [0mPOST /api/v1/beneficiaries/HH-LOW/assess [32m200[0m 16.994 ms - 898[0m
     # Subtest: below threshold: 200 result, nothing persisted, no audit block
     ok 2 - below threshold: 200 result, nothing persisted, no audit block
       ---
-      duration_ms: 30.127155
+      duration_ms: 34.28869
       type: 'test'
       ...
-# [0mPOST /api/v1/beneficiaries/HH-DOWN/assess [32m200[0m 33.862 ms - 1076[0m
-# [0mPOST /api/v1/beneficiaries/HH-error/assess [32m200[0m 9.566 ms - 558[0m
-# [0mPOST /api/v1/beneficiaries/HH-garbage/assess [32m200[0m 12.989 ms - 565[0m
-# [0mPOST /api/v1/beneficiaries/HH-LEGACY/assess [32m200[0m 7.435 ms - 567[0m
+# [0mPOST /api/v1/beneficiaries/HH-DOWN/assess [32m200[0m 44.123 ms - 1076[0m
+# [0mPOST /api/v1/beneficiaries/HH-error/assess [32m200[0m 14.143 ms - 558[0m
+# [0mPOST /api/v1/beneficiaries/HH-garbage/assess [32m200[0m 12.518 ms - 565[0m
+# [0mPOST /api/v1/beneficiaries/HH-LEGACY/assess [32m200[0m 12.393 ms - 567[0m
     # Subtest: ML down, error or malformed: EVALUATED_VIA_FALLBACK, utilities still score, no crash
     ok 3 - ML down, error or malformed: EVALUATED_VIA_FALLBACK, utilities still score, no crash
       ---
-      duration_ms: 97.086966
+      duration_ms: 141.642111
       type: 'test'
       ...
-# [0mPOST /api/v1/beneficiaries/HH-V-OWNED/assess [32m200[0m 9.873 ms - 1015[0m
-# [0mPOST /api/v1/beneficiaries/HH-V-OTHER/assess [32m200[0m 15.715 ms - 902[0m
-# [0mPOST /api/v1/beneficiaries/HH-V-EXT/assess [32m200[0m 15.237 ms - 900[0m
-# [0mPOST /api/v1/beneficiaries/HH-V-FRAN/assess [32m200[0m 11.909 ms - 901[0m
-# [0mPOST /api/v1/beneficiaries/HH-V-MOTO/assess [32m200[0m 11.068 ms - 901[0m
-# [0mPOST /api/v1/beneficiaries/HH-NO-EXT/assess [32m200[0m 15.898 ms - 901[0m
+# [0mPOST /api/v1/beneficiaries/HH-V-OWNED/assess [32m200[0m 16.236 ms - 1015[0m
+# [0mPOST /api/v1/beneficiaries/HH-V-OTHER/assess [32m200[0m 12.384 ms - 902[0m
+# [0mPOST /api/v1/beneficiaries/HH-V-EXT/assess [32m200[0m 14.779 ms - 900[0m
+# [0mPOST /api/v1/beneficiaries/HH-V-FRAN/assess [32m200[0m 26.193 ms - 901[0m
+# [0mPOST /api/v1/beneficiaries/HH-V-MOTO/assess [32m200[0m 18.440 ms - 901[0m
+# [0mPOST /api/v1/beneficiaries/HH-NO-EXT/assess [32m200[0m 8.625 ms - 901[0m
     # Subtest: indicator rules: vehicle ownership, franchise, missing external record
     ok 4 - indicator rules: vehicle ownership, franchise, missing external record
       ---
-      duration_ms: 129.304995
+      duration_ms: 147.43513
       type: 'test'
       ...
-# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m401[0m 0.528 ms - 90[0m
-# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m401[0m 0.909 ms - 99[0m
-# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m403[0m 3.332 ms - 67[0m
-# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m403[0m 2.950 ms - 67[0m
-# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m403[0m 5.556 ms - 122[0m
-# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m400[0m 2.407 ms - 87[0m
-# [0mPOST /api/v1/beneficiaries/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/assess [33m400[0m 2.902 ms - 87[0m
-# [0mPOST /api/v1/beneficiaries/HH-MISSING/assess [33m404[0m 7.994 ms - 91[0m
-# [0mPOST /api/v1/beneficiaries/HH-FLAGGED/assess [33m409[0m 4.895 ms - 107[0m
-# [0mPOST /api/v1/beneficiaries/HH-REAL/assess [33m403[0m 4.699 ms - 122[0m
+# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m401[0m 0.291 ms - 90[0m
+# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m401[0m 0.607 ms - 99[0m
+# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m403[0m 2.620 ms - 67[0m
+# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m403[0m 2.091 ms - 67[0m
+# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m403[0m 6.543 ms - 122[0m
+# [0mPOST /api/v1/beneficiaries/HH-SEC/assess [33m400[0m 2.374 ms - 87[0m
+# [0mPOST /api/v1/beneficiaries/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/assess [33m400[0m 2.872 ms - 87[0m
+# [0mPOST /api/v1/beneficiaries/HH-MISSING/assess [33m404[0m 4.863 ms - 91[0m
+# [0mPOST /api/v1/beneficiaries/HH-FLAGGED/assess [33m409[0m 5.671 ms - 107[0m
+# [0mPOST /api/v1/beneficiaries/HH-REAL/assess [33m403[0m 6.323 ms - 122[0m
     # Subtest: security guards and boundary validation with no writes
     ok 5 - security guards and boundary validation with no writes
       ---
-      duration_ms: 91.629384
+      duration_ms: 79.676458
       type: 'test'
       ...
-# [0mPOST /api/v1/beneficiaries/HH-AGE/assess [32m200[0m 27.982 ms - 1526[0m
-# [0mPOST /api/v1/beneficiaries/HH-AGE-ALL/assess [32m200[0m 10.949 ms - 1051[0m
-# [0mPOST /api/v1/beneficiaries/HH-AGE-BAD/assess [32m200[0m 29.044 ms - 1530[0m
+# [0mPOST /api/v1/beneficiaries/HH-AGE/assess [32m200[0m 40.855 ms - 1526[0m
+# [0mPOST /api/v1/beneficiaries/HH-AGE-ALL/assess [32m200[0m 10.728 ms - 1051[0m
+# [0mPOST /api/v1/beneficiaries/HH-AGE-BAD/assess [32m200[0m 28.545 ms - 1530[0m
     # Subtest: E2E-03a age-out: reported, not scored; corrected and sealed only when flagged
     ok 6 - E2E-03a age-out: reported, not scored; corrected and sealed only when flagged
       ---
-      duration_ms: 110.666716
+      duration_ms: 156.350747
       type: 'test'
       ...
-# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [33m404[0m 7.725 ms - 101[0m
-# [0mPOST /api/v1/beneficiaries/HH-EXPLAIN/assess [32m200[0m 26.072 ms - 1524[0m
-# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [32m200[0m 7.594 ms - 854[0m
-# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [32m200[0m 6.623 ms - 854[0m
-# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [33m401[0m 0.253 ms - 90[0m
-# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [33m403[0m 15.039 ms - 67[0m
-# [0mGET /api/v1/beneficiaries/HH-NOPE/assessment [33m404[0m 5.105 ms - 91[0m
-# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment?x=1 [33m400[0m 2.210 ms - 94[0m
-# [0mGET /api/v1/beneficiaries/HH-REAL-X/assessment [33m403[0m 5.155 ms - 122[0m
-# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [33m409[0m 6.296 ms - 87[0m
+# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [33m404[0m 8.331 ms - 101[0m
+# [0mPOST /api/v1/beneficiaries/HH-EXPLAIN/assess [32m200[0m 31.174 ms - 1524[0m
+# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [32m200[0m 6.864 ms - 854[0m
+# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [32m200[0m 6.629 ms - 854[0m
+# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [33m401[0m 0.232 ms - 90[0m
+# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [33m403[0m 10.016 ms - 67[0m
+# [0mGET /api/v1/beneficiaries/HH-NOPE/assessment [33m404[0m 5.537 ms - 91[0m
+# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment?x=1 [33m400[0m 2.424 ms - 94[0m
+# [0mGET /api/v1/beneficiaries/HH-REAL-X/assessment [33m403[0m 6.453 ms - 122[0m
+# [0mGET /api/v1/beneficiaries/HH-EXPLAIN/assessment [33m409[0m 8.942 ms - 87[0m
     # Subtest: E2E-04 GET /assessment serves the sealed explanation and rejects tampering
     ok 7 - E2E-04 GET /assessment serves the sealed explanation and rejects tampering
       ---
-      duration_ms: 117.017073
+      duration_ms: 121.335556
       type: 'test'
       ...
-# [0mPOST /api/v1/beneficiaries/HH-RACE/assess [32m200[0m 39.717 ms - 1521[0m
-# [0mPOST /api/v1/beneficiaries/HH-RACE/assess [33m409[0m 43.343 ms - 100[0m
+# [0mPOST /api/v1/beneficiaries/HH-RACE/assess [32m200[0m 56.490 ms - 1521[0m
+# [0mPOST /api/v1/beneficiaries/HH-RACE/assess [33m409[0m 76.531 ms - 100[0m
     # Subtest: simultaneous assessments of one household flag it exactly once
     ok 8 - simultaneous assessments of one household flag it exactly once
       ---
-      duration_ms: 55.7075
+      duration_ms: 93.601065
       type: 'test'
       ...
     1..8
-ok 88 - INT-05 POST /api/v1/beneficiaries/:household_id/assess against a disposable replica set
+ok 91 - INT-05 POST /api/v1/beneficiaries/:household_id/assess against a disposable replica set
   ---
-  duration_ms: 2167.508974
+  duration_ms: 2324.00403
   type: 'test'
   ...
 # Subtest: active assigned worker may prepare either open status; supplied session reaches all reads
-ok 89 - active assigned worker may prepare either open status; supplied session reaches all reads
+ok 92 - active assigned worker may prepare either open status; supplied session reaches all reads
   ---
-  duration_ms: 21.204644
+  duration_ms: 27.606828
   type: 'test'
   ...
 # Subtest: missing authentication and malformed submissions stop before reads
-ok 90 - missing authentication and malformed submissions stop before reads
+ok 93 - missing authentication and malformed submissions stop before reads
   ---
-  duration_ms: 2.433658
+  duration_ms: 2.900742
   type: 'test'
   ...
 # Subtest: current stored role and activation control access on every call
-ok 91 - current stored role and activation control access on every call
+ok 94 - current stored role and activation control access on every call
   ---
-  duration_ms: 2.059952
+  duration_ms: 2.402921
   type: 'test'
   ...
 # Subtest: another worker task and missing task both return not found without household reads
-ok 92 - another worker task and missing task both return not found without household reads
+ok 95 - another worker task and missing task both return not found without household reads
   ---
-  duration_ms: 0.685179
+  duration_ms: 0.827847
   type: 'test'
   ...
 # Subtest: household mismatch and missing stored household are rejected
-ok 93 - household mismatch and missing stored household are rejected
+ok 96 - household mismatch and missing stored household are rejected
   ---
-  duration_ms: 1.012274
+  duration_ms: 1.011453
   type: 'test'
   ...
 # Subtest: stored household scope and current worker jurisdiction are enforced
-ok 94 - stored household scope and current worker jurisdiction are enforced
+ok 97 - stored household scope and current worker jurisdiction are enforced
   ---
-  duration_ms: 2.115509
+  duration_ms: 1.98347
   type: 'test'
   ...
 # Subtest: submitted, resolved and unknown task statuses fail closed
-ok 95 - submitted, resolved and unknown task statuses fail closed
+ok 98 - submitted, resolved and unknown task statuses fail closed
   ---
-  duration_ms: 2.455504
+  duration_ms: 1.411963
   type: 'test'
   ...
 # Subtest: submission contract maps into existing field_findings without changing input
-ok 96 - submission contract maps into existing field_findings without changing input
+ok 99 - submission contract maps into existing field_findings without changing input
   ---
-  duration_ms: 18.324824
+  duration_ms: 17.034646
   type: 'test'
   ...
 # Subtest: submission rejects missing fields and mismatched route identity
-ok 97 - submission rejects missing fields and mismatched route identity
+ok 100 - submission rejects missing fields and mismatched route identity
   ---
-  duration_ms: 8.613095
+  duration_ms: 7.763724
   type: 'test'
   ...
 # Subtest: submission rejects coercion, malformed evidence, coordinates and privileged fields
-ok 98 - submission rejects coercion, malformed evidence, coordinates and privileged fields
+ok 101 - submission rejects coercion, malformed evidence, coordinates and privileged fields
   ---
-  duration_ms: 4.548209
+  duration_ms: 4.144377
   type: 'test'
   ...
 # Subtest: preparation permits absent EXIF and empty evidence without claiming evidence verification
-ok 99 - preparation permits absent EXIF and empty evidence without claiming evidence verification
+ok 102 - preparation permits absent EXIF and empty evidence without claiming evidence verification
   ---
-  duration_ms: 0.539952
+  duration_ms: 0.433835
   type: 'test'
   ...
 # Subtest: test/support/replicaSet.js
-ok 24 - test/support/replicaSet.js
+ok 27 - test/support/replicaSet.js
   ---
-  duration_ms: 248.751029
+  duration_ms: 281.26113
   type: 'test'
   ...
-# [0mPOST /api/v1/auth/login [32m200[0m 30.095 ms - 729[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 10.070 ms - 726[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 7.566 ms - 749[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 7.626 ms - 652[0m
-# [0mPOST /api/v1/tasks/TSK-JSON/submit [32m200[0m 62.214 ms - 280[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 32.557 ms - 729[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 18.442 ms - 726[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 12.692 ms - 749[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 11.668 ms - 652[0m
+# [0mPOST /api/v1/tasks/TSK-JSON/submit [32m200[0m 78.219 ms - 280[0m
 # Subtest: INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals REPORT_SUBMITTED
     # Subtest: JSON contract submission: 200 frozen response, findings persisted, audit sealed
     ok 1 - JSON contract submission: 200 frozen response, findings persisted, audit sealed
       ---
-      duration_ms: 88.778416
+      duration_ms: 118.092756
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-MP/submit [32m200[0m 45.309 ms - 278[0m
-# [0mPOST /api/v1/tasks/TSK-MP2/submit [32m200[0m 35.994 ms - 279[0m
+# [0mPOST /api/v1/tasks/TSK-MP/submit [32m200[0m 55.301 ms - 278[0m
+# [0mPOST /api/v1/tasks/TSK-MP2/submit [32m200[0m 27.442 ms - 279[0m
     # Subtest: multipart with matching bytes verifies evidence and stores it content-addressed
     ok 2 - multipart with matching bytes verifies evidence and stores it content-addressed
       ---
-      duration_ms: 122.896757
+      duration_ms: 127.210468
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-URL/submit [33m400[0m 11.198 ms - 116[0m
+# [0mPOST /api/v1/tasks/TSK-URL/submit [33m400[0m 11.363 ms - 116[0m
     # Subtest: uploaded evidence storage_url must be bound to the verified hash
     ok 3 - uploaded evidence storage_url must be bound to the verified hash
       ---
-      duration_ms: 34.048654
+      duration_ms: 40.289065
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m422[0m 10.893 ms - 126[0m
-# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 10.193 ms - 116[0m
-# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 11.429 ms - 116[0m
-# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 3.666 ms - 116[0m
-# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m413[0m 69.383 ms - 89[0m
+# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m422[0m 12.568 ms - 126[0m
+# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 11.658 ms - 116[0m
+# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 11.370 ms - 116[0m
+# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 3.740 ms - 116[0m
+# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m413[0m 56.281 ms - 89[0m
     # Subtest: evidence integrity: altered bytes 422, missing files 400, no writes
     ok 4 - evidence integrity: altered bytes 422, missing files 400, no writes
       ---
-      duration_ms: 176.939342
+      duration_ms: 168.299195
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-GEO/submit [33m422[0m 12.644 ms - 128[0m
-# [0mPOST /api/v1/tasks/TSK-GEO/submit [32m200[0m 27.868 ms - 283[0m
+# [0mPOST /api/v1/tasks/TSK-GEO/submit [33m422[0m 13.465 ms - 128[0m
+# [0mPOST /api/v1/tasks/TSK-GEO/submit [32m200[0m 30.948 ms - 283[0m
     # Subtest: geofence breach beyond 250 m is rejected with GEOFENCE_VIOLATION and no writes
     ok 5 - geofence breach beyond 250 m is rejected with GEOFENCE_VIOLATION and no writes
       ---
-      duration_ms: 66.794259
+      duration_ms: 69.709423
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m401[0m 0.499 ms - 90[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m401[0m 0.669 ms - 99[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m403[0m 3.039 ms - 67[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m403[0m 2.802 ms - 67[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m404[0m 8.279 ms - 76[0m
-# [0mPOST /api/v1/tasks/TSK-OTHER/submit [33m400[0m 2.488 ms - 106[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m400[0m 3.577 ms - 106[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m400[0m 7.457 ms - 111[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m401[0m 0.355 ms - 90[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m401[0m 0.574 ms - 99[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m403[0m 2.689 ms - 67[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m403[0m 3.571 ms - 67[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m404[0m 13.252 ms - 76[0m
+# [0mPOST /api/v1/tasks/TSK-OTHER/submit [33m400[0m 3.329 ms - 106[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m400[0m 4.746 ms - 106[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m400[0m 12.434 ms - 111[0m
     # Subtest: security and identity guards: 401, 403 roles, 404 other worker, 400 mismatch
     ok 6 - security and identity guards: 401, 403 roles, 404 other worker, 400 mismatch
       ---
-      duration_ms: 74.813653
+      duration_ms: 94.393899
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-JSON/submit [33m409[0m 8.227 ms - 92[0m
-# [0mPOST /api/v1/tasks/TSK-RACE/submit [32m200[0m 39.345 ms - 280[0m
-# [0mPOST /api/v1/tasks/TSK-RACE/submit [33m409[0m 46.533 ms - 92[0m
+# [0mPOST /api/v1/tasks/TSK-JSON/submit [33m409[0m 20.176 ms - 92[0m
+# [0mPOST /api/v1/tasks/TSK-RACE/submit [32m200[0m 47.688 ms - 280[0m
+# [0mPOST /api/v1/tasks/TSK-RACE/submit [33m409[0m 54.094 ms - 92[0m
     # Subtest: duplicate and simultaneous submissions commit exactly once
     ok 7 - duplicate and simultaneous submissions commit exactly once
       ---
-      duration_ms: 77.920393
+      duration_ms: 128.738423
       type: 'test'
       ...
     1..7
-ok 101 - INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals REPORT_SUBMITTED
+ok 104 - INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals REPORT_SUBMITTED
   ---
-  duration_ms: 2042.923584
+  duration_ms: 2204.246231
   type: 'test'
   ...
-# Subtest: only the four documented forward transitions are accepted
-ok 102 - only the four documented forward transitions are accepted
+# Subtest: only the documented lifecycle transitions are accepted
+ok 105 - only the documented lifecycle transitions are accepted
   ---
-  duration_ms: 1.844792
+  duration_ms: 2.303198
   type: 'test'
   ...
 # Subtest: unknown, missing, and structured status inputs cannot bypass the guard
-ok 103 - unknown, missing, and structured status inputs cannot bypass the guard
+ok 106 - unknown, missing, and structured status inputs cannot bypass the guard
   ---
-  duration_ms: 0.31043
+  duration_ms: 0.445685
   type: 'test'
   ...
 # Subtest: invalid jumps return sanitized HTTP 400 through the application error handler
-ok 104 - invalid jumps return sanitized HTTP 400 through the application error handler
+ok 107 - invalid jumps return sanitized HTTP 400 through the application error handler
   ---
-  duration_ms: 71.60776
+  duration_ms: 96.600883
   type: 'test'
   ...
 # Subtest: workflow persistence requires an explicit policy and approved transition/action
-ok 105 - workflow persistence requires an explicit policy and approved transition/action
+ok 108 - workflow persistence requires an explicit policy and approved transition/action
   ---
-  duration_ms: 1.19666
+  duration_ms: 1.28538
   type: 'test'
   ...
 # Subtest: transactional workflow against a disposable MongoDB replica set
     # Subtest: successful update and audit use the accepted hash format
     ok 1 - successful update and audit use the accepted hash format
       ---
-      duration_ms: 51.115001
+      duration_ms: 69.031352
       type: 'test'
       ...
     # Subtest: current role, deactivation and jurisdiction are read from MongoDB
     ok 2 - current role, deactivation and jurisdiction are read from MongoDB
       ---
-      duration_ms: 120.48812
+      duration_ms: 143.657608
       type: 'test'
       ...
     # Subtest: failed prerequisites roll back associated writes
     ok 3 - failed prerequisites roll back associated writes
       ---
-      duration_ms: 22.752503
+      duration_ms: 31.320437
       type: 'test'
       ...
     # Subtest: audit failure rolls back the status update
     ok 4 - audit failure rolls back the status update
       ---
-      duration_ms: 23.183797
+      duration_ms: 25.213934
       type: 'test'
       ...
     # Subtest: simultaneous changes to one household yield one winner and one audit
     ok 5 - simultaneous changes to one household yield one winner and one audit
       ---
-      duration_ms: 44.005002
+      duration_ms: 40.229568
       type: 'test'
       ...
     # Subtest: independent concurrent changes form one contiguous audit chain
     ok 6 - independent concurrent changes form one contiguous audit chain
       ---
-      duration_ms: 58.580182
+      duration_ms: 60.187737
       type: 'test'
       ...
     # Subtest: invalid input, unknown actor and missing household fail closed
     ok 7 - invalid input, unknown actor and missing household fail closed
       ---
-      duration_ms: 10.722982
+      duration_ms: 10.992512
       type: 'test'
       ...
     # Subtest: unexpected database status cannot be skipped or overwritten
     ok 8 - unexpected database status cannot be skipped or overwritten
       ---
-      duration_ms: 22.307825
+      duration_ms: 32.417794
       type: 'test'
       ...
-# [0mPOST /api/v1/auth/login [32m200[0m 32.113 ms - 738[0m
-# [0mPOST /api/v1/auth/login [33m401[0m 11.922 ms - 100[0m
-# [0mPOST /api/v1/tasks/dispatch [33m401[0m 0.665 ms - 90[0m
-# [0mPOST /api/v1/tasks/dispatch [33m403[0m 3.909 ms - 67[0m
-# [0mPOST /api/v1/tasks/dispatch [33m400[0m 7.396 ms - 102[0m
-# [0mPOST /api/v1/tasks/dispatch [33m400[0m 4.573 ms - 102[0m
-# [0mPOST /api/v1/tasks/dispatch [33m400[0m 18.265 ms - 103[0m
-# [0mPOST /api/v1/tasks/dispatch [33m403[0m 11.501 ms - 122[0m
-# [0mPOST /api/v1/tasks/dispatch [32m201[0m 24.661 ms - 375[0m
-# [0mGET /api/v1/tasks/assigned [32m200[0m 8.296 ms - 726[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?status=UNDER_INVESTIGATION&limit=100 [32m200[0m 11.458 ms - 2027[0m
-# [0mGET /api/v1/tasks/assigned [32m200[0m 4.506 ms - 120[0m
-# [0mGET /api/v1/tasks/assigned [32m200[0m 6.114 ms - 120[0m
-# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 17.356 ms - 193[0m
-# [0mGET /api/v1/beneficiaries/triage-queue?barangay=Palingon [33m403[0m 3.250 ms - 122[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 30.208 ms - 738[0m
+# [0mPOST /api/v1/auth/login [33m401[0m 7.411 ms - 100[0m
+# [0mPOST /api/v1/tasks/dispatch [33m401[0m 0.635 ms - 90[0m
+# [0mPOST /api/v1/tasks/dispatch [33m403[0m 5.551 ms - 67[0m
+# [0mPOST /api/v1/tasks/dispatch [33m400[0m 6.841 ms - 102[0m
+# [0mPOST /api/v1/tasks/dispatch [33m400[0m 5.506 ms - 102[0m
+# [0mPOST /api/v1/tasks/dispatch [33m400[0m 14.128 ms - 103[0m
+# [0mPOST /api/v1/tasks/dispatch [33m403[0m 11.739 ms - 122[0m
+# [0mPOST /api/v1/tasks/dispatch [32m201[0m 24.415 ms - 375[0m
+# [0mGET /api/v1/tasks/assigned [32m200[0m 6.236 ms - 726[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?status=UNDER_INVESTIGATION&limit=100 [32m200[0m 15.474 ms - 2027[0m
+# [0mGET /api/v1/tasks/assigned [32m200[0m 5.218 ms - 120[0m
+# [0mGET /api/v1/tasks/assigned [32m200[0m 5.499 ms - 120[0m
+# [0mGET /api/v1/beneficiaries/triage-queue [32m200[0m 7.211 ms - 193[0m
+# [0mGET /api/v1/beneficiaries/triage-queue?barangay=Palingon [33m403[0m 2.898 ms - 122[0m
     # Subtest: dispatch HTTP contract, authorization, metadata and atomic rollback
         # Subtest: dispatched task appears in live feeds with current-user isolation
         ok 1 - dispatched task appears in live feeds with current-user isolation
           ---
-          duration_ms: 86.62808
+          duration_ms: 76.38601
           type: 'test'
           ...
-# [0mPOST /api/v1/auth/login [32m200[0m 9.186 ms - 739[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [33m403[0m 2.348 ms - 67[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [32m200[0m 8.193 ms - 281[0m
-# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [33m403[0m 2.647 ms - 110[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 10.228 ms - 739[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [33m403[0m 2.824 ms - 67[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [32m200[0m 8.274 ms - 281[0m
+# [0mGET /api/v1/audit/verify-chain?start_sequence=1&end_sequence=5 [33m403[0m 2.555 ms - 110[0m
         # Subtest: auditor verifies the dispatch ledger through the authenticated live route
         ok 2 - auditor verifies the dispatch ledger through the authenticated live route
           ---
-          duration_ms: 42.74613
+          duration_ms: 43.425906
           type: 'test'
           ...
-# [0mPOST /api/v1/tasks/dispatch [33m409[0m 11.104 ms - 113[0m
-# [0mPOST /api/v1/tasks/dispatch [33m404[0m 7.208 ms - 91[0m
-# [0mPOST /api/v1/tasks/dispatch [32m201[0m 52.535 ms - 372[0m
-# [0mPOST /api/v1/tasks/dispatch [33m409[0m 72.265 ms - 113[0m
-# [0mPOST /api/v1/tasks/dispatch [31m503[0m 18.387 ms - 85[0m
+# [0mPOST /api/v1/tasks/dispatch [33m409[0m 11.617 ms - 113[0m
+# [0mPOST /api/v1/tasks/dispatch [33m404[0m 7.470 ms - 91[0m
+# [0mPOST /api/v1/tasks/dispatch [32m201[0m 33.243 ms - 372[0m
+# [0mPOST /api/v1/tasks/dispatch [33m409[0m 50.187 ms - 113[0m
+# [0mPOST /api/v1/tasks/dispatch [31m503[0m 15.233 ms - 85[0m
         1..2
     ok 9 - dispatch HTTP contract, authorization, metadata and atomic rollback
       ---
-      duration_ms: 1030.759238
+      duration_ms: 1068.211289
       type: 'test'
       ...
     # Subtest: verifier reads persisted workflow hashes and detects tampering in 1000 MongoDB blocks
     ok 10 - verifier reads persisted workflow hashes and detects tampering in 1000 MongoDB blocks
       ---
-      duration_ms: 655.425251
+      duration_ms: 641.103881
       type: 'test'
       ...
     # Subtest: missing unique audit sequence index prevents all writes
     ok 11 - missing unique audit sequence index prevents all writes
       ---
-      duration_ms: 21.083066
+      duration_ms: 23.231366
       type: 'test'
       ...
     1..11
-ok 106 - transactional workflow against a disposable MongoDB replica set
+ok 109 - transactional workflow against a disposable MongoDB replica set
   ---
-  duration_ms: 3340.293584
+  duration_ms: 3392.322672
   type: 'test'
   ...
-1..106
-# tests 155
+1..109
+# tests 175
 # suites 0
-# pass 153
+# pass 175
 # fail 0
 # cancelled 0
-# skipped 2
+# skipped 0
 # todo 0
-# duration_ms 13771.385663
+# duration_ms 25340.081093

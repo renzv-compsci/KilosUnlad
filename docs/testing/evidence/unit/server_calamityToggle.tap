@@ -1,92 +1,92 @@
 TAP version 13
-# [0mPOST /api/v1/auth/login [32m200[0m 37.565 ms - 646[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 9.756 ms - 749[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 8.938 ms - 652[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 9.138 ms - 729[0m
-# [0mPOST /api/v1/calamity/toggle [33m401[0m 0.740 ms - 90[0m
-# [0mPOST /api/v1/calamity/toggle [33m401[0m 1.685 ms - 99[0m
-# [0mPOST /api/v1/calamity/toggle [33m403[0m 3.784 ms - 67[0m
-# [0mPOST /api/v1/calamity/toggle [33m403[0m 2.947 ms - 67[0m
-# [0mPOST /api/v1/calamity/toggle [33m403[0m 3.235 ms - 67[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 31.354 ms - 646[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 9.602 ms - 749[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 8.752 ms - 652[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 8.431 ms - 729[0m
+# [0mPOST /api/v1/calamity/toggle [33m401[0m 0.798 ms - 90[0m
+# [0mPOST /api/v1/calamity/toggle [33m401[0m 1.462 ms - 99[0m
+# [0mPOST /api/v1/calamity/toggle [33m403[0m 3.539 ms - 67[0m
+# [0mPOST /api/v1/calamity/toggle [33m403[0m 2.645 ms - 67[0m
+# [0mPOST /api/v1/calamity/toggle [33m403[0m 2.840 ms - 67[0m
 # Subtest: INT-04 POST /api/v1/calamity/toggle against a disposable MongoDB replica set
     # Subtest: security guards: 401, director 403, worker 403, auditor 403
     ok 1 - security guards: 401, director 403, worker 403, auditor 403
       ---
-      duration_ms: 44.287169
+      duration_ms: 40.578354
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 5.944 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 4.438 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.092 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.582 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 8.956 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 3.189 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.863 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.366 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.017 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 1.924 ms - 87[0m
-# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.423 ms - 92[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 5.787 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 4.543 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.780 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.969 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.644 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 4.412 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.418 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.289 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 1.916 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.083 ms - 87[0m
+# [0mPOST /api/v1/calamity/toggle [33m400[0m 2.648 ms - 92[0m
     # Subtest: boundary validation: 400 with no writes
     ok 2 - boundary validation: 400 with no writes
       ---
-      duration_ms: 72.880314
+      duration_ms: 69.44364
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [33m409[0m 9.343 ms - 103[0m
+# [0mPOST /api/v1/calamity/toggle [33m409[0m 8.500 ms - 103[0m
     # Subtest: lifting with no declared zone is a 409 and creates nothing
     ok 3 - lifting with no declared zone is a 409 and creates nothing
       ---
-      duration_ms: 17.125646
+      duration_ms: 16.109066
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [32m201[0m 29.374 ms - 420[0m
+# [0mPOST /api/v1/calamity/toggle [32m201[0m 20.564 ms - 420[0m
     # Subtest: declaration returns the hold for the matching zone and seals CALAMITY_DECLARED
     ok 4 - declaration returns the hold for the matching zone and seals CALAMITY_DECLARED
       ---
-      duration_ms: 36.881926
+      duration_ms: 25.931162
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [33m409[0m 9.951 ms - 110[0m
+# [0mPOST /api/v1/calamity/toggle [33m409[0m 9.737 ms - 110[0m
     # Subtest: a second declaration for an active zone is a 409 with no writes
     ok 5 - a second declaration for an active zone is a 409 with no writes
       ---
-      duration_ms: 21.966427
+      duration_ms: 23.784393
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [32m200[0m 24.326 ms - 423[0m
-# [0mPOST /api/v1/calamity/toggle [33m409[0m 7.467 ms - 103[0m
+# [0mPOST /api/v1/calamity/toggle [32m200[0m 29.763 ms - 423[0m
+# [0mPOST /api/v1/calamity/toggle [33m409[0m 7.666 ms - 103[0m
     # Subtest: lifting releases the hold, keeps history and seals SYSTEM_CONFIG_UPDATED
     ok 6 - lifting releases the hold, keeps history and seals SYSTEM_CONFIG_UPDATED
       ---
-      duration_ms: 47.657367
+      duration_ms: 55.295585
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [32m201[0m 29.948 ms - 398[0m
-# [0mPOST /api/v1/calamity/toggle [32m201[0m 20.873 ms - 426[0m
+# [0mPOST /api/v1/calamity/toggle [32m201[0m 21.364 ms - 398[0m
+# [0mPOST /api/v1/calamity/toggle [32m201[0m 38.881 ms - 426[0m
     # Subtest: open-ended re-declaration appends a new zone; expired zones do not block
     ok 7 - open-ended re-declaration appends a new zone; expired zones do not block
       ---
-      duration_ms: 62.59071
+      duration_ms: 80.146342
       type: 'test'
       ...
     # Subtest: audit chain stays contiguous across toggles
     ok 8 - audit chain stays contiguous across toggles
       ---
-      duration_ms: 12.470409
+      duration_ms: 7.691886
       type: 'test'
       ...
-# [0mPOST /api/v1/calamity/toggle [32m201[0m 40.764 ms - 406[0m
-# [0mPOST /api/v1/calamity/toggle [33m409[0m 49.379 ms - 110[0m
+# [0mPOST /api/v1/calamity/toggle [32m201[0m 41.664 ms - 418[0m
+# [0mPOST /api/v1/calamity/toggle [33m409[0m 43.098 ms - 110[0m
     # Subtest: simultaneous first declarations create one config and one active zone
     ok 9 - simultaneous first declarations create one config and one active zone
       ---
-      duration_ms: 76.834174
+      duration_ms: 80.118833
       type: 'test'
       ...
     1..9
 ok 1 - INT-04 POST /api/v1/calamity/toggle against a disposable MongoDB replica set
   ---
-  duration_ms: 1739.513201
+  duration_ms: 1768.489382
   type: 'test'
   ...
 1..1
@@ -97,4 +97,4 @@ ok 1 - INT-04 POST /api/v1/calamity/toggle against a disposable MongoDB replica 
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2618.145743
+# duration_ms 2651.678613

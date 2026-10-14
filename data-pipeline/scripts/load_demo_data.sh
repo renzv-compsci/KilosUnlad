@@ -13,6 +13,7 @@
 # Env: COMPOSE (default "docker compose"), BASE_URL, SAMPLE_PAGES, DISPATCH
 # WARNING: replaces everything in the local kilosunlad database.
 # ============================================================
+export MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL="*"   # Windows Git Bash: keep container paths as written
 set -euo pipefail
 COMPOSE="${COMPOSE:-docker compose}"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"

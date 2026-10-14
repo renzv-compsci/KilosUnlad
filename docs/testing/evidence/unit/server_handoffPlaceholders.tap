@@ -2,25 +2,25 @@ TAP version 13
 # Subtest: all unfinished integration boundaries reject rather than report success
 ok 1 - all unfinished integration boundaries reject rather than report success
   ---
-  duration_ms: 2.604476
+  duration_ms: 2.19697
   type: 'test'
   ...
 # Subtest: audit controller forwards service failure and emits no valid-chain response
 ok 2 - audit controller forwards service failure and emits no valid-chain response
   ---
-  duration_ms: 0.862974
+  duration_ms: 0.82174
   type: 'test'
   ...
 # Subtest: audit placeholder blocks mutations and allows reads through
 ok 3 - audit placeholder blocks mutations and allows reads through
   ---
-  duration_ms: 0.336558
+  duration_ms: 0.292755
   type: 'test'
   ...
 # Subtest: Joi middleware retains validated body and rejects invalid input without details
 ok 4 - Joi middleware retains validated body and rejects invalid input without details
   ---
-  duration_ms: 4.324724
+  duration_ms: 4.327191
   type: 'test'
   ...
 1..4
@@ -31,4 +31,4 @@ ok 4 - Joi middleware retains validated body and rejects invalid input without d
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 344.623946
+# duration_ms 357.855933

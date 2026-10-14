@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0 -- /tmp/claude-0/mlvenv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/user/KilosUnlad
+plugins: anyio-4.15.1
+collecting ... collected 9 items
+
+data-pipeline/scripts/test_seed_mapping.py::BeneficiaryMapping::test_address_keeps_real_coordinates_and_assigns_reference_barangay PASSED [ 11%]
+data-pipeline/scripts/test_seed_mapping.py::BeneficiaryMapping::test_demographics_declared_fields_plus_pmt_vector PASSED [ 22%]
+data-pipeline/scripts/test_seed_mapping.py::BeneficiaryMapping::test_labels_and_sensitive_raw_fields_are_not_ingested PASSED [ 33%]
+data-pipeline/scripts/test_seed_mapping.py::BeneficiaryMapping::test_required_model_fields PASSED [ 44%]
+data-pipeline/scripts/test_seed_mapping.py::BeneficiaryMapping::test_single_token_name PASSED [ 55%]
+data-pipeline/scripts/test_seed_mapping.py::ExternalMapping::test_mask_pan PASSED [ 66%]
+data-pipeline/scripts/test_seed_mapping.py::ExternalMapping::test_mismatched_household_rejected PASSED [ 77%]
+data-pipeline/scripts/test_seed_mapping.py::ExternalMapping::test_model_shape PASSED [ 88%]
+data-pipeline/scripts/test_seed_mapping.py::ExternalMapping::test_vehicle_categories PASSED [100%]
+
+============================== 9 passed in 0.03s ===============================

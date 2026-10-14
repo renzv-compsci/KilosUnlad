@@ -32,7 +32,7 @@ The data model already anticipated retention (`admin_resolution.decision: RETAIN
 
 ## 3. Evidence
 - `server/test/workflow.test.js` (transition table) and `server/test/retention.test.js`, both written before the code. Retention covers the contract shape, the task and household writes, the sealed block and the chain. It also covers the cooldown, including that assessment proceeds once the cooldown has passed. Refusals: a graduation report, bad input, wrong roles, no token, other jurisdiction, an unsubmitted task, and no writes on any refusal. Calamity does not block retention. Appeal: granted, denied, a second decision, an early hearing, a stale appeal (filed before the current notice), a forged block, unknown docket, bad input, wrong roles, other jurisdiction and a calamity hold. 7/7 subtests; server suite 172 pass, 0 fail, 3 skipped.
-- `data-pipeline/scripts/test_decision012_retention_flow.js` (Iron Law 1, Docker stack), 23/23:
+- `data-pipeline/scripts/test_decision012_retention_flow.js` (Iron Law 1, Docker stack), 21/21:
   - flag, dispatch, and a report recommending retention;
   - in the browser: keep the household on the program; the model then refuses to re-flag it;
   - in the browser: record a granted appeal; the household leaves the docket and is active again;

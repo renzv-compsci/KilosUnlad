@@ -2,7 +2,7 @@ TAP version 13
 # Subtest: HTTP error boundary sanitizes malformed requests and remains available
 ok 1 - HTTP error boundary sanitizes malformed requests and remains available
   ---
-  duration_ms: 121.183433
+  duration_ms: 133.243279
   type: 'test'
   ...
 1..1
@@ -13,4 +13,4 @@ ok 1 - HTTP error boundary sanitizes malformed requests and remains available
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 561.285199
+# duration_ms 615.613167

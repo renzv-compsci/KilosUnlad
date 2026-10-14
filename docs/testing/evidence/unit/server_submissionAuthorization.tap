@@ -2,43 +2,43 @@ TAP version 13
 # Subtest: active assigned worker may prepare either open status; supplied session reaches all reads
 ok 1 - active assigned worker may prepare either open status; supplied session reaches all reads
   ---
-  duration_ms: 22.020718
+  duration_ms: 29.108874
   type: 'test'
   ...
 # Subtest: missing authentication and malformed submissions stop before reads
 ok 2 - missing authentication and malformed submissions stop before reads
   ---
-  duration_ms: 2.436013
+  duration_ms: 4.000353
   type: 'test'
   ...
 # Subtest: current stored role and activation control access on every call
 ok 3 - current stored role and activation control access on every call
   ---
-  duration_ms: 1.91243
+  duration_ms: 3.430286
   type: 'test'
   ...
 # Subtest: another worker task and missing task both return not found without household reads
 ok 4 - another worker task and missing task both return not found without household reads
   ---
-  duration_ms: 0.629466
+  duration_ms: 1.301885
   type: 'test'
   ...
 # Subtest: household mismatch and missing stored household are rejected
 ok 5 - household mismatch and missing stored household are rejected
   ---
-  duration_ms: 0.784659
+  duration_ms: 1.280967
   type: 'test'
   ...
 # Subtest: stored household scope and current worker jurisdiction are enforced
 ok 6 - stored household scope and current worker jurisdiction are enforced
   ---
-  duration_ms: 2.048406
+  duration_ms: 3.419483
   type: 'test'
   ...
 # Subtest: submitted, resolved and unknown task statuses fail closed
 ok 7 - submitted, resolved and unknown task statuses fail closed
   ---
-  duration_ms: 1.291418
+  duration_ms: 2.395404
   type: 'test'
   ...
 1..7
@@ -49,4 +49,4 @@ ok 7 - submitted, resolved and unknown task statuses fail closed
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 398.751224
+# duration_ms 423.777674

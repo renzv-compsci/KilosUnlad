@@ -2,13 +2,13 @@ TAP version 13
 # Subtest: production precache includes the exact built shell, scripts, styles and branding
 ok 1 - production precache includes the exact built shell, scripts, styles and branding
   ---
-  duration_ms: 12.494887
+  duration_ms: 220.837702
   type: 'test'
   ...
 # Subtest: API and QA navigation never receive app HTML and updates do not interrupt forms
 ok 2 - API and QA navigation never receive app HTML and updates do not interrupt forms
   ---
-  duration_ms: 0.428448
+  duration_ms: 0.540075
   type: 'test'
   ...
 1..2
@@ -19,4 +19,4 @@ ok 2 - API and QA navigation never receive app HTML and updates do not interrupt
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 106.33029
+# duration_ms 331.754741

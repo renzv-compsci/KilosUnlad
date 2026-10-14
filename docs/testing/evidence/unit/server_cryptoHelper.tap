@@ -2,31 +2,31 @@ TAP version 13
 # Subtest: SHA-256 matches the standard known vector
 ok 1 - SHA-256 matches the standard known vector
   ---
-  duration_ms: 3.587449
+  duration_ms: 2.741813
   type: 'test'
   ...
 # Subtest: reordered keys produce identical canonical JSON and entry hashes
 ok 2 - reordered keys produce identical canonical JSON and entry hashes
   ---
-  duration_ms: 1.041132
+  duration_ms: 0.799481
   type: 'test'
   ...
 # Subtest: canonical JSON preserves falsy values and array ordering
 ok 3 - canonical JSON preserves falsy values and array ordering
   ---
-  duration_ms: 0.677561
+  duration_ms: 0.564383
   type: 'test'
   ...
 # Subtest: Date objects and equivalent ISO timestamps hash identically
 ok 4 - Date objects and equivalent ISO timestamps hash identically
   ---
-  duration_ms: 0.432036
+  duration_ms: 0.221602
   type: 'test'
   ...
 # Subtest: the seal binds every field using the existing colon-separated format
 ok 5 - the seal binds every field using the existing colon-separated format
   ---
-  duration_ms: 0.550243
+  duration_ms: 0.354071
   type: 'test'
   ...
 1..5
@@ -37,4 +37,4 @@ ok 5 - the seal binds every field using the existing colon-separated format
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 125.970823
+# duration_ms 107.079865

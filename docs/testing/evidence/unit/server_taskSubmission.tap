@@ -1,77 +1,77 @@
 TAP version 13
-# [0mPOST /api/v1/auth/login [32m200[0m 39.059 ms - 729[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 19.017 ms - 726[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 10.217 ms - 749[0m
-# [0mPOST /api/v1/auth/login [32m200[0m 12.971 ms - 652[0m
-# [0mPOST /api/v1/tasks/TSK-JSON/submit [32m200[0m 58.738 ms - 280[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 29.102 ms - 729[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 15.709 ms - 726[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 11.146 ms - 749[0m
+# [0mPOST /api/v1/auth/login [32m200[0m 10.649 ms - 652[0m
+# [0mPOST /api/v1/tasks/TSK-JSON/submit [32m200[0m 65.911 ms - 280[0m
 # Subtest: INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals REPORT_SUBMITTED
     # Subtest: JSON contract submission: 200 frozen response, findings persisted, audit sealed
     ok 1 - JSON contract submission: 200 frozen response, findings persisted, audit sealed
       ---
-      duration_ms: 86.229052
+      duration_ms: 97.427419
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-MP/submit [32m200[0m 39.346 ms - 278[0m
-# [0mPOST /api/v1/tasks/TSK-MP2/submit [32m200[0m 22.092 ms - 279[0m
+# [0mPOST /api/v1/tasks/TSK-MP/submit [32m200[0m 47.489 ms - 278[0m
+# [0mPOST /api/v1/tasks/TSK-MP2/submit [32m200[0m 26.895 ms - 279[0m
     # Subtest: multipart with matching bytes verifies evidence and stores it content-addressed
     ok 2 - multipart with matching bytes verifies evidence and stores it content-addressed
       ---
-      duration_ms: 90.345605
+      duration_ms: 110.061256
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-URL/submit [33m400[0m 10.072 ms - 116[0m
+# [0mPOST /api/v1/tasks/TSK-URL/submit [33m400[0m 17.649 ms - 116[0m
     # Subtest: uploaded evidence storage_url must be bound to the verified hash
     ok 3 - uploaded evidence storage_url must be bound to the verified hash
       ---
-      duration_ms: 31.126494
+      duration_ms: 43.675135
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m422[0m 12.810 ms - 126[0m
-# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 12.945 ms - 116[0m
-# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 10.867 ms - 116[0m
-# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 3.247 ms - 116[0m
-# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m413[0m 58.583 ms - 89[0m
+# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m422[0m 17.226 ms - 126[0m
+# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 14.583 ms - 116[0m
+# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 12.685 ms - 116[0m
+# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m400[0m 2.969 ms - 116[0m
+# [0mPOST /api/v1/tasks/TSK-EVID/submit [33m413[0m 153.210 ms - 89[0m
     # Subtest: evidence integrity: altered bytes 422, missing files 400, no writes
     ok 4 - evidence integrity: altered bytes 422, missing files 400, no writes
       ---
-      duration_ms: 171.294187
+      duration_ms: 290.927557
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-GEO/submit [33m422[0m 11.336 ms - 128[0m
-# [0mPOST /api/v1/tasks/TSK-GEO/submit [32m200[0m 20.510 ms - 283[0m
+# [0mPOST /api/v1/tasks/TSK-GEO/submit [33m422[0m 14.427 ms - 128[0m
+# [0mPOST /api/v1/tasks/TSK-GEO/submit [32m200[0m 29.467 ms - 283[0m
     # Subtest: geofence breach beyond 250 m is rejected with GEOFENCE_VIOLATION and no writes
     ok 5 - geofence breach beyond 250 m is rejected with GEOFENCE_VIOLATION and no writes
       ---
-      duration_ms: 71.733683
+      duration_ms: 89.162809
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m401[0m 0.390 ms - 90[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m401[0m 0.515 ms - 99[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m403[0m 2.292 ms - 67[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m403[0m 1.739 ms - 67[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m404[0m 6.877 ms - 76[0m
-# [0mPOST /api/v1/tasks/TSK-OTHER/submit [33m400[0m 1.962 ms - 106[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m400[0m 3.191 ms - 106[0m
-# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m400[0m 7.334 ms - 111[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m401[0m 0.412 ms - 90[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m401[0m 0.801 ms - 99[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m403[0m 2.744 ms - 67[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m403[0m 2.177 ms - 67[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m404[0m 8.572 ms - 76[0m
+# [0mPOST /api/v1/tasks/TSK-OTHER/submit [33m400[0m 3.602 ms - 106[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m400[0m 5.686 ms - 106[0m
+# [0mPOST /api/v1/tasks/TSK-SEC/submit [33m400[0m 10.797 ms - 111[0m
     # Subtest: security and identity guards: 401, 403 roles, 404 other worker, 400 mismatch
     ok 6 - security and identity guards: 401, 403 roles, 404 other worker, 400 mismatch
       ---
-      duration_ms: 54.947775
+      duration_ms: 77.041843
       type: 'test'
       ...
-# [0mPOST /api/v1/tasks/TSK-JSON/submit [33m409[0m 8.554 ms - 92[0m
-# [0mPOST /api/v1/tasks/TSK-RACE/submit [32m200[0m 27.844 ms - 280[0m
-# [0mPOST /api/v1/tasks/TSK-RACE/submit [33m409[0m 44.627 ms - 92[0m
+# [0mPOST /api/v1/tasks/TSK-JSON/submit [33m409[0m 10.033 ms - 92[0m
+# [0mPOST /api/v1/tasks/TSK-RACE/submit [32m200[0m 35.305 ms - 280[0m
+# [0mPOST /api/v1/tasks/TSK-RACE/submit [33m409[0m 40.753 ms - 92[0m
     # Subtest: duplicate and simultaneous submissions commit exactly once
     ok 7 - duplicate and simultaneous submissions commit exactly once
       ---
-      duration_ms: 75.143199
+      duration_ms: 83.002042
       type: 'test'
       ...
     1..7
 ok 1 - INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals REPORT_SUBMITTED
   ---
-  duration_ms: 1961.9462
+  duration_ms: 2163.008631
   type: 'test'
   ...
 1..1
@@ -82,4 +82,4 @@ ok 1 - INT-02/INT-06 POST /api/v1/tasks/:id/submit persists findings and seals R
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 2876.043984
+# duration_ms 3126.467212

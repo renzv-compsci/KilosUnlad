@@ -6,46 +6,95 @@ Fifteen scenarios you can run by hand, in the browser, from a clean start, plus 
 - what you should see;
 - what it proves.
 
+Each scenario's ID (S1–S15, D1–D11) and its automated equivalent (TC, CAP, UT) are indexed in `MASTER_TEST_CATALOG.md` §9.
+
 They run on the local Docker stack. (The free-hosting files in `deploy/` are kept but are not used for the demo.)
 - A few actions have no button in the UI: the risk assessment, the calamity declaration, the early-graduation check and the tamper steps. For those, the scenario gives one `curl` or `docker exec` command.
-- **Every scenario starts from §0 (clean start)** unless it says "continue".
+- **Every run starts with §0** (current build, then a data reset). §0.6 says which reset each scenario needs.
+- If something looks wrong, check §T (Troubleshooting) before filing a bug: most reports come from an out-of-date image.
 
 ---
 
-## 0. Clean start
+## 0. Before every run
 
-**Local (Docker):**
-```bash
-docker compose up -d
-docker compose run --rm reset-demo                     # users, indexes, 5 test households, empty ledger
-for f in add_int02_case_a_fixture add_int03_notice_fixture add_dispatch_test; do
-  docker cp data-pipeline/scripts/$f.js kilosunlad-db:/tmp/$f.js
-  docker exec kilosunlad-db mongosh "mongodb://admin_user:RootAdminSecret2026!@localhost:27017/kilosunlad?authSource=admin" --quiet /tmp/$f.js
-done
-```
-- Open <http://localhost>.
-- To use the 80,000-household baseline instead, run `docker compose run --rm -e RESET_BASELINE=1 reset-demo` (or `seed-ingest`) before the fixtures. Totals then show 80,007 households; every other number below stays the same.
+Do these four steps every time you start a test session. Steps 0.1 and 0.2 matter most: an out-of-date image is the usual reason a scenario "fails" (see §T, Troubleshooting).
 
-**Demo dataset (for presenting to the panel):** one command loads the 80,000-household baseline, the test fixtures, and realistic activity created through the API. About 1,500 households are assessed by the model (each flag sealed in the ledger), and 30 flagged households are dispatched to the test caseworker. It takes about a minute and gives the same result every time.
+### 0.1 Get the current code and rebuild the images
 ```bash
-bash data-pipeline/scripts/load_demo_data.sh     # Docker Compose v1: COMPOSE=docker-compose bash ...
+git checkout main && git pull origin main
+docker compose up -d --build          # --build is required: plain "up" reuses old images
+docker compose restart gateway        # nginx keeps old container addresses after a rebuild
 ```
+Docker Compose v1: write `docker-compose` instead of `docker compose` everywhere in this document.
+
+### 0.2 Check that the running build is the current one
+```bash
+git log -1 --oneline
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost/api/v1/insights/overview
+curl -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost/api/v1/tasks/X/retain
+```
+- **Both print `401`** (the route exists and needs a sign-in): the build is current. Continue.
+- **Either prints `404`:** the server image is older than the code. Repeat 0.1 (if needed, `docker compose build --no-cache server client` then `docker compose up -d`).
+- **`502`:** the gateway is pointing at old containers: `docker compose restart gateway`.
+
+### 0.3 Windows (Git Bash) only: run these two lines once per terminal
+```bash
+export MSYS_NO_PATHCONV=1   # stop Git Bash rewriting /tmp and /app paths in docker commands
+set +H                      # stop "!" in passwords from triggering "event not found"
+```
+The scripts in `data-pipeline/scripts/` already do this for themselves. WSL, Linux and macOS need nothing.
+
+### 0.4 Reset the data
+**Small set (for S1–S15):**
+```bash
+bash data-pipeline/scripts/reset_test_data.sh
+```
+Expect the last lines: `households: 7, tasks: 3, ledger blocks: 0` and `Ready.` It runs `reset-demo` (users, indexes, 5 test households, empty ledger) and loads the three fixtures (Case A, Lorna Bautista under notice, Dispatch TestSubject). Then open <http://localhost>.
+
+**Demo dataset (for presenting to the panel, §D):**
+```bash
+bash data-pipeline/scripts/reset_test_data.sh demo
+```
+It loads the 80,000-household baseline, the fixtures, and realistic activity created through the API (about 1,500 households assessed, each flag sealed; 30 dispatched). About a minute; the same result every time.
 - **Expected (Director):** 80,007 households; **627** flagged (score ≥ 70; average 91.2); **31** under investigation; **33** field tasks; 653 ledger blocks.
 - **Triggers:** AI Predicted Level 3 (603), Water > 25 cu.m (432), Meralco > 200 kWh (405), 4-wheel vehicle (168), postpaid telecom (149).
-- **Map:** every household in scope as light navy shading (the 'All households in scope (80,007)' layer). On top are 628 households under review, coloured flagged / open field task / report submitted / notice and grouped into numbered bubbles; click a bubble, or zoom in, to reach single households. Each layer can be switched off.
-- **Smaller variant:** `SAMPLE_PAGES=1 DISPATCH=10 node data-pipeline/scripts/populate_demo.js` on the bare baseline gives about 26 flagged, 11 under investigation and 12 tasks in about 3 seconds.
+- **Map:** every household in scope as light navy shading (the 'All households in scope (80,007)' layer). On top are 628 households under review, coloured by stage and grouped into numbered bubbles; click a bubble, or zoom in, to reach single households. Each layer can be switched off.
 - **Live demo:** Case A (`DEMO-4PS-GRAD-0001`) and the fixtures are left untouched, so S4, S7 and S8 can be performed live on this dataset.
-- The scenario numbers below (S2 and so on) are for the small set. On the demo dataset every flow still works, but the totals are the ones above.
+- The numbers in S2 and later are for the small set. On the demo dataset every flow still works, but the totals are the ones above.
 
-**Helper for the `curl` steps** (paste into Git Bash or WSL):
+### 0.5 Accounts and the helper for the `curl` steps
+| Role | Username | Password |
+| --- | --- | --- |
+| Regional Director | `director_test` | `DirectorTest2026!` |
+| Super Admin | `super_admin_test` | `SuperAdminTest2026!` |
+| Case Worker (Municipal Link) | `case_worker_test` | `CaseWorkerTest2026!` |
+| COA Auditor | `auditor_test` | `AuditorTest2026!` |
+
+Paste this into the same terminal (passwords and the database address are in single quotes on purpose):
 ```bash
-API=http://localhost:5000/api/v1
+API=http://localhost/api/v1
+MONGO_ADMIN='mongodb://admin_user:RootAdminSecret2026!@localhost:27017/kilosunlad?authSource=admin'
 tok() { curl -s -X POST $API/auth/login -H 'Content-Type: application/json' \
   -d "{\"username\":\"$1\",\"password\":\"$2\"}" | sed -E 's/.*"access_token":"([^"]+)".*/\1/'; }
-ADMIN=$(tok super_admin_test SuperAdminTest2026!); DIR=$(tok director_test DirectorTest2026!)
-COA=$(tok auditor_test AuditorTest2026!); CW=$(tok case_worker_test CaseWorkerTest2026!)
+ADMIN=$(tok super_admin_test 'SuperAdminTest2026!'); DIR=$(tok director_test 'DirectorTest2026!')
+COA=$(tok auditor_test 'AuditorTest2026!'); CW=$(tok case_worker_test 'CaseWorkerTest2026!')
+echo "${DIR:0:20}..."      # should start with eyJ; empty means the login failed
 ```
-Tokens expire after 15 minutes; re-run the last two lines if a `curl` returns 401.
+Tokens expire after 15 minutes; re-run the last three lines if a `curl` returns 401.
+
+### 0.6 Which reset each scenario needs
+| Scenario | Start from | Notes |
+| --- | --- | --- |
+| S1, S2, S3, S11, S12 | 0.4 small set | read-only; can run one after another without a reset |
+| S4 → S5 | 0.4 small set | S5 continues from S4 (the task you dispatched) |
+| S6 | 0.4 small set | uses Rosa Villanueva's existing task |
+| S7 | 0.4 small set | Case A must not have been assessed yet |
+| S8 | 0.4 small set | Lorna Bautista's notice must not have an appeal yet |
+| S9, S10 | 0.4 small set | reset afterwards (S9 leaves a calamity record; S10 breaks the ledger on purpose) |
+| S13 | 0.4 small set | chains S7 → S4 → S5 for Case A |
+| S14 | 0.4 small set | chains S7 → S4 → S5 for Case A, with a "retain" report |
+| S15 | 0.4 small set | uses Lorna Bautista; reset between "Granted" and "Denied" |
+| D1–D11 | 0.4 demo dataset | in the order of §D |
 
 ### What the clean data contains (small set)
 
@@ -57,14 +106,14 @@ Tokens expire after 15 minutes; re-run the last two lines if a `curl` returns 40
 | TEST-4PS-0004 | Rosa Villanueva | Palingon | Flagged for review, task assigned | 68 |
 | TEST-4PS-DISPATCH-0001 | Dispatch TestSubject | Palingon | Flagged for review, no task | 72 |
 | TEST-4PS-NOTICE-0001 | Lorna Bautista | Palingon | Notice of ineligibility (15-day window open) | — |
-| DEMO-4PS-GRAD-0001 | Case A (graduation drift) | Real | Active, compliant, not yet assessed | — |
+| DEMO-4PS-GRAD-0001 | Miguel Villanueva ("Case A", graduation drift) | Real | Active, compliant, not yet assessed | — |
 
 The ledger is empty. Every block you see later was created by your own actions.
 
 ---
 
 ## S1. Sign-in and role routing
-1. Sign in as each account in turn (usernames and passwords are in the helper at the end of §0). Each lands on its own screen:
+1. Sign in as each account in turn (accounts in §0.5). Each lands on its own screen:
    - **Director:** Executive Overview.
    - **Super Admin:** Executive Overview, plus Audit Verification in the menu.
    - **Case Worker:** Assigned Tasks.
@@ -122,15 +171,22 @@ The ledger is empty. Every block you see later was created by your own actions.
 
 ## S5. Field visit with geotagged evidence (continue from S4)
 1. Sign in as `case_worker_test` → **Assigned Tasks**. Rosa Villanueva and Dispatch TestSubject are listed.
-2. The geofence needs you to "stand" within 250 m of the household. In Chrome, open **DevTools → ⋮ → More tools → Sensors → Location → Other** and set latitude **14.2120**, longitude **121.1660** (Dispatch TestSubject).
-3. Start the visit, complete the 5 steps, and attach a photo (any JPEG). Submit.
-4. Repeat with the location set to Manila (14.5995, 120.9842).
+2. The geofence needs you to "stand" within 250 m of the household. **Before starting**, in Chrome open **DevTools → ⋮ → More tools → Sensors → Location → Other** and set latitude **14.2120**, longitude **121.1660** (Dispatch TestSubject). Allow location when the browser asks.
+3. Click **Start In-Person Verification** on Dispatch TestSubject and complete the 5 steps:
+   - Step 1: pick one option for wall, roof and water.
+   - Step 2: answer the vehicle question.
+   - Step 3: answer the three LandBank card questions.
+   - Step 4: attach a photo (any JPEG/PNG). Wait until its SHA-256 hash is shown.
+   - Step 5: choose the verified SWDI level and a recommendation, write the narrative, then click **Save Report on This Device** (it queues the report for sync).
+4. The **Saved Drafts** panel opens. Online, the report syncs by itself within a few seconds (the button reads *Synchronizing…*); if it is still pending, click **Sync Now (1 Pending)**.
+5. Repeat steps 3–4 for **Rosa Villanueva** with the location set to Manila (14.5995, 120.9842).
 
 **Expect:**
 - With the Calamba location, the report is accepted and the task leaves your list.
 - The director's Caseworker Dispatch shows *Report submitted*.
 - The COA ledger shows a **REPORT_SUBMITTED** block.
-- With the Manila location, the server rejects the submission (outside the 250 m geofence). The report stays saved on the device.
+- With the Manila location, the server rejects the submission (outside the 250 m geofence). The report stays saved on the device as pending.
+- The sync button never reads *Submission unavailable*. If it does, the client image is out of date (§T).
 
 **Proves:** geofencing, the SHA-256 photo check, and the audit trail. The director can now open this report and its photo (S13).
 
@@ -191,7 +247,7 @@ curl -s -X POST $API/calamity/toggle -H "Authorization: Bearer $ADMIN" -H 'Conte
 1. As `auditor_test` → **Audit Verification**. Verify range 1 to the last block number shown on Audit Overview. Result: valid.
 2. Tamper with block 1 directly in the database, as an insider would:
    ```bash
-   docker exec kilosunlad-db mongosh "mongodb://admin_user:RootAdminSecret2026!@localhost:27017/kilosunlad?authSource=admin" \
+   docker exec kilosunlad-db mongosh "$MONGO_ADMIN" \
      --quiet --eval 'db.audit_logs.updateOne({sequence_index:1},{$set:{"state_delta.after.tampered":true}})'
    ```
 3. Verify again.
@@ -237,7 +293,7 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST $API/calamity/toggle -H "Author
    ```
 6. *Optional, local only:* to see the end of the window without waiting 15 days, move the notice back in the test data. Then reload Due Process:
    ```bash
-   docker exec kilosunlad-db mongosh "mongodb://admin_user:RootAdminSecret2026!@localhost:27017/kilosunlad?authSource=admin" --quiet \
+   docker exec kilosunlad-db mongosh "$MONGO_ADMIN" --quiet \
      --eval 'db.verification_tasks.updateOne({household_id:"DEMO-4PS-GRAD-0001","admin_resolution.decision":"APPROVED_GRADUATION"},{$set:{"admin_resolution.finalized_at":new Date(Date.now()-16*864e5)}})'
    ```
 
@@ -331,7 +387,29 @@ Reset (§0) before a second run. After a session with real users, record their r
 
 ---
 
+## T. Troubleshooting (check this before filing a bug)
+
+| What you see | Cause | Fix |
+| --- | --- | --- |
+| Dashboard shows **4,850** households, a **Sample data** label, or names such as *Municipal Link #ML-04* | Client image built before the live-data release (DECISION-010) | §0.1 then §0.2 |
+| `GET /api/v1/insights/overview` returns **404** in the Network tab | Server image built before DECISION-010 | §0.1; §0.2 must print `401` |
+| Dispatch dialog asks for a **Caseworker account ID** with "A staff directory is not available yet" | Old client image | §0.1 |
+| Dispatch dialog asks for an account ID with "The caseworker directory could not be loaded" | Current client, but `GET /users/caseworkers` failed (server down or old) | §0.2; check `docker compose ps` |
+| Sync button reads **Submission unavailable** | Client image from before Sprint 5 (offline sync release) | §0.1 |
+| Field operations list shows tasks that are not in the small set | Demo dataset loaded, or an old image with built-in samples | §0.4 small set; §0.1 |
+| **502 Bad Gateway** after a rebuild | nginx still points at the old containers | `docker compose restart gateway` |
+| `bash: !@localhost: event not found` | Git Bash history expansion on `!` inside double quotes | §0.3 (`set +H`) and single quotes as in §0.5 |
+| `docker cp` / `docker exec` cannot find `/tmp/...` or `/app/...` | Git Bash rewrote the path to a Windows folder | §0.3 (`export MSYS_NO_PATHCONV=1`), or use `reset_test_data.sh` |
+| `curl` returns **401** in the middle of a session | Tokens last 15 minutes | re-run the last three lines of §0.5 |
+| A scenario's numbers differ from the document | Data from an earlier scenario, or the demo dataset | §0.6 and §0.4 |
+
+---
+
 ### Record your results
+Write the build you tested (`git log -1 --oneline`, §0.2) at the top of every run:
+
+**Build:** __________ **§0.2 printed 401 / 401:** yes / no **Dataset:** small / demo
+
 | Scenario | Date | Tester | Pass / Fail | Notes |
 | --- | --- | --- | --- | --- |
 | S1 | | | | |
