@@ -87,7 +87,7 @@ Tokens expire after 15 minutes; re-run the last three lines if a `curl` returns 
 | --- | --- | --- |
 | S1, S2, S3, S11, S12 | 0.4 small set | read-only; can run one after another without a reset |
 | S4 → S5 | 0.4 small set | S5 continues from S4 (the task you dispatched) |
-| S6 | 0.4 small set | uses Rosa Villanueva's existing task |
+| S6 | 0.4 small set | uses Rosa Villanueva's existing task; reset between part A and part B |
 | S7 | 0.4 small set | Case A must not have been assessed yet |
 | S8 | 0.4 small set | Lorna Bautista's notice must not have an appeal yet |
 | S9, S10 | 0.4 small set | reset afterwards (S9 leaves a calamity record; S10 breaks the ledger on purpose) |
@@ -190,14 +190,31 @@ The ledger is empty. Every block you see later was created by your own actions.
 
 **Proves:** geofencing, the SHA-256 photo check, and the audit trail. The director can now open this report and its photo (S13).
 
-## S6. Offline visit (airplane mode)
-1. As the caseworker, with a task in the list, open **DevTools → Network → Offline** (or use the in-app *Work Offline* toggle).
-2. Fill in and save the report. It appears in **Saved Drafts** as pending, and the Field Overview card shows **1 Pending**.
-3. Go back online.
+## S6. Offline visit (airplane mode) and a server outage
+Both parts are real on localhost: in part A the browser itself has no network; in part B the server container is actually stopped. Use **Rosa Villanueva**'s task and set DevTools → Sensors → Location to **14.2130, 121.1680** (her house) before starting. Reset (§0.4) between A and B.
 
-**Expect:** the draft syncs by itself, and the pending count returns to 0. No data is lost, and nothing is sent twice.
+**Part A: the browser goes offline**
+1. Sign in as `case_worker_test` and open **Assigned Tasks** while online (the tasks are cached on the device).
+2. In DevTools → **Network**, change *No throttling* to **Offline**. (The in-app **Work Offline** button does the same inside the app.)
+3. Start Rosa's visit, complete the 5 steps with a photo, and click **Save Report on This Device**.
+4. Check: **Saved Drafts** shows the report as pending, the Field Overview card shows **1 Pending**, and the sync button reads *Connect Wi-Fi to Push Data*. In DevTools → **Application → IndexedDB → kilosunlad_field**, the draft is stored with `PENDING_SYNC`.
+5. Set Network back to **No throttling**.
 
-**Proves:** the offline-first PWA (STR-02).
+**Part B: the server is down (stronger proof)**
+1. Same as A1, but stay online.
+2. Start Rosa's visit and fill in the 5 steps, but do **not** save yet.
+3. In a terminal: `docker compose stop server`
+4. Click **Save Report on This Device**. The sync attempt fails (DevTools → Network shows a 502 from the gateway); the report stays in **Saved Drafts** as **Sync Now (1 Pending)**.
+5. `docker compose start server`, wait about 10 seconds, then `docker compose restart gateway`.
+6. Click **Sync Now** if the report has not already gone by itself.
+
+**Expect (both parts):**
+- While offline or while the server is down, nothing is lost: the report waits on the device.
+- When the connection or the server returns, the report uploads, the pending count returns to **0**, and Rosa's task leaves Assigned Tasks.
+- The director's Caseworker Dispatch shows *Report submitted* for Rosa, and the COA ledger gains **one** REPORT_SUBMITTED block (not two: nothing is sent twice).
+- A report the server refuses for a reason that will not change (for example outside the geofence, S5 step 5) is kept on the device as **ERROR** instead of being retried forever.
+
+**Proves:** the offline-first PWA (STR-02): local storage in IndexedDB, automatic retry on reconnect, no loss and no duplicates. Automated equivalent: `test_str02_airplane_sync.js` (TC-07, TC-10); part B was also re-checked by script on 2026-10-14 (`evidence/qa-recheck-2026-10-14/`).
 
 ## S7. Case A: the model catches graduation drift (API step)
 ```bash
