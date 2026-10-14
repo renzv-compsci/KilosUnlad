@@ -142,6 +142,27 @@ function createInsights({ beneficiaries = Beneficiary, tasks = VerificationTask,
       };
     },
 
+    // Map density (admin-map-density.json): counts per 0.002-degree cell, no identities.
+    async mapDensity(query, scope) {
+      parse(query, []);
+      ready();
+      const CELL = 0.002;
+      const REVIEW = ['FLAGGED_FOR_REVIEW', 'UNDER_INVESTIGATION', 'NOTICE_OF_INELIGIBILITY'];
+      const cells = await beneficiaries.aggregate([
+        { $match: { $and: [scope, { 'address.coordinates.coordinates.1': { $exists: true } }] } },
+        { $group: {
+          _id: { x: { $floor: { $divide: [{ $arrayElemAt: ['$address.coordinates.coordinates', 0] }, CELL] } },
+            y: { $floor: { $divide: [{ $arrayElemAt: ['$address.coordinates.coordinates', 1] }, CELL] } } },
+          households: { $sum: 1 },
+          active_compliant: { $sum: { $cond: [{ $eq: ['$program_status', 'ACTIVE_COMPLIANT'] }, 1, 0] } },
+          under_review: { $sum: { $cond: [{ $in: ['$program_status', REVIEW] }, 1, 0] } } } },
+        { $sort: { '_id.y': 1, '_id.x': 1 } }]);
+      return { generated_at: now().toISOString(), cell_size_deg: CELL,
+        total_households: cells.reduce((sum, c) => sum + c.households, 0),
+        cells: cells.map(c => ({ center: [round((c._id.x + 0.5) * CELL, 4), round((c._id.y + 0.5) * CELL, 4)],
+          households: c.households, active_compliant: c.active_compliant, under_review: c.under_review })) };
+    },
+
     async tasksList(query, scope) {
       parse(query, ['status', 'page', 'limit']);
       if (query.status && !Object.values(TASK_STATUSES).includes(query.status)) throw invalid();

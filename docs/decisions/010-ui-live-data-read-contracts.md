@@ -30,6 +30,7 @@ No existing route returned these aggregates, and the frozen contracts in `docs/c
 | `GET /tasks` | `admin-task-list.json` | SUPER_ADMIN, REGIONAL_DIRECTOR | tasks joined to their household, then `scopeJurisdiction` |
 | `GET /users/caseworkers` | `admin-caseworker-directory.json` | SUPER_ADMIN, REGIONAL_DIRECTOR | directors: same province and municipality, at least one shared barangay |
 | `GET /audit/blocks` | `audit-block-list.json` | COA_AUDITOR, SUPER_ADMIN | headers only; no `state_delta` |
+| `GET /insights/map` | `admin-map-density.json` | SUPER_ADMIN, REGIONAL_DIRECTOR, COA_AUDITOR | `scopeJurisdiction`; household counts per 0.002° cell, no identities (addendum 2026-10-14, for the map's "All households" layer) |
 | `GET /system/policy` | `admin-policy.json` | SUPER_ADMIN, REGIONAL_DIRECTOR, COA_AUDITOR | directors see only their municipality's calamity zones |
 
 * Unknown query parameters return 400 `INVALID_QUERY`.

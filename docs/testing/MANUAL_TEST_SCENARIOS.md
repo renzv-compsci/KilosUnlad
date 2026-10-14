@@ -32,7 +32,8 @@ bash data-pipeline/scripts/load_demo_data.sh     # Docker Compose v1: COMPOSE=do
 ```
 - **Expected (Director):** 80,007 households; **627** flagged (score ≥ 70; average 91.2); **31** under investigation; **33** field tasks; 653 ledger blocks.
 - **Triggers:** AI Predicted Level 3 (603), Water > 25 cu.m (432), Meralco > 200 kWh (405), 4-wheel vehicle (168), postpaid telecom (149).
-- **Map:** 628 households under review, grouped into numbered bubbles. Click a bubble, or zoom in, to reach single households.
+- **Map:** every household in scope as light navy shading (the 'All households in scope (80,007)' layer). On top are 628 households under review, coloured flagged / open field task / report submitted / notice and grouped into numbered bubbles; click a bubble, or zoom in, to reach single households. Each layer can be switched off.
+- **Smaller variant:** `SAMPLE_PAGES=1 DISPATCH=10 node data-pipeline/scripts/populate_demo.js` on the bare baseline gives about 26 flagged, 11 under investigation and 12 tasks in about 3 seconds.
 - **Live demo:** Case A (`DEMO-4PS-GRAD-0001`) and the fixtures are left untouched, so S4, S7 and S8 can be performed live on this dataset.
 - The scenario numbers below (S2 and so on) are for the small set. On the demo dataset every flow still works, but the totals are the ones above.
 

@@ -23,14 +23,18 @@ export interface MapHousehold {
   municipality: string;
   score: number;
   status: string;
+  task?: string; // latest field-task status for this household, when there is one
   coordinates: [number, number]; // [longitude, latitude]
 }
+
+export interface DensityCell { center: [number, number]; households: number; active_compliant: number; under_review: number }
 
 interface MinimalPhMapProps {
   pins: ClusterPin[];
   selectedCluster: string | null;
   onSelectCluster: (municipality: string) => void;
   households?: MapHousehold[];
+  density?: DensityCell[];
   onOpenHousehold?: (householdId: string) => void;
 }
 
@@ -39,12 +43,18 @@ const COLORS = { RED: '#b83f62', AMBER: '#c98a1c', GREEN: '#2f7d5b', NAVY: '#132
 const LAGUNA_CENTER: LatLngExpression = [14.22, 121.17];
 const toLatLng = ([lon, lat]: [number, number]): [number, number] => [lat, lon];
 const valid = (c?: [number, number]) => Array.isArray(c) && c.length === 2 && c.every(Number.isFinite) && !(c[0] === 0 && c[1] === 0);
-// Household dots are coloured by review stage, in the system palette.
+// Household dots are coloured by stage, in the system palette. A household under investigation
+// is split by its field task: visit still open, or report already submitted.
 const STAGES: Record<string, { color: string; label: string }> = {
-  FLAGGED_FOR_REVIEW: { color: '#c2416b', label: 'Flagged for review' },
-  UNDER_INVESTIGATION: { color: '#d4901f', label: 'Under investigation (visit dispatched)' },
+  FLAGGED_FOR_REVIEW: { color: '#c2416b', label: 'Flagged, awaiting dispatch' },
+  OPEN_FIELD_TASK: { color: '#d4901f', label: 'Open field task' },
+  REPORT_SUBMITTED: { color: '#2f7d7a', label: 'Report submitted' },
   NOTICE_OF_INELIGIBILITY: { color: '#2f5d8a', label: 'Notice of ineligibility' },
 };
+const STAGE_ORDER = Object.keys(STAGES);
+const stageKey = (h: MapHousehold) => h.status !== 'UNDER_INVESTIGATION' ? h.status
+  : h.task === 'SUBMITTED' ? 'REPORT_SUBMITTED' : 'OPEN_FIELD_TASK';
+const DENSITY_COLOR = '#132e4f';
 // Basemaps: "Streets" is the familiar road map (yellow/orange roads, green parks, blue water, labels);
 // "Light" is a muted style. Both are free with the attribution shown on the map.
 const BASEMAPS = {
@@ -69,7 +79,7 @@ function householdIcon(color: string, pulse: boolean): L.DivIcon {
   return iconCache.get(key)!;
 }
 
-const stageOf = (status: string) => STAGES[status] ?? { color: '#6b7789', label: status.replace(/_/g, ' ').toLowerCase() };
+const stageOf = (key: string) => STAGES[key] ?? { color: '#6b7789', label: key.replace(/_/g, ' ').toLowerCase() };
 
 // Keeps the view on the data: fits everything on load and flies to a selected municipality.
 const ViewController: React.FC<{ bounds: LatLngBoundsExpression | null; focus: [number, number] | null; resetKey: number }> = ({ bounds, focus, resetKey }) => {
@@ -90,8 +100,6 @@ const ViewController: React.FC<{ bounds: LatLngBoundsExpression | null; focus: [
   return null;
 };
 
-// Stage order used for the cluster tooltip breakdown.
-const STAGE_RANK = ['NOTICE_OF_INELIGIBILITY', 'FLAGGED_FOR_REVIEW', 'UNDER_INVESTIGATION'];
 const CLUSTER_CELL_PX = 80;
 const CLUSTER_UNTIL_ZOOM = 17;
 
@@ -111,7 +119,7 @@ const HouseholdPopup: React.FC<{ h: MapHousehold; onOpenHousehold?: (id: string)
       <span>{h.household_id}</span>
       <span>{h.barangay}, {h.municipality}</span>
       <span>Risk score <b>{h.score.toFixed(1)}</b> / 100</span>
-      <span className="map-popup-stage"><i style={{ background: stageOf(h.status).color }} />{stageOf(h.status).label}</span>
+      <span className="map-popup-stage"><i style={{ background: stageOf(stageKey(h)).color }} />{stageOf(stageKey(h)).label}</span>
       {onOpenHousehold && <button type="button" onClick={() => onOpenHousehold(h.household_id)}>Open Triage Queue</button>}
     </div>
   </Popup>
@@ -138,8 +146,8 @@ const HouseholdLayer: React.FC<{ households: MapHousehold[]; onOpenHousehold?: (
     if (members.length === 1) {
       const h = members[0];
       return (
-        <Marker key={key} position={toLatLng(h.coordinates)} title={`${h.name}, ${stageOf(h.status).label}`}
-          icon={householdIcon(stageOf(h.status).color, h.status === 'FLAGGED_FOR_REVIEW')}>
+        <Marker key={key} position={toLatLng(h.coordinates)} title={`${h.name}, ${stageOf(stageKey(h)).label}`}
+          icon={householdIcon(stageOf(stageKey(h)).color, stageKey(h) === 'FLAGGED_FOR_REVIEW')}>
           <HouseholdPopup h={h} onOpenHousehold={onOpenHousehold} />
           <Tooltip direction="top">{h.name} · score {h.score.toFixed(0)}</Tooltip>
         </Marker>
@@ -149,9 +157,9 @@ const HouseholdLayer: React.FC<{ households: MapHousehold[]; onOpenHousehold?: (
     const lng = members.reduce((sum, h) => sum + h.coordinates[0], 0) / members.length;
     // Bubble colour = the stage most households inside are in; the tooltip gives the exact breakdown.
     const tally = new Map<string, number>();
-    for (const h of members) tally.set(h.status, (tally.get(h.status) ?? 0) + 1);
+    for (const h of members) tally.set(stageKey(h), (tally.get(stageKey(h)) ?? 0) + 1);
     const majority = [...tally.entries()].sort((a, b) => b[1] - a[1])[0][0];
-    const counts = STAGE_RANK.map(stage => [stageOf(stage).label, members.filter(h => h.status === stage).length] as const).filter(([, n]) => n);
+    const counts = STAGE_ORDER.map(stage => [stageOf(stage).label, tally.get(stage) ?? 0] as const).filter(([, n]) => n);
     return (
       <Marker key={key} position={[lat, lng]} title={`${members.length} households. Click to zoom in.`}
         icon={clusterIcon(members.length, stageOf(majority).color)}
@@ -162,19 +170,40 @@ const HouseholdLayer: React.FC<{ households: MapHousehold[]; onOpenHousehold?: (
   })}</>;
 };
 
-export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluster, onSelectCluster, households = [], onOpenHousehold }) => {
-  const [showMunicipalities, setShowMunicipalities] = useState(households.length === 0);
-  const [showHouseholds, setShowHouseholds] = useState(true);
+// Every household in scope, as counts per ~220 m cell (GET /insights/map): drawn on a canvas so
+// thousands of cells stay fast. Darker and larger = more households.
+const DensityLayer: React.FC<{ cells: DensityCell[] }> = ({ cells }) => {
+  const max = Math.max(1, ...cells.map(c => c.households));
+  return <>{cells.map(c => (
+    <CircleMarker key={`${c.center[0]}:${c.center[1]}`} center={toLatLng(c.center)} radius={2 + 6 * Math.sqrt(c.households / max)}
+      pathOptions={{ stroke: false, fillColor: DENSITY_COLOR, fillOpacity: 0.06 + 0.2 * (c.households / max) }}>
+      <Tooltip direction="top">{c.households.toLocaleString()} household{c.households === 1 ? '' : 's'} · {c.active_compliant.toLocaleString()} compliant · {c.under_review} under review</Tooltip>
+    </CircleMarker>
+  ))}</>;
+};
+
+export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluster, onSelectCluster, households = [], density = [], onOpenHousehold }) => {
+  const [showMunicipalities, setShowMunicipalities] = useState(households.length === 0 && density.length === 0);
+  const [showDensity, setShowDensity] = useState(true);
+  const [hiddenStages, setHiddenStages] = useState<Set<string>>(new Set());
+  const toggleStage = (key: string) => setHiddenStages(current => {
+    const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next;
+  });
   const [tilesFailed, setTilesFailed] = useState(false);
   const [basemap, setBasemap] = useState<BasemapKey>('streets');
   const [resetKey, setResetKey] = useState(0);
   const mappedHouseholds = households.filter(h => valid(h.coordinates));
+  const visibleHouseholds = mappedHouseholds.filter(h => !hiddenStages.has(stageKey(h)));
+  const stageCounts = new Map<string, number>();
+  for (const h of mappedHouseholds) stageCounts.set(stageKey(h), (stageCounts.get(stageKey(h)) ?? 0) + 1);
+  const densityTotal = density.reduce((sum, c) => sum + c.households, 0);
   const bounds = useMemo<LatLngBoundsExpression | null>(() => {
-    const points = [...pins.filter(p => valid(p.coordinates)).map(p => toLatLng(p.coordinates)), ...mappedHouseholds.map(h => toLatLng(h.coordinates))];
+    const points = [...pins.filter(p => valid(p.coordinates)).map(p => toLatLng(p.coordinates)), ...mappedHouseholds.map(h => toLatLng(h.coordinates)),
+      ...density.map(c => toLatLng(c.center))];
     if (!points.length) return null;
     if (points.length === 1) { const [lat, lng] = points[0]; return [[lat - 0.03, lng - 0.03], [lat + 0.03, lng + 0.03]]; }
     return points;
-  }, [JSON.stringify(pins.map(p => p.coordinates)), JSON.stringify(mappedHouseholds.map(h => h.coordinates))]);
+  }, [JSON.stringify(pins.map(p => p.coordinates)), JSON.stringify(mappedHouseholds.map(h => h.coordinates)), density.length]);
   const selected = pins.find(p => p.municipality === selectedCluster);
   const focus = useMemo(() => selected && valid(selected.coordinates) ? toLatLng(selected.coordinates) : null,
     [selected?.municipality]);
@@ -197,15 +226,20 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluste
             );
           })}
         </div>
-        <div className="flex flex-wrap items-center gap-2 text-[12px]">
-          <span className="flex items-center gap-1 text-stone-500"><Layers className="w-3.5 h-3.5" aria-hidden="true" />Show:</span>
-          <label className="map-toggle"><input type="checkbox" checked={showMunicipalities} onChange={e => setShowMunicipalities(e.target.checked)} />Municipalities</label>
-          <label className="map-toggle"><input type="checkbox" checked={showHouseholds} onChange={e => setShowHouseholds(e.target.checked)} />Households under review ({mappedHouseholds.length.toLocaleString()})</label>
-        </div>
+      </div>
+      <div className="map-layer-bar" role="group" aria-label="Map layers">
+        <span className="flex items-center gap-1 text-stone-500"><Layers className="w-3.5 h-3.5" aria-hidden="true" />Show:</span>
+        {density.length > 0 && <label className="map-toggle"><input type="checkbox" checked={showDensity} onChange={e => setShowDensity(e.target.checked)} />
+          <span className="map-dot" style={{ background: DENSITY_COLOR, opacity: 0.55 }} />All households in scope ({densityTotal.toLocaleString()})</label>}
+        {STAGE_ORDER.filter(key => stageCounts.get(key)).map(key => (
+          <label key={key} className="map-toggle"><input type="checkbox" checked={!hiddenStages.has(key)} onChange={() => toggleStage(key)} />
+            <span className="map-dot" style={{ background: STAGES[key].color }} />{STAGES[key].label} ({(stageCounts.get(key) ?? 0).toLocaleString()})</label>
+        ))}
+        <label className="map-toggle"><input type="checkbox" checked={showMunicipalities} onChange={e => setShowMunicipalities(e.target.checked)} />Municipalities</label>
       </div>
 
-      <div className="live-map-canvas" role="region" aria-label="Interactive map of municipalities and flagged households. Use the municipality buttons above for keyboard access.">
-        <MapContainer center={LAGUNA_CENTER} zoom={13} scrollWheelZoom={false} zoomControl={false} className="h-full w-full" attributionControl>
+      <div className="live-map-canvas" role="region" aria-label="Interactive map of all households, flagged households and field tasks. Use the buttons above for keyboard access.">
+        <MapContainer center={LAGUNA_CENTER} zoom={13} scrollWheelZoom={false} zoomControl={false} preferCanvas className="h-full w-full" attributionControl>
           <ZoomControl position="topright" />
           <TileLayer key={basemap}
             url={BASEMAPS[basemap].url}
@@ -215,6 +249,7 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluste
             eventHandlers={{ tileerror: () => setTilesFailed(true), tileload: () => setTilesFailed(false) }}
           />
           <ViewController bounds={bounds} focus={focus} resetKey={resetKey} />
+          {showDensity && density.length > 0 && <DensityLayer cells={density} />}
           {showMunicipalities && pins.filter(p => valid(p.coordinates)).map(pin => {
             const isSelected = selectedCluster === pin.municipality;
             const radius = 14 + 16 * Math.sqrt(pin.flaggedCount / maxFlagged);
@@ -230,7 +265,7 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluste
               </React.Fragment>
             );
           })}
-          {showHouseholds && <HouseholdLayer households={mappedHouseholds} onOpenHousehold={onOpenHousehold} />}
+          <HouseholdLayer households={visibleHouseholds} onOpenHousehold={onOpenHousehold} />
         </MapContainer>
         <div className="map-basemap-switch" role="group" aria-label="Map style">
           {(Object.keys(BASEMAPS) as BasemapKey[]).map(key => (
@@ -244,10 +279,9 @@ export const MinimalPhMap: React.FC<MinimalPhMapProps> = ({ pins, selectedCluste
       </div>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-stone-600 pt-1">
-        {Object.values(STAGES).map(stage => (
-          <span key={stage.label} className="flex items-center gap-1.5"><span className="map-dot" style={{ background: stage.color }} />{stage.label}</span>
-        ))}
+        {density.length > 0 && <span className="flex items-center gap-1.5"><span className="map-dot" style={{ background: DENSITY_COLOR, opacity: 0.55 }} />Light navy shading: all households (darker = more)</span>}
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full border-2 border-dashed" style={{ borderColor: COLORS.HALO }} />Calamity moratorium</span>
+        <span className="flex items-center gap-1.5">Numbered bubbles group nearby households; click one to zoom in.</span>
         {showMunicipalities && <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3" aria-hidden="true" />Circle size = flagged households</span>}
       </div>
     </div>

@@ -455,6 +455,7 @@ test('UI live-data reads call the DECISION-010 routes with the bearer and reject
     '/users/caseworkers': { items: [] },
     '/audit/blocks': { items: [], total_blocks: 0, next_before: null },
     '/system/policy': { risk_score: { flag_threshold: 70, weights: {}, cap: 100 } },
+    '/insights/map': { cell_size_deg: 0.002, total_households: 0, cells: [] },
   };
   app.api.defaults.adapter = async (config) => {
     assert.equal(config.headers.Authorization, `Bearer ${session.access_token}`);
@@ -467,10 +468,11 @@ test('UI live-data reads call the DECISION-010 routes with the bearer and reject
   await app.fetchCaseworkers();
   await app.fetchAuditBlocks({ limit: 8 });
   await app.fetchPolicy();
+  await app.fetchMapDensity();
   assert.deepEqual(seen, [['/insights/overview', {}], ['/tasks', { status: 'SUBMITTED', page: 2, limit: 20 }],
-    ['/users/caseworkers', {}], ['/audit/blocks', { limit: 8 }], ['/system/policy', {}]]);
+    ['/users/caseworkers', {}], ['/audit/blocks', { limit: 8 }], ['/system/policy', {}], ['/insights/map', {}]]);
   app.api.defaults.adapter = async (config) => ({ config, status: 200, headers: {}, data: {} });
-  for (const call of [app.fetchInsightsOverview, app.fetchAdminTasks, app.fetchCaseworkers, app.fetchAuditBlocks, app.fetchPolicy]) {
+  for (const call of [app.fetchInsightsOverview, app.fetchAdminTasks, app.fetchCaseworkers, app.fetchAuditBlocks, app.fetchPolicy, app.fetchMapDensity]) {
     await assert.rejects(call(), /did not match the contract/);
   }
 });
