@@ -1,13 +1,13 @@
 # KilosUnlad: scenarios to test yourself
 
-Thirteen scenarios you can run by hand, in the browser, from a clean start. Each scenario lists:
+Thirteen scenarios you can run by hand, in the browser, from a clean start, plus a 15-minute live-demo run order for the panel (§D). Each scenario lists:
 - the account to use;
 - the steps;
 - what you should see;
 - what it proves.
 
-They work on the local Docker stack and on the hosted copy (`deploy/HOSTING_GUIDE.md`).
-- A few actions have no button in the UI: the risk assessment, the calamity declaration, and the ledger tamper. For those, the scenario gives one `curl` command.
+They run on the local Docker stack. (The free-hosting files in `deploy/` are kept but are not used for the demo.)
+- A few actions have no button in the UI: the risk assessment, the calamity declaration, the early-graduation check and the tamper steps. For those, the scenario gives one `curl` or `docker exec` command.
 - **Every scenario starts from §0 (clean start)** unless it says "continue".
 
 ---
@@ -37,9 +37,7 @@ bash data-pipeline/scripts/load_demo_data.sh     # Docker Compose v1: COMPOSE=do
 - **Live demo:** Case A (`DEMO-4PS-GRAD-0001`) and the fixtures are left untouched, so S4, S7 and S8 can be performed live on this dataset.
 - The scenario numbers below (S2 and so on) are for the small set. On the demo dataset every flow still works, but the totals are the ones above.
 
-**Hosted:** re-run `deploy/atlas_seed.sh` (use `SEED_80K=0` for the small set). Wake both Render services first: open each `/health` URL and wait.
-
-**Helper for the `curl` steps** (paste into Git Bash or WSL; set `API` to the hosted URL when testing online):
+**Helper for the `curl` steps** (paste into Git Bash or WSL):
 ```bash
 API=http://localhost:5000/api/v1
 tok() { curl -s -X POST $API/auth/login -H 'Content-Type: application/json' \
@@ -66,7 +64,7 @@ The ledger is empty. Every block you see later was created by your own actions.
 ---
 
 ## S1. Sign-in and role routing
-1. Sign in as each account in turn (passwords are in `deploy/HOSTING_GUIDE.md` §7). Each lands on its own screen:
+1. Sign in as each account in turn (usernames and passwords are in the helper at the end of §0). Each lands on its own screen:
    - **Director:** Executive Overview.
    - **Super Admin:** Executive Overview, plus Audit Verification in the menu.
    - **Case Worker:** Assigned Tasks.
@@ -87,7 +85,9 @@ The ledger is empty. Every block you see later was created by your own actions.
 - *Flagged* tab:
   - triggers Meralco > 200 kWh (2), AI Predicted Level 3 (2), Registered Motorcycle (1);
   - severity 2 critical / 2 high / 3 below 70.
-- The map is a road map like Google Maps (main roads in yellow and orange, parks, water, street labels) that you can drag and zoom (buttons at the top right). Switch **Streets / Light** at the top left; the round button at the bottom right fits the map to the data. It shows one dot per household under review, coloured by stage: rose = flagged (pulsing halo), amber = visit dispatched, blue = under notice. Click a dot for the name, score and a button to the Triage Queue. Tick **Municipalities** to see the Calamba circle. The inspector shows 7 households.
+- The map is a road map like Google Maps (main roads in yellow and orange, parks, water, street labels) that you can drag and zoom (buttons at the top right). Switch **Streets / Light** at the top left; the round button at the bottom right fits the map to the data. Layers, each with its own tick box:
+  - **All households in scope (7)**: light navy shading, darker where more households live.
+  - Households under review, one dot each, coloured by stage: rose = **Flagged, awaiting dispatch** (pulsing halo), amber = **Open field task**, teal = **Report submitted**, blue = **Notice of ineligibility**. On the 80k demo data, nearby dots group into numbered bubbles; click one to zoom in. Click a dot for the name, score and a button to the Triage Queue. Tick **Municipalities** to see the Calamba circle. The inspector shows 7 households.
 - "Current workload → High-risk beneficiaries" also says **4**. Both come from the server with the same scope.
 - No "Sample data" label anywhere.
 
@@ -132,7 +132,7 @@ The ledger is empty. Every block you see later was created by your own actions.
 - The COA ledger shows a **REPORT_SUBMITTED** block.
 - With the Manila location, the server rejects the submission (outside the 250 m geofence). The report stays saved on the device.
 
-**Proves:** geofencing, the SHA-256 photo check, and the audit trail.
+**Proves:** geofencing, the SHA-256 photo check, and the audit trail. The director can now open this report and its photo (S13).
 
 ## S6. Offline visit (airplane mode)
 1. As the caseworker, with a task in the list, open **DevTools → Network → Offline** (or use the in-app *Work Offline* toggle).
@@ -222,7 +222,7 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST $API/calamity/toggle -H "Author
 - No sideways scrolling on any screen.
 - Cards stack on phones; charts and the map stay readable.
 - Selecting a menu item closes the menu on a phone.
-- The automated version of this check is `data-pipeline/scripts/test_ui_live_data.js`: 101 checks at 390, 834 and 1440 px.
+- The automated version of this check is `data-pipeline/scripts/test_ui_live_data.js`: 117 checks on the small set, 121 on the demo dataset, at 390, 834 and 1440 px.
 
 ---
 
@@ -262,6 +262,26 @@ docker exec kilosunlad-server sh -c 'f=/app/uploads/evidence/$(ls /app/uploads/e
 ```
 
 **Proves:** notice issuance, the due-process timer, and tamper-evident evidence storage.
+
+---
+
+## D. Live demo run order (about 15 minutes, demo dataset)
+Load the demo dataset first (§0, `load_demo_data.sh`). Case A and the fixtures stay untouched for this.
+
+| # | Show | Scenario | Pass when |
+| --- | --- | --- | --- |
+| D1 | Sign in as Director; the dashboard and map are populated | S1, S2 | 80,007 households, 627 flagged, map shading + bubbles |
+| D2 | Assess Case A live; it is flagged with its SHAP explanation | S7 | Level 3 predicted, score ≥ 70, sealed block number |
+| D3 | Dispatch Case A to Test Case Worker | S4 | Task ID and ledger receipt |
+| D4 | Caseworker visit on a phone width, with a photo, inside the 250 m geofence; then outside it | S5, S12 | Accepted in Calamba, refused in Manila |
+| D5 | Offline visit syncs on reconnect | S6 | Pending goes 1 → 0, nothing duplicated |
+| D6 | Director reviews the report and photo, issues the notice | S13 | "Hash verified", 15-day window starts |
+| D7 | Early graduation refused; appeal pauses the window | S13, S8 | `APPEAL_WINDOW_OPEN`; APPEAL FILED block |
+| D8 | Calamity moratorium freezes dispatch | S9 | Banner shown, dispatch refused, director cannot declare |
+| D9 | Tamper with the ledger and a photo; both are caught | S10, S13 | Chain broken at the edited block; photo refused |
+| D10 | Guards hold | S11 | 403 / 400 / 401 as listed |
+
+Reset (§0) before a second run. After a session with real users, record their ratings in `docs/testing/uat/` (form + `score_uat.py`).
 
 ---
 

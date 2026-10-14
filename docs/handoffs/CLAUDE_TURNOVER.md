@@ -1,7 +1,7 @@
 # CLAUDE_TURNOVER — KilosUnlad Integration Program (Sprints 1–6)
 
 **Prepared for:** Renz Viloria (PM / Lead Integrator)
-**Date:** 2026-10-12, updated 2026-10-13 (groups B and C; scrum-plan closure with Docker verification)
+**Date:** 2026-10-12, updated 2026-10-13 and 2026-10-14 (final UI, demo dataset, notice issuance; see §000 first)
 **Branch:** `claude/clever-albattani-8ikzld` (base `e5acd07` = merge of PR #28). Open as
 [PR #29](https://github.com/renzv-compsci/KilosUnlad/pull/29); every push to the branch updates it.
 **Companion documents:** `docs/integration/CHANGELOG_TRACEABILITY.md` (per-commit change log, traceability matrix,
@@ -10,19 +10,47 @@ flag register), `docs/decisions/009-ml-vector-and-assessment-contracts.md`, evid
 
 ---
 
-## 000. Update 2026-10-14: notice issuance, evidence viewing, UAT instrument (DECISION-011)
+## 000. Final state (2026-10-14): what changed today and what is left
 
+**Short answer:** the system is feature-complete for the defense. The beneficiary lifecycle now runs end to end in the UI
+(flag → dispatch → field report → notice → 15-day window → graduation or appeal). The demo dataset is populated,
+and every claim has a script. Full Docker rehearsal **18/18** from clean resets. Hosting is **not** used: the demo runs locally on Docker.
+
+### Done today
 | Item | Result | Where |
 | --- | --- | --- |
-| Notice issuance | `GET /tasks/:task_id/report`, `POST /tasks/:task_id/resolve` (UNDER_INVESTIGATION → NOTICE_OF_INELIGIBILITY), `POST /beneficiaries/:household_id/graduate` (NOTICE → GRADUATED after 15 days and no appeal). Both transitions sealed as `BENEFICIARY_GRADUATED` (existing enum; you chose this); the state delta says which step. Director/Super Admin only, jurisdiction-scoped, Joi-validated, calamity hold respected | `docs/decisions/011-notice-issuance-and-evidence-retrieval.md` (**PROPOSED: needs your sign-off**), 4 new contracts in `docs/contracts/admin-web/` |
-| Evidence photos | `GET /evidence/:sha256` serves the stored file only after re-hashing it; altered bytes return 409 `EVIDENCE_INTEGRITY_FAILED`. The browser checks the hash again before showing it. Files live in the `upload-data` Docker volume and survive restarts | same decision |
-| UI | Dispatch screen: "Review report" opens findings, photos ("Hash verified") and the notice form. Due Process screen: "Complete graduation" appears once the window has passed with no appeal | `client/src/components/persona/ReportReviewDialog.tsx` |
-| Tests | `resolution.test.js` written first (5 subtests). Server 165 pass / 0 fail; client 68/68, build OK. `test_decision011_notice_flow.js` **17/17** (API + browser + tamper). Capstone `--full` **18/18** from clean resets | `docs/integration/evidence/decision011/` |
-| Section 12 | TC-11 now **PASS**; manual scenario S13 added | `SECTION12_TEST_RESULTS.md`, `MANUAL_TEST_SCENARIOS.md` |
-| UAT | Rating form + `score_uat.py` (SUS ≥ 68 and ≥ 80% completion). Ratings must come from real participants; the CSV is empty on purpose | `docs/testing/uat/` |
-| Deck | Limitations, evidence, safeguards and deployment slides updated. Deployment now describes the local Docker setup (no hosting) | private link in §6 Step 8 |
+| Final UI | Logo (roof over three rising steps), Plus Jakarta Sans, plain-language menu and page guide, login without seals or "Republic of the Philippines". Frontend only | `client/src/components/BrandLogo.tsx`, `client/src/utils/screenGuide.ts` |
+| Map | Street basemap (Streets / Light), all households in scope as a density layer (`GET /insights/map`, DECISION-010 addendum), households under review by stage (flagged, open field task, report submitted, notice) with clustering, fit button | `client/src/components/dashboard/MinimalPhMap.tsx` |
+| Demo dataset | `load_demo_data.sh`: 80,007 households, **627 flagged** (sealed `MODEL_FLAG_RAISED`), 31 under investigation, 33 field tasks, 653 ledger blocks. Created through the API, not written to the DB. Case A left unassessed for the live demo | `data-pipeline/scripts/load_demo_data.sh`, `populate_demo.js` |
+| Notice issuance (DECISION-011) | `GET /tasks/:task_id/report`, `POST /tasks/:task_id/resolve` (UNDER_INVESTIGATION → NOTICE_OF_INELIGIBILITY), `POST /beneficiaries/:household_id/graduate` (NOTICE → GRADUATED after 15 days and no appeal). Both sealed as `BENEFICIARY_GRADUATED` (existing enum, your choice); the state delta says which step. Director/Super Admin, jurisdiction-scoped, Joi-validated, calamity hold respected | `docs/decisions/011-notice-issuance-and-evidence-retrieval.md` (**PROPOSED: sign it**), 4 contracts in `docs/contracts/admin-web/` |
+| Evidence photos | `GET /evidence/:sha256` re-hashes the stored file on every read; altered bytes → 409 `EVIDENCE_INTEGRITY_FAILED`. The browser checks the hash again. Stored in the `upload-data` Docker volume, kept across restarts | same decision |
+| UI for the lifecycle | Dispatch screen: **Review report** (findings, photos "Hash verified", notice form). Due Process: **Complete graduation** once the window has passed with no appeal | `client/src/components/persona/ReportReviewDialog.tsx` |
+| UAT instrument | Rating form + `score_uat.py` (pass = SUS ≥ 68 and ≥ 80% completion). The CSV is empty on purpose: ratings must come from real participants | `docs/testing/uat/` |
+| Manual scenarios | S13 (review, notice, graduation, photo tamper) and **§D live-demo run order** (D1–D10) added; hosting steps removed | `docs/testing/MANUAL_TEST_SCENARIOS.md` |
+| Defense deck | Restructured to 19 slides: overview, problem, solution, case lifecycle, impact, scope and limitations, the four layers (frontend, backend, database, ML incl. data augmentation), Sangla-ATM detector, live-demo placeholder, live-demo test cases D1–D10 | private link in §6 Step 8 |
 
-**Still yours:** sign DECISION-011; run the UAT sessions; agree retention rules (`VERIFIED_RETAIN` is still rejected with 400).
+### Test results on the final build
+| Level | Result |
+| --- | --- |
+| Server (`npm test`, replica set) | 165 pass / 0 fail / 3 skipped (Docker-only) |
+| Client (`npm test`, typecheck, build) | 68 / 68, build OK |
+| `test_ui_live_data.js` (every role, 390/834/1440 px) | 121 / 121 on the demo dataset; 117 / 117 on the small set |
+| `test_decision011_notice_flow.js` (API + browser + tamper) | 17 / 17 |
+| Capstone `run_capstone_proofs.sh --full` (Docker, clean resets) | **18 / 18** |
+| Section 12 | TC-01 to TC-17 all PASS (TC-11 moved from PARTIAL to PASS). The plan objective macro F1 ≥ 0.85 is still **not met** (v2: 0.6244 on real data) |
+
+Evidence: `docs/integration/evidence/decision011/` (log, screenshot, capstone summary), `ui-live-data/`, `clean-start-main/`.
+
+### Still yours
+1. Sign DECISION-010 and DECISION-011.
+2. Run the UAT sessions with real participants and score them (`score_uat.py`).
+3. Agree the retention rules; `VERIFIED_RETAIN` is still rejected with 400 until then.
+4. Add your real standup notes to `E2E05_CADENCE_LOG.md`.
+5. Hosting: not needed for the defense. If you host later, the Atlas append-only role question in §00 applies again.
+
+### Iron Laws today
+No schema, collection or index changed. No guard removed or weakened. Each new route has a server test written first
+and an integration script in `data-pipeline/scripts/`. All new requests and responses have a contract in `docs/contracts/`.
 
 ---
 

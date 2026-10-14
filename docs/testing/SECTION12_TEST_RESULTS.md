@@ -11,7 +11,7 @@
 | Area | Executed | Passed | Notes |
 | --- | :---: | :---: | --- |
 | 12.1.2 Unit tier (server, client, ML) | 234 tests | 231 | 3 server tests skipped: they need Docker. None failed. |
-| 12.2 Test cases TC-01 to TC-17 | 17 | 16 PASS, 1 PARTIAL | 7 of the PASS cases differ from the plan's wording; all 8 cases are listed under "Status key" below. |
+| 12.2 Test cases TC-01 to TC-17 | 17 | 17 PASS | 7 of the PASS cases differ from the plan's wording; they are listed under "Status key" below. |
 | 12.3 Defects DEF-01 to DEF-07 | 7 | 7 verified resolved | Each corrective action re-checked in code and against a live database. |
 | 12.4 UAT scenarios A to D | 4 scripted walkthroughs | 4 | **Participant feedback and ratings were not collected.** They need real users (see 12.4). |
 | 12.1.1 Objective: macro F1 ≥ 85 % | measured | **NOT MET** | LightGBM v1 scores **0.7771** macro F1 on the untouched synthetic 20k test split (ML-01). |
