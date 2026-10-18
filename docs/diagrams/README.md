@@ -9,8 +9,11 @@ These are the visual deliverables listed in `DIAGRAM_INTEGRATION.md`, built as J
 | 6.1 | Figure 1. Use Case Diagram | [`fig1_use_case_diagram.jpg`](fig1_use_case_diagram.jpg) | Markie Angelo |
 | 6.2 | Figure 2. Activity Diagram (audit lifecycle, 4 swimlanes) | [`fig2_activity_diagram.jpg`](fig2_activity_diagram.jpg) | Renz Viloria |
 | 6.3 | Figure 3. Class Diagram (6 Mongoose models + services) | [`fig3_class_diagram.jpg`](fig3_class_diagram.jpg) | Mae Santos |
-| 6.4 (optional) | Sequence Diagram: transactional task dispatch | [`fig6_sequence_task_dispatch.jpg`](fig6_sequence_task_dispatch.jpg) | Mae Santos |
+| 6.4 | Figure 6. Sequence Diagram: transactional task dispatch | [`fig6_sequence_task_dispatch.jpg`](fig6_sequence_task_dispatch.jpg) | Mae Santos |
+| 6.4 | Figure 7. State Diagram: household program status | [`fig7_state_diagram.jpg`](fig7_state_diagram.jpg) | Mae Santos |
+| 6.4 | Figure 8. Sequence Diagram: offline field report and sync | [`fig8_sequence_field_report.jpg`](fig8_sequence_field_report.jpg) | Markie Angelo |
 | 7.0 | Figure 4. System Architecture (6 layers) | [`fig4_system_architecture.jpg`](fig4_system_architecture.jpg) | Renz Viloria |
+| 7.0 | Figure 9. Deployment Diagram: hosted on Vercel, Render and MongoDB Atlas | [`fig9_deployment_diagram.jpg`](fig9_deployment_diagram.jpg) | Renz Viloria |
 | 8.1 | Figure 5. Entity Relationship Diagram | [`fig5_entity_relationship_diagram.jpg`](fig5_entity_relationship_diagram.jpg) | Dustin Martinez |
 | 8.2 | Database Collections Table | [below](#section-82-database-collections-table) | Dustin Martinez |
 | 9.1 | Login page | [`ui/ui_9_1_login.jpg`](ui/ui_9_1_login.jpg) | Markie Angelo |
@@ -24,8 +27,13 @@ These are the visual deliverables listed in `DIAGRAM_INTEGRATION.md`, built as J
 | 12 / App. D | ROC-AUC (one-vs-rest) | [`appendix-d/fig_d2_roc_auc.jpg`](appendix-d/fig_d2_roc_auc.jpg) | Charles Cabatian |
 | 12 / App. D | Global SHAP beeswarm (one panel per class) | [`appendix-d/fig_d3_shap_beeswarm.jpg`](appendix-d/fig_d3_shap_beeswarm.jpg) | Charles Cabatian |
 | 12 / App. D | Sangla-ATM velocity chart | [`appendix-d/fig_d4_sangla_atm_velocity.jpg`](appendix-d/fig_d4_sangla_atm_velocity.jpg) | Charles Cabatian |
+| 12 / App. D | **Model v2 (shipped):** F1 per SWDI level on the real holdout | [`appendix-d/fig_d5_v2_per_class_f1.jpg`](appendix-d/fig_d5_v2_per_class_f1.jpg) | Charles Cabatian |
+| 12 / App. D | **Model v2:** experiments E1–E5 compared | [`appendix-d/fig_d6_v2_experiments.jpg`](appendix-d/fig_d6_v2_experiments.jpg) | Charles Cabatian |
+| 12 / App. D | **Model v2:** SHAP importance of the six features | [`appendix-d/fig_d7_v2_shap_importance.jpg`](appendix-d/fig_d7_v2_shap_importance.jpg) | Charles Cabatian |
 
-The UI screenshots come from the running system with real API data (Demo Case A, the test accounts). They are not mockups. The dashboard's "Regional snapshot" tiles are labelled *Sample data* in the app itself.
+The UI screenshots come from the running system with real API data (Demo Case A, the test accounts) on the final build (re-captured 2026-10-18 after the UI restyle). They are not mockups, and no screen shows sample data.
+
+Figures D1–D4 describe model **v1** on the synthetic test split and are kept for history. The shipped model is **v2**; its charts are D5–D7 (`src/ml_plots_v2.py`, drawn from `ml-service/artifacts/v2/model_metadata.json`, because the raw PSA FIES rows are not stored in the repository). The Sangla-ATM chart (D4) still applies: the detector did not change.
 
 ## Figure captions (ready to paste)
 
@@ -43,6 +51,10 @@ The UI screenshots come from the running system with real API data (Demo Case A,
   - **Appeal window:** grants continue for 15 days. With no appeal, graduation is completed; with an appeal, the hearing outcome decides (granted: back to active; denied: graduated).
 - **Figure 3:** The six Mongoose domain models with their real attributes, enums and relationships. The services that hold the operations are shown too: `AuthService.login`, `authenticate` token verification, `computeEntryHash`, `WorkflowPersistence` and `Resolution` (report review, notice, retention, hearing outcome, graduation). `AuditAction` includes `BENEFICIARY_RETAINED`, the single documented addition to the frozen list (DECISION-012).
 - **Figure 4:** The six-layer decoupled engine as deployed by `docker-compose.yml`, with the ports, versions and guards of each layer.
+- **Figure 6 (sequence, dispatch):** see the sequence-diagram caption below.
+- **Figure 7 (state):** The five program statuses and the only moves the workflow allows between them (`workflow.service.js`): flag, dispatch, keep on the program or notice, then graduated or back to active after an appeal. Each move writes one audit block; any other move returns `INVALID_STATUS_TRANSITION`.
+- **Figure 8 (sequence, field report):** A visit saved on the phone (IndexedDB), sent when online, checked for photo hash and the 250 m geofence, and stored with its `REPORT_SUBMITTED` block. A 4xx marks the draft `ERROR`; a 5xx or network error keeps it pending.
+- **Figure 9 (deployment):** Vercel serves the PWA; Render runs the API and the ML service; MongoDB Atlas holds the database. Local alternative: `docker compose`.
 - **Figure 5:** The six MongoDB collections, their keys and indexes, the embedded `{_id:false}` sub-documents and the cross-collection references. `audit_logs` is append-only, and each block links to the previous one by hash.
 - **Sequence diagram:** Task dispatch from the desktop client through the gateway and the guards into one MongoDB transaction. The task insert, the beneficiary update and the audit block either all commit or all roll back.
 - **Appendix D:** Evaluation of the deployed LightGBM v1 on the untouched synthetic 20,001-row test split:

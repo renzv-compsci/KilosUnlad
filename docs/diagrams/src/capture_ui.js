@@ -49,9 +49,9 @@ async function login(page, username, password) {
     await page.locator(`#triage-details-${CASE_A}`).scrollIntoViewIfNeeded();
     await shot(page, 'ui_9_4b_triage_shap_drawer.jpg');
     await page.click(`#dispatch-task-btn-${CASE_A}`);
-    await page.fill('#dispatch-worker-id', worker.user.user_id);
+    await page.selectOption('#dispatch-worker-id', worker.user.user_id);
     await page.fill('#dispatch-instructions', 'Verify MoveIt delivery asset and LandBank cash card.');
-    await page.fill('#dispatch-deadline', '2026-10-24');
+    await page.fill('#dispatch-deadline', new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10));
     await page.selectOption('#dispatch-priority', 'HIGH');
     await shot(page, 'ui_9_3_dispatch_modal.jpg');
     await page.click('#confirm-dispatch-submit-btn');
@@ -84,8 +84,8 @@ async function login(page, username, password) {
     }
     await t.getByRole('button', { name: /^Step 4:/ }).click();
     await t.locator('input[type="file"]').setInputFiles(PHOTO);
-    await t.getByText(/SHA-256 Checksum/).first().waitFor({ timeout: 10000 });
-    await t.getByText(/Lat: /).first().waitFor({ timeout: 10000 });
+    await t.getByText(/Photo fingerprint/).first().waitFor({ timeout: 10000 });
+    await t.getByText(/Within \d+ m/).first().waitFor({ timeout: 10000 });
     await t.waitForTimeout(500);
     await shot(t, 'ui_9_4d_tablet_field_checklist.jpg');
     await tab.close();

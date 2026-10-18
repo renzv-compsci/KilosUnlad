@@ -1,0 +1,47 @@
+@startuml fig9_deployment
+!include _style.iuml
+skinparam NodeBorderColor #1F3A5F
+skinparam NodeBackgroundColor #F7FAFD
+skinparam ComponentBorderColor #1F3A5F
+skinparam ComponentBackgroundColor #DCE8F5
+skinparam ArtifactBackgroundColor #FFFFFF
+title Figure 9 (Section 7). Deployment Diagram: Hosted KilosUnlad
+node "User devices" {
+  node "Office laptop\n(browser)" as LAP
+  node "Caseworker phone\n(installed PWA)" as PHONE {
+    database "IndexedDB\n(offline queue)" as IDB2
+  }
+}
+cloud "Vercel (free plan)" {
+  node "Static hosting + CDN" as VER {
+    artifact "React PWA build\n(client/dist)" as BUILD
+  }
+}
+cloud "Render (free plan)" {
+  node "kilosunlad-api\n(Node 20, Express)" as API {
+    component "REST API /api/v1\n23 routes, 6 guards" as REST
+    artifact "evidence photos\n(temporary disk)" as UP
+  }
+  node "kilosunlad-ml\n(Docker, Python 3.10)" as ML {
+    component "FastAPI\nLightGBM v2 + SHAP\nSangla-ATM detector" as FAST
+  }
+}
+cloud "MongoDB Atlas (M0)" {
+  database "kilosunlad database\n6 collections\nappend-only audit_logs" as ATLAS
+}
+LAP --> VER : HTTPS (load app)
+PHONE --> VER : HTTPS (load app, cached\nby service worker)
+LAP --> REST : HTTPS JSON\n(VITE_API_URL, CORS)
+PHONE --> REST : HTTPS JSON +\nmultipart photo upload
+REST --> FAST : HTTPS /predict\n(2.5 s timeout, rule fallback)
+REST --> ATLAS : TLS, app user\n(transactions)
+note bottom of ATLAS
+  Seeded with deploy/atlas_seed.sh
+  (20,000-household deployment dataset).
+end note
+note right of ML
+  Local alternative: docker compose runs
+  gateway, client, API, ML and a
+  MongoDB replica set on one machine.
+end note
+@enduml
