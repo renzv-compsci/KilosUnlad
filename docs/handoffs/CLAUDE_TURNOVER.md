@@ -10,6 +10,15 @@ flag register), `docs/decisions/009-ml-vector-and-assessment-contracts.md`, evid
 
 ---
 
+## 00000. Final iteration (2026-10-18): README, diagrams, test cases, paper
+
+- **Hosted:** web app https://kilos-unlad-33qx7w3d9-yuidevs.vercel.app/ (Vercel); API and ML on Render; database on MongoDB Atlas. The sandbox network could not reach these hosts, so the hosted site was not re-tested from here; every result below is from the local Docker stack of the final build.
+- **Merged `main`** (team commits up to PR #43) and fixed a stray space it introduced in `load_demo_data.sh` (the baseline snapshot path).
+- **README.md** rewritten for submission: live link, test accounts, a 5-minute tour, and a 7-step "run it on your own computer" guide including data seeding.
+- **Diagrams:** new Figure 7 state diagram, Figure 8 offline field-report sequence, Figure 9 deployment diagram (sources in `docs/diagrams/src`, added to `build_all.sh`); UI screenshots re-captured on the restyled UI; model v2 charts D5–D7 (`ml_plots_v2.py`).
+- **Tests on the final build:** Section 12 runner 17/17, full rehearsal 19/19, deployment dataset 12/12, server 175/175, client 69/69, pytest 15/15. New TC-25 (deployment dataset) and TC-26 (full process through the gateway). Evidence: `docs/testing/evidence/final-2026-10-18/`.
+- **Paper:** `docs/paper/CCSFEN1L - KilosUnlad.docx`, every section of the CCSFEN1L documentation format, figures 1–17, test cases TC-01..TC-26, defects, UAT (honest: adviser approval, no SUS ratings), references in APA.
+
 ## 0000. Deployment round (2026-10-14, later): data, UI, manual tests, hosting, deck
 
 | Task | Result | Where |

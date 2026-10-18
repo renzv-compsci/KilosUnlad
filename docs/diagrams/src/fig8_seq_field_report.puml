@@ -1,0 +1,38 @@
+@startuml fig8_seq_field_report
+!include _style.iuml
+title Figure 8 (Section 6.4). Sequence Diagram: Offline Field Report and Sync
+autonumber
+actor "Caseworker" as W
+participant "Phone PWA\n(React)" as P
+database "On-device storage\n(IndexedDB\nkilosunlad_field)" as IDB
+participant "Gateway / API\n(Express)" as API
+participant "Submission service\n(geofence + hash check)" as S
+database "MongoDB\n(transaction)" as DB
+
+W -> P : Start in-person visit
+P -> P : 5-step form (house, assets,\ncash card, photo, recommendation)
+P -> P : take photo; read GPS;\nSHA-256 of the photo bytes
+W -> P : Save Report on This Device
+P -> IDB : queue report (PENDING_SYNC)
+alt no signal or server down
+  P --> W : "Saved on this phone"\n(button: Connect to the internet to send)
+  ... connection returns ...
+end
+P -> API : POST /tasks/:id/submit (multipart)\nBearer JWT
+API -> API : JWT, role CASE_WORKER,\nown task, jurisdiction, Joi
+API -> S : submit(report, photo)
+S -> S : re-hash photo == client hash?\nGPS within 250 m of the house?
+alt check fails (4xx)
+  S --> API : 400 / 409 (e.g. GEOFENCE)
+  API --> P : error
+  P -> IDB : mark ERROR\n("Rejected by server", no retry)
+else checks pass
+  S -> DB : store photo by its hash;\ntask -> SUBMITTED;\nappend REPORT_SUBMITTED block
+  DB --> S : commit + audit receipt
+  S --> API : 200 + receipt
+  API --> P : 200
+  P -> IDB : mark SYNCED
+  P --> W : Sent; task leaves the list
+end
+note over P, IDB : A 5xx or network error keeps the report\nPENDING_SYNC and it is retried later.\nThe server refuses duplicates, so a report\nis never stored twice.
+@enduml

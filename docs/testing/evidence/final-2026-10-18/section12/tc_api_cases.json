@@ -1,0 +1,434 @@
+[
+  {
+    "id": "TC-01",
+    "title": "User Authentication & Role Scoping",
+    "checks": [
+      {
+        "label": "valid credentials -> 200 with Bearer token",
+        "pass": true
+      },
+      {
+        "label": "token is HS256 with a 900 s lifetime",
+        "pass": true
+      },
+      {
+        "label": "token carries role and jurisdiction",
+        "pass": true
+      },
+      {
+        "label": "out-of-scope municipal query -> 403 OUT_OF_JURISDICTION",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "login": {
+        "status": 200,
+        "token_type": "Bearer",
+        "expires_in_seconds": 900,
+        "alg": "HS256",
+        "lifetime_s": 900,
+        "role": "REGIONAL_DIRECTOR",
+        "jurisdiction": {
+          "region": "Region IV-A",
+          "province": "Laguna",
+          "municipality": "Calamba",
+          "assigned_barangays": [
+            "Palingon",
+            "Lecheria",
+            "Real"
+          ]
+        }
+      },
+      "out_of_scope_query": {
+        "request": "GET /beneficiaries/triage-queue?municipality=Santa Rosa (Calamba director)",
+        "status": 403,
+        "code": "OUT_OF_JURISDICTION"
+      }
+    }
+  },
+  {
+    "id": "TC-02",
+    "title": "Invalid Credentials & Token Expiry",
+    "checks": [
+      {
+        "label": "incorrect password -> 401 INVALID_CREDENTIALS",
+        "pass": true
+      },
+      {
+        "label": "token past its 900 s window -> 401 TOKEN_EXPIRED",
+        "pass": true
+      },
+      {
+        "label": "playwright-core available for the client-session check",
+        "pass": true
+      },
+      {
+        "label": "client cleared the session and returned to the login screen",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "bad_password": {
+        "status": 401,
+        "code": "INVALID_CREDENTIALS"
+      },
+      "expired_token": {
+        "token_age_s": 1000,
+        "status": 401,
+        "code": "TOKEN_EXPIRED",
+        "message": "Session has expired. Reconnect to network to log in."
+      },
+      "client_after_expiry": {
+        "login_screen_shown": true,
+        "stored_session": [
+          null,
+          null
+        ]
+      }
+    }
+  },
+  {
+    "id": "TC-03",
+    "title": "Proxy-Means SWDI Classification",
+    "checks": [
+      {
+        "label": "200 with SWDI tier 1, 2 or 3",
+        "pass": true
+      },
+      {
+        "label": "three class probabilities summing to 1",
+        "pass": true
+      },
+      {
+        "label": "signed SHAP attributions returned, ranked by |weight|",
+        "pass": true
+      },
+      {
+        "label": "response within 2500 ms",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "request_features": {
+        "head_education_level": 3,
+        "head_formal_employment": 1,
+        "remittance_income_flag": 0,
+        "housing_material_score": 3,
+        "appliance_density_index": 2,
+        "dependency_ratio": 2
+      },
+      "response": {
+        "status": 200,
+        "latency_ms": 12.3,
+        "predicted_swdi_level": 3,
+        "class_probabilities": {
+          "level_1_survival": 0.00003281422058117355,
+          "level_2_subsistence": 0.0014964866475642555,
+          "level_3_self_sufficiency": 0.9984706991318547
+        },
+        "shap_explainability": [
+          {
+            "indicator": "demographics.appliance_density_index",
+            "contribution_weight": 2.5859411136849793,
+            "description": "Higher appliance density reflects improved standard of living."
+          },
+          {
+            "indicator": "demographics.dependency_ratio",
+            "contribution_weight": -1.300823078206809,
+            "description": "High dependency ratio strains household resources."
+          },
+          {
+            "indicator": "demographics.head_education_level",
+            "contribution_weight": 1.0411831874850563,
+            "description": "Educational attainment strongly correlates with socioeconomic transition."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "TC-15",
+    "title": "Sangla-ATM Telemetry Anomaly Detection",
+    "checks": [
+      {
+        "label": "is_anomalous_batch true",
+        "pass": true
+      },
+      {
+        "label": "risk score 85.0 / 100",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "batch": {
+        "transactions": 12,
+        "first": "2026-09-05T02:10:00Z",
+        "last": "2026-09-05T02:16:58Z",
+        "span_seconds": 418
+      },
+      "response": {
+        "status": 200,
+        "is_anomalous_batch": true,
+        "sangla_atm_risk_score": 85,
+        "avg_interval_seconds": 38,
+        "nocturnal_window_flag": true,
+        "flagged_households": 12
+      }
+    }
+  },
+  {
+    "id": "TC-04",
+    "title": "Multi-Factor Discrepancy Flagging",
+    "checks": [
+      {
+        "label": "enrolled Level 1, predicted Level 3",
+        "pass": true
+      },
+      {
+        "label": "composite risk score S_i >= 70",
+        "pass": true
+      },
+      {
+        "label": "status FLAGGED_FOR_REVIEW",
+        "pass": true
+      },
+      {
+        "label": "household appears in the triage queue with the same score",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "household": {
+        "household_id": "DEMO-4PS-GRAD-0001",
+        "enrolled_swdi_level": 1,
+        "status_before": "ACTIVE_COMPLIANT",
+        "power_kwh": 285,
+        "vehicle": "PASSENGER_4W, owned",
+        "water_cu_m": 32,
+        "telecom": "POSTPAID"
+      },
+      "response": {
+        "status": 200,
+        "predicted_swdi_level": 3,
+        "composite_risk_score": 100,
+        "is_flagged": true,
+        "program_status": "FLAGGED_FOR_REVIEW",
+        "trigger_badges": [
+          "TIER_INVERSION",
+          "POWER_LIFELINE_BREACH",
+          "WATER_LIFELINE_BREACH",
+          "TELECOM_POSTPAID_PLAN",
+          "LTO_VEHICLE_MATCH"
+        ],
+        "evaluation_mode": "ML_MODEL"
+      },
+      "triage_queue": {
+        "status": 200,
+        "listed": true,
+        "score": 100
+      }
+    }
+  },
+  {
+    "id": "TC-05",
+    "title": "Atomic Task Dispatch Transaction",
+    "checks": [
+      {
+        "label": "failing dispatch writes nothing (transaction rolled back)",
+        "pass": true
+      },
+      {
+        "label": "201 Created",
+        "pass": true
+      },
+      {
+        "label": "VerificationTask created PENDING_DISPATCH",
+        "pass": true
+      },
+      {
+        "label": "Beneficiary UNDER_INVESTIGATION",
+        "pass": true
+      },
+      {
+        "label": "TASK_DISPATCHED block hash equals the receipt",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "rollback_probe": {
+        "request": "dispatch to a non-CASE_WORKER user",
+        "status": 400,
+        "code": "INVALID_ASSIGNED_WORKER",
+        "writes": {
+          "before": {
+            "tasks": 2,
+            "audits": 1
+          },
+          "after": {
+            "tasks": 2,
+            "audits": 1
+          }
+        }
+      },
+      "response": {
+        "status": 201,
+        "task_id": "TSK-2026-7157119e-6874-4066-9170-5b8e904c5d01",
+        "household_status": "UNDER_INVESTIGATION",
+        "audit_receipt": {
+          "sequence_index": 2,
+          "entry_hash": "373f6d47e22caa75f5a702fda086b352dfa26afe634547196a62eb7b5ecbcca8"
+        }
+      },
+      "database": {
+        "task_status": "PENDING_DISPATCH",
+        "priority": "HIGH",
+        "beneficiary_status": "UNDER_INVESTIGATION",
+        "audit_sequence": 2,
+        "audit_hash": "373f6d47e22caa75f5a702fda086b352dfa26afe634547196a62eb7b5ecbcca8",
+        "writes_after": {
+          "tasks": 3,
+          "audits": 2
+        }
+      }
+    }
+  },
+  {
+    "id": "TC-06",
+    "title": "Duplicate Task Dispatch Prevention",
+    "checks": [
+      {
+        "label": "409 ACTIVE_TASK_EXISTS",
+        "pass": true
+      },
+      {
+        "label": "no duplicate task and no second audit entry",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "response": {
+        "status": 409,
+        "code": "ACTIVE_TASK_EXISTS",
+        "writes": {
+          "before": {
+            "tasks": 3,
+            "audits": 2
+          },
+          "after": {
+            "tasks": 3,
+            "audits": 2
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "TC-09",
+    "title": "In-Browser Photo Hashing & File Integrity",
+    "checks": [
+      {
+        "label": "64-character SHA-256 fingerprint",
+        "pass": true
+      },
+      {
+        "label": "modified bytes -> 422 EVIDENCE_HASH_MISMATCH",
+        "pass": true
+      },
+      {
+        "label": "client hashes photos with the Web Crypto API (crypto.subtle.digest SHA-256)",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "declared_sha256": "6b7fa434f92a8b80aab02d9bf1a12e49ffcae424e4013a1c4f68b67e3d2bbcd0",
+      "altered_bytes": {
+        "status": 422,
+        "code": "EVIDENCE_HASH_MISMATCH",
+        "writes_unchanged": true
+      }
+    }
+  },
+  {
+    "id": "TC-08",
+    "title": "Hardware Geolocation Boundary Check",
+    "checks": [
+      {
+        "label": "submission 400 m away is not accepted as matched (422 GEOFENCE_VIOLATION)",
+        "pass": true
+      },
+      {
+        "label": "submission ~12.5 m away -> 200, is_matched true",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "outside": {
+        "distance_m": 400.3,
+        "status": 422,
+        "code": "GEOFENCE_VIOLATION",
+        "writes_unchanged": true
+      },
+      "inside": {
+        "distance_m": 12.5,
+        "status": 200,
+        "geofence_verification": {
+          "is_matched": true,
+          "distance_variance_meters": 12.5
+        }
+      }
+    }
+  },
+  {
+    "id": "TC-10",
+    "title": "Offline Batch Sync Reconnection (server side)",
+    "checks": [
+      {
+        "label": "task status SUBMITTED",
+        "pass": true
+      },
+      {
+        "label": "photo binary saved to persistent storage and still matches its hash",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "database": {
+        "task_status": "SUBMITTED",
+        "evidence_path": "server/uploads/evidence/6b7fa434f92a8b80aab02d9bf1a12e49ffcae424e4013a1c4f68b67e3d2bbcd0",
+        "stored_bytes_sha256": "6b7fa434f92a8b80aab02d9bf1a12e49ffcae424e4013a1c4f68b67e3d2bbcd0",
+        "audit_receipt": {
+          "sequence_index": 3,
+          "entry_hash": "9c73b7319d3bc6ed811591f949b4ac470540b417a37729d9027b9e2506370ece"
+        }
+      }
+    }
+  },
+  {
+    "id": "TC-13",
+    "title": "Cryptographic Chain Verification",
+    "checks": [
+      {
+        "label": "range 1..3 -> 200 is_chain_valid true",
+        "pass": true
+      },
+      {
+        "label": "field worker cannot run the verifier (403)",
+        "pass": true
+      }
+    ],
+    "observed": {
+      "ledger": [
+        "1 MODEL_FLAG_RAISED DEMO-4PS-GRAD-0001",
+        "2 TASK_DISPATCHED DEMO-4PS-GRAD-0001",
+        "3 REPORT_SUBMITTED TSK-2026-7157119e-6874-4066-9170-5b8e904c5d01"
+      ],
+      "response": {
+        "range": "1..3",
+        "status": 200,
+        "is_chain_valid": true,
+        "total_blocks_verified": 3,
+        "head_hash": "9c73b7319d3bc6ed811591f949b4ac470540b417a37729d9027b9e2506370ece"
+      }
+    }
+  }
+]

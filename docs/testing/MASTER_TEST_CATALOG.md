@@ -1,6 +1,6 @@
 # KilosUnlad — Master Test Catalog
 
-**Final build:** `main` after PR #38 (2026-10-14). **Plan reference:** `docs/integration/SCRUM_INTEGRATION_PLAN.md` revision 3 (Sprints 0–7).
+**Final build:** `main` after PR #43 plus branch `claude/clever-albattani-8ikzld` (2026-10-18, final iteration, hosted on Vercel, Render and MongoDB Atlas). **Final run:** 2026-10-18, every suite on the final build: Section 12 runner 17/17, full rehearsal 19/19, deployment dataset 12/12, server 175/175, client 69/69, ML and UAT scorer pytest 15/15. Evidence: `evidence/final-2026-10-18/`. **Plan reference:** `docs/integration/SCRUM_INTEGRATION_PLAN.md` revision 3 (Sprints 0–7).
 **What this is:** one place that lists every test in the project with its ID, what it checks, where it lives and its latest result. The detailed reports stay where they are; this catalog points to them.
 **Generated parts:** §10 (integration checks) and §11 (unit and component cases) are filled from the raw logs by `docs/testing/tools/build_test_docs.py`. Every other table is maintained by hand from the documents named in it.
 
@@ -8,7 +8,7 @@
 1. [Summary](#1-summary)
 2. [ID scheme](#2-id-scheme)
 3. [Scrum plan items and their tests (RDY, INT, ML, DAT, E2E, STR, DEF, Sprint 7)](#3-scrum-plan-items-and-their-tests)
-4. [Section 12 test cases TC-01 to TC-24](#4-section-12-test-cases-tc-01-to-tc-24)
+4. [Section 12 test cases TC-01 to TC-26](#4-section-12-test-cases-tc-01-to-tc-26)
 5. [Section 12 defects (corrective-action re-checks)](#5-section-12-defects)
 6. [User acceptance testing (UAT A–D)](#6-user-acceptance-testing)
 7. [Full rehearsal steps CAP-01 to CAP-19](#7-full-rehearsal-steps)
@@ -26,7 +26,7 @@
 | Level | IDs | Count | Passed | Result source |
 | --- | --- | ---: | ---: | --- |
 | Scrum plan items (Sprints 0–7) | RDY, INT, ML, DAT, E2E, STR, DEF, UI, DEMO, LIF, UAT | 51 | 51 done | `backlog.md` rev 7 |
-| Section 12 test cases | TC-01 … TC-24 | 24 | 24 | `SECTION12_TEST_RESULTS.md` |
+| Section 12 test cases | TC-01 … TC-26 | 26 | 26 | `SECTION12_TEST_RESULTS.md`; final run `evidence/final-2026-10-18/` |
 | Section 12 defects re-verified | Defect DEF-01 … DEF-07 | 7 | 7 resolved | `test_section12_defects.js` |
 | UAT scenarios (scripted capability) | UAT-A … UAT-D | 4 | 4 met | participant ratings **pending** |
 | Full rehearsal steps (Docker, clean reset each) | CAP-01 … CAP-19 | 19 | 19 | `run_capstone_proofs.sh --full` |
@@ -147,7 +147,7 @@ Status as of 2026-10-14. Columns: integration script(s) in `data-pipeline/script
 
 ---
 
-## 4. Section 12 test cases TC-01 to TC-24
+## 4. Section 12 test cases TC-01 to TC-26
 
 Full expected / actual text: `docs/integration/UNIT_TEST_PLAN.md` §12.2 and `docs/testing/SECTION12_TEST_RESULTS.md`.
 
@@ -177,6 +177,8 @@ Full expected / actual text: `docs/integration/UNIT_TEST_PLAN.md` §12.2 and `do
 | TC-22 | Retention after a field visit | `test_decision012_retention_flow.js`; UT-202 | LIF-04 | **PASS** |
 | TC-23 | Appeal hearing outcome (granted / denied) | `test_decision012_retention_flow.js`; UT-202 | LIF-05 | **PASS** |
 | TC-24 | 180-day re-flag cooldown | `test_decision012_retention_flow.js`; UT-202 | LIF-06 | **PASS** |
+| TC-25 | Deployment dataset: 20,001 households, 25–40 model flags, a caseworker for every barangay, every task in its barangay, valid ledger | `test_deployment_dataset.js` (12 checks) after `load_deployment_data.sh` | D1 (deployment round) | **PASS** |
+| TC-26 | Full process through the gateway on the Docker stack (flag, dispatch, report, audit) | `test_e2e01_full_chain.js` (CAP-01, R12-16) | E2E-01 | **PASS** |
 
 ## 5. Section 12 defects
 

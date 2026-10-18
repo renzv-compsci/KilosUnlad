@@ -5,6 +5,7 @@
 **Source of truth:** the Section 12 test plan (12.1 to 12.4). Every case below was executed as written. The *Expected Result* column is copied from the plan. The *Actual Result* column is what the system returned in this run.
 **Raw evidence:** [`evidence/section12-local/`](evidence/section12-local/) has one log per step, `SUMMARY.md`, `tc_api_cases.json` (every observed value) and `defects.json`.
 **Final run (2026-10-14, final build):** the updated runner (17 steps, now including TC-18 to TC-24) was run on the Docker stack from clean resets; see `evidence/section12-final/SUMMARY.md`. Every unit file was also re-run on its own with every opt-in suite, including the two Docker-only tests (`UNIT_TEST_REPORT.md`). All IDs are indexed in `MASTER_TEST_CATALOG.md`.
+**Final iteration run (2026-10-18, final build after the last merge):** Section 12 runner **17/17**, full rehearsal (`run_capstone_proofs.sh --full`) **19/19**, deployment dataset check **12/12** (TC-25), server unit **175/175** (nothing skipped), client unit **69/69**, ML and UAT-scorer pytest **15/15**. Two cases were added for the final iteration: TC-25 (the 20,000-household deployment dataset) and TC-26 (full process through the gateway). Evidence: [`evidence/final-2026-10-18/`](evidence/final-2026-10-18/).
 **Docker re-run (2026-10-13):** the whole plan was run again on the Docker Compose stack of a fresh clone. All 14 steps passed (`evidence/section12-docker/SUMMARY.md`), and DEF-02 was checked against the real `app_user` role created by `init-mongo.js`. In that run the server unit step ran without the opt-in replica-set suites; the full unit counts are in `UNIT_TEST_REPORT.md`.
 
 ## Summary
@@ -14,6 +15,7 @@
 | 12.1.2 Unit tier (server, client, ML, UAT scorer) | 208 top-level cases (275 counted by the runners) | 208 | Nothing skipped: the Docker-only tests ran too. None failed. |
 | 12.2 Test cases TC-01 to TC-17 | 17 | 17 PASS | 7 of the PASS cases differed from the plan's original wording; the plan text was corrected on 2026-10-14 (see "Deviations"). |
 | 12.2.1 Extended test cases TC-18 to TC-24 | 7 | 7 PASS | Post-plan scope (Sprint 7): live UI, report review and evidence, graduation, retention, hearing outcome, cooldown. |
+| 12.2.2 Final-iteration cases TC-25, TC-26 | 2 | 2 PASS | Deployment dataset (20,000 households) and the full process through the gateway, 2026-10-18. |
 | 12.3 Defects DEF-01 to DEF-07 | 7 | 7 verified resolved | Each corrective action re-checked in code and against a live database. |
 | 12.4 UAT scenarios A to D | 4 scripted walkthroughs | 4 | **Participant feedback and ratings were not collected.** They need real users (see 12.4). |
 | 12.1.1 Objective: macro F1 ≥ 85 % | measured | **NOT MET** | The served model v2 (trained on real PSA FIES data) scores **0.6244** macro F1 on the 6,232-row empirical holdout. v1's 0.7771 was on synthetic data and is not comparable (ML-01 to ML-07). |

@@ -1,0 +1,36 @@
+@startuml fig7_state
+!include _style.iuml
+skinparam StateBorderColor #1F3A5F
+skinparam StateBackgroundColor #F2F7FC
+title Figure 7 (Section 6.4). State Diagram: Household Program Status
+[*] --> ACTIVE_COMPLIANT : household enrolled\n(seed / ingest)
+state "ACTIVE_COMPLIANT\n(receiving grants)" as ACTIVE_COMPLIANT
+state "FLAGGED_FOR_REVIEW\n(waiting for dispatch)" as FLAGGED_FOR_REVIEW
+state "UNDER_INVESTIGATION\n(field visit assigned)" as UNDER_INVESTIGATION
+state "NOTICE_OF_INELIGIBILITY\n(15-day appeal window,\ngrants continue)" as NOTICE_OF_INELIGIBILITY
+state "GRADUATED\n(exits the program)" as GRADUATED
+
+ACTIVE_COMPLIANT --> FLAGGED_FOR_REVIEW : model assessment\nrisk score >= 70\n[no calamity hold, no 180-day cooldown]\n/ MODEL_FLAG_RAISED
+FLAGGED_FOR_REVIEW --> UNDER_INVESTIGATION : director dispatches a caseworker\nwho covers the barangay\n/ TASK_DISPATCHED
+UNDER_INVESTIGATION --> UNDER_INVESTIGATION : caseworker submits report\n[photo hash ok, GPS within 250 m]\n/ REPORT_SUBMITTED
+UNDER_INVESTIGATION --> ACTIVE_COMPLIANT : director keeps the household\n(report recommends RETAIN)\n/ BENEFICIARY_RETAINED
+UNDER_INVESTIGATION --> NOTICE_OF_INELIGIBILITY : director approves graduation\nand issues the notice\n/ BENEFICIARY_GRADUATED (notice)
+NOTICE_OF_INELIGIBILITY --> GRADUATED : 15 days pass with no appeal,\nor hearing outcome DENIED\n/ BENEFICIARY_GRADUATED
+NOTICE_OF_INELIGIBILITY --> ACTIVE_COMPLIANT : hearing outcome GRANTED\n/ BENEFICIARY_RETAINED
+GRADUATED --> [*]
+note right of NOTICE_OF_INELIGIBILITY
+  Filing an appeal pauses graduation
+  (APPEAL_FILED) until the hearing
+  outcome is recorded.
+end note
+note left of ACTIVE_COMPLIANT
+  After a retention, the model may not
+  flag the household again for 180 days.
+end note
+note bottom of FLAGGED_FOR_REVIEW
+  Every arrow is one database transaction
+  that also writes one SHA-256 audit block.
+  Any other move is refused
+  (INVALID_STATUS_TRANSITION).
+end note
+@enduml
