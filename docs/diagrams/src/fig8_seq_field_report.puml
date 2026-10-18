@@ -23,7 +23,7 @@ API -> API : JWT, role CASE_WORKER,\nown task, jurisdiction, Joi
 API -> S : submit(report, photo)
 S -> S : re-hash photo == client hash?\nGPS within 250 m of the house?
 alt check fails (4xx)
-  S --> API : 400 / 409 (e.g. GEOFENCE)
+  S --> API : 4xx: 422 GEOFENCE_VIOLATION,\n409 TASK_NOT_SUBMITTABLE (already sent)
   API --> P : error
   P -> IDB : mark ERROR\n("Rejected by server", no retry)
 else checks pass
